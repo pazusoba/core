@@ -1,4 +1,4 @@
-#include "solver.h"
+#include "lib/solver.h"
 #include <iostream>
 
 int main() {

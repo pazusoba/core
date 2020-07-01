@@ -15,7 +15,7 @@ PadSolver::PadSolver() {
 void PadSolver::readBoard() {
     std::string lines;
 
-    std::ifstream boardFile("Board.txt");
+    std::ifstream boardFile("assets/sample_board.txt");
     while (getline(boardFile, lines)) {
         // Ignore lines that start with `//`
         if (lines.find("//") == 0) continue;
