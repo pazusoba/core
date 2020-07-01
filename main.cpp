@@ -1,5 +1,5 @@
-#include "lib/solver.h"
 #include <iostream>
+#include "lib/solver.h"
 
 int main(int argc, char* argv[]) {
     std::string filePath = "assets/sample_board.txt";
