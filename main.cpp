@@ -1,8 +1,14 @@
 #include "lib/solver.h"
 #include <iostream>
 
-int main() {
-    PadSolver solver = PadSolver("assets/sample_board.txt");
+int main(int argc, char* argv[]) {
+    std::string filePath = "assets/sample_board.txt";
+    // Read from command line
+    if (argc > 1) {
+        filePath = argv[1];
+    }
+
+    PadSolver solver = PadSolver(filePath);
     solver.printBoard();
     std::cout << solver.getMaxCombo() << " combo\n";
 
