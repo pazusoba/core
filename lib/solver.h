@@ -29,7 +29,7 @@ namespace pad {
  */
 class PadSolver {
     public:
-        PadSolver();
+        PadSolver(std::string filePath);
 
         /**
          * Print out a board nicely formatted
@@ -49,7 +49,12 @@ class PadSolver {
         /**
          * Read orbs from board.txt
          */
-        void readBoard();
+        void readBoard(std::string filePath);
+
+        /**
+         * Check if the file is empty or doesn't exists
+         */
+        bool isEmptyFile();
 };
 
 #endif

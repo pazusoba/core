@@ -8,14 +8,14 @@
 #include <sstream>
 #include "solver.h"
 
-PadSolver::PadSolver() {
-    readBoard();
+PadSolver::PadSolver(std::string filePath) {
+    readBoard(filePath);
 }
 
-void PadSolver::readBoard() {
+void PadSolver::readBoard(std::string filePath) {
     std::string lines;
 
-    std::ifstream boardFile("assets/sample_board.txt");
+    std::ifstream boardFile(filePath);
     while (getline(boardFile, lines)) {
         // Ignore lines that start with `//`
         if (lines.find("//") == 0) continue;
@@ -38,6 +38,11 @@ void PadSolver::readBoard() {
 }
 
 void PadSolver::printBoard() {
+    if (isEmptyFile()) {
+        std::cout << "- empty -\n";
+        return;
+    }
+
     // Print everything out nicely
     std::cout << column << " x " << row << std::endl;
     int counter = 0;
@@ -50,6 +55,8 @@ void PadSolver::printBoard() {
 }
 
 int PadSolver::getMaxCombo() {
+    if (isEmptyFile()) return 0;
+
     int combo = 0;
 
     int *counter = new int[pad::ORB_COUNT] {0};
@@ -66,4 +73,8 @@ int PadSolver::getMaxCombo() {
     delete[] counter;
 
     return combo;
+}
+
+bool PadSolver::isEmptyFile() {
+    return column == 0 && row == 0;
 }
