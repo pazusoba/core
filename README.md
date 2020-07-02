@@ -8,3 +8,8 @@ This is written on a windows computer so it is using `mingw`. On Mac or Linux, y
 ~~~shell
 $ mingw32-make.exe
 ~~~
+
+## Resources
+I will some more resources and probably see how others solve this problem.
+
+- https://www.slideshare.net/mobile/tnkt37/6-37838644
