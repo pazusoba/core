@@ -2,7 +2,7 @@
 #include "lib/solver.h"
 
 int main(int argc, char* argv[]) {
-    std::string filePath = "assets/sample_board.txt";
+    std::string filePath = "assets/sample_board_76.txt";
     // Read from command line
     if (argc > 1) {
         filePath = argv[1];

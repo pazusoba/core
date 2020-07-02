@@ -1,6 +1,6 @@
 # build
 build:
-	g++ main.cpp lib/solver.cpp
+	g++ -Wall -Werror main.cpp lib/solver.cpp
 
 run:
 	./a.exe

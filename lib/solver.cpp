@@ -44,7 +44,7 @@ void PadSolver::printBoard() {
     }
 
     // Print everything out nicely
-    std::cout << column << " x " << row << std::endl;
+    std::cout << row << " x " << column << std::endl;
     int counter = 0;
     for (int orb : board) {
         counter++;
