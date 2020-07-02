@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
         filePath = argv[1];
     }
 
-    PadSolver solver = PadSolver(filePath);
+    PadSolver solver(filePath);
     solver.printBoard();
     std::cout << solver.getMaxCombo() << " combo\n";
 

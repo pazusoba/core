@@ -29,12 +29,13 @@ size = board.split('x')
 # column first and then row
 column = int(size[0])
 row = int(size[1])
-print(row, column)
 
 # start generating files
 for i in range(0, repeat):
-    filename = 'board_' + str(uuid.uuid4().hex) + '.txt'
+    # just make it short, the original is too long
+    filename = 'board_{}{}_{}.txt'.format(column, row, uuid.uuid4().hex[:6])
     with open(filename, 'w') as f:
+        f.write('// {} x {}\n'.format(column, row))
         for j in range(0, row):
             for k in range(0, column):
                 # pick a random value from ORBS

@@ -22,12 +22,13 @@ void PadSolver::readBoard(std::string filePath) {
 
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
-        while (ss.good()) {
+        while (ss.good() && !ss.eof()) {
             // Only add one to row if we are in the first column, 
             // the size is fixed so there won't be a row with a different number of orbs
             if (column == 0) row++;
             // Read it out as a number
             int a = 0; ss >> a;
+
             // Convert int into orbs
             board.push_back(pad::orbs(a));
         }
