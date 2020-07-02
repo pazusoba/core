@@ -25,9 +25,13 @@ void PadSolver::readBoard(std::string filePath) {
         // Ignore lines that start with `//`
         if (lines.find("//") == 0) continue;
 
+        // Remove trailing spaces by substr, +1 for substr (to include the char before space)
+        int index = lines.find_last_not_of(" ") + 1;
+        lines = lines.substr(0, index);
+
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
-        while (ss.good() && !ss.eof()) {
+        while (ss.good()) {
             // Only add one to row if we are in the first column, 
             // the size is fixed so there won't be a row with a different number of orbs
             if (column == 0) row++;
