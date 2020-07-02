@@ -9,13 +9,23 @@ namespace pad {
      * 
      * seal is a tape over a row and orbs cannot move,
      * disabled means it will not get erased even if connected.
-     * 
-     * Also, consider weight because it can be quite important
      */
     enum orbs { empty, fire, water, wood, light, dark, recovery, jammer, bomb, poison, poison_plus, seal, disabled };
     const int ORB_COUNT = 13;
     // For displaying the orb name
     const std::string ORB_NAMES[ORB_COUNT] = { "Empty", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
+
+    // TODO: consider weight to adjust the heuristic
+
+    /**
+     * This is the MAX STEPS for 5 seconds, the default time
+     * 
+     * New player -> 3 - 4 steps per second 
+     * Intermediate player -> 7 - 9 steps per second 
+     * Pro player -> 13 - 15 steps per second 
+     * Bot player -> 20 steps per second
+     */
+    const int MAX_STEPS = 100;
 }
 
 #endif
