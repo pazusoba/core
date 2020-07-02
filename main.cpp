@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
     PadSolver solver(filePath);
     solver.printBoard();
     std::cout << solver.getMaxCombo() << " combo\n";
+    solver.printBoardInfo();
 
     return 0;
 }

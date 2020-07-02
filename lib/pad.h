@@ -15,7 +15,7 @@ namespace pad {
     enum orbs { empty, fire, water, wood, light, dark, recovery, jammer, bomb, poison, poison_plus, seal, disabled };
     const int ORB_COUNT = 13;
     // For displaying the orb name
-    const std::string ORB_NAMES[ORB_COUNT] = { "Empty", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "---", "-X-"};
+    const std::string ORB_NAMES[ORB_COUNT] = { "Empty", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
 }
 
 #endif

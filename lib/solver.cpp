@@ -12,6 +12,11 @@ PadSolver::PadSolver(std::string filePath) {
     readBoard(filePath);
 }
 
+PadSolver::~PadSolver() {
+    // Just clear the board
+    board.clear();
+}
+
 void PadSolver::readBoard(std::string filePath) {
     std::string lines;
 
@@ -52,7 +57,27 @@ void PadSolver::printBoard() {
         std::cout << pad::ORB_NAMES[orb] << "\t";
         if (counter % row == 0) std::cout << std::endl;
     }
+}
 
+void PadSolver::printBoardInfo() {
+    if (isEmptyFile()) {
+        std::cout << "no info\n";
+        return;
+    }
+
+    // Collect orb info
+    int *counter = new int[pad::ORB_COUNT] {0};
+    for (auto orb : board) counter[orb]++;
+
+    // Print out some board info
+    for (int i = 0; i < pad::ORB_COUNT; i++) {
+        // It is just like fire x 5 wood x 6
+        std::cout << counter[i] << " x " << pad::ORB_NAMES[i];
+        if (i != pad::ORB_COUNT - 1) std::cout << " || ";
+    }
+    std::cout << std::endl;
+
+    delete[] counter;
 }
 
 int PadSolver::getMaxCombo() {

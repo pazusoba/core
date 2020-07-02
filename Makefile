@@ -15,8 +15,8 @@ all:
 	mingw32-make.exe run
 
 # get 20 boards of all sizes
-generate_board:
+board_gen:
 	python assets/board_gen.py 7x6 20
 	python assets/board_gen.py 6x5 20
 	python assets/board_gen.py 5x4 20
-	move board_*.txt assets/
+	move /y board_*.txt assets/

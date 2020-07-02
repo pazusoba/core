@@ -16,11 +16,17 @@
 class PadSolver {
     public:
         PadSolver(std::string filePath);
+        ~PadSolver();
 
         /**
          * Print out a board nicely formatted
          */
         void printBoard();
+
+        /**
+         * Print out some info about the board we have
+         */
+        void printBoardInfo();
 
         /**
          * Calculate max combo from a list of orbs
