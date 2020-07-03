@@ -12,6 +12,10 @@ PadSolver::PadSolver(std::string filePath) {
     readBoard(filePath);
 }
 
+PadSolver::PadSolver(std::string filePath, int minEraseCondition): PadSolver(filePath) {
+    this -> minEraseCondition = minEraseCondition;
+}
+
 PadSolver::~PadSolver() {
     for (auto row : board) {
         // Clean all rows inside
@@ -71,6 +75,7 @@ void PadSolver::printBoard() {
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
 }
 
 void PadSolver::printBoardInfo() {
@@ -92,15 +97,17 @@ void PadSolver::printBoardInfo() {
     }
     std::cout << std::endl;
 
+    std::cout << "Board max combo: " << getBoardMaxCombo() << std::endl;
+    std::cout << "Current max combo: " << getMaxCombo(counter) << std::endl;
+
     delete[] counter;
 }
 
-int PadSolver::getMaxCombo() {
+int PadSolver::getMaxCombo(int *counter) {
     if (isEmptyFile()) return 0;
 
     int comboCounter = 0;
 
-    int *counter = collectOrbCount();
     int moreComboCount;
     do {
         // Reset this flag everytime
@@ -110,12 +117,12 @@ int PadSolver::getMaxCombo() {
         int maxOrbCounter = 0;
 
         for (int i = 0 ; i < pad::ORB_COUNT; i++) {
-            // Keep -3 until all orbs are less than 2
+            // Keep -3 or other minEraseCondition (4, 5) until all orbs are less than 2
             int curr = counter[i];
-            if (curr >= 3) {
+            if (curr >= minEraseCondition) {
                 moreComboCount += 1;
                 comboCounter++;
-                counter[i] -= 3;
+                counter[i] -= minEraseCondition;
                 if (curr > maxOrbCounter) maxOrbCounter = curr;
             } else {
                 orbLeft += curr;
@@ -125,8 +132,8 @@ int PadSolver::getMaxCombo() {
         // Only one colour can do combo now
         if (moreComboCount == 1) {
             // Orbs left are in different colour but they can still seperate other colours
-            int maxComboPossible = orbLeft / 3;
-            int maxCombo = maxOrbCounter / 3;
+            int maxComboPossible = orbLeft / minEraseCondition;
+            int maxCombo = maxOrbCounter / minEraseCondition;
             // Make sure there are enough orbs
             comboCounter += maxCombo > maxComboPossible ? maxComboPossible : maxCombo;
 
@@ -136,9 +143,11 @@ int PadSolver::getMaxCombo() {
         }
     } while (moreComboCount > 0);
 
-    delete[] counter;
-
     return comboCounter;
+}
+
+int PadSolver::getBoardMaxCombo() {
+    return row * column / minEraseCondition;
 }
 
 bool PadSolver::isEmptyFile() {

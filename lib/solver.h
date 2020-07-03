@@ -17,6 +17,8 @@ class PadSolver {
     private:
         int row = 0;
         int column = 0;
+        // This tells the soler how to erase orb (by default, erase orbs if 3 of them are connected)
+        int minEraseCondition = 3;
         // This saves all orbs in a 2D array, support all orb types
         std::vector<std::vector<pad::orbs>> board;
 
@@ -24,6 +26,18 @@ class PadSolver {
          * Read orbs from board.txt
          */
         void readBoard(std::string filePath);
+
+        /**
+         * Calculate max combo from a list of orbs.
+         * NOTE that this is not the true MAX COMBO possible,
+         * but it represents the max combo an averge player can do.
+         */
+        int getMaxCombo(int* counter);
+
+        /**
+         * Max combo is simply row x column / 3
+         */
+        int getBoardMaxCombo();
 
         /**
          * Check if the file is empty or doesn't exists
@@ -36,6 +50,7 @@ class PadSolver {
         int* collectOrbCount();
     public:
         PadSolver(std::string filePath);
+        PadSolver(std::string filePath, int minEraseCondition);
         ~PadSolver();
 
         /**
@@ -47,13 +62,6 @@ class PadSolver {
          * Print out some info about the board we have
          */
         void printBoardInfo();
-
-        /**
-         * Calculate max combo from a list of orbs.
-         * NOTE that this is not the true MAX COMBO possible,
-         * but it represents the max combo an averge player can do.
-         */
-        int getMaxCombo();
 };
 
 #endif
