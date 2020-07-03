@@ -12,6 +12,8 @@ int main(int argc, char* argv[]) {
     auto solver = handleInput(argc, argv);
 
     solver -> printBoard();
+    solver -> updateBoard();
+    solver -> printBoard();
     solver -> printBoardInfo();
 
     delete solver;
@@ -19,7 +21,7 @@ int main(int argc, char* argv[]) {
 }
 
 PadSolver* handleInput(int argc, char* argv[]) {
-    std::string filePath = "assets/sample_board_65_11_fire.txt";
+    std::string filePath = "assets/sample_board_76_empty.txt";
     int minEraseCondition = 3;
 
     // Read from command line

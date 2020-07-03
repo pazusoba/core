@@ -48,6 +48,7 @@ class PadSolver {
          * Loop through the vector and count the number of each orbs
          */
         int* collectOrbCount();
+
     public:
         PadSolver(std::string filePath);
         PadSolver(std::string filePath, int minEraseCondition);
@@ -62,6 +63,16 @@ class PadSolver {
          * Print out some info about the board we have
          */
         void printBoardInfo();
+        
+        /**
+         * Solve current board
+         */
+        void solveBoard();
+
+        /**
+         * Update current board, if an orb has an empty orb below, move it down
+         */
+        void updateBoard();
 };
 
 #endif

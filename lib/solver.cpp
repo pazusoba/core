@@ -61,6 +61,23 @@ void PadSolver::readBoard(std::string filePath) {
     boardFile.close();
 }
 
+void PadSolver::solveBoard() {
+
+}
+
+void PadSolver::updateBoard() {
+    // row -1 because there is no need to update the bottom row
+    for (int i = 0 ; i < row - 1; i++) {
+        for (int j = 0; j < column; j++) {
+            auto current = board[i][j];
+            if (pad::empty == board[i + 1][j]) {
+                board[i + 1][j] = current;
+                board[i][j] = pad::empty;
+            }
+        }
+    }
+}
+
 void PadSolver::printBoard() {
     if (isEmptyFile()) {
         std::cout << "- empty -\n";
@@ -145,6 +162,8 @@ int PadSolver::getMaxCombo(int *counter) {
 
     return comboCounter;
 }
+
+/// Utils
 
 int PadSolver::getBoardMaxCombo() {
     return row * column / minEraseCondition;
