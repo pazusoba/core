@@ -81,6 +81,7 @@ void PadSolver::solveBoard()
     // Erase orbs and move the board down
     while (eraseOrbs() > 0)
     {
+        printBoard();
         moveOrbsDown();
         printBoard();
     }
@@ -183,6 +184,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
             break;
         }
     }
+    // Now, we only need to check if there are at least 3 (4 or 5) orbs vertically
     // Less than the condition, -1 to remove the duplicate (which is the current orb)
     if (upOrb + downOrb - 1 < minEraseCondition)
         vOrbs.clear();
@@ -204,7 +206,9 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
             rightOrb++;
         }
         else
+        {
             break;
+        }
     }
     if (leftOrb + rightOrb - 1 < minEraseCondition)
         hOrbs.clear();
