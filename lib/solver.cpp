@@ -98,43 +98,47 @@ void PadSolver::printBoardInfo() {
 int PadSolver::getMaxCombo() {
     if (isEmptyFile()) return 0;
 
-    int combo = 0;
+    int comboCounter = 0;
 
     int *counter = collectOrbCount();
-    int moreCombo;
+    int moreComboCount;
     do {
         // Reset this flag everytime
-        moreCombo = 0;
+        moreComboCount = 0;
         // This tracks how many orbs are left
         int orbLeft = 0;
+        int maxOrbCounter = 0;
 
         for (int i = 0 ; i < pad::ORB_COUNT; i++) {
             // Keep -3 until all orbs are less than 2
             int curr = counter[i];
             if (curr >= 3) {
-                moreCombo += 1;
-                combo++;
+                moreComboCount += 1;
+                comboCounter++;
                 counter[i] -= 3;
+                if (curr > maxOrbCounter) maxOrbCounter = curr;
             } else {
                 orbLeft += curr;
             }
         }
 
-        // TODO: this is better but it might break if the main colour doesn't have enough orbs
-
         // Only one colour can do combo now
-        if (moreCombo == 1) {
+        if (moreComboCount == 1) {
             // Orbs left are in different colour but they can still seperate other colours
-            combo += orbLeft / 3;
+            int maxComboPossible = orbLeft / 3;
+            int maxCombo = maxOrbCounter / 3;
+            // Make sure there are enough orbs
+            comboCounter += maxCombo > maxComboPossible ? maxComboPossible : maxCombo;
+
             // No orbs left means one colour, -1 here because we count one more but doesn't apply to a single colour board
-            if (orbLeft > 0) combo--;
+            if (orbLeft > 0) comboCounter--;
             break;
         }
-    } while (moreCombo > 0);
+    } while (moreComboCount > 0);
 
     delete[] counter;
 
-    return combo;
+    return comboCounter;
 }
 
 bool PadSolver::isEmptyFile() {
