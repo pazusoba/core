@@ -8,6 +8,8 @@
 #include <sstream>
 #include "solver.h"
 
+/// Constrcutors
+
 PadSolver::PadSolver(std::string filePath) {
     readBoard(filePath);
 }
@@ -24,6 +26,8 @@ PadSolver::~PadSolver() {
     // Clean the board
     board.clear();
 }
+
+/// Board related
 
 void PadSolver::readBoard(std::string filePath) {
     std::string lines;
@@ -62,7 +66,11 @@ void PadSolver::readBoard(std::string filePath) {
 }
 
 void PadSolver::solveBoard() {
-
+    // TODO: update solve board
+    // Erase orbs and move the board down
+    while (eraseOrbs() > 0) {
+        moveOrbsDown();
+    }
 }
 
 void PadSolver::moveOrbsDown() {
@@ -82,6 +90,18 @@ void PadSolver::moveOrbsDown() {
         }
     }
     std::cout << "Board has been updated\n";
+}
+
+int PadSolver::eraseOrbs() {
+    int combo = 0;
+
+    return combo;
+}
+
+void PadSolver::swapOrbs(pad::orbs* first, pad::orbs* second) {
+    auto temp = *first;
+    *first = *second;
+    *second = *first;
 }
 
 void PadSolver::printBoard() {
@@ -126,6 +146,8 @@ void PadSolver::printBoardInfo() {
     delete[] counter;
 }
 
+/// Utils
+
 int PadSolver::getMaxCombo(int *counter) {
     if (isEmptyFile()) return 0;
 
@@ -168,8 +190,6 @@ int PadSolver::getMaxCombo(int *counter) {
 
     return comboCounter;
 }
-
-/// Utils
 
 int PadSolver::getBoardMaxCombo() {
     return row * column / minEraseCondition;

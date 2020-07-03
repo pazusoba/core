@@ -28,6 +28,22 @@ class PadSolver {
         void readBoard(std::string filePath);
 
         /**
+         * Move orbs down if there is an empty orb below
+         */
+        void moveOrbsDown();
+
+        /**
+         * Erase orbs that are connected in a line.
+         * return - the number of combos
+         */
+        int eraseOrbs();
+
+        /**
+         * Swap the value of two orbs
+         */
+        void swapOrbs(pad::orbs* first, pad::orbs* second);
+
+        /**
          * Calculate max combo from a list of orbs.
          * NOTE that this is not the true MAX COMBO possible,
          * but it represents the max combo an averge player can do.
@@ -68,11 +84,6 @@ class PadSolver {
          * Solve current board
          */
         void solveBoard();
-
-        /**
-         * Move orbs down if there is an empty orb below
-         */
-        void moveOrbsDown();
 };
 
 #endif
