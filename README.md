@@ -12,4 +12,5 @@ $ mingw32-make.exe
 ## Resources
 I will some more resources and probably see how others solve this problem.
 
-- https://www.slideshare.net/mobile/tnkt37/6-37838644
+- https://www.slideshare.net/mobile/tnkt37/6-37838644, tnkt37さんのスライド
+- http://maaak.net/pad/ for simulation
