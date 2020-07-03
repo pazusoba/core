@@ -41,4 +41,4 @@ for i in range(0, repeat):
                 # pick a random value from ORBS
                 f.write(str(random.choice(ORBS)) + ' ')
             f.write('\n')
-    f.close()
+        f.close()

@@ -13,7 +13,11 @@ PadSolver::PadSolver(std::string filePath) {
 }
 
 PadSolver::~PadSolver() {
-    // Just clear the board
+    for (auto row : board) {
+        // Clean all rows inside
+        row.clear();
+    }
+    // Clean the board
     board.clear();
 }
 
@@ -29,6 +33,8 @@ void PadSolver::readBoard(std::string filePath) {
         int index = lines.find_last_not_of(" ") + 1;
         lines = lines.substr(0, index);
 
+        // This is for storing this new row
+        std::vector<pad::orbs> boardRow;
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
         while (ss.good()) {
@@ -39,11 +45,15 @@ void PadSolver::readBoard(std::string filePath) {
             int a = 0; ss >> a;
 
             // Convert int into orbs
-            board.push_back(pad::orbs(a));
+            boardRow.push_back(pad::orbs(a));
         }
+
+        // Add this row to the board
+        board.push_back(boardRow);
 
         column++;
     }
+    
     boardFile.close();
 }
 
@@ -55,11 +65,11 @@ void PadSolver::printBoard() {
 
     // Print everything out nicely
     std::cout << row << " x " << column << std::endl;
-    int counter = 0;
-    for (int orb : board) {
-        counter++;
-        std::cout << pad::ORB_NAMES[orb] << "\t";
-        if (counter % row == 0) std::cout << std::endl;
+    for (auto row : board) {
+        for (auto orb : row) {
+            std::cout << pad::ORB_NAMES[orb] << "\t";
+        }
+        std::cout << std::endl;
     }
 }
 
@@ -71,13 +81,17 @@ void PadSolver::printBoardInfo() {
 
     // Collect orb info
     int *counter = new int[pad::ORB_COUNT] {0};
-    for (auto orb : board) counter[orb]++;
+    for (auto row : board) {
+        for (auto orb : row) counter[orb]++;
+    }
 
     // Print out some board info
     for (int i = 0; i < pad::ORB_COUNT; i++) {
+        int count = counter[i];
+        if (count == 0) continue;
         // It is just like fire x 5 wood x 6
-        std::cout << counter[i] << " x " << pad::ORB_NAMES[i];
-        if (i != pad::ORB_COUNT - 1) std::cout << " || ";
+        std::cout << count << " x " << pad::ORB_NAMES[i];
+        if (i != pad::ORB_COUNT - 1) std::cout << " | ";
     }
     std::cout << std::endl;
 
@@ -90,14 +104,16 @@ int PadSolver::getMaxCombo() {
     int combo = 0;
 
     int *counter = new int[pad::ORB_COUNT] {0};
-    for (auto orb : board) {
-        counter[orb]++;
-        // TODO: this is a naive way of getting max combo. If the entire board only has one type, it only has one combo
-        // You can make one combo with 3 orbs
-        if (counter[orb] == 3) {
-            combo++;
-            // Reset current counter
-            counter[orb] = 0;
+    for (auto row : board) {
+        for (auto orb : row) {
+            counter[orb]++;
+            // TODO: this is a naive way of getting max combo. If the entire board only has one type, it only has one combo
+            // You can make one combo with 3 orbs
+            if (counter[orb] == 3) {
+                combo++;
+                // Reset current counter
+                counter[orb] = 0;
+            }
         }
     }
     delete[] counter;
