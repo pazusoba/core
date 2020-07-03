@@ -6,30 +6,34 @@
  * 
  * It handles user input from the console, mainly board file and min erase condition
  */
-PadSolver* handleInput(int, char**);
+PadSolver *handleInput(int, char **);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     auto solver = handleInput(argc, argv);
 
-    solver -> printBoard();
+    solver->printBoard();
     // Now, it only erases all combo
-    solver -> solveBoard();
-    solver -> printBoard();
-    solver -> printBoardInfo();
+    solver->solveBoard();
+    solver->printBoard();
+    solver->printBoardInfo();
 
     delete solver;
     return 0;
 }
 
-PadSolver* handleInput(int argc, char* argv[]) {
+PadSolver *handleInput(int argc, char *argv[])
+{
     std::string filePath = "assets/sample_board_76_erase.txt";
     int minEraseCondition = 3;
 
     // Read from command line
-    if (argc > 1) {
+    if (argc > 1)
+    {
         filePath = argv[1];
     }
-    if (argc > 2) {
+    if (argc > 2)
+    {
         minEraseCondition = atoi(argv[2]);
     }
 

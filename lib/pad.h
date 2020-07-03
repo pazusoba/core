@@ -3,17 +3,33 @@
 
 #include <string>
 
-namespace pad {
+namespace pad
+{
     /**
      * All orbs in the game.
      * 
      * seal is a tape over a row and orbs cannot move,
      * disabled means it will not get erased even if connected.
      */
-    enum orbs { empty, fire, water, wood, light, dark, recovery, jammer, bomb, poison, poison_plus, seal, disabled };
+    enum orbs
+    {
+        empty,
+        fire,
+        water,
+        wood,
+        light,
+        dark,
+        recovery,
+        jammer,
+        bomb,
+        poison,
+        poison_plus,
+        seal,
+        disabled
+    };
     const int ORB_COUNT = 13;
     // For displaying the orb name
-    const std::string ORB_NAMES[ORB_COUNT] = { "", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
+    const std::string ORB_NAMES[ORB_COUNT] = {"", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
 
     // TODO: consider weight to adjust the heuristic
 
@@ -26,6 +42,6 @@ namespace pad {
      * Bot player -> 20 steps per second
      */
     const int MAX_STEPS = 100;
-}
+} // namespace pad
 
 #endif
