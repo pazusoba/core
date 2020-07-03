@@ -83,7 +83,7 @@ void PadSolver::solveBoard()
     int newCombo = eraseOrbs();
     while (newCombo > 0) {
         combo += newCombo;
-        // printBoard();
+        printBoard();
         moveOrbsDown();
         newCombo = eraseOrbs();
     }

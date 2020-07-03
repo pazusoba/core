@@ -30,6 +30,11 @@ private:
     void readBoard(std::string filePath);
 
     /**
+         * Rate current board. This is the heuristic
+         */
+    int rateBoard();
+
+    /**
          * Move orbs down if there is an empty orb below
          */
     void moveOrbsDown();
