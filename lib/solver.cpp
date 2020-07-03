@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <set>
 #include "solver.h"
 
 /// Constrcutors
@@ -95,30 +96,40 @@ void PadSolver::moveOrbsDown() {
 int PadSolver::eraseOrbs() {
     int combo = 0;
 
+    // Collect all orbs that connected
+    std::set<std::pair<int, int>> connectedOrbs;
+    // All orbs that should be erased
+    std::vector<std::pair<int, int>> erasableOrbs;
+    
     for (int i = column - 1; i >= 0; i--) {
         for (int j = 0; j < row; j++) {
             auto curr = board[i][j];
             // Ignore empty orbs
             if (curr == pad::empty) continue;
 
-            // Collect all orbs that connected
-            std::vector<std::pair<int, int>> connectedOrbs;
-            // All orbs that should be erased
-            std::vector<std::pair<int, int>> erasableOrbs;
+            // Reset all saved orbs
+            connectedOrbs.clear();
+            erasableOrbs.clear();
 
             // Add curr orb to start the loop
-            connectedOrbs.push_back(std::pair(i, j));
+            connectedOrbs.insert(std::make_pair(i, j));
             // Here we need to have a loop to find all connected orbs which have the same colour.
             // Also, we need to determine whether it can be erased (it must at least meet the minEraseCondition)
             while (connectedOrbs.size() > 0) {
-                auto currXY = connectedOrbs.end();
+                auto currXY = connectedOrbs.begin();
+                auto thisOrb = board[currXY -> first][currXY -> second];
+                if (shouldEraseOrb(currXY -> first, currXY -> second)) erasableOrbs.push_back(*currXY);
+                if (hasSameOrb(i - 1, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j - 1));
+                if (hasSameOrb(i - 1, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j + 1));
+                if (hasSameOrb(i + 1, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j - 1));
+                if (hasSameOrb(i + 1, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j + 1));
 
                 // Remove the last item
-                connectedOrbs.pop_back();
+                connectedOrbs.erase(currXY);
             }
 
             // Erase everything inside the list
-            if (erasableOrbs.size() >= minEraseCondition) {
+            if ((int)erasableOrbs.size() >= minEraseCondition) {
                 for (auto xy : erasableOrbs) {
                     board[xy.first][xy.second] = pad::empty;
                 }
@@ -137,39 +148,43 @@ bool PadSolver::shouldEraseOrb(int x, int y) {
     // Check upwards
     int up = x;
     int upOrb = 0;
-    while (up-- >= 0) {
-        if (board[up][y] == curr) upOrb;
+    while (up >= 0) {
+        if (board[up][y] == curr) upOrb++;
+        up--;
     }
     if (upOrb >= minEraseCondition) return true;
 
     // Check downwards
     int down = x;
     int downOrb = 0;
-    while (down++ < column) {
-        if (board[down][y] == curr) downOrb;
+    while (down < column) {
+        if (board[down][y] == curr) downOrb++;
+        down++;
     }
     if (downOrb >= minEraseCondition) return true;
     // If curr orb is in between
-    if (upOrb + downOrb >= minEraseCondition) return true;
+    if (upOrb + downOrb + 1 >= minEraseCondition) return true;
 
     // Check horizontally
     // Check left side
     int left = y;
     int leftOrb = 0;
-    while (left-- >= 0) {
-        if (board[down][y] == curr) downOrb;
+    while (left >= 0) {
+        if (board[down][y] == curr) downOrb++;
+        left--;
     }
     if (leftOrb >= minEraseCondition) return true;
 
     // Check right side
     int right = y;
     int rightOrb = 0;
-    while (right++ < row) {
-        if (board[up][y] == curr) upOrb;
+    while (right < row) {
+        if (board[up][y] == curr) upOrb++;
+        right++;
     }
     if (rightOrb >= minEraseCondition) return true;
     // If curr orb is in between
-    if (leftOrb + rightOrb >= minEraseCondition) return true;
+    if (leftOrb + rightOrb + 1 >= minEraseCondition) return true;
 
     return false;
 }
