@@ -119,20 +119,22 @@ int PadSolver::eraseOrbs() {
                 auto currXY = connectedOrbs.begin();
                 auto thisOrb = board[currXY -> first][currXY -> second];
                 if (shouldEraseOrb(currXY -> first, currXY -> second)) erasableOrbs.push_back(*currXY);
-                if (hasSameOrb(i - 1, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j - 1));
-                if (hasSameOrb(i - 1, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j + 1));
-                if (hasSameOrb(i + 1, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j - 1));
-                if (hasSameOrb(i + 1, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j + 1));
+                if (hasSameOrb(i, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j - 1));
+                if (hasSameOrb(i, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j + 1));
+                if (hasSameOrb(i + 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j));
+                if (hasSameOrb(i - 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j));
 
                 // Remove the last item
                 connectedOrbs.erase(currXY);
             }
 
             // Erase everything inside the list
+            if (erasableOrbs.size() > 0) combo++;
             for (auto xy : erasableOrbs) {
                 board[xy.first][xy.second] = pad::empty;
             }
-            combo++;
+
+            printBoard();
         }
     }
 
@@ -144,19 +146,21 @@ bool PadSolver::shouldEraseOrb(int x, int y) {
 
     // Check vertically
     // Check upwards
-    int up = x;
+    int up = x - 1;
     int upOrb = 0;
     while (up >= 0) {
         if (board[up][y] == curr) upOrb++;
+        else break;
         up--;
     }
     if (upOrb >= minEraseCondition) return true;
 
     // Check downwards
-    int down = x;
+    int down = x + 1;
     int downOrb = 0;
     while (down < column) {
         if (board[down][y] == curr) downOrb++;
+        else break;
         down++;
     }
     if (downOrb >= minEraseCondition) return true;
@@ -165,19 +169,21 @@ bool PadSolver::shouldEraseOrb(int x, int y) {
 
     // Check horizontally
     // Check left side
-    int left = y;
+    int left = y - 1;
     int leftOrb = 0;
     while (left >= 0) {
-        if (board[down][y] == curr) downOrb++;
+        if (board[x][left] == curr) leftOrb++;
+        else break;
         left--;
     }
     if (leftOrb >= minEraseCondition) return true;
 
     // Check right side
-    int right = y;
+    int right = y + 1;
     int rightOrb = 0;
     while (right < row) {
-        if (board[up][y] == curr) upOrb++;
+        if (board[x][right] == curr) rightOrb++;
+        else break;
         right++;
     }
     if (rightOrb >= minEraseCondition) return true;
@@ -188,7 +194,7 @@ bool PadSolver::shouldEraseOrb(int x, int y) {
 }
 
 bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb) {
-    if (x > 0 && x < column && y > 0 && y < row) {
+    if (x >= 0 && x < column && y >= 0 && y < row) {
         return board[x][y] == orb;
     }
 
