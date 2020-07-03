@@ -79,11 +79,16 @@ void PadSolver::solveBoard()
 {
     // TODO: update solve board
     // Erase orbs and move the board down
-    while (eraseOrbs() > 0)
-    {
-        printBoard();
+    int combo = 0;
+    int newCombo = eraseOrbs();
+    while (newCombo > 0) {
+        combo += newCombo;
+        // printBoard();
         moveOrbsDown();
+        newCombo = eraseOrbs();
     }
+
+    std::cout << "That was " << combo << " combo\n";
 }
 
 void PadSolver::moveOrbsDown()
