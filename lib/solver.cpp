@@ -113,25 +113,29 @@ int PadSolver::eraseOrbs() {
 
             // Add curr orb to start the loop
             connectedOrbs.insert(std::make_pair(i, j));
+
             // Here we need to have a loop to find all connected orbs which have the same colour.
             // Also, we need to determine whether it can be erased (it must at least meet the minEraseCondition)
-            while (connectedOrbs.size() > 0) {
-                auto currXY = connectedOrbs.begin();
-                auto thisOrb = board[currXY -> first][currXY -> second];
-                if (shouldEraseOrb(currXY -> first, currXY -> second)) erasableOrbs.push_back(*currXY);
+            auto pair = connectedOrbs.begin();
+            while (pair != connectedOrbs.end()) {
+                auto thisOrb = board[pair -> first][pair -> second];
+                pair++;
                 if (hasSameOrb(i, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j - 1));
                 if (hasSameOrb(i, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j + 1));
                 if (hasSameOrb(i + 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j));
                 if (hasSameOrb(i - 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j));
-
-                // Remove the last item
-                connectedOrbs.erase(currXY);
             }
 
-            // Erase everything inside the list
-            if (erasableOrbs.size() > 0) combo++;
-            for (auto xy : erasableOrbs) {
-                board[xy.first][xy.second] = pad::empty;
+            // Check if all connected orbs can be erased
+            if ((int)connectedOrbs.size() >= minEraseCondition) {
+                bool didErase = false;
+                for (auto xy: connectedOrbs) {
+                    if (shouldEraseOrb(xy.first, xy.second)) {
+                        board[xy.first][xy.second] = pad::empty;
+                        didErase = true;
+                    }
+                }
+                if (didErase) combo++;
             }
 
             printBoard();
