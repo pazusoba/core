@@ -70,9 +70,9 @@ class PadSolver {
         void solveBoard();
 
         /**
-         * Update current board, if an orb has an empty orb below, move it down
+         * Move orbs down if there is an empty orb below
          */
-        void updateBoard();
+        void moveOrbsDown();
 };
 
 #endif

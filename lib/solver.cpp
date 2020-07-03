@@ -65,17 +65,23 @@ void PadSolver::solveBoard() {
 
 }
 
-void PadSolver::updateBoard() {
-    // row -1 because there is no need to update the bottom row
-    for (int i = 0 ; i < row - 1; i++) {
-        for (int j = 0; j < column; j++) {
-            auto current = board[i][j];
-            if (pad::empty == board[i + 1][j]) {
-                board[i + 1][j] = current;
-                board[i][j] = pad::empty;
+void PadSolver::moveOrbsDown() {
+    // we start from the second last row -1 and also convert to index so -2
+    // i can be 0 for the first row or the first row won't be updated
+    for (int i = column - 2; i >= 0; i--) {
+        for (int j = 0; j < row; j++) {
+            // Keep checking if bottom orb is empty until it is not or out of bound
+            int k = 1;
+            while (i + k < column && pad::empty == board[i + k][j]) {
+                // k - 1 because you want to compare with the orb right below
+                // k is increasing so k - 1 is the orb below (if you don't do it, nothing will be updated)
+                board[i + k][j] = board[i + k - 1][j];
+                board[i + k - 1][j] = pad::empty;
+                k += 1;
             }
         }
     }
+    std::cout << "Board has been updated\n";
 }
 
 void PadSolver::printBoard() {

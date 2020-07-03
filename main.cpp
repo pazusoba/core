@@ -12,7 +12,8 @@ int main(int argc, char* argv[]) {
     auto solver = handleInput(argc, argv);
 
     solver -> printBoard();
-    solver -> updateBoard();
+    // Test if orbs can fall down
+    // solver -> moveOrbsDown();
     solver -> printBoard();
     solver -> printBoardInfo();
 
