@@ -165,21 +165,28 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
     std::set<std::pair<int, int>> vOrbs;
     int up = x, down = x;
     int upOrb = 1, downOrb = 1;
-    while (up >= 0 || down < column)
+    while (--up >= 0)
     {
-        if (--up >= 0 && board[up][y] == curr)
+        if (board[up][y] == curr)
         {
             vOrbs.insert(std::make_pair(up, y));
             upOrb++;
         }
-        else if (++down < column && board[down][y] == curr)
+        else
+        {
+            // Break immediately if nothing matches
+            break;
+        }
+    }
+    while (++down < column)
+    {
+        if (board[down][y] == curr)
         {
             vOrbs.insert(std::make_pair(down, y));
             downOrb++;
         }
         else
         {
-            // Break immediately if nothing matches
             break;
         }
     }
@@ -192,14 +199,21 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
     std::set<std::pair<int, int>> hOrbs;
     int left = y, right = y;
     int leftOrb = 1, rightOrb = 1;
-    while (left >= 0 || right < row)
+    while (--left >= 0)
     {
-        if (--left >= 0 && board[x][left] == curr)
+        if (board[x][left] == curr)
         {
             hOrbs.insert(std::make_pair(x, left));
             leftOrb++;
         }
-        else if (++right < row && board[x][right] == curr)
+        else
+        {
+            break;
+        }
+    }
+    while (++right < row)
+    {
+        if (board[x][right] == curr)
         {
             hOrbs.insert(std::make_pair(x, right));
             rightOrb++;
@@ -209,6 +223,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
             break;
         }
     }
+    // Same as above
     if (leftOrb + rightOrb - 1 < minEraseCondition)
         hOrbs.clear();
 
