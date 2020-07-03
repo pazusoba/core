@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "pad.h"
 
 /**
@@ -40,9 +41,9 @@ class PadSolver {
 
         /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
-         * return - true as soon as it meets the condition
+         * return - a set of xy that can be erased
          */
-        bool shouldEraseOrb(int x, int y);
+        std::set<std::pair<int, int>> findSameOrbsAround(int x, int y);
 
         /**
          * Check whether the orb at (x, y) is the same as orb.

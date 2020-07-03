@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <set>
 #include "solver.h"
 
 /// Constrcutors
@@ -71,6 +70,7 @@ void PadSolver::solveBoard() {
     // Erase orbs and move the board down
     while (eraseOrbs() > 0) {
         moveOrbsDown();
+        printBoard();
     }
 }
 
@@ -96,10 +96,8 @@ void PadSolver::moveOrbsDown() {
 int PadSolver::eraseOrbs() {
     int combo = 0;
 
-    // Collect all orbs that connected
-    std::set<std::pair<int, int>> connectedOrbs;
-    // All orbs that should be erased
-    std::vector<std::pair<int, int>> erasableOrbs;
+    // Collect all orbs that can be erased
+    std::set<std::pair<int, int>> orbs;
     
     for (int i = column - 1; i >= 0; i--) {
         for (int j = 0; j < row; j++) {
@@ -107,94 +105,69 @@ int PadSolver::eraseOrbs() {
             // Ignore empty orbs
             if (curr == pad::empty) continue;
 
-            // Reset all saved orbs
-            connectedOrbs.clear();
-            erasableOrbs.clear();
-
-            // Add curr orb to start the loop
-            connectedOrbs.insert(std::make_pair(i, j));
-
-            // Here we need to have a loop to find all connected orbs which have the same colour.
-            // Also, we need to determine whether it can be erased (it must at least meet the minEraseCondition)
-            auto pair = connectedOrbs.begin();
-            while (pair != connectedOrbs.end()) {
-                auto thisOrb = board[pair -> first][pair -> second];
-                pair++;
-                if (hasSameOrb(i, j - 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j - 1));
-                if (hasSameOrb(i, j + 1, thisOrb)) connectedOrbs.insert(std::make_pair(i, j + 1));
-                if (hasSameOrb(i + 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i + 1, j));
-                if (hasSameOrb(i - 1, j, thisOrb)) connectedOrbs.insert(std::make_pair(i - 1, j));
+            // vertical and horizontal orbs
+            auto vhOrbs = findSameOrbsAround(i, j);
+            // Here we need to loop throufh vhOrbs and check all orbs to see if there are orbs that can be erased
+            auto it = vhOrbs.begin();
+            while (it != vhOrbs.end()) {
+                auto newOrbs = findSameOrbsAround(it -> first, it -> second);
+                vhOrbs.insert(newOrbs.begin(), newOrbs.end());
+                it++;
             }
 
-            // Check if all connected orbs can be erased
-            if ((int)connectedOrbs.size() >= minEraseCondition) {
-                bool didErase = false;
-                for (auto xy: connectedOrbs) {
-                    if (shouldEraseOrb(xy.first, xy.second)) {
-                        board[xy.first][xy.second] = pad::empty;
-                        didErase = true;
-                    }
+            // There should be orbs inside
+            if ((int)vhOrbs.size() > 0) {
+                for (auto xy: vhOrbs) {
+                    board[xy.first][xy.second] = pad::empty;
                 }
-                if (didErase) combo++;
+                combo++;
             }
-
-            printBoard();
         }
     }
 
     return combo;
 }
 
-bool PadSolver::shouldEraseOrb(int x, int y) {
+std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y) {
     auto curr = board[x][y];
 
     // Check vertically
-    // Check upwards
-    int up = x - 1;
-    int upOrb = 0;
-    while (up >= 0) {
-        if (board[up][y] == curr) upOrb++;
-        else break;
-        up--;
+    std::set<std::pair<int, int>> vOrbs;
+    int up = x, down = x;
+    int upOrb = 1, downOrb = 1;
+    while (up >= 0 || down < column) {
+        if (--up >= 0 && board[up][y] == curr) {
+            vOrbs.insert(std::make_pair(up, y));
+            upOrb++;
+        } else if (++down < column && board[down][y] == curr) {
+            vOrbs.insert(std::make_pair(down, y));
+            downOrb++;
+        } else {
+            // Break immediately if nothing matches
+            break;
+        }
     }
-    if (upOrb >= minEraseCondition) return true;
-
-    // Check downwards
-    int down = x + 1;
-    int downOrb = 0;
-    while (down < column) {
-        if (board[down][y] == curr) downOrb++;
-        else break;
-        down++;
-    }
-    if (downOrb >= minEraseCondition) return true;
-    // If curr orb is in between
-    if (upOrb + downOrb + 1 >= minEraseCondition) return true;
+    // Less than the condition, -1 to remove the duplicate (which is the current orb)
+    if (upOrb + downOrb - 1 < minEraseCondition) vOrbs.clear();
 
     // Check horizontally
-    // Check left side
-    int left = y - 1;
-    int leftOrb = 0;
-    while (left >= 0) {
-        if (board[x][left] == curr) leftOrb++;
-        else break;
-        left--;
+    std::set<std::pair<int, int>> hOrbs;
+    int left = y, right = y;
+    int leftOrb = 1, rightOrb = 1;
+    while (left >= 0 || right < row) {
+        if (--left >= 0 && board[x][left] == curr) {
+            hOrbs.insert(std::make_pair(x, left));
+            leftOrb++;
+        } else if (++right < row && board[x][right] == curr) {
+            hOrbs.insert(std::make_pair(x, right));
+            rightOrb++;
+        } else break;
     }
-    if (leftOrb >= minEraseCondition) return true;
+    if (leftOrb + rightOrb - 1 < minEraseCondition) hOrbs.clear();
 
-    // Check right side
-    int right = y + 1;
-    int rightOrb = 0;
-    while (right < row) {
-        if (board[x][right] == curr) rightOrb++;
-        else break;
-        right++;
-    }
-    if (rightOrb >= minEraseCondition) return true;
-    // If curr orb is in between
-    if (leftOrb + rightOrb + 1 >= minEraseCondition) return true;
-
-    return false;
+    // Merge vertical and horizontal all to vertical
+    vOrbs.insert(hOrbs.begin(), hOrbs.end());
+    return vOrbs;
 }
 
 bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb) {
