@@ -83,7 +83,6 @@ void PadSolver::solveBoard()
     {
         printBoard();
         moveOrbsDown();
-        printBoard();
     }
 }
 
@@ -143,8 +142,8 @@ int PadSolver::eraseOrbs()
                 it++;
             }
 
-            // There should be orbs inside
-            if ((int)vhOrbs.size() > 0)
+            // There should be orbs inside, check if the size is more than minEraseCondition (it was causing some issues)
+            if ((int)vhOrbs.size() >= minEraseCondition)
             {
                 for (auto xy : vhOrbs)
                 {

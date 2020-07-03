@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     // Now, it only erases all combo
     solver->solveBoard();
     solver->printBoard();
-    solver->printBoardInfo();
+    // solver->printBoardInfo();
 
     delete solver;
     return 0;
