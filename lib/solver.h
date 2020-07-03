@@ -29,6 +29,11 @@ class PadSolver {
          * Check if the file is empty or doesn't exists
          */
         bool isEmptyFile();
+
+        /**
+         * Loop through the vector and count the number of each orbs
+         */
+        int* collectOrbCount();
     public:
         PadSolver(std::string filePath);
         ~PadSolver();
@@ -44,7 +49,9 @@ class PadSolver {
         void printBoardInfo();
 
         /**
-         * Calculate max combo from a list of orbs
+         * Calculate max combo from a list of orbs.
+         * NOTE that this is not the true MAX COMBO possible,
+         * but it represents the max combo an averge player can do.
          */
         int getMaxCombo();
 };

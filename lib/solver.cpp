@@ -53,7 +53,7 @@ void PadSolver::readBoard(std::string filePath) {
 
         column++;
     }
-    
+
     boardFile.close();
 }
 
@@ -80,10 +80,7 @@ void PadSolver::printBoardInfo() {
     }
 
     // Collect orb info
-    int *counter = new int[pad::ORB_COUNT] {0};
-    for (auto row : board) {
-        for (auto orb : row) counter[orb]++;
-    }
+    int *counter = collectOrbCount();
 
     // Print out some board info
     for (int i = 0; i < pad::ORB_COUNT; i++) {
@@ -103,19 +100,23 @@ int PadSolver::getMaxCombo() {
 
     int combo = 0;
 
-    int *counter = new int[pad::ORB_COUNT] {0};
-    for (auto row : board) {
-        for (auto orb : row) {
-            counter[orb]++;
-            // TODO: this is a naive way of getting max combo. If the entire board only has one type, it only has one combo
-            // You can make one combo with 3 orbs
-            if (counter[orb] == 3) {
+    int *counter = collectOrbCount();
+    int moreCombo = 0;
+    do {
+        // Reset more combo
+        moreCombo = 0;
+
+        for (int i = 0 ; i < pad::ORB_COUNT; i++) {
+            // Keep -3 until all orbs are less than 2
+            int curr = counter[i];
+            if (curr >= 3) {
+                moreCombo += 1;
                 combo++;
-                // Reset current counter
-                counter[orb] = 0;
+                counter[i] -= 3;
             }
-        }
-    }
+        }        
+    } while (moreCombo > 0);
+
     delete[] counter;
 
     return combo;
@@ -123,4 +124,14 @@ int PadSolver::getMaxCombo() {
 
 bool PadSolver::isEmptyFile() {
     return column == 0 && row == 0;
+}
+
+int* PadSolver::collectOrbCount() {
+    int *counter = new int[pad::ORB_COUNT] {0};
+    for (auto row : board) {
+        for (auto orb : row) {
+            counter[orb]++;
+        }
+    }
+    return counter;
 }
