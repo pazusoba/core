@@ -131,8 +131,14 @@ int PadSolver::eraseOrbs()
             auto it = vhOrbs.begin();
             while (it != vhOrbs.end())
             {
-                auto newOrbs = findSameOrbsAround(it->first, it->second);
-                vhOrbs.insert(newOrbs.begin(), newOrbs.end());
+                auto nextOrb = nextSameOrbAround(it->first, it->second, &vhOrbs);
+                // Only search if there are new orbs
+                if (nextOrb != NULL)
+                {
+                    auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
+                    vhOrbs.insert(newOrbs.begin(), newOrbs.end());
+                }
+                delete nextOrb;
                 it++;
             }
 
@@ -208,21 +214,48 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-bool PadSolver::hasSameOrbAround(int x, int y, std::set<std::pair<int, int>> vhOrbs)
+std::pair<int, int> *PadSolver::nextSameOrbAround(int x, int y, std::set<std::pair<int, int>> *vhOrbs)
 {
     auto orb = board[x][y];
-    if (hasSameOrb(x - 1, y, orb)) {
-        
+
+    // Find up, down, left and right
+    auto pair = new std::pair<int, int>;
+    if (hasSameOrb(x - 1, y, orb))
+    {
+        *pair = std::make_pair(x - 1, y);
+        if (vhOrbs->find(*pair) != vhOrbs->end())
+            return pair;
+    }
+    if (hasSameOrb(x + 1, y, orb))
+    {
+        *pair = std::make_pair(x + 1, y);
+        if (vhOrbs->find(*pair) != vhOrbs->end())
+            return pair;
+    }
+    if (hasSameOrb(x, y - 1, orb))
+    {
+        *pair = std::make_pair(x, y - 1);
+        if (vhOrbs->find(*pair) != vhOrbs->end())
+            return pair;
+    }
+    if (hasSameOrb(x, y + 1, orb))
+    {
+        *pair = std::make_pair(x, y + 1);
+        if (vhOrbs->find(*pair) != vhOrbs->end())
+            return pair;
     }
 
-    return false;
+    return NULL;
 }
 
-bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb) {
+bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb)
+{
     if (x >= 0 && x < column && y >= 0 && y < row)
     {
         return board[x][y] == orb;
     }
+
+    return false;
 }
 
 void PadSolver::swapOrbs(pad::orbs *first, pad::orbs *second)

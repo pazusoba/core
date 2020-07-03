@@ -48,8 +48,9 @@ private:
 
     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
+         * return - a pair pointer that should be checked next
          */
-    bool hasSameOrbAround(int x, int y, std::set<std::pair<int, int>> vhOrbs);
+    std::pair<int, int>* nextSameOrbAround(int x, int y, std::set<std::pair<int, int>>* vhOrbs);
 
     /**
          * Check if orb at (x, y) has the same orb
