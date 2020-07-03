@@ -39,6 +39,19 @@ class PadSolver {
         int eraseOrbs();
 
         /**
+         * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
+         * return - true as soon as it meets the condition
+         */
+        bool shouldEraseOrb(int x, int y);
+
+        /**
+         * Check whether the orb at (x, y) is the same as orb.
+         * This will check if (x, y) is a valid orb.
+         * x and y starts from 0, top left
+         */
+        bool hasSameOrb(int x, int y, pad::orbs orb);
+
+        /**
          * Swap the value of two orbs
          */
         void swapOrbs(pad::orbs* first, pad::orbs* second);
