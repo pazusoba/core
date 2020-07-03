@@ -129,12 +129,10 @@ int PadSolver::eraseOrbs() {
             }
 
             // Erase everything inside the list
-            if ((int)erasableOrbs.size() >= minEraseCondition) {
-                for (auto xy : erasableOrbs) {
-                    board[xy.first][xy.second] = pad::empty;
-                }
-                combo++;
+            for (auto xy : erasableOrbs) {
+                board[xy.first][xy.second] = pad::empty;
             }
+            combo++;
         }
     }
 
@@ -230,7 +228,7 @@ void PadSolver::printBoardInfo() {
     int *counter = collectOrbCount();
 
     // Print out some board info
-    for (int i = 0; i < pad::ORB_COUNT; i++) {
+    for (int i = 1; i < pad::ORB_COUNT; i++) {
         int count = counter[i];
         if (count == 0) continue;
         // It is just like fire x 5 wood x 6
@@ -260,7 +258,7 @@ int PadSolver::getMaxCombo(int *counter) {
         int orbLeft = 0;
         int maxOrbCounter = 0;
 
-        for (int i = 0 ; i < pad::ORB_COUNT; i++) {
+        for (int i = 1 ; i < pad::ORB_COUNT; i++) {
             // Keep -3 or other minEraseCondition (4, 5) until all orbs are less than 2
             int curr = counter[i];
             if (curr >= minEraseCondition) {
