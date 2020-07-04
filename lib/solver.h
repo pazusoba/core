@@ -43,6 +43,9 @@ private:
      // This saves all orbs in a 2D array, support all orb types
      Board board;
 
+     // When it is true, more messages will be printed to the console
+     bool printMoreMessages = false;
+
      /**
          * Read orbs from board.txt
          */
