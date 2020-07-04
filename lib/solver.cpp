@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include "solver.h"
 
 /// Constrcutors
@@ -75,20 +76,34 @@ void PadSolver::readBoard(std::string filePath)
     boardFile.close();
 }
 
-void PadSolver::solveBoard()
-{
-    // TODO: update solve board
+int PadSolver::rateBoard() {
+    int score = 0;
+
     // Erase orbs and move the board down
     int combo = 0;
+    // How many times does the board updates
+    int moveCount = 0;
     int newCombo = eraseOrbs();
     while (newCombo > 0) {
         combo += newCombo;
         printBoard();
         moveOrbsDown();
         newCombo = eraseOrbs();
+        moveCount++;
     }
 
+    // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
+    score += pow(10, minEraseCondition) * (combo + moveCount);
+
     std::cout << "That was " << combo << " combo\n";
+    return score;
+}
+
+void PadSolver::solveBoard()
+{
+    // TODO: update solve board, now it only rate the board
+    int score = rateBoard();
+    std::cout << "Score was " << score << " pt\n";
 }
 
 void PadSolver::moveOrbsDown()
