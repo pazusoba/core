@@ -141,6 +141,7 @@ void PadSolver::solveBoard()
             // Move around
         }
     }
+    
     printBoard(&board);
     auto copy = board;
     int score = rateBoard(&copy);

@@ -1,3 +1,8 @@
+/**
+ * pad.h
+ * by Yiheng Quan
+ */
+
 #ifndef PAD_H
 #define PAD_H
 
