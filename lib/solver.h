@@ -11,7 +11,8 @@
 #include <set>
 #include "pad.h"
 
-typedef std::pair<int, int> Pair; 
+typedef std::pair<int, int> Pair;
+typedef std::vector<std::vector<pad::orbs>> Board;
 
 /**
  * This solve the board 
@@ -24,7 +25,7 @@ private:
     // This tells the soler how to erase orb (by default, erase orbs if 3 of them are connected)
     int minEraseCondition = 3;
     // This saves all orbs in a 2D array, support all orb types
-    std::vector<std::vector<pad::orbs>> board;
+    Board board;
 
     /**
          * Read orbs from board.txt
