@@ -136,12 +136,19 @@ int PadSolver::eraseOrbs()
             auto it = vhOrbs.begin();
             while (it != vhOrbs.end())
             {
+                // nextOrb is a pointer to the next pair
                 auto nextOrb = nextSameOrbAround(it->first, it->second, &vhOrbs);
                 // Only search if there are new orbs
                 if (nextOrb != NULL)
                 {
                     auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
+                    if (newOrbs.size() > 0) {
+                        // There are at least some orbs around it reset and continue
+                        // TODO: ideally you want to start from new orbs but how to achieve it?
+                        it = vhOrbs.begin();
+                        continue;
+                    }
                 }
                 delete nextOrb;
                 it++;
@@ -168,6 +175,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
 
     // Check vertically
     std::set<std::pair<int, int>> vOrbs;
+    vOrbs.insert(std::make_pair(x, y));
     int up = x, down = x;
     int upOrb = 1, downOrb = 1;
     while (--up >= 0)
@@ -202,6 +210,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
 
     // Check horizontally
     std::set<std::pair<int, int>> hOrbs;
+    hOrbs.insert(std::make_pair(x, y));
     int left = y, right = y;
     int leftOrb = 1, rightOrb = 1;
     while (--left >= 0)
@@ -246,25 +255,25 @@ std::pair<int, int> *PadSolver::nextSameOrbAround(int x, int y, std::set<std::pa
     if (hasSameOrb(x - 1, y, orb))
     {
         *pair = std::make_pair(x - 1, y);
-        if (vhOrbs->find(*pair) != vhOrbs->end())
+        if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x + 1, y, orb))
     {
         *pair = std::make_pair(x + 1, y);
-        if (vhOrbs->find(*pair) != vhOrbs->end())
+        if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x, y - 1, orb))
     {
         *pair = std::make_pair(x, y - 1);
-        if (vhOrbs->find(*pair) != vhOrbs->end())
+        if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x, y + 1, orb))
     {
         *pair = std::make_pair(x, y + 1);
-        if (vhOrbs->find(*pair) != vhOrbs->end())
+        if (vhOrbs->count(*pair) == 0)
             return pair;
     }
 
