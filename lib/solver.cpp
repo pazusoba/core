@@ -119,7 +119,8 @@ int PadSolver::rateBoard(Board *board)
     while (newCombo > 0)
     {
         combo += newCombo;
-        if (printMoreMessages) printBoard(board);
+        if (printMoreMessages)
+            printBoard(board);
         moveOrbsDown(board);
         newCombo = eraseOrbs(board);
         moveCount++;
@@ -134,11 +135,17 @@ int PadSolver::rateBoard(Board *board)
 
 void PadSolver::solveBoard()
 {
-    // TODO: update solve board, now it only rate the board
+    // For now, start from 0, 0.
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            // Move around
+        }
+    }
     printBoard(&board);
     auto copy = board;
     int score = rateBoard(&copy);
-    if (printMoreMessages) printBoard(&copy);
+    if (printMoreMessages)
+        printBoard(&copy);
     std::cout << "Score was " << score << " pt\n";
 }
 
@@ -162,7 +169,8 @@ void PadSolver::moveOrbsDown(Board *board)
             }
         }
     }
-    if (printMoreMessages) std::cout << "Board has been updated\n";
+    if (printMoreMessages)
+        std::cout << "Board has been updated\n";
 }
 
 int PadSolver::eraseOrbs(Board *board)

@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
 PadSolver *handleInput(int argc, char *argv[])
 {
-    std::string filePath = "assets/sample_board_65_erase.txt";
+    std::string filePath = "assets/sample_board_65.txt";
     int minEraseCondition = 3;
 
     // Read from command line
