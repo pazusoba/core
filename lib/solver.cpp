@@ -143,6 +143,7 @@ int PadSolver::eraseOrbs()
                 {
                     auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
+                    // Must check if there are new orbs or it will be an infinite loop
                     if (newOrbs.size() > 0) {
                         // There are at least some orbs around it reset and continue
                         // TODO: ideally you want to start from new orbs but how to achieve it?
@@ -175,6 +176,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
 
     // Check vertically
     std::set<std::pair<int, int>> vOrbs;
+    // Add this orb first or another infinite loop
     vOrbs.insert(std::make_pair(x, y));
     int up = x, down = x;
     int upOrb = 1, downOrb = 1;
@@ -210,6 +212,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
 
     // Check horizontally
     std::set<std::pair<int, int>> hOrbs;
+    // Add it again just in case it was cleared
     hOrbs.insert(std::make_pair(x, y));
     int left = y, right = y;
     int leftOrb = 1, rightOrb = 1;
@@ -277,6 +280,8 @@ std::pair<int, int> *PadSolver::nextSameOrbAround(int x, int y, std::set<std::pa
             return pair;
     }
 
+    // Remember to release it
+    delete pair;
     return NULL;
 }
 
