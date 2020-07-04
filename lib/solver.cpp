@@ -76,15 +76,48 @@ void PadSolver::readBoard(std::string filePath)
     boardFile.close();
 }
 
-int PadSolver::rateBoard() {
+int PadSolver::rateBoard()
+{
     int score = 0;
 
-    // Erase orbs and move the board down
+    // Loop through each orbs and see if there similar orbs around it
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            auto curr = board[i][j];
+            // Check for same colour around in a 3x3 grid, curr orb is in the middle
+            int orbAround = 0;
+            int twoInLine = 0;
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (hasSameOrb(i + x, j + y, curr))
+                    {
+                        orbAround++;
+                        if ((x == 0 && ((y == 1) || (y == -1))) ||
+                            (y == 0 && ((x == 1) || (x == -1))))
+                        {
+                            twoInLine += 1;
+                        }
+                    }
+                }
+            }
+            // Having same colour orb nearby
+            score += pad::ORB_NEARBY_SCORE * orbAround;
+            // Two orbs in a line, easier to make combo
+            score += pad::ORB_AROUND_SCORE * twoInLine;
+        }
+    }
+
+    // total combo
     int combo = 0;
-    // How many times does the board updates
+    // I encourage cascade even if it does less combo
     int moveCount = 0;
     int newCombo = eraseOrbs();
-    while (newCombo > 0) {
+    while (newCombo > 0)
+    {
         combo += newCombo;
         printBoard();
         moveOrbsDown();
@@ -93,7 +126,7 @@ int PadSolver::rateBoard() {
     }
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
-    score += pow(10, minEraseCondition) * (combo + moveCount);
+    score += pad::ONE_COMBO_SCORE * (combo + moveCount);
 
     std::cout << "That was " << combo << " combo\n";
     return score;
@@ -159,7 +192,8 @@ int PadSolver::eraseOrbs()
                     auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
                     // Must check if there are new orbs or it will be an infinite loop
-                    if (newOrbs.size() > 0) {
+                    if (newOrbs.size() > 0)
+                    {
                         // There are at least some orbs around it reset and continue
                         // TODO: ideally you want to start from new orbs but how to achieve it?
                         it = vhOrbs.begin();

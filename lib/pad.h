@@ -42,6 +42,22 @@ namespace pad
      * Bot player -> 20 steps per second
      */
     const int MAX_STEPS = 100;
+
+    enum score
+    {
+        /**
+         * nearby means vertically, horizontally and diagonally
+         */
+        ORB_NEARBY_SCORE = 5,
+        /**
+         * nearby means only vertically and horizontally
+         */
+        ORB_AROUND_SCORE = 50,
+        /**
+         * score for a single combo
+         */
+        ONE_COMBO_SCORE = 1000,
+    };
 } // namespace pad
 
 #endif
