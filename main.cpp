@@ -12,11 +12,7 @@ int main(int argc, char *argv[])
 {
     auto solver = handleInput(argc, argv);
 
-    solver->printBoard();
-    // Now, it only erases all combo
     solver->solveBoard();
-    solver->printBoard();
-    // solver->printBoardInfo();
 
     delete solver;
     return 0;

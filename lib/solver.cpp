@@ -76,7 +76,7 @@ void PadSolver::readBoard(std::string filePath)
     boardFile.close();
 }
 
-int PadSolver::rateBoard()
+int PadSolver::rateBoard(Board *board)
 {
     int score = 0;
 
@@ -85,7 +85,7 @@ int PadSolver::rateBoard()
     {
         for (int j = 0; j < row; j++)
         {
-            auto curr = board[i][j];
+            auto curr = (*board)[i][j];
             // Check for same colour around in a 3x3 grid, curr orb is in the middle
             int orbAround = 0;
             int twoInLine = 0;
@@ -93,7 +93,7 @@ int PadSolver::rateBoard()
             {
                 for (int y = -1; y <= 1; y++)
                 {
-                    if (hasSameOrb(i + x, j + y, curr))
+                    if (hasSameOrb(board, i + x, j + y, curr))
                     {
                         orbAround++;
                         if ((x == 0 && ((y == 1) || (y == -1))) ||
@@ -115,13 +115,13 @@ int PadSolver::rateBoard()
     int combo = 0;
     // I encourage cascade even if it does less combo
     int moveCount = 0;
-    int newCombo = eraseOrbs();
+    int newCombo = eraseOrbs(board);
     while (newCombo > 0)
     {
         combo += newCombo;
-        printBoard();
-        moveOrbsDown();
-        newCombo = eraseOrbs();
+        printBoard(board);
+        moveOrbsDown(board);
+        newCombo = eraseOrbs(board);
         moveCount++;
     }
 
@@ -135,11 +135,13 @@ int PadSolver::rateBoard()
 void PadSolver::solveBoard()
 {
     // TODO: update solve board, now it only rate the board
-    int score = rateBoard();
+    printBoard(&board);
+    auto copy = board;
+    int score = rateBoard(&copy);
     std::cout << "Score was " << score << " pt\n";
 }
 
-void PadSolver::moveOrbsDown()
+void PadSolver::moveOrbsDown(Board *board)
 {
     // we start from the second last row -1 and also convert to index so -2
     // i can be 0 for the first row or the first row won't be updated
@@ -149,12 +151,12 @@ void PadSolver::moveOrbsDown()
         {
             // Keep checking if bottom orb is empty until it is not or out of bound
             int k = 1;
-            while (i + k < column && pad::empty == board[i + k][j])
+            while (i + k < column && pad::empty == (*board)[i + k][j])
             {
                 // k - 1 because you want to compare with the orb right below
                 // k is increasing so k - 1 is the orb below (if you don't do it, nothing will be updated)
-                board[i + k][j] = board[i + k - 1][j];
-                board[i + k - 1][j] = pad::empty;
+                (*board)[i + k][j] = (*board)[i + k - 1][j];
+                (*board)[i + k - 1][j] = pad::empty;
                 k += 1;
             }
         }
@@ -162,7 +164,7 @@ void PadSolver::moveOrbsDown()
     std::cout << "Board has been updated\n";
 }
 
-int PadSolver::eraseOrbs()
+int PadSolver::eraseOrbs(Board *board)
 {
     int combo = 0;
 
@@ -173,23 +175,23 @@ int PadSolver::eraseOrbs()
     {
         for (int j = 0; j < row; j++)
         {
-            auto curr = board[i][j];
+            auto curr = (*board)[i][j];
             // Ignore empty orbs
             if (curr == pad::empty)
                 continue;
 
             // vertical and horizontal orbs
-            auto vhOrbs = findSameOrbsAround(i, j);
+            auto vhOrbs = findSameOrbsAround(board, i, j);
             // Here we need to loop throufh vhOrbs and check all orbs to see if there are orbs that can be erased
             auto it = vhOrbs.begin();
             while (it != vhOrbs.end())
             {
                 // nextOrb is a pointer to the next pair
-                auto nextOrb = nextSameOrbAround(it->first, it->second, &vhOrbs);
+                auto nextOrb = nextSameOrbAround(board, it->first, it->second, &vhOrbs);
                 // Only search if there are new orbs
                 if (nextOrb != NULL)
                 {
-                    auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
+                    auto newOrbs = findSameOrbsAround(board, nextOrb->first, nextOrb->second);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
                     // Must check if there are new orbs or it will be an infinite loop
                     if (newOrbs.size() > 0)
@@ -209,7 +211,7 @@ int PadSolver::eraseOrbs()
             {
                 for (auto xy : vhOrbs)
                 {
-                    board[xy.first][xy.second] = pad::empty;
+                    (*board)[xy.first][xy.second] = pad::empty;
                 }
                 combo++;
             }
@@ -219,9 +221,9 @@ int PadSolver::eraseOrbs()
     return combo;
 }
 
-PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
+PadSolver::PairSet PadSolver::findSameOrbsAround(Board *board, int x, int y)
 {
-    auto curr = board[x][y];
+    auto curr = (*board)[x][y];
 
     // Check vertically
     PairSet vOrbs;
@@ -231,7 +233,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     int upOrb = 1, downOrb = 1;
     while (--up >= 0)
     {
-        if (board[up][y] == curr)
+        if ((*board)[up][y] == curr)
         {
             vOrbs.insert(PAIR(up, y));
             upOrb++;
@@ -244,7 +246,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     }
     while (++down < column)
     {
-        if (board[down][y] == curr)
+        if ((*board)[down][y] == curr)
         {
             vOrbs.insert(PAIR(down, y));
             downOrb++;
@@ -267,7 +269,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     int leftOrb = 1, rightOrb = 1;
     while (--left >= 0)
     {
-        if (board[x][left] == curr)
+        if ((*board)[x][left] == curr)
         {
             hOrbs.insert(PAIR(x, left));
             leftOrb++;
@@ -279,7 +281,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     }
     while (++right < row)
     {
-        if (board[x][right] == curr)
+        if ((*board)[x][right] == curr)
         {
             hOrbs.insert(PAIR(x, right));
             rightOrb++;
@@ -298,31 +300,31 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-PadSolver::Pair *PadSolver::nextSameOrbAround(int x, int y, PairSet *vhOrbs)
+PadSolver::Pair *PadSolver::nextSameOrbAround(Board *board, int x, int y, PairSet *vhOrbs)
 {
-    auto orb = board[x][y];
+    auto orb = (*board)[x][y];
 
     // Find up, down, left and right
     auto pair = new Pair;
-    if (hasSameOrb(x - 1, y, orb))
+    if (hasSameOrb(board, x - 1, y, orb))
     {
         *pair = PAIR(x - 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(x + 1, y, orb))
+    if (hasSameOrb(board, x + 1, y, orb))
     {
         *pair = PAIR(x + 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(x, y - 1, orb))
+    if (hasSameOrb(board, x, y - 1, orb))
     {
         *pair = PAIR(x, y - 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(x, y + 1, orb))
+    if (hasSameOrb(board, x, y + 1, orb))
     {
         *pair = PAIR(x, y + 1);
         if (vhOrbs->count(*pair) == 0)
@@ -334,11 +336,11 @@ PadSolver::Pair *PadSolver::nextSameOrbAround(int x, int y, PairSet *vhOrbs)
     return NULL;
 }
 
-bool PadSolver::hasSameOrb(int x, int y, Orb orb)
+bool PadSolver::hasSameOrb(Board *board, int x, int y, Orb orb)
 {
     if (x >= 0 && x < column && y >= 0 && y < row)
     {
-        return board[x][y] == orb;
+        return (*board)[x][y] == orb;
     }
 
     return false;
@@ -351,7 +353,7 @@ void PadSolver::swapOrbs(Orb *first, Orb *second)
     *second = temp;
 }
 
-void PadSolver::printBoard()
+void PadSolver::printBoard(Board *board)
 {
     if (isEmptyFile())
     {
@@ -361,7 +363,7 @@ void PadSolver::printBoard()
 
     // Print everything out nicely
     std::cout << row << " x " << column << std::endl;
-    for (auto row : board)
+    for (auto row : (*board))
     {
         for (auto orb : row)
         {
@@ -372,7 +374,7 @@ void PadSolver::printBoard()
     std::cout << std::endl;
 }
 
-void PadSolver::printBoardInfo()
+void PadSolver::printBoardInfo(Board *board)
 {
     if (isEmptyFile())
     {
@@ -381,7 +383,7 @@ void PadSolver::printBoardInfo()
     }
 
     // Collect orb info
-    int *counter = collectOrbCount();
+    int *counter = collectOrbCount(board);
 
     // Print out some board info
     for (int i = 1; i < pad::ORB_COUNT; i++)
@@ -467,10 +469,10 @@ bool PadSolver::isEmptyFile()
     return column == 0 && row == 0;
 }
 
-int *PadSolver::collectOrbCount()
+int *PadSolver::collectOrbCount(Board *board)
 {
     int *counter = new int[pad::ORB_COUNT]{0};
-    for (auto row : board)
+    for (auto row : (*board))
     {
         for (auto orb : row)
         {

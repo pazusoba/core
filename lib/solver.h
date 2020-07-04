@@ -18,7 +18,6 @@
 
 class PadSolver
 {
-
      /**
            * A pair of int and it is used to store the orb location
            */
@@ -55,35 +54,45 @@ private:
          * - two in a line (100pt)
          * - more coming soon
          */
-     int rateBoard();
+     int rateBoard(Board* board);
+
+     /**
+         * Print out a board nicely formatted
+         */
+     void printBoard(Board* board);
+
+     /**
+         * Print out some info about the board we have
+         */
+     void printBoardInfo(Board* board);
 
      /**
          * Move orbs down if there is an empty orb below
          */
-     void moveOrbsDown();
+     void moveOrbsDown(Board* board);
 
      /**
          * Erase orbs that are connected in a line.
          * return - the number of combos
          */
-     int eraseOrbs();
+     int eraseOrbs(Board* board);
 
      /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-     PairSet findSameOrbsAround(int x, int y);
+     PairSet findSameOrbsAround(Board* board, int x, int y);
 
      /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-     Pair *nextSameOrbAround(int x, int y, PairSet *vhOrbs);
+     Pair *nextSameOrbAround(Board* board, int x, int y, PairSet *vhOrbs);
 
      /**
          * Check if orb at (x, y) has the same orb
          */
-     bool hasSameOrb(int x, int y, Orb orb);
+     bool hasSameOrb(Board* board, int x, int y, Orb orb);
 
      /**
          * Swap the value of two orbs
@@ -110,22 +119,12 @@ private:
      /**
          * Loop through the vector and count the number of each orbs
          */
-     int *collectOrbCount();
+     int *collectOrbCount(Board* board);
 
 public:
      PadSolver(std::string filePath);
      PadSolver(std::string filePath, int minEraseCondition);
      ~PadSolver();
-
-     /**
-         * Print out a board nicely formatted
-         */
-     void printBoard();
-
-     /**
-         * Print out some info about the board we have
-         */
-     void printBoardInfo();
 
      /**
          * Solve current board
