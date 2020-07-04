@@ -134,7 +134,7 @@ int PadSolver::eraseOrbs()
     int combo = 0;
 
     // Collect all orbs that can be erased
-    std::set<std::pair<int, int>> orbs;
+    std::set<Pair> orbs;
 
     for (int i = column - 1; i >= 0; i--)
     {
@@ -185,12 +185,12 @@ int PadSolver::eraseOrbs()
     return combo;
 }
 
-std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
+std::set<Pair> PadSolver::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
 
     // Check vertically
-    std::set<std::pair<int, int>> vOrbs;
+    std::set<Pair> vOrbs;
     // Add this orb first or another infinite loop
     vOrbs.insert(std::make_pair(x, y));
     int up = x, down = x;
@@ -226,7 +226,7 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
         vOrbs.clear();
 
     // Check horizontally
-    std::set<std::pair<int, int>> hOrbs;
+    std::set<Pair> hOrbs;
     // Add it again just in case it was cleared
     hOrbs.insert(std::make_pair(x, y));
     int left = y, right = y;
@@ -264,12 +264,12 @@ std::set<std::pair<int, int>> PadSolver::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-std::pair<int, int> *PadSolver::nextSameOrbAround(int x, int y, std::set<std::pair<int, int>> *vhOrbs)
+Pair *PadSolver::nextSameOrbAround(int x, int y, std::set<Pair> *vhOrbs)
 {
     auto orb = board[x][y];
 
     // Find up, down, left and right
-    auto pair = new std::pair<int, int>;
+    auto pair = new Pair;
     if (hasSameOrb(x - 1, y, orb))
     {
         *pair = std::make_pair(x - 1, y);

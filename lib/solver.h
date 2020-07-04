@@ -11,6 +11,8 @@
 #include <set>
 #include "pad.h"
 
+typedef std::pair<int, int> Pair; 
+
 /**
  * This solve the board 
  */
@@ -52,13 +54,13 @@ private:
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-    std::set<std::pair<int, int>> findSameOrbsAround(int x, int y);
+    std::set<Pair> findSameOrbsAround(int x, int y);
 
     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-    std::pair<int, int>* nextSameOrbAround(int x, int y, std::set<std::pair<int, int>>* vhOrbs);
+    Pair* nextSameOrbAround(int x, int y, std::set<Pair>* vhOrbs);
 
     /**
          * Check if orb at (x, y) has the same orb
