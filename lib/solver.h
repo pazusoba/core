@@ -12,10 +12,13 @@
 #include "pad.h"
 
 /**
- * This solve the board 
+ * Shorten make_pair
  */
+#define PAIR(x, y) std::make_pair(x, y)
+
 class PadSolver
 {
+
      /**
            * A pair of int and it is used to store the orb location
            */
@@ -34,100 +37,100 @@ class PadSolver
      typedef std::vector<std::vector<Orb>> Board;
 
 private:
-    int row = 0;
-    int column = 0;
-    // This tells the soler how to erase orb (by default, erase orbs if 3 of them are connected)
-    int minEraseCondition = 3;
-    // This saves all orbs in a 2D array, support all orb types
-    Board board;
+     int row = 0;
+     int column = 0;
+     // This tells the soler how to erase orb (by default, erase orbs if 3 of them are connected)
+     int minEraseCondition = 3;
+     // This saves all orbs in a 2D array, support all orb types
+     Board board;
 
-    /**
+     /**
          * Read orbs from board.txt
          */
-    void readBoard(std::string filePath);
+     void readBoard(std::string filePath);
 
-    /**
+     /**
          * Rate current board. This is the heuristic
          * - three in a line (1000pt), based on 10^orb
          * - two in a line (100pt)
          * - more coming soon
          */
-    int rateBoard();
+     int rateBoard();
 
-    /**
+     /**
          * Move orbs down if there is an empty orb below
          */
-    void moveOrbsDown();
+     void moveOrbsDown();
 
-    /**
+     /**
          * Erase orbs that are connected in a line.
          * return - the number of combos
          */
-    int eraseOrbs();
+     int eraseOrbs();
 
-    /**
+     /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-    PairSet findSameOrbsAround(int x, int y);
+     PairSet findSameOrbsAround(int x, int y);
 
-    /**
+     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-    Pair* nextSameOrbAround(int x, int y, PairSet* vhOrbs);
+     Pair *nextSameOrbAround(int x, int y, PairSet *vhOrbs);
 
-    /**
+     /**
          * Check if orb at (x, y) has the same orb
          */
-    bool hasSameOrb(int x, int y, Orb orb);
+     bool hasSameOrb(int x, int y, Orb orb);
 
-    /**
+     /**
          * Swap the value of two orbs
          */
-    void swapOrbs(Orb *first, Orb *second);
+     void swapOrbs(Orb *first, Orb *second);
 
-    /**
+     /**
          * Calculate max combo from a list of orbs.
          * NOTE that this is not the true MAX COMBO possible,
          * but it represents the max combo an averge player can do.
          */
-    int getMaxCombo(int *counter);
+     int getMaxCombo(int *counter);
 
-    /**
+     /**
          * Max combo is simply row x column / 3
          */
-    int getBoardMaxCombo();
+     int getBoardMaxCombo();
 
-    /**
+     /**
          * Check if the file is empty or doesn't exists
          */
-    bool isEmptyFile();
+     bool isEmptyFile();
 
-    /**
+     /**
          * Loop through the vector and count the number of each orbs
          */
-    int *collectOrbCount();
+     int *collectOrbCount();
 
 public:
-    PadSolver(std::string filePath);
-    PadSolver(std::string filePath, int minEraseCondition);
-    ~PadSolver();
+     PadSolver(std::string filePath);
+     PadSolver(std::string filePath, int minEraseCondition);
+     ~PadSolver();
 
-    /**
+     /**
          * Print out a board nicely formatted
          */
-    void printBoard();
+     void printBoard();
 
-    /**
+     /**
          * Print out some info about the board we have
          */
-    void printBoardInfo();
+     void printBoardInfo();
 
-    /**
+     /**
          * Solve current board
          */
-    void solveBoard();
+     void solveBoard();
 };
 
 #endif

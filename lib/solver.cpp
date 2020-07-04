@@ -226,14 +226,14 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     // Check vertically
     PairSet vOrbs;
     // Add this orb first or another infinite loop
-    vOrbs.insert(std::make_pair(x, y));
+    vOrbs.insert(PAIR(x, y));
     int up = x, down = x;
     int upOrb = 1, downOrb = 1;
     while (--up >= 0)
     {
         if (board[up][y] == curr)
         {
-            vOrbs.insert(std::make_pair(up, y));
+            vOrbs.insert(PAIR(up, y));
             upOrb++;
         }
         else
@@ -246,7 +246,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     {
         if (board[down][y] == curr)
         {
-            vOrbs.insert(std::make_pair(down, y));
+            vOrbs.insert(PAIR(down, y));
             downOrb++;
         }
         else
@@ -262,14 +262,14 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     // Check horizontally
     PairSet hOrbs;
     // Add it again just in case it was cleared
-    hOrbs.insert(std::make_pair(x, y));
+    hOrbs.insert(PAIR(x, y));
     int left = y, right = y;
     int leftOrb = 1, rightOrb = 1;
     while (--left >= 0)
     {
         if (board[x][left] == curr)
         {
-            hOrbs.insert(std::make_pair(x, left));
+            hOrbs.insert(PAIR(x, left));
             leftOrb++;
         }
         else
@@ -281,7 +281,7 @@ PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
     {
         if (board[x][right] == curr)
         {
-            hOrbs.insert(std::make_pair(x, right));
+            hOrbs.insert(PAIR(x, right));
             rightOrb++;
         }
         else
@@ -306,25 +306,25 @@ PadSolver::Pair *PadSolver::nextSameOrbAround(int x, int y, PairSet *vhOrbs)
     auto pair = new Pair;
     if (hasSameOrb(x - 1, y, orb))
     {
-        *pair = std::make_pair(x - 1, y);
+        *pair = PAIR(x - 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x + 1, y, orb))
     {
-        *pair = std::make_pair(x + 1, y);
+        *pair = PAIR(x + 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x, y - 1, orb))
     {
-        *pair = std::make_pair(x, y - 1);
+        *pair = PAIR(x, y - 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(x, y + 1, orb))
     {
-        *pair = std::make_pair(x, y + 1);
+        *pair = PAIR(x, y + 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
