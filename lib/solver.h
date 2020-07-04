@@ -11,14 +11,28 @@
 #include <set>
 #include "pad.h"
 
-typedef std::pair<int, int> Pair;
-typedef std::vector<std::vector<pad::orbs>> Board;
-
 /**
  * This solve the board 
  */
 class PadSolver
 {
+     /**
+           * A pair of int and it is used to store the orb location
+           */
+     typedef std::pair<int, int> Pair;
+     /**
+           * A set contains Pairs, it is used to save orbs in the same colour
+           */
+     typedef std::set<Pair> PairSet;
+     /**
+           * Another name for orbs from pad.h
+           */
+     typedef pad::orbs Orb;
+     /**
+           * This is the board used to save all orbs
+           */
+     typedef std::vector<std::vector<Orb>> Board;
+
 private:
     int row = 0;
     int column = 0;
@@ -55,23 +69,23 @@ private:
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-    std::set<Pair> findSameOrbsAround(int x, int y);
+    PairSet findSameOrbsAround(int x, int y);
 
     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-    Pair* nextSameOrbAround(int x, int y, std::set<Pair>* vhOrbs);
+    Pair* nextSameOrbAround(int x, int y, PairSet* vhOrbs);
 
     /**
          * Check if orb at (x, y) has the same orb
          */
-    bool hasSameOrb(int x, int y, pad::orbs orb);
+    bool hasSameOrb(int x, int y, Orb orb);
 
     /**
          * Swap the value of two orbs
          */
-    void swapOrbs(pad::orbs *first, pad::orbs *second);
+    void swapOrbs(Orb *first, Orb *second);
 
     /**
          * Calculate max combo from a list of orbs.

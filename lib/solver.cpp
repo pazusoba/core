@@ -50,7 +50,7 @@ void PadSolver::readBoard(std::string filePath)
         lines = lines.substr(0, index);
 
         // This is for storing this new row
-        std::vector<pad::orbs> boardRow;
+        std::vector<Orb> boardRow;
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
         while (ss.good())
@@ -64,7 +64,7 @@ void PadSolver::readBoard(std::string filePath)
             ss >> a;
 
             // Convert int into orbs
-            boardRow.push_back(pad::orbs(a));
+            boardRow.push_back(Orb(a));
         }
 
         // Add this row to the board
@@ -167,7 +167,7 @@ int PadSolver::eraseOrbs()
     int combo = 0;
 
     // Collect all orbs that can be erased
-    std::set<Pair> orbs;
+    PairSet orbs;
 
     for (int i = column - 1; i >= 0; i--)
     {
@@ -219,12 +219,12 @@ int PadSolver::eraseOrbs()
     return combo;
 }
 
-std::set<Pair> PadSolver::findSameOrbsAround(int x, int y)
+PadSolver::PairSet PadSolver::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
 
     // Check vertically
-    std::set<Pair> vOrbs;
+    PairSet vOrbs;
     // Add this orb first or another infinite loop
     vOrbs.insert(std::make_pair(x, y));
     int up = x, down = x;
@@ -260,7 +260,7 @@ std::set<Pair> PadSolver::findSameOrbsAround(int x, int y)
         vOrbs.clear();
 
     // Check horizontally
-    std::set<Pair> hOrbs;
+    PairSet hOrbs;
     // Add it again just in case it was cleared
     hOrbs.insert(std::make_pair(x, y));
     int left = y, right = y;
@@ -298,7 +298,7 @@ std::set<Pair> PadSolver::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-Pair *PadSolver::nextSameOrbAround(int x, int y, std::set<Pair> *vhOrbs)
+PadSolver::Pair *PadSolver::nextSameOrbAround(int x, int y, PairSet *vhOrbs)
 {
     auto orb = board[x][y];
 
@@ -334,7 +334,7 @@ Pair *PadSolver::nextSameOrbAround(int x, int y, std::set<Pair> *vhOrbs)
     return NULL;
 }
 
-bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb)
+bool PadSolver::hasSameOrb(int x, int y, Orb orb)
 {
     if (x >= 0 && x < column && y >= 0 && y < row)
     {
@@ -344,7 +344,7 @@ bool PadSolver::hasSameOrb(int x, int y, pad::orbs orb)
     return false;
 }
 
-void PadSolver::swapOrbs(pad::orbs *first, pad::orbs *second)
+void PadSolver::swapOrbs(Orb *first, Orb *second)
 {
     auto temp = *first;
     *first = *second;
