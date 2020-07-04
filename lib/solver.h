@@ -14,7 +14,7 @@
 /**
  * Shorten make_pair
  */
-#define PAIR(x, y) std::make_pair(x, y)
+#define PAIR(x, y) (std::make_pair(x, y))
 
 class PadSolver
 {
