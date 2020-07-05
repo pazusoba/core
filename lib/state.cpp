@@ -28,16 +28,6 @@ bool State::isWorthy()
     if (step > maxStep)
         return false;
 
-    int expected = 0;
-    if (step > 5)
-    {
-        expected += step * 500;
-    }
-
-    // Must have more scores than parent
-    if (step > maxStep / 3 && parent->score / score > 0)
-        return false;
-
     if (score > maxScore)
     {
         std::cout << score << " - " << step << std::endl;
@@ -51,10 +41,17 @@ bool State::isWorthy()
             curr = curr->parent;
         }
         std::cout << "NULL\n\n";
+        return false;
+    }
+
+    int expected = 0;
+    if (step > 5)
+    {
+        expected += step * 500;
     }
 
     // TODO: now all states are fine but change this later
-    return expected / score <= 1;
+    return score > expected;
 }
 
 bool State::solve()
@@ -67,7 +64,8 @@ bool State::solve()
         for (int j = -1; j <= 1; j++)
         {
             // This is just current orb
-            if (i == 0 && j == 0) continue;
+            if (i == 0 && j == 0)
+                continue;
             auto next = LOCATION(current.first + i, current.second + j);
             // Must not go back to the parent or choose the same current and a valid location
             if (board->validLocation(next) && next != previous)
