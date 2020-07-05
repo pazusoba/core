@@ -34,6 +34,7 @@ std::string PadBoard::solve(int steps)
     auto start = LOCATION(0, 0);
     State rootState(this, start, start, 0, steps);
     rootState.solve();
+    rootState.printChildrenScore();
     return "Tree has been built";
 }
 
@@ -319,6 +320,8 @@ bool PadBoard::hasSameOrb(Orb orb, int x, int y)
 
 void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
 {
+    // TODO: all points should be valid why?
+    if (!validLocation(one) || !validLocation(two)) return;
     auto temp = ORB(board, one);
     ORB(board, one) = ORB(board, two);
     ORB(board, two) = temp;

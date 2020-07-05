@@ -3,6 +3,7 @@
  * by Yiheng Quan
  */
 
+#include <iostream>
 #include "state.h"
 
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep)
@@ -39,7 +40,7 @@ bool State::solve()
 
     for (int i = -1; i <= 1; i++)
     {
-        for (int j = -1; i <= 1; j++)
+        for (int j = -1; j <= 1; j++)
         {
             auto next = LOCATION(current.first + i, current.second + j);
             // Must not go back to the parent and a valid location
@@ -61,6 +62,14 @@ bool State::solve()
     revertBoard();
 
     return true;
+}
+
+void State::printChildrenScore() {
+    for (auto state: children) {
+        std::cout << score << " ";
+        state.printChildrenScore();
+    }
+    std::cout << std::endl;
 }
 
 void State::revertBoard()
