@@ -14,7 +14,7 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 
     this->board = board;
     this->score = copy.rateBoard();
-    // std::cout << score << " - " << step << std::endl;
+    std::cout << score << " - " << step << std::endl;
     this->parent = from;
     this->current = to;
     this->step = step;
@@ -26,14 +26,14 @@ bool State::isWorthy()
     // Stop immediately
     if (step > maxStep)
     {
-        // board -> printBoard();
+        if (score > 13000) board -> printBoard();
         return false;
     }
 
     int expected = 0;
     if (step >= 5) {
         expected = 1000;
-        expected += (step - 5)*1200;
+        expected += (step - 5)*2500;
     }
     // TODO: now all states are fine but change this later
     return score > expected;
