@@ -14,11 +14,9 @@ class State
     typedef std::vector<State> StateTree;
 
     PadBoard *board;
-    // This is the previous orb and it moved to current orb
-    // Current must not move back to parent location
-    OrbLocation parent;
+
     // This is current orb which is active (the player is holding it)
-    OrbLocation current;
+    OrbLocation location;
     // This score shows how good the current board is
     int score;
     // This is the number of steps (depth)
@@ -35,7 +33,11 @@ class State
     bool isWorthy();
 
 public:
-    State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep);
+    // This is the previous orb and it moved to current orb
+    // Current must not move back to parent location
+    State* parent;
+    
+    State(PadBoard *board, State* from, OrbLocation to, int step, int maxStep);
 
     // Keep solving until max steps have been reached
     // return - true if it is worthy

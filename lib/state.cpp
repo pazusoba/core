@@ -9,13 +9,13 @@
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep)
 {
     // Update the board the moment this state is being created
-    board->swapLocation(from, to);
+    board->swapLocation(from->location, to);
     PadBoard copy = *board;
 
     this->board = board;
     this->score = copy.rateBoard();
     this->parent = from;
-    this->current = to;
+    this->location = to;
     this->step = step;
     this->maxStep = maxStep;
 }
@@ -25,18 +25,29 @@ bool State::isWorthy()
     // Stop immediately
     if (step > maxStep)
     {
-        if (score > 15000) {
-            board -> printBoard();
+        if (score > 15000)
+        {
+            board->printBoard();
             std::cout << score << " - " << step << std::endl;
-            board -> printBoardForSimulation();
+            board->printBoardForSimulation();
+
+            State *curr = this;
+            while (curr != NULL)
+            {
+                auto loc = curr->location;
+                std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
+                curr = curr->parent;
+            }
+            std::cout << "NULL\n";
         }
         return false;
     }
 
     int expected = 0;
-    if (step >= 5) {
+    if (step >= 5)
+    {
         expected = 1000;
-        expected += (step - 5)*2500;
+        expected += (step - 5) * 2500;
     }
     // TODO: now all states are fine but change this later
     return score > expected;
@@ -51,11 +62,12 @@ bool State::solve()
     {
         for (int j = -1; j <= 1; j++)
         {
-            auto next = LOCATION(current.first + i, current.second + j);
+            auto next = LOCATION(location.first + i, location.second + j);
             // Must not go back to the parent and a valid location
-            if (next != parent && board->validLocation(next))
+            if (next != parent->location && board->validLocation(next))
             {
-                auto nextState = State(board, current, next, step + 1, maxStep);
+                auto nextState = State(board, next, step + 1, maxStep);
+                nextState.parent = this;
                 // TODO: sort children by their score and go down further
                 if (nextState.solve())
                 {
@@ -75,5 +87,5 @@ bool State::solve()
 
 void State::revertBoard()
 {
-    board->swapLocation(current, parent);
+    board->swapLocation(location, parent->location);
 }

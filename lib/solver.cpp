@@ -25,7 +25,8 @@ std::string PadSolver::solve(int steps)
     board.printBoardForSimulation();
 
     auto start = OrbLocation(0, 0);
-    State rootState(&board, start, start, 0, steps);
+
+    State rootState(&board, &rootState, start, 0, steps);
     rootState.solve();
     return ss.str();
 }
