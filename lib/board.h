@@ -15,8 +15,10 @@
 
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
+// Row is a list of Orb
+typedef std::vector<Orb> Row;
 // Board is just a 2D vector
-typedef std::vector<std::vector<Orb>> Board;
+typedef std::vector<Row> Board;
 // This indicates current orb's location
 typedef std::pair<int, int> OrbLocation;
 // This is used to get all connected orbs that can be erased
@@ -24,8 +26,8 @@ typedef std::set<OrbLocation> OrbSet;
 
 class PadBoard
 {
-    int row = 0;
-    int column = 0;
+    int row;
+    int column;
     // This tells the soler how to erase orb (by default, erase orbs if 3 or more of them are connected)
     int minEraseCondition = 3;
     // This saves all orbs in a 2D array, support all orb types
@@ -34,52 +36,32 @@ class PadBoard
     bool printMoreMessages = false;
 
     /**
-         * Read orbs from board.txt
-         */
-    void readBoard(std::string filePath);
-
-    /**
-         * Print out a board nicely formatted
-         */
-    void printBoard(Board *board);
-
-    /**
-         * Print out some info about the board we have
-         */
-    void printBoardInfo(Board *board);
-
-    /**
          * Move orbs down if there is an empty orb below
          */
-    void moveOrbsDown(Board *board);
+    void moveOrbsDown();
 
     /**
          * Erase orbs that are connected in a line.
          * return - the number of combos
          */
-    int eraseOrbs(Board *board);
+    int eraseOrbs();
 
     /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-    OrbSet findSameOrbsAround(Board *board, int x, int y);
+    OrbSet findSameOrbsAround(int x, int y);
 
     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-    OrbLocation *nextSameOrbAround(Board *board, OrbSet *vhOrbs, int x, int y);
+    OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
 
     /**
          * Check if orb at (x, y) has the same orb
          */
-    bool hasSameOrb(Board *board, Orb orb, int x, int y);
-
-    /**
-         * Swap the value of two orbs
-         */
-    void swapOrbs(Orb *first, Orb *second);
+    bool hasSameOrb(Orb orb, int x, int y);
 
     /**
          * Calculate max combo from a list of orbs.
@@ -101,12 +83,15 @@ class PadBoard
     /**
          * Loop through the vector and count the number of each orbs
          */
-    int *collectOrbCount(Board *board);
+    int *collectOrbCount();
 
 public:
     PadBoard();
-    PadBoard(std::string filePath, int minEraseCondition = 3);
+    PadBoard(Board board, int row, int column, int minEraseCondition = 3);
     ~PadBoard();
+
+    // Solve the board and return a string with the path
+    std::string solve(int steps);
 
     /**
          * Rate current board. This is the heuristic
@@ -114,9 +99,22 @@ public:
          * - two in a line (100pt)
          * - more coming soon
          */
-    int rateBoard(Board *board);
+    int rateBoard();
 
-    void debug();
+    /**
+         * Print out a board nicely formatted
+         */
+    void printBoard();
+
+    /**
+         * Print out some info about the board we have
+         */
+    void printBoardInfo();
+    
+    /**
+         * Swap the value of two orbs
+         */
+    void swapOrbs(Orb *first, Orb *second);
 };
 
 #endif

@@ -14,12 +14,18 @@
 
 class PadSolver
 {
+    // Row and column are used to count board size
+    int row = 0;
+    int column = 0;
     PadBoard board;
 
+    // Read board from filePath, return the board
+    Board readBoard(std::string filePath);
+
 public:
-    PadSolver();
     PadSolver(std::string filePath, int minEraseCondition);
-    void debug();
+    // Solve the current board
+    std::string solve(int steps = 25);
 };
 
 #endif
