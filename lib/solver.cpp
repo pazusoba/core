@@ -17,7 +17,8 @@ PadSolver::PadSolver(std::string filePath, int minEraseCondition)
 
 /// Solve the board
 
-std::string PadSolver::solve(int steps) {
+std::string PadSolver::solve(int steps)
+{
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     ss << board.solve(steps);

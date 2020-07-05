@@ -11,7 +11,7 @@
 #include "pad.h"
 
 // shorten the code to make a pair
-#define PAIR(x, y) (std::make_pair(x, y))
+#define LOCATION(x, y) (std::make_pair(x, y))
 
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
@@ -110,11 +110,11 @@ public:
          * Print out some info about the board we have
          */
     void printBoardInfo();
-    
+
     /**
          * Swap the value of two orbs
          */
-    void swapOrbs(Orb *first, Orb *second);
+    void swapLocation(OrbLocation one, OrbLocation two);
 };
 
 #endif

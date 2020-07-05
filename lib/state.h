@@ -38,6 +38,9 @@ public:
     // Keep solving until max steps have been reached
     // return - true if it is worthy
     bool solve();
+
+    // Move orbs back, must call this after each state
+    void revertBoard();
 };
 
 #endif

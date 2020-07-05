@@ -9,11 +9,12 @@
 
 /// Constructors
 PadBoard::PadBoard() {}
-PadBoard::PadBoard(Board board, int row, int column, int minEraseCondition) {
-    this -> board = board;
-    this -> row = row;
-    this -> column = column;
-    this -> minEraseCondition = minEraseCondition;
+PadBoard::PadBoard(Board board, int row, int column, int minEraseCondition)
+{
+    this->board = board;
+    this->row = row;
+    this->column = column;
+    this->minEraseCondition = minEraseCondition;
 }
 
 PadBoard::~PadBoard()
@@ -26,7 +27,8 @@ PadBoard::~PadBoard()
 }
 
 /// Solve this board
-std::string PadBoard::solve(int steps) {
+std::string PadBoard::solve(int steps)
+{
     return "TODO";
 }
 
@@ -177,14 +179,14 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     // Check vertically
     OrbSet vOrbs;
     // Add this orb first or another infinite loop
-    vOrbs.insert(PAIR(x, y));
+    vOrbs.insert(LOCATION(x, y));
     int up = x, down = x;
     int upOrb = 1, downOrb = 1;
     while (--up >= 0)
     {
         if (board[up][y] == curr)
         {
-            vOrbs.insert(PAIR(up, y));
+            vOrbs.insert(LOCATION(up, y));
             upOrb++;
         }
         else
@@ -197,7 +199,7 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     {
         if (board[down][y] == curr)
         {
-            vOrbs.insert(PAIR(down, y));
+            vOrbs.insert(LOCATION(down, y));
             downOrb++;
         }
         else
@@ -213,14 +215,14 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     // Check horizontally
     OrbSet hOrbs;
     // Add it again just in case it was cleared
-    hOrbs.insert(PAIR(x, y));
+    hOrbs.insert(LOCATION(x, y));
     int left = y, right = y;
     int leftOrb = 1, rightOrb = 1;
     while (--left >= 0)
     {
         if (board[x][left] == curr)
         {
-            hOrbs.insert(PAIR(x, left));
+            hOrbs.insert(LOCATION(x, left));
             leftOrb++;
         }
         else
@@ -232,7 +234,7 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     {
         if (board[x][right] == curr)
         {
-            hOrbs.insert(PAIR(x, right));
+            hOrbs.insert(LOCATION(x, right));
             rightOrb++;
         }
         else
@@ -257,25 +259,25 @@ OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
     auto pair = new OrbLocation;
     if (hasSameOrb(orb, x - 1, y))
     {
-        *pair = PAIR(x - 1, y);
+        *pair = LOCATION(x - 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x + 1, y))
     {
-        *pair = PAIR(x + 1, y);
+        *pair = LOCATION(x + 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x, y - 1))
     {
-        *pair = PAIR(x, y - 1);
+        *pair = LOCATION(x, y - 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x, y + 1))
     {
-        *pair = PAIR(x, y + 1);
+        *pair = LOCATION(x, y + 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
@@ -295,11 +297,11 @@ bool PadBoard::hasSameOrb(Orb orb, int x, int y)
     return false;
 }
 
-void PadBoard::swapOrbs(Orb *first, Orb *second)
+void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
 {
-    auto temp = *first;
-    *first = *second;
-    *second = temp;
+    auto temp = board[one.first][one.second];
+    board[one.first][one.second] = board[two.first][two.second];
+    board[two.first][two.second] = temp;
 }
 
 void PadBoard::printBoard()
