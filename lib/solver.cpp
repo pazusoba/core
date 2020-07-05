@@ -24,9 +24,10 @@ std::string PadSolver::solve(int steps)
 
     board.printBoardForSimulation();
 
-    auto start = OrbLocation(0, 0);
+    auto start = OrbLocation(2, 0);
+    auto end = OrbLocation(3, 0);
 
-    State rootState(&board, start, start, 0, steps, board.estimatedBestScore());
+    State rootState(&board, start, end, 1, steps, board.estimatedBestScore());
     rootState.solve();
     ss << "Tree has been built.";
     board.printBoardForSimulation();

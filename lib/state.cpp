@@ -9,12 +9,7 @@
 
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
-    // Update the board the moment this state is being created
-    board->swapLocation(from, to);
-    PadBoard copy = *board;
-
     this->board = board;
-    this->score = copy.rateBoard();
     this->previous = from;
     this->current = to;
     this->step = step;
@@ -56,6 +51,11 @@ bool State::isWorthy()
 
 bool State::solve()
 {
+    // Update the board before solving
+    board->swapLocation(current, previous);
+    PadBoard copy = *board;
+    this->score = copy.rateBoard();
+
     if (!isWorthy())
         return false;
 
@@ -72,11 +72,25 @@ bool State::solve()
             {
                 auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
                 nextState.parent = this;
-                nextState.solve();
-                // Ask all children to revert the board
-                nextState.revertBoard();
+                children.push_back(nextState);
             }
         }
+    }
+
+    std::sort(children.begin(), children.end(), [](State a, State b) {
+        return a.score > b.score;
+    });
+
+    int multipler = (maxStep - step) * 100 / (maxStep * 100);
+    if (multipler == 0) multipler = 1;
+    int maxCount = 8 / multipler;
+    for (auto newState : children)
+    {
+        if (maxCount == 0) break;
+        newState.solve();
+        // Ask all children to revert the board
+        newState.revertBoard();
+        maxCount--;
     }
 
     return true;
