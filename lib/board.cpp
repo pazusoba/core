@@ -70,8 +70,14 @@ void PadBoard::readBoard(std::string filePath)
     boardFile.close();
 }
 
-void PadBoard::debug() {
-
+void PadBoard::debug()
+{
+    printBoard(&board);
+    auto copy = board;
+    int score = rateBoard(&copy);
+    if (printMoreMessages)
+        printBoard(&copy);
+    std::cout << "Score was " << score << " pt\n";
 }
 
 int PadBoard::rateBoard(Board *board)
