@@ -20,8 +20,6 @@ class State
     OrbLocation previous;
     // This is current orb which is active (the player is holding it)
     OrbLocation current;
-    // This score shows how good the current board is
-    int score;
     // An estimation of a good score
     int maxScore;
     // This is the number of steps (depth)
@@ -38,6 +36,8 @@ class State
     bool isWorthy();
 
 public:
+    // This score shows how good the current board is
+    int score;
     // Save the parent's address to track back
     State* parent;
 

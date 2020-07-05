@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <algorithm>
 #include "state.h"
 
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
@@ -28,9 +29,9 @@ bool State::isWorthy()
         return false;
 
     int expected = 0;
-    if (step > 5)
+    if (step > maxStep / 3)
     {
-        expected = step * 500;
+        expected = maxScore / (maxStep - step);
     }
 
     if (score > maxScore)
@@ -67,16 +68,20 @@ bool State::solve()
             {
                 auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
                 nextState.parent = this;
-
-                // TODO: sort children by their score and go down further
-                if (nextState.solve())
-                {
-                    children.push_back(nextState);
-                }
-                // Ask all children to revert the board
-                nextState.revertBoard();
+                children.push_back(nextState);
             }
         }
+    }
+
+    std::sort(children.begin(), children.end(), [](State a, State b) {
+        return a.score - b.score;
+    });
+
+    // Choose state with the highest score
+    for (auto best : children) {
+        best.solve();
+        // Ask all children to revert the board
+        best.revertBoard();
     }
 
     // After all children have reverted the board, current state can now revert the board
