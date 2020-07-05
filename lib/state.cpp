@@ -14,10 +14,10 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 
     // Update the board the moment this state is being created
     board->swapLocation(from, to);
-    auto copy = board->copyBoard();
+    auto copy = *board;
 
     this->board = board;
-    this->score = board->rateBoard(&copy);
+    this->score = copy.rateBoard();
     std::cout << score << " - " << step << std::endl;
     this->parent = from;
     this->current = to;
@@ -28,14 +28,17 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 bool State::isWorthy()
 {
     // Stop immediately
-    if (step >= maxStep)
+    if (step > maxStep)
     {
-        board -> printBoard();
+        // board -> printBoard();
         return false;
     }
 
     int expected = 0;
-    expected += (step)*500;
+    if (step >= 5) {
+        expected = 1000;
+        expected += (step - 5)*1000;
+    }
     // TODO: now all states are fine but change this later
     return score > expected;
 }

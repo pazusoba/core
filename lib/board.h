@@ -104,10 +104,7 @@ public:
          * - two in a line (100pt)
          * - more coming soon
          */
-     int rateBoard(Board *board);
-
-     // Copy the board just for rating
-     Board copyBoard();
+     int rateBoard();
 
      /**
          * Print out a board nicely formatted

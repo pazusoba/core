@@ -39,11 +39,7 @@ std::string PadBoard::solve(int steps)
 
 /// Board related
 
-Board PadBoard::copyBoard() {
-    return board;
-}
-
-int PadBoard::rateBoard(Board *board)
+int PadBoard::rateBoard()
 {
     int score = 0;
 
@@ -52,7 +48,7 @@ int PadBoard::rateBoard(Board *board)
     {
         for (int j = 0; j < row; j++)
         {
-            auto currOrb = (*board)[i][j];
+            auto currOrb = board[i][j];
             // Check for same colour around in a 3x3 grid, curr orb is in the middle
             int orbAround = 0;
             int twoInLine = 0;
