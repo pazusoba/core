@@ -12,22 +12,14 @@
 #include "pad.h"
 #include "board.h"
 
-/**
- * Shorten make_pair
- */
-#define PAIR(x, y) (std::make_pair(x, y))
-
 class PadSolver
 {
-public:
-     PadSolver(std::string filePath);
-     PadSolver(std::string filePath, int minEraseCondition);
-     ~PadSolver();
+    PadBoard board;
 
-     /**
-         * Solve current board
-         */
-     void solveBoard();
+public:
+    PadSolver();
+    PadSolver(std::string filePath, int minEraseCondition);
+    void debug();
 };
 
 #endif

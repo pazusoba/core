@@ -11,10 +11,9 @@ PadSolver *handleInput(int, char **);
 int main(int argc, char *argv[])
 {
     auto solver = handleInput(argc, argv);
-
-    solver->solveBoard();
-
+    solver->debug();
     delete solver;
+    
     return 0;
 }
 

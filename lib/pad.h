@@ -8,7 +8,7 @@
 
 #include <string>
 
-class Orb
+namespace pad
 {
     /**
      * All orbs in the game.
@@ -16,7 +16,7 @@ class Orb
      * seal is a tape over a row and orbs cannot move,
      * disabled means it will not get erased even if connected.
      */
-    enum type
+    enum orbs
     {
         empty,
         fire,
@@ -34,7 +34,7 @@ class Orb
     };
     const int ORB_COUNT = 13;
     // For displaying the orb name
-    const std::string ORB_NAMES[13] = {"", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
+    const std::string ORB_NAMES[ORB_COUNT] = {"", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-"};
 
     // TODO: consider weight to adjust the heuristic
 
@@ -63,6 +63,6 @@ class Orb
          */
         ONE_COMBO_SCORE = 1000,
     };
-};
+} // namespace pad
 
 #endif

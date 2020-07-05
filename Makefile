@@ -2,7 +2,7 @@
 
 # build
 build:
-	g++ -Wall -Werror main.cpp lib/solver.cpp
+	g++ -Wall -Werror main.cpp lib/solver.cpp lib/board.cpp lib/state.cpp
 
 # run the program
 run:

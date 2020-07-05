@@ -4,20 +4,26 @@
  */
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cmath>
 #include "board.h"
 
 /// Constructors
-
-PadBoard::PadBoard(std::string filePath) {
-
+PadBoard::PadBoard() {}
+PadBoard::PadBoard(std::string filePath, int minEraseCondition)
+{
+    readBoard(filePath);
+    this->minEraseCondition = minEraseCondition;
 }
 
-PadBoard::PadBoard(std::string filePath, int minEraseCondition) {
-
-}
-
-PadBoard::~PadBoard() {
-
+PadBoard::~PadBoard()
+{
+    for (auto row : board)
+    {
+        row.clear();
+    }
+    board.clear();
 }
 
 /// Board related
@@ -62,6 +68,10 @@ void PadBoard::readBoard(std::string filePath)
     }
 
     boardFile.close();
+}
+
+void PadBoard::debug() {
+
 }
 
 int PadBoard::rateBoard(Board *board)
@@ -121,7 +131,6 @@ int PadBoard::rateBoard(Board *board)
     return score;
 }
 
-
 void PadBoard::moveOrbsDown(Board *board)
 {
     // we start from the second last row -1 and also convert to index so -2
@@ -169,7 +178,7 @@ int PadBoard::eraseOrbs(Board *board)
             while (it != vhOrbs.end())
             {
                 // nextOrb is a pointer to the next pair
-                auto nextOrb = nextSameOrbAround(board, it->first, it->second, &vhOrbs);
+                auto nextOrb = nextSameOrbAround(board, &vhOrbs, it->first, it->second);
                 // Only search if there are new orbs
                 if (nextOrb != NULL)
                 {
@@ -203,7 +212,7 @@ int PadBoard::eraseOrbs(Board *board)
     return combo;
 }
 
-PadBoard::OrbSet PadBoard::findSameOrbsAround(Board *board, int x, int y)
+OrbSet PadBoard::findSameOrbsAround(Board *board, int x, int y)
 {
     auto curr = (*board)[x][y];
 
@@ -288,25 +297,25 @@ OrbLocation *PadBoard::nextSameOrbAround(Board *board, OrbSet *vhOrbs, int x, in
 
     // Find up, down, left and right
     auto pair = new OrbLocation;
-    if (hasSameOrb(board, x - 1, y, orb))
+    if (hasSameOrb(board, orb, x - 1, y))
     {
         *pair = PAIR(x - 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(board, x + 1, y, orb))
+    if (hasSameOrb(board, orb, x + 1, y))
     {
         *pair = PAIR(x + 1, y);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(board, x, y - 1, orb))
+    if (hasSameOrb(board, orb, x, y - 1))
     {
         *pair = PAIR(x, y - 1);
         if (vhOrbs->count(*pair) == 0)
             return pair;
     }
-    if (hasSameOrb(board, x, y + 1, orb))
+    if (hasSameOrb(board, orb, x, y + 1))
     {
         *pair = PAIR(x, y + 1);
         if (vhOrbs->count(*pair) == 0)
@@ -318,7 +327,7 @@ OrbLocation *PadBoard::nextSameOrbAround(Board *board, OrbSet *vhOrbs, int x, in
     return NULL;
 }
 
-bool PadBoard::hasSameOrb(Board *board, int x, int y, Orb orb)
+bool PadBoard::hasSameOrb(Board *board, Orb orb, int x, int y)
 {
     if (x >= 0 && x < column && y >= 0 && y < row)
     {
@@ -464,6 +473,3 @@ int *PadBoard::collectOrbCount(Board *board)
     }
     return counter;
 }
-
-/// Utils
-

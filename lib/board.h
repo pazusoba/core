@@ -10,7 +10,11 @@
 #include <set>
 #include "pad.h"
 
+// shorten the code to make a pair
+#define PAIR(x, y) (std::make_pair(x, y))
 
+// Another name for orb enum from pad.h
+typedef pad::orbs Orb;
 // Board is just a 2D vector
 typedef std::vector<std::vector<Orb>> Board;
 // This indicates current orb's location
@@ -108,9 +112,11 @@ class PadBoard
     int *collectOrbCount(Board *board);
 
 public:
-    PadBoard(std::string filePath);
+    PadBoard();
     PadBoard(std::string filePath, int minEraseCondition);
     ~PadBoard();
+
+    void debug();
 };
 
 #endif
