@@ -66,15 +66,15 @@ bool State::solve()
     {
         for (int j = -1; j <= 1; j++)
         {
+            // This is just current orb
+            if (i == 0 && j == 0) continue;
             auto next = LOCATION(current.first + i, current.second + j);
             // Must not go back to the parent or choose the same current and a valid location
-            if (next != previous && next != current && board->validLocation(next))
+            if (board->validLocation(next) && next != previous)
             {
                 auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
                 nextState.parent = this;
-                if (nextState.solve()) {
-                    children.push_back(nextState);
-                }
+                nextState.solve();
                 // Ask all children to revert the board
                 nextState.revertBoard();
             }
