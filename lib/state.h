@@ -41,9 +41,6 @@ public:
     // return - true if it is worthy
     bool solve();
 
-    // This will print all scores from all childrens
-    void printChildrenScore();
-
     // Move orbs back, must call this after each state
     void revertBoard();
 };

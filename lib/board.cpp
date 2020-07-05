@@ -34,13 +34,16 @@ std::string PadBoard::solve(int steps)
     auto start = LOCATION(0, 0);
     State rootState(this, start, start, 0, steps);
     rootState.solve();
-    rootState.printChildrenScore();
     return "Tree has been built";
 }
 
 /// Board related
 
-int PadBoard::rateBoard()
+Board PadBoard::copyBoard() {
+    return board;
+}
+
+int PadBoard::rateBoard(Board *board)
 {
     int score = 0;
 
@@ -49,7 +52,7 @@ int PadBoard::rateBoard()
     {
         for (int j = 0; j < row; j++)
         {
-            auto currOrb = board[i][j];
+            auto currOrb = (*board)[i][j];
             // Check for same colour around in a 3x3 grid, curr orb is in the middle
             int orbAround = 0;
             int twoInLine = 0;
@@ -93,7 +96,7 @@ int PadBoard::rateBoard()
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * (combo + moveCount);
 
-    std::cout << "That was " << combo << " combo\n";
+    if (printMoreMessages) std::cout << "That was " << combo << " combo\n";
     return score;
 }
 
@@ -321,7 +324,8 @@ bool PadBoard::hasSameOrb(Orb orb, int x, int y)
 void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
 {
     // TODO: all points should be valid why?
-    if (!validLocation(one) || !validLocation(two)) return;
+    if (!validLocation(one) || !validLocation(two))
+        return;
     auto temp = ORB(board, one);
     ORB(board, one) = ORB(board, two);
     ORB(board, two) = temp;

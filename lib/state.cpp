@@ -12,15 +12,17 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
     if (step > maxStep)
         return;
 
-    // Update the board the moment this state is being created   
+    // Update the board the moment this state is being created
     board->swapLocation(from, to);
-    auto copy = *board;
+    auto copy = board -> copyBoard();
 
     this->board = board;
-    this->score = copy.rateBoard();
+    this->score = board -> rateBoard(&copy);
+    // std::cout << score << " - " << step << std::endl;
     this->parent = from;
     this->current = to;
     this->step = step;
+    this->maxStep = maxStep;
 }
 
 bool State::isWorthy()
@@ -29,8 +31,13 @@ bool State::isWorthy()
     if (step > maxStep)
         return false;
 
+    int expected = 0;
+    if (step >= 5) {
+        expected = 1000;
+        expected += (step - 5) * 200;
+    }
     // TODO: now all states are fine but change this later
-    return score > 0;
+    return score > expected;
 }
 
 bool State::solve()
@@ -62,14 +69,6 @@ bool State::solve()
     revertBoard();
 
     return true;
-}
-
-void State::printChildrenScore() {
-    for (auto state: children) {
-        std::cout << score << " ";
-        state.printChildrenScore();
-    }
-    std::cout << std::endl;
 }
 
 void State::revertBoard()
