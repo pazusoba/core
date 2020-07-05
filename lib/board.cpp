@@ -386,7 +386,7 @@ int PadBoard::estimatedBestScore() {
     int maxCombo = getMaxCombo(collectOrbCount());
     // TODO: a naive implementation
     int maxBoardMovement = column - 2 + row - 3;
-    score = (maxBoardMovement + maxCombo) * 1000;
+    score = (maxBoardMovement + maxCombo) * pad::ONE_COMBO_SCORE;
     return score;
 }
 

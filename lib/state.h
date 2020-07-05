@@ -39,7 +39,7 @@ public:
     // This score shows how good the current board is
     int score;
     // Save the parent's address to track back
-    State* parent;
+    State* parent = NULL;
 
     State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
 

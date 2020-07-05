@@ -55,11 +55,11 @@ namespace pad
         /**
          * nearby means vertically, horizontally and diagonally
          */
-        ORB_NEARBY_SCORE = 10,
+        ORB_NEARBY_SCORE = 5,
         /**
          * nearby means only vertically and horizontally
          */
-        ORB_AROUND_SCORE = 20,
+        ORB_AROUND_SCORE = 50,
         /**
          * score for a single combo
          */

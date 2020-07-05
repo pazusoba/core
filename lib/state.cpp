@@ -31,13 +31,13 @@ bool State::isWorthy()
     int expected = 0;
     if (step > 5)
     {
-        expected += step * 300;
+        expected += step * 500;
     }
 
     // Must have more scores than parent
     if (step > maxStep / 3 && parent->score / score > 0)
         return false;
-    
+
     if (score > maxScore)
     {
         std::cout << score << " - " << step << std::endl;
@@ -54,7 +54,7 @@ bool State::isWorthy()
     }
 
     // TODO: now all states are fine but change this later
-    return expected / score == 0;
+    return expected / score <= 1;
 }
 
 bool State::solve()
@@ -72,25 +72,14 @@ bool State::solve()
             {
                 auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
                 nextState.parent = this;
-                children.push_back(nextState);
+                if (nextState.solve()) {
+                    children.push_back(nextState);
+                }
+                // Ask all children to revert the board
+                nextState.revertBoard();
             }
         }
     }
-
-    std::sort(children.begin(), children.end(), [](State a, State b) {
-        return a.score > b.score;
-    });
-
-    // Only choose best ones as depth increases
-    for (auto best : children)
-    {
-        best.solve();
-        // Ask all children to revert the board
-        best.revertBoard();
-    }
-
-    // After all children have reverted the board, current state can now revert the board
-    // revertBoard();
 
     return true;
 }
