@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include "board.h"
+#include "state.h"
 
 /// Constructors
 PadBoard::PadBoard() {}
@@ -29,7 +30,11 @@ PadBoard::~PadBoard()
 /// Solve this board
 std::string PadBoard::solve(int steps)
 {
-    return "TODO";
+    // Now, just test from 0,0. I will add something to choose a better point
+    auto start = LOCATION(0, 0);
+    State rootState(this, start, start, 0, steps);
+    rootState.solve();
+    return "Tree has been built";
 }
 
 /// Board related
@@ -172,7 +177,8 @@ int PadBoard::eraseOrbs()
     return combo;
 }
 
-OrbSet PadBoard::findSameOrbsAround(OrbLocation loc) {
+OrbSet PadBoard::findSameOrbsAround(OrbLocation loc)
+{
     return findSameOrbsAround(loc.first, loc.second);
 }
 
@@ -255,7 +261,8 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc) {
+OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
+{
     return nextSameOrbAround(vhOrbs, loc.first, loc.second);
 }
 
@@ -295,13 +302,14 @@ OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
     return NULL;
 }
 
-bool PadBoard::hasSameOrb(Orb orb, OrbLocation loc) {
+bool PadBoard::hasSameOrb(Orb orb, OrbLocation loc)
+{
     return hasSameOrb(orb, loc.first, loc.second);
 }
 
 bool PadBoard::hasSameOrb(Orb orb, int x, int y)
 {
-    if (x >= 0 && x < column && y >= 0 && y < row)
+    if (validLocation(x, y))
     {
         return board[x][y] == orb;
     }
@@ -444,4 +452,14 @@ int *PadBoard::collectOrbCount()
         }
     }
     return counter;
+}
+
+bool PadBoard::validLocation(OrbLocation loc)
+{
+    return validLocation(loc.first, loc.second);
+}
+
+bool PadBoard::validLocation(int x, int y)
+{
+    return x >= 0 && x < column && y >= 0 && y < row;
 }
