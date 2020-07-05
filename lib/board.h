@@ -10,8 +10,7 @@
 #include <set>
 #include "pad.h"
 
-// Another name for orb enum from pad.h
-typedef pad::orbs Orb;
+
 // Board is just a 2D vector
 typedef std::vector<std::vector<Orb>> Board;
 // This indicates current orb's location
