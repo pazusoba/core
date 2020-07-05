@@ -12,6 +12,8 @@
 
 // shorten the code to make a pair
 #define LOCATION(x, y) (std::make_pair(x, y))
+// shotern the code to get/set an orb from the board
+#define ORB(board, location) (board[location.first][location.second])
 
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
@@ -51,17 +53,20 @@ class PadBoard
          * return - a set of xy that can be erased
          */
     OrbSet findSameOrbsAround(int x, int y);
+    OrbSet findSameOrbsAround(OrbLocation loc);
 
     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
     OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
+    OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc);
 
     /**
          * Check if orb at (x, y) has the same orb
          */
     bool hasSameOrb(Orb orb, int x, int y);
+    bool hasSameOrb(Orb orb, OrbLocation loc);
 
     /**
          * Calculate max combo from a list of orbs.

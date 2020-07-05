@@ -138,11 +138,11 @@ int PadBoard::eraseOrbs()
             while (it != vhOrbs.end())
             {
                 // nextOrb is a pointer to the next pair
-                auto nextOrb = nextSameOrbAround(&vhOrbs, it->first, it->second);
+                auto nextOrb = nextSameOrbAround(&vhOrbs, *it);
                 // Only search if there are new orbs
                 if (nextOrb != NULL)
                 {
-                    auto newOrbs = findSameOrbsAround(nextOrb->first, nextOrb->second);
+                    auto newOrbs = findSameOrbsAround(*nextOrb);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
                     // Must check if there are new orbs or it will be an infinite loop
                     if (newOrbs.size() > 0)
@@ -162,7 +162,7 @@ int PadBoard::eraseOrbs()
             {
                 for (auto xy : vhOrbs)
                 {
-                    board[xy.first][xy.second] = pad::empty;
+                    ORB(board, xy) = pad::empty;
                 }
                 combo++;
             }
@@ -170,6 +170,10 @@ int PadBoard::eraseOrbs()
     }
 
     return combo;
+}
+
+OrbSet PadBoard::findSameOrbsAround(OrbLocation loc) {
+    return findSameOrbsAround(loc.first, loc.second);
 }
 
 OrbSet PadBoard::findSameOrbsAround(int x, int y)
@@ -251,6 +255,10 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
+OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc) {
+    return nextSameOrbAround(vhOrbs, loc.first, loc.second);
+}
+
 OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 {
     auto orb = board[x][y];
@@ -287,6 +295,10 @@ OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
     return NULL;
 }
 
+bool PadBoard::hasSameOrb(Orb orb, OrbLocation loc) {
+    return hasSameOrb(orb, loc.first, loc.second);
+}
+
 bool PadBoard::hasSameOrb(Orb orb, int x, int y)
 {
     if (x >= 0 && x < column && y >= 0 && y < row)
@@ -299,9 +311,9 @@ bool PadBoard::hasSameOrb(Orb orb, int x, int y)
 
 void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
 {
-    auto temp = board[one.first][one.second];
-    board[one.first][one.second] = board[two.first][two.second];
-    board[two.first][two.second] = temp;
+    auto temp = ORB(board, one);
+    ORB(board, one) = ORB(board, two);
+    ORB(board, two) = temp;
 }
 
 void PadBoard::printBoard()
