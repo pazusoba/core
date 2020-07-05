@@ -39,14 +39,6 @@ class PadBoard
     void readBoard(std::string filePath);
 
     /**
-         * Rate current board. This is the heuristic
-         * - three in a line (1000pt), based on 10^orb
-         * - two in a line (100pt)
-         * - more coming soon
-         */
-    int rateBoard(Board *board);
-
-    /**
          * Print out a board nicely formatted
          */
     void printBoard(Board *board);
@@ -113,8 +105,16 @@ class PadBoard
 
 public:
     PadBoard();
-    PadBoard(std::string filePath, int minEraseCondition);
+    PadBoard(std::string filePath, int minEraseCondition = 3);
     ~PadBoard();
+
+    /**
+         * Rate current board. This is the heuristic
+         * - three in a line (1000pt), based on 10^orb
+         * - two in a line (100pt)
+         * - more coming soon
+         */
+    int rateBoard(Board *board);
 
     void debug();
 };
