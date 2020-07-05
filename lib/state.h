@@ -15,10 +15,15 @@ class State
 
     PadBoard *board;
 
+    // This is the previous orb and it moved to current orb
+    // Current must not move back to parent location
+    OrbLocation previous;
     // This is current orb which is active (the player is holding it)
-    OrbLocation location;
+    OrbLocation current;
     // This score shows how good the current board is
     int score;
+    // An estimation of a good score
+    int maxScore;
     // This is the number of steps (depth)
     int step;
     // This is max step we want to go (termination point)
@@ -33,11 +38,13 @@ class State
     bool isWorthy();
 
 public:
-    // This is the previous orb and it moved to current orb
-    // Current must not move back to parent location
+    // Save the parent's address to track back
     State* parent;
-    
-    State(PadBoard *board, State* from, OrbLocation to, int step, int maxStep);
+
+    State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+
+    // Check if this path actually has more score compare to current one
+    bool hasMoreScore(int score);
 
     // Keep solving until max steps have been reached
     // return - true if it is worthy

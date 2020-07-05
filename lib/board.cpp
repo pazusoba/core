@@ -381,6 +381,15 @@ void PadBoard::printBoardInfo()
     delete[] counter;
 }
 
+int PadBoard::estimatedBestScore() {
+    int score = 0;
+    int maxCombo = getMaxCombo(collectOrbCount());
+    // TODO: a naive implementation
+    int maxBoardMovement = column - 2 + row - 3;
+    score = (maxBoardMovement + maxCombo) * 1000;
+    return score;
+}
+
 /// Utils
 
 int PadBoard::getMaxCombo(int *counter)

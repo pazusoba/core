@@ -118,6 +118,11 @@ public:
          */
     void printBoardInfo();
 
+     /**
+      * A simple estimation on the final score
+      */
+    int estimatedBestScore();
+
     /**
          * Swap the value of two orbs
          */
