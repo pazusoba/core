@@ -95,9 +95,6 @@ public:
      PadBoard(Board board, int row, int column, int minEraseCondition = 3);
      ~PadBoard();
 
-     // Solve the board and return a string with the path
-     std::string solve(int steps);
-
      /**
          * Rate current board. This is the heuristic
          * - three in a line (1000pt), based on 10^orb

@@ -11,6 +11,7 @@
 #include <set>
 #include "pad.h"
 #include "board.h"
+#include "state.h"
 
 class PadSolver
 {

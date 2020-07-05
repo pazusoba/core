@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cmath>
 #include "board.h"
-#include "state.h"
 
 /// Constructors
 PadBoard::PadBoard() {}
@@ -25,16 +24,6 @@ PadBoard::~PadBoard()
         row.clear();
     }
     board.clear();
-}
-
-/// Solve this board
-std::string PadBoard::solve(int steps)
-{
-    // Now, just test from 0,0. I will add something to choose a better point
-    auto start = LOCATION(0, 0);
-    State rootState(this, start, start, 0, steps);
-    rootState.solve();
-    return "Tree has been built";
 }
 
 /// Board related
@@ -92,7 +81,8 @@ int PadBoard::rateBoard()
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * (combo + moveCount);
 
-    if (printMoreMessages) std::cout << "That was " << combo << " combo\n";
+    if (printMoreMessages)
+        std::cout << "That was " << combo << " combo\n";
     return score;
 }
 
@@ -322,6 +312,7 @@ void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
     // TODO: all points should be valid why?
     if (!validLocation(one) || !validLocation(two))
         return;
+
     auto temp = ORB(board, one);
     ORB(board, one) = ORB(board, two);
     ORB(board, two) = temp;
