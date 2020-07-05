@@ -14,7 +14,6 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 
     this->board = board;
     this->score = copy.rateBoard();
-    std::cout << score << " - " << step << std::endl;
     this->parent = from;
     this->current = to;
     this->step = step;
@@ -26,7 +25,11 @@ bool State::isWorthy()
     // Stop immediately
     if (step > maxStep)
     {
-        if (score > 13000) board -> printBoard();
+        if (score > 15000) {
+            board -> printBoard();
+            std::cout << score << " - " << step << std::endl;
+            board -> printBoardForSimulation();
+        }
         return false;
     }
 

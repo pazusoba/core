@@ -43,5 +43,7 @@ Things that are helpful during my experiments
     - tnkt37さん made a fancy robot that can solve the puzzle in realtime
     - He also has a [repo](https://github.com/tnkt37/PuzzDraSolver) with the code behind it
 - http://maaak.net/pad/ for simulation
+- https://pad.dawnglare.com/ for better simulation (support 7x6, replay, share and more)
+    - https://pad.dawnglare.com/?height=6&width=7 (7x6)
 - https://github.com/matthargett/padopt, an optimal PAD solver
     - This is another level and is a lot better than pazusoba

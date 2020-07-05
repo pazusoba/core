@@ -22,6 +22,8 @@ std::string PadSolver::solve(int steps)
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
 
+    board.printBoardForSimulation();
+
     auto start = OrbLocation(0, 0);
     State rootState(&board, start, start, 0, steps);
     rootState.solve();

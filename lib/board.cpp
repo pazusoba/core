@@ -340,6 +340,17 @@ void PadBoard::printBoard()
     std::cout << std::endl;
 }
 
+void PadBoard::printBoardForSimulation() {
+    for (auto row : board)
+    {
+        for (auto orb : row)
+        {
+            std::cout << pad::ORB_SIMULATION_NAMES[orb];
+        }
+    }
+    std::cout << std::endl;
+}
+
 void PadBoard::printBoardInfo()
 {
     if (isEmptyFile())
