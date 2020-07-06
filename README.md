@@ -2,7 +2,14 @@
 I have been playing this game (the Japanese version) for 2000 days (until 2/7/2020). I started back in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories with my friend. 
 
 ## Goal
-The goal of this is to do at least 1 combo... If possible, it should be able to do the max possible combo with the shortest path. 
+Really quick to find a good enough path. Ideally, it is short and cascading.
+
+### Approaches
+#### Greedy best first search
+This works but is really slow to go through all possible paths even if many are pruned. High score paths are really impressive and some of them are not something I can think of. The only problem with this approach is that often optimal path will not be found. The size of the tree is 7^step which is huge.  
+
+#### Guided breadth first search
+I am trying this approach because it will always find the optimal path. It will explore paths with the highest score first but it won't reflect the end score. I will have a list of best 100 states in the end. Hopefully, this will prevent duplicate states. 
 
 ### Steps
 - vertical and horizontal moves are considered as 1 step
