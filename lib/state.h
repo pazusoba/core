@@ -37,6 +37,10 @@ class State
      */
     bool isWorthy();
 
+    // Whether this state has been visited
+    // Must be called after score has been calculated
+    bool hasBeenVisited();
+
 public:
     // This score shows how good the current board is
     int score = 0;

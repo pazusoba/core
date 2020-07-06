@@ -22,31 +22,22 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 bool State::isWorthy()
 {
     // Stop immediately
-    if (step > maxStep)
+    if (hasBeenVisited() || step > maxStep)
         return false;
 
+    // More than expected score
     if (score > maxScore)
     {
         printState();
-        return false;
+        // return false;
     }
 
     int expected = 0;
     if (step > 4)
     {
         expected += step * 500;
-        // This has been visited
     }
 
-    if (step > 10)
-    {
-        if (visitedState[score] != NULL)
-        {
-            return false;
-        }
-    }
-
-    // TODO: now all states are fine but change this later
     return score > expected;
 }
 
@@ -103,7 +94,18 @@ bool State::solve()
     return true;
 }
 
-void State::printState() {
+bool State::hasBeenVisited()
+{
+    auto current = visitedState[score];
+    if (current == NULL)
+        return false;
+
+    // Check if this has the same parent as before
+    return current->parent == parent;
+}
+
+void State::printState()
+{
     std::cout << score << " - " << step << std::endl;
     board->printBoardForSimulation();
 
