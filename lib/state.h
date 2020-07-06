@@ -13,6 +13,7 @@ class State
     // A list of state
     typedef std::vector<State> StateTree;
 
+    // The board
     PadBoard *board;
 
     // This is the previous orb and it moved to current orb
@@ -39,7 +40,7 @@ public:
     // This score shows how good the current board is
     int score = 0;
     // Save the parent's address to track back
-    State* parent = NULL;
+    State *parent = NULL;
 
     State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
 

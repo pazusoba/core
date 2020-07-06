@@ -40,7 +40,6 @@ bool State::isWorthy()
     }
 
     int expected = 0;
-    if (step > 5)
     if (step > 4)
     {
         expected += step * 500;
@@ -85,11 +84,13 @@ bool State::solve()
 
     // Only get best ones as the step increases
     int multipler = (maxStep - step) * 100 / (maxStep * 100);
-    if (multipler == 0) multipler = 1;
+    if (multipler == 0)
+        multipler = 1;
     int maxCount = 8 / multipler;
     for (auto newState : children)
     {
-        if (maxCount == 0) break;
+        if (maxCount == 0)
+            break;
         newState.solve();
         // Ask all children to revert the board
         newState.revertBoard();
