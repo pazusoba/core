@@ -37,7 +37,7 @@ class State
 
 public:
     // This score shows how good the current board is
-    int score;
+    int score = 0;
     // Save the parent's address to track back
     State* parent = NULL;
 

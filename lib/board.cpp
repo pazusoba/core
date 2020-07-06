@@ -78,8 +78,21 @@ int PadBoard::rateBoard()
         moveCount++;
     }
 
+    // // Check how many orbs left, I think less means better because you want to erase more orbs
+    // int orbLeft = 0;
+    // for (int i = 0; i < column; i++)
+    // {
+    //     for (int j = 0; j < row; j++)
+    //     {
+    //         if (board[i][j] == pad::empty) continue;
+    //         orbLeft++;
+    //     }
+    // }
+    // // Reduce the score if there are orb left
+    // score -= orbLeft * 50;
+
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
-    score += pad::ONE_COMBO_SCORE * (combo + moveCount);
+    score += pad::ONE_COMBO_SCORE * (combo + moveCount / 2);
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
@@ -340,7 +353,8 @@ void PadBoard::printBoard()
     std::cout << std::endl;
 }
 
-void PadBoard::printBoardForSimulation() {
+void PadBoard::printBoardForSimulation()
+{
     for (auto row : board)
     {
         for (auto orb : row)
@@ -381,12 +395,16 @@ void PadBoard::printBoardInfo()
     delete[] counter;
 }
 
-int PadBoard::estimatedBestScore() {
+int PadBoard::estimatedBestScore()
+{
     int score = 0;
     int maxCombo = getMaxCombo(collectOrbCount());
     // TODO: a naive implementation
+
     int maxBoardMovement = column - 2 + row - 3;
-    score = (maxBoardMovement + maxCombo) * pad::ONE_COMBO_SCORE;
+    score = (maxBoardMovement / 2 + maxCombo) * pad::ONE_COMBO_SCORE;
+    // Take orb left into account
+    score -= (row * column - maxCombo * minEraseCondition) * 50;
     return score;
 }
 

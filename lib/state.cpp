@@ -41,6 +41,7 @@ bool State::isWorthy()
 
     int expected = 0;
     if (step > 5)
+    if (step > 4)
     {
         expected += step * 500;
     }
@@ -77,10 +78,12 @@ bool State::solve()
         }
     }
 
+    // Sort by score
     std::sort(children.begin(), children.end(), [](State a, State b) {
         return a.score > b.score;
     });
 
+    // Only get best ones as the step increases
     int multipler = (maxStep - step) * 100 / (maxStep * 100);
     if (multipler == 0) multipler = 1;
     int maxCount = 8 / multipler;
