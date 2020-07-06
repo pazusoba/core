@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "state.h"
 
+std::map<int, State *> State::visitedState;
+
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
     this->board = board;
@@ -25,17 +27,7 @@ bool State::isWorthy()
 
     if (score > maxScore)
     {
-        std::cout << score << " - " << step << std::endl;
-        board->printBoardForSimulation();
-
-        State *curr = this;
-        while (curr != NULL)
-        {
-            auto loc = curr->current;
-            std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
-            curr = curr->parent;
-        }
-        std::cout << "NULL\n\n";
+        printState();
         return false;
     }
 
@@ -43,6 +35,15 @@ bool State::isWorthy()
     if (step > 4)
     {
         expected += step * 500;
+        // This has been visited
+    }
+
+    if (step > 10)
+    {
+        if (visitedState[score] != NULL)
+        {
+            return false;
+        }
     }
 
     // TODO: now all states are fine but change this later
@@ -59,6 +60,8 @@ bool State::solve()
     if (!isWorthy())
         return false;
 
+    // Add this if it should be visited
+    visitedState[score] = this;
     for (int i = -1; i <= 1; i++)
     {
         for (int j = -1; j <= 1; j++)
@@ -98,6 +101,20 @@ bool State::solve()
     }
 
     return true;
+}
+
+void State::printState() {
+    std::cout << score << " - " << step << std::endl;
+    board->printBoardForSimulation();
+
+    State *curr = this;
+    while (curr != NULL)
+    {
+        auto loc = curr->current;
+        std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
+        curr = curr->parent;
+    }
+    std::cout << "NULL\n\n";
 }
 
 void State::revertBoard()

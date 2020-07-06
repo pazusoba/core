@@ -6,6 +6,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <map>
 #include "board.h"
 
 class State
@@ -41,6 +42,7 @@ public:
     int score = 0;
     // Save the parent's address to track back
     State *parent = NULL;
+    static std::map<int, State*> visitedState;
 
     State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
 
@@ -50,6 +52,9 @@ public:
     // Keep solving until max steps have been reached
     // return - true if it is worthy
     bool solve();
+
+    // Print out current state, its board, score and more
+    void printState();
 
     // Move orbs back, must call this after each state
     void revertBoard();

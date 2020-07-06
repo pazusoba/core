@@ -27,10 +27,21 @@ std::string PadSolver::solve(int steps)
     auto start = OrbLocation(2, 0);
     auto end = OrbLocation(3, 0);
 
-    State rootState(&board, start, end, 1, steps, board.estimatedBestScore());
-    rootState.solve();
+    auto rootState = new State(&board, start, end, 1, steps, board.estimatedBestScore());
+    rootState -> solve();
     ss << "Tree has been built.";
     board.printBoardForSimulation();
+
+    int max = 0;
+    for (auto pair : rootState -> visitedState) {
+        int curr = pair.first;
+        ss << curr << "\n";
+        if (curr > max) max = curr;
+    }
+
+    delete rootState;
+
+    // rootState.visitedState[max] -> printState();
     return ss.str();
 }
 
