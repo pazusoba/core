@@ -29,7 +29,7 @@ std::string PadSolver::solve(int steps)
 
     State rootState(&board, start, end, 1, steps, board.estimatedBestScore());
     rootState.solve();
-    ss << "Tree has been built.";
+    ss << "Tree has been built.\n";
     board.printBoardForSimulation();
 
     int max = 0;

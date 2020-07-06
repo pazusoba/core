@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "state.h"
 
-std::map<int, State *> State::visitedState;
+std::map<int, State::StateTree> State::visitedState;
 
 State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
@@ -22,21 +22,14 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
 bool State::isWorthy()
 {
     // Stop immediately
-    if (hasBeenVisited() || step > maxStep)
+    if ((step > maxStep / 3 && hasBeenVisited()) || step > maxStep)
         return false;
 
-    // More than expected score
-    if (score > maxScore)
-    {
-        printState();
-        // return false;
-    }
-
     int expected = 0;
-    if (step > 4)
-    {
-        expected += step * 500;
-    }
+    // if (step > 4)
+    // {
+    //     expected += step * 500;
+    // }
 
     return score > expected;
 }
@@ -52,7 +45,7 @@ bool State::solve()
         return false;
 
     // Add this if it should be visited
-    visitedState[score] = this;
+    visitedState[score].push_back(*this);
     for (int i = -1; i <= 1; i++)
     {
         for (int j = -1; j <= 1; j++)
@@ -97,11 +90,15 @@ bool State::solve()
 bool State::hasBeenVisited()
 {
     auto current = visitedState[score];
-    if (current == NULL)
+    if (current.size() == 0)
         return false;
-
-    // Check if this has the same parent as before
-    return current->parent == parent;
+    for (auto s : current)
+    {
+        // Check if this has the same parent as before
+        if (s.step < step && s.parent == parent)
+            return true;
+    }
+    return false;
 }
 
 void State::printState()

@@ -46,7 +46,7 @@ public:
     int score = 0;
     // Save the parent's address to track back
     State *parent = NULL;
-    static std::map<int, State*> visitedState;
+    static std::map<int, StateTree> visitedState;
 
     State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
 
