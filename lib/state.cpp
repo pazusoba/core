@@ -19,12 +19,6 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
     auto copy = this->board;
     this->score = copy.rateBoard();
 
-    // Make a temp copy of board and calculate the score
-    if (this->score > maxScore)
-    {
-        this->board.printBoardForSimulation();
-    }
-
     // Copy other variables
     this->previous = from;
     this->current = to;
@@ -81,11 +75,8 @@ State::StateTree State::getChildren()
                 totalState += 1;
 
                 int minScore = 0;
-                if (step > 5)
-                {
-                    // Cut down useless branches
-                    minScore = std::min(step / 3 * 700, maxScore);
-                }
+                // Cut down useless branches
+                minScore =  step / 3 * 800;
 
                 if (score > minScore)
                     // Only append if it has enough score

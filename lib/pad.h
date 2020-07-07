@@ -61,6 +61,10 @@ namespace pad
          */
         ORB_AROUND_SCORE = 50,
         /**
+         * encourage to cascade
+         */
+        CASCADE_SCORE = 400,
+        /**
          * score for a single combo
          */
         ONE_COMBO_SCORE = 1000,

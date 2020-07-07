@@ -38,7 +38,7 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        if (counter > 10000)
+        if (counter > 100000)
             break;
 
         // Update current state
