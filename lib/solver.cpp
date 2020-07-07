@@ -26,8 +26,8 @@ std::string PadSolver::solve(int steps)
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    std::queue<State *> toVisit;
-    std::map<int, int> bestScore;
+    std::priority_queue<State *> toVisit;
+    std::map<int, State *> bestScore;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
@@ -38,14 +38,15 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        if (counter > 100000)
+        if (counter > 30000)
             break;
 
         // Update current state
-        auto currentState = toVisit.front();
+        auto currentState = toVisit.top();
         toVisit.pop();
-        // int currentStep = currentState->step;
-        bestScore[currentState->score]++;
+        int currentScore = currentState -> score;
+        if (bestScore[currentScore] == NULL)
+            bestScore[currentScore] = currentState;
 
         // if (currentState->step > 10)
         // {
@@ -62,14 +63,6 @@ std::string PadSolver::solve(int steps)
 
         counter++;
         auto children = currentState->getChildren();
-        auto avg = currentState->averageScore;
-        // It means that children is not as good as the parent
-        if (avg == 0 || currentState->score > avg)
-        {
-            delete currentState;
-            continue;
-        }
-
         for (auto s : children)
         {
             // if (toVisit.size() > 100)
@@ -79,7 +72,15 @@ std::string PadSolver::solve(int steps)
             //     if (*s < *topState)
             //         continue;
             // }
-            toVisit.push(s);
+            auto avg = currentState->averageScore;
+            // It means that children is not as good as the parent
+            if (avg == 0 || currentState->score >= avg)
+            {
+            }
+            else
+            {
+                toVisit.push(s);
+            }
         }
     }
 
@@ -88,13 +89,14 @@ std::string PadSolver::solve(int steps)
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
+        if (i == 0) continue;
         if (i > 10)
             break;
         else
             i++;
 
         auto score = *it;
-        ss << score.first << " - " << score.second << "\n";
+        score.second -> printState();
     }
 
     delete rooState;

@@ -36,11 +36,12 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
 
 State::~State()
 {
-    if (children.size() > 0) {
+    if (children.size() > 0 && children.size() < 8) {
         for (auto c : children)
         {
             delete c;
         }
+        children.clear();
     }
 }
 
@@ -75,14 +76,17 @@ State::StateTree State::getChildren()
                 totalScore += nextState->score;
                 totalState += 1;
 
-                children.push_back(nextState);
-                // // Cut down useless branches
-                // int minScore = std::min((int)pow(step, 2.9) * 10, maxScore);
+                int minScore = 0;
+                if (step > 5) {
+                    // Cut down useless branches
+                    minScore = std::min(step / 3 * 1000, maxScore);
+                }
 
-                // if (minScore / score < 2)
-                //     // Only append if it has enough score
-                // else
-                //     delete nextState;
+                if (score > minScore)
+                    // Only append if it has enough score
+                    children.push_back(nextState);
+                else
+                    delete nextState;
             }
         }
     }

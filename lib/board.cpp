@@ -364,6 +364,7 @@ void PadBoard::printBoardForSimulation()
         }
     }
     std::cout << std::endl;
+    std::cout << getBoardID() << std::endl;
 }
 
 void PadBoard::printBoardInfo()
