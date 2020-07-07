@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <queue>
 #include "solver.h"
 
 /// Constrcutors
@@ -21,25 +22,31 @@ std::string PadSolver::solve(int steps)
 {
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
-
     board.printBoardForSimulation();
 
+    std::vector<State> visited;
+    std::priority_queue<State> toVisit;
+
+    // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
-    auto end = OrbLocation(3, 0);
+    // Basically, the start state is like holding the orb so start and end locations are the same
+    State currentState(board, start, start, 0, steps, board.estimatedBestScore());
 
-    State rootState(&board, start, end, 1, steps, board.estimatedBestScore());
-    rootState.solve();
-    ss << "Tree has been built.\n";
-    board.printBoardForSimulation();
-
-    int max = 0;
-    for (auto pair : rootState.visitedState) {
-        int curr = pair.first;
-        ss << curr << "\n";
-        if (curr > max) max = curr;
+    while (currentState.step <= steps)
+    {
+        
     }
 
-    // rootState.visitedState[max] -> printState();
+    ss << "Search has been completed\n";
+
+    int counter = 0;
+    while (counter < 5)
+    {
+        ss << toVisit.top().score << "\n";
+        toVisit.pop();
+        counter++;
+    }
+
     return ss.str();
 }
 

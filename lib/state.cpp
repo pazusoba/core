@@ -7,11 +7,19 @@
 #include <algorithm>
 #include "state.h"
 
-std::map<int, State::StateTree> State::visitedState;
+/// Constrctor
 
-State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
+State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
+    // Update the board by swapping orbs
     this->board = board;
+    board.swapLocation(current, previous);
+
+    // Make a temp copy of board and calculate the score
+    PadBoard copy = board;
+    this->score = copy.rateBoard();
+
+    // Copy other variables
     this->previous = from;
     this->current = to;
     this->step = step;
@@ -19,92 +27,48 @@ State::State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int ma
     this->maxScore = maxScore;
 }
 
-bool State::isWorthy()
+bool operator>(const State &a, const State &b)
 {
-    // Stop immediately
-    if ((step > maxStep / 3 && hasBeenVisited()) || step > maxStep)
-        return false;
-
-    int expected = 0;
-    // if (step > 4)
-    // {
-    //     expected += step * 500;
-    // }
-
-    return score > expected;
+    return a.score > b.score;
 }
 
-bool State::solve()
+/// Functions
+
+StateTree State::getChildren()
 {
-    // Update the board before solving
-    board->swapLocation(current, previous);
-    PadBoard copy = *board;
-    this->score = copy.rateBoard();
+    StateTree children;
 
-    if (!isWorthy())
-        return false;
-
-    // Add this if it should be visited
-    visitedState[score].push_back(*this);
+    // from -1 to 1, all 8 directions
     for (int i = -1; i <= 1; i++)
     {
         for (int j = -1; j <= 1; j++)
         {
-            // This is just current orb
-            if (i == 0 && j == 0)
-                continue;
             auto next = LOCATION(current.first + i, current.second + j);
-            // Must not go back to the parent or choose the same current and a valid location
-            if (board->validLocation(next) && next != previous)
+            // Ignore current and previous location so only 7 possible locations
+            if (next == current || next == previous)
+                continue;
+
+            // It must be a valid location so not out of bound
+            if (board.validLocation(next))
             {
+                // TODO: consider diagonal moves, it should be punished for high risk
                 auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
                 nextState.parent = this;
+
                 children.push_back(nextState);
             }
         }
     }
 
-    // Sort by score
-    std::sort(children.begin(), children.end(), [](State a, State b) {
-        return a.score > b.score;
-    });
-
-    // Only get best ones as the step increases
-    int multipler = (maxStep - step) * 100 / (maxStep * 100);
-    if (multipler == 0)
-        multipler = 1;
-    int maxCount = 8 / multipler;
-    for (auto newState : children)
-    {
-        if (maxCount == 0)
-            break;
-        newState.solve();
-        // Ask all children to revert the board
-        newState.revertBoard();
-        maxCount--;
-    }
-
-    return true;
+    return children;
 }
 
-bool State::hasBeenVisited()
-{
-    auto current = visitedState[score];
-    if (current.size() == 0)
-        return false;
-    for (auto s : current)
-    {
-        // Check if this has the same parent as before
-        if (s.step < step && s.parent == parent)
-            return true;
-    }
-    return false;
-}
+/// Utils
 
 void State::printState()
 {
     std::cout << score << " - " << step << std::endl;
-    board->printBoardForSimulation();
+    board.printBoardForSimulation();
 
     State *curr = this;
     while (curr != NULL)
@@ -114,9 +78,4 @@ void State::printState()
         curr = curr->parent;
     }
     std::cout << "NULL\n\n";
-}
-
-void State::revertBoard()
-{
-    board->swapLocation(current, previous);
 }

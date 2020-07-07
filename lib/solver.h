@@ -18,6 +18,7 @@ class PadSolver
     // Row and column are used to count board size
     int row = 0;
     int column = 0;
+    // This is the original board
     PadBoard board;
 
     // Read board from filePath, return the board

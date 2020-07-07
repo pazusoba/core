@@ -9,14 +9,13 @@
 #include <map>
 #include "board.h"
 
+// A list of state
+typedef std::vector<State> StateTree;
+
 class State
 {
-    // A list of state
-    typedef std::vector<State> StateTree;
-
     // The board
-    PadBoard *board;
-
+    PadBoard board;
     // This is the previous orb and it moved to current orb
     // Current must not move back to parent location
     OrbLocation previous;
@@ -24,44 +23,26 @@ class State
     OrbLocation current;
     // An estimation of a good score
     int maxScore;
-    // This is the number of steps (depth)
-    int step;
     // This is max step we want to go (termination point)
     int maxStep;
     // ALl possible moves from this state
     StateTree children;
 
-    /**
-     * There are too many possibilities so I need to cut down many of them.
-     * Most moves are complicated useless and good moves will stand up with a good score.
-     */
-    bool isWorthy();
-
-    // Whether this state has been visited
-    // Must be called after score has been calculated
-    bool hasBeenVisited();
-
 public:
     // This score shows how good the current board is
     int score = 0;
+    // This is the number of steps (depth)
+    int step;
     // Save the parent's address to track back
     State *parent = NULL;
-    static std::map<int, StateTree> visitedState;
 
-    State(PadBoard *board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+    State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
 
-    // Check if this path actually has more score compare to current one
-    bool hasMoreScore(int score);
-
-    // Keep solving until max steps have been reached
-    // return - true if it is worthy
-    bool solve();
+    // This returns a list of all possible children states
+    StateTree getChildren();
 
     // Print out current state, its board, score and more
     void printState();
-
-    // Move orbs back, must call this after each state
-    void revertBoard();
 };
 
 #endif
