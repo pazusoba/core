@@ -9,7 +9,7 @@ build:
 	$(GCC) main.cpp $(CPP_FILES)
 
 test:
-	$(GCC) test.cpp
+	$(GCC) test.cpp $(CPP_FILES)
 	./a.exe
 
 # run the program
