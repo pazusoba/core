@@ -23,6 +23,9 @@ class State
     // ALl possible moves from this state
     StateTree children;
 
+    // This is a recursive function to print from the beginning
+    void printStateFromRoot(State *parent);
+
 public:
     // This score shows how good the current board is
     int score = 0;

@@ -38,7 +38,7 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        if (counter > 30000)
+        if (counter > 10000)
             break;
 
         // Update current state
@@ -89,12 +89,12 @@ std::string PadSolver::solve(int steps)
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i == 0) continue;
         if (i > 10)
             break;
         else
             i++;
 
+        if (i == 1) continue;
         auto score = *it;
         score.second -> printState();
     }

@@ -36,7 +36,8 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
 
 State::~State()
 {
-    if (children.size() > 0 && children.size() < 8) {
+    if (children.size() > 0 && children.size() < 8)
+    {
         for (auto c : children)
         {
             delete c;
@@ -54,6 +55,9 @@ bool State::operator<(const State &a) const
 
 State::StateTree State::getChildren()
 {
+    // Stop when max step has been reached
+    if (step > maxStep) return children;
+
     int totalScore = 0;
     int totalState = 0;
     // from -1 to 1, all 8 directions
@@ -77,9 +81,10 @@ State::StateTree State::getChildren()
                 totalState += 1;
 
                 int minScore = 0;
-                if (step > 5) {
+                if (step > 5)
+                {
                     // Cut down useless branches
-                    minScore = std::min(step / 3 * 1000, maxScore);
+                    minScore = std::min(step / 3 * 700, maxScore);
                 }
 
                 if (score > minScore)
@@ -97,17 +102,21 @@ State::StateTree State::getChildren()
 
 /// Utils
 
+void State::printStateFromRoot(State *parent)
+{
+    if (parent != NULL)
+    {
+        printStateFromRoot(parent->parent);
+        auto loc = parent->current;
+        std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
+    }
+}
+
 void State::printState()
 {
     std::cout << score << " - " << step << std::endl;
     board.printBoardForSimulation();
 
-    State *curr = this;
-    while (curr != NULL)
-    {
-        auto loc = curr->current;
-        std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
-        curr = curr->parent;
-    }
+    printStateFromRoot(this);
     std::cout << "NULL\n\n";
 }
