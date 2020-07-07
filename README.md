@@ -11,6 +11,8 @@ This works but is really slow to go through all possible paths even if many are 
 #### Guided breadth first search
 I am trying this approach because it will always find the optimal path. It will explore paths with the highest score first but it won't reflect the end score. I will have a list of best 100 states in the end. Hopefully, this will prevent duplicate states. 
 
+Now, I have a queue that has a max size of 100 so the algothm will only check for the most promising states. Many states are being pruned but this is still not optimal and it hasn't really work for all boards. I will start prevent diagonal moves.
+
 ### Steps
 - vertical and horizontal moves are considered as 1 step
 - diagonal moves are considered as 2 - 3 steps

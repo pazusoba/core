@@ -50,7 +50,8 @@ bool State::operator<(const State &a) const
 State::StateTree State::getChildren()
 {
     // Stop when max step has been reached
-    if (step > maxStep) return children;
+    if (step > maxStep)
+        return children;
 
     int totalScore = 0;
     int totalState = 0;
@@ -59,6 +60,16 @@ State::StateTree State::getChildren()
     {
         for (int j = -1; j <= 1; j++)
         {
+            int stepOffset = 1;
+            // if (
+            //     (i == -1 && j == -1) ||
+            //     (i == 1 && j == 1) ||
+            //     (i == -1 && j == 1) ||
+            //     (i == 1 && j == -1))
+            // {
+            //     stepOffset = 2;
+            // }
+
             auto next = LOCATION(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations
             if (next == current || next == previous)
@@ -68,7 +79,7 @@ State::StateTree State::getChildren()
             if (board.validLocation(next))
             {
                 // TODO: consider diagonal moves, it should be punished for high risk
-                auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
+                auto nextState = new State(board.copy(), current, next, step + stepOffset, maxStep, maxScore);
                 nextState->parent = this;
 
                 totalScore += nextState->score;
@@ -76,7 +87,7 @@ State::StateTree State::getChildren()
 
                 int minScore = 0;
                 // Cut down useless branches
-                minScore =  step / 3 * 800;
+                minScore = step / 3 * 800;
 
                 if (score > minScore)
                     // Only append if it has enough score
