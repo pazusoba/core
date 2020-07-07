@@ -26,7 +26,7 @@ std::string PadSolver::solve(int steps)
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    std::priority_queue<State *> toVisit;
+    std::queue<State *> toVisit;
     std::map<int, int> bestScore;
 
     // Start and end should be the same for step 0
@@ -35,14 +35,17 @@ std::string PadSolver::solve(int steps)
     auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit.push(rooState);
 
+    int counter = 0;
     while (toVisit.size() > 0)
     {
+        if (counter > 100000)
+            break;
+
         // Update current state
-        auto currentState = toVisit.top();
+        auto currentState = toVisit.front();
         toVisit.pop();
-        int currentStep = currentState->step;
+        // int currentStep = currentState->step;
         bestScore[currentState->score]++;
-        ;
 
         // if (currentState->step > 10)
         // {
@@ -50,14 +53,23 @@ std::string PadSolver::solve(int steps)
         //     int a = 0;
         // }
 
-        auto boardID = currentState->boardID;
-        int lastStepCount = visited[boardID];
-        if (lastStepCount > 0 && currentStep > lastStepCount)
-            continue;
-        else
-            visited[boardID] = currentStep;
+        // auto boardID = currentState->boardID;
+        // int lastStepCount = visited[boardID];
+        // if (lastStepCount > 0 && currentStep > lastStepCount)
+        //     continue;
+        // else
+        //     visited[boardID] = currentStep;
 
+        counter++;
         auto children = currentState->getChildren();
+        auto avg = currentState->averageScore;
+        // It means that children is not as good as the parent
+        if (avg == 0 || currentState->score > avg)
+        {
+            delete currentState;
+            continue;
+        }
+
         for (auto s : children)
         {
             // if (toVisit.size() > 100)

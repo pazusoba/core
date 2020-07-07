@@ -11,7 +11,7 @@ PadSolver *handleInput(int, char **);
 int main(int argc, char *argv[])
 {
     auto soba = handleInput(argc, argv);
-    std::cout << soba->solve(35) << std::endl;
+    std::cout << soba->solve(25) << std::endl;
     delete soba;
 
     return 0;

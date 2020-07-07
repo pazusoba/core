@@ -4,7 +4,7 @@
  */
 
 #include <iostream>
-#include <algorithm>
+#include <cmath>
 #include "state.h"
 
 /// Constrctor
@@ -36,11 +36,12 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
 
 State::~State()
 {
-    for (auto c : children)
-    {
-        delete c;
+    if (children.size() > 0) {
+        for (auto c : children)
+        {
+            delete c;
+        }
     }
-    children.clear();
 }
 
 bool State::operator<(const State &a) const
@@ -52,6 +53,8 @@ bool State::operator<(const State &a) const
 
 State::StateTree State::getChildren()
 {
+    int totalScore = 0;
+    int totalState = 0;
     // from -1 to 1, all 8 directions
     for (int i = -1; i <= 1; i++)
     {
@@ -69,20 +72,22 @@ State::StateTree State::getChildren()
                 auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
 
-                // Cut down useless branches
-                int minScore = 0;
-                double percentage = (double)step / (double)maxStep;
-                minScore = (int)(maxScore * percentage);
+                totalScore += nextState->score;
+                totalState += 1;
 
-                if (score > minScore)
-                    // Only append if it has enough score
-                    children.push_back(nextState);
-                else
-                    delete nextState;
+                children.push_back(nextState);
+                // // Cut down useless branches
+                // int minScore = std::min((int)pow(step, 2.9) * 10, maxScore);
+
+                // if (minScore / score < 2)
+                //     // Only append if it has enough score
+                // else
+                //     delete nextState;
             }
         }
     }
 
+    averageScore = totalScore / totalState;
     return children;
 }
 

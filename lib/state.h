@@ -26,6 +26,8 @@ class State
 public:
     // This score shows how good the current board is
     int score = 0;
+    // This can reflex how good this path is
+    int averageScore = 0;
     // This is the number of steps (depth)
     int step;
     // This is the previous orb and it moved to current orb
