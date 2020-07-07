@@ -9,18 +9,13 @@
 #include <map>
 #include "board.h"
 
-// A list of state
-typedef std::vector<State> StateTree;
-
 class State
 {
+    // A list of state
+    typedef std::vector<State> StateTree;
+
     // The board
     PadBoard board;
-    // This is the previous orb and it moved to current orb
-    // Current must not move back to parent location
-    OrbLocation previous;
-    // This is current orb which is active (the player is holding it)
-    OrbLocation current;
     // An estimation of a good score
     int maxScore;
     // This is max step we want to go (termination point)
@@ -33,10 +28,16 @@ public:
     int score = 0;
     // This is the number of steps (depth)
     int step;
+    // This is the previous orb and it moved to current orb
+    // Current must not move back to parent location
+    OrbLocation previous;
+    // This is current orb which is active (the player is holding it)
+    OrbLocation current;
     // Save the parent's address to track back
     State *parent = NULL;
 
     State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+    bool operator<(const State &a) const;
 
     // This returns a list of all possible children states
     StateTree getChildren();

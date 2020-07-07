@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue>
+#include <map>
 #include "solver.h"
 
 /// Constrcutors
@@ -24,17 +25,53 @@ std::string PadSolver::solve(int steps)
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
-    std::vector<State> visited;
+    std::map<int, State*> visited;
     std::priority_queue<State> toVisit;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
     State currentState(board, start, start, 0, steps, board.estimatedBestScore());
+    toVisit.push(currentState);
 
-    while (currentState.step <= steps)
+    while (toVisit.size() > 0)
     {
-        
+        // Update current state
+        currentState = toVisit.top();
+        toVisit.pop();
+
+        int step = currentState.step;
+        int minScore = 0;
+        if (step > 5) {
+            minScore = step * 100;
+        }
+
+        if (currentState.score < minScore) 
+            continue;
+
+        if (currentState.step > 10) 
+        {
+            // DEBUG only
+            int a = 0;
+        }
+
+        auto lastVisited = visited[currentState.score];
+        if (lastVisited != NULL && lastVisited -> step < step)
+            continue;
+
+        auto children = currentState.getChildren();
+        for (const State s : children)
+        {
+            if (toVisit.size() > 100)
+            {
+                // Must be better than the best state
+                const auto topState = toVisit.top();
+                if (s < topState)
+                    continue;
+            }
+            toVisit.push(s);
+        }
+        visited[currentState.score] = &currentState;
     }
 
     ss << "Search has been completed\n";

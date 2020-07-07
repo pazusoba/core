@@ -13,11 +13,16 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
 {
     // Update the board by swapping orbs
     this->board = board;
-    board.swapLocation(current, previous);
+    // don't use current and previous because they are not yet initialised
+    board.swapLocation(from, to);
 
     // Make a temp copy of board and calculate the score
     PadBoard copy = board;
     this->score = copy.rateBoard();
+    if (this->score > maxScore)
+    {
+        board.printBoardForSimulation();
+    }
 
     // Copy other variables
     this->previous = from;
@@ -27,14 +32,14 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
     this->maxScore = maxScore;
 }
 
-bool operator>(const State &a, const State &b)
+bool State::operator<(const State &a) const
 {
-    return a.score > b.score;
+    return score < a.score;
 }
 
 /// Functions
 
-StateTree State::getChildren()
+State::StateTree State::getChildren()
 {
     StateTree children;
 
