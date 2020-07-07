@@ -26,7 +26,8 @@ std::string PadSolver::solve(int steps)
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    std::queue<State *> toVisit;
+    std::priority_queue<State *> toVisit;
+    std::map<int, int> bestScore;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
@@ -37,9 +38,11 @@ std::string PadSolver::solve(int steps)
     while (toVisit.size() > 0)
     {
         // Update current state
-        auto currentState = toVisit.front();
+        auto currentState = toVisit.top();
         toVisit.pop();
         int currentStep = currentState->step;
+        bestScore[currentState->score]++;
+        ;
 
         // if (currentState->step > 10)
         // {
@@ -69,6 +72,18 @@ std::string PadSolver::solve(int steps)
     }
 
     ss << "Search has been completed\n";
+
+    int i = 0;
+    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
+    {
+        if (i > 10)
+            break;
+        else
+            i++;
+
+        auto score = *it;
+        ss << score.first << " - " << score.second << "\n";
+    }
 
     delete rooState;
     return ss.str();

@@ -12,19 +12,17 @@
 State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
     // Update the board by swapping orbs
-    PadBoard copy = board;
-    copy.swapLocation(from, to);
-    this->board = copy;
-    this->boardID = copy.getBoardID();
-    auto anotherCopy = copy;
-    this->score = anotherCopy.rateBoard();
+    this->board = board;
     // don't use current and previous because they are not yet initialised
     this->board.swapLocation(from, to);
+    this->boardID = this->board.getBoardID();
+    auto copy = this->board;
+    this->score = copy.rateBoard();
 
     // Make a temp copy of board and calculate the score
     if (this->score > maxScore)
     {
-        board.printBoardForSimulation();
+        this->board.printBoardForSimulation();
     }
 
     // Copy other variables
@@ -70,16 +68,11 @@ State::StateTree State::getChildren()
                 // TODO: consider diagonal moves, it should be punished for high risk
                 auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
-                printState();
-                nextState -> printState();
 
                 // Cut down useless branches
                 int minScore = 0;
-                if (step > maxStep / 3)
-                {
-                    double percentage = (double)step / (double)maxStep;
-                    minScore = (int)(maxScore * percentage);
-                }
+                double percentage = (double)step / (double)maxStep;
+                minScore = (int)(maxScore * percentage);
 
                 if (score > minScore)
                     // Only append if it has enough score
