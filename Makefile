@@ -1,8 +1,15 @@
 # This Makefile only works on windows machine. There need to be some tweaks to make it work on Linux or Mac
+CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp
+GCC=g++ -Wall -Werror
+CLEAN=del /s *.exe
+MAKE=mingw32-make.exe
 
 # build
 build:
-	g++ -Wall -Werror main.cpp lib/solver.cpp lib/board.cpp lib/state.cpp
+	$(GCC) main.cpp $(CPP_FILES)
+
+test:
+	$(GCC) -Wall -Werror test.cpp $(CPP_FILES)
 
 # run the program
 run:
@@ -18,13 +25,13 @@ run65:
 
 # remove all exe files
 clean:
-	del /s *.exe
+	$(CLEAN)
 
 # clean, build, run all in one
 all:
-	mingw32-make.exe clean
-	mingw32-make.exe build
-	mingw32-make.exe run
+	$(MAKE) clean
+	$(MAKE) build
+	$(MAKE) run
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
