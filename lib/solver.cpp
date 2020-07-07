@@ -30,7 +30,7 @@ std::string PadSolver::solve(int steps)
     std::map<int, State *> bestScore;
 
     // Start and end should be the same for step 0
-    auto start = OrbLocation(2, 0);
+    auto start = OrbLocation(0, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit.push(rooState);
@@ -38,12 +38,13 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        if (counter > 100000)
-            break;
+        // if (counter > 100000)
+        //     break;
 
         // Update current state
         auto currentState = toVisit.top();
         toVisit.pop();
+
         int currentScore = currentState -> score;
         if (bestScore[currentScore] == NULL)
             bestScore[currentScore] = currentState;
@@ -65,13 +66,15 @@ std::string PadSolver::solve(int steps)
         auto children = currentState->getChildren();
         for (auto s : children)
         {
-            // if (toVisit.size() > 100)
-            // {
-            //     // Must be better than the best state
-            //     auto topState = toVisit.front();
-            //     if (*s < *topState)
-            //         continue;
-            // }
+            // The number here will affect the result and also speed
+            if (toVisit.size() > 100)
+            {
+                // Must be better than the best state
+                auto topState = toVisit.top();
+                if (*s < *topState)
+                    continue;
+            }
+
             auto avg = currentState->averageScore;
             // It means that children is not as good as the parent
             if (avg == 0 || currentState->score >= avg)
