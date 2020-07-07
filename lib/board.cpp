@@ -4,6 +4,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include "board.h"
 
@@ -461,6 +462,20 @@ int PadBoard::getMaxCombo(int *counter)
     } while (moreComboCount > 0);
 
     return comboCounter;
+}
+
+std::string PadBoard::getBoardID()
+{
+    // Get unique ID
+    std::stringstream id;
+    for (auto row : board)
+    {
+        for (auto orb : row)
+        {
+            id << (int)orb;
+        }
+    }
+    return id.str();
 }
 
 int PadBoard::getBoardMaxCombo()

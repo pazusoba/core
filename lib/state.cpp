@@ -15,6 +15,7 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
     this->board = board;
     // don't use current and previous because they are not yet initialised
     board.swapLocation(from, to);
+    this->boardID = board.getBoardID();
 
     // Make a temp copy of board and calculate the score
     PadBoard copy = board;
@@ -30,6 +31,16 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
     this->step = step;
     this->maxStep = maxStep;
     this->maxScore = maxScore;
+    this->children.clear();
+}
+
+State::~State()
+{
+    for (auto c : children)
+    {
+        delete c;
+    }
+    children.clear();
 }
 
 bool State::operator<(const State &a) const
@@ -41,8 +52,6 @@ bool State::operator<(const State &a) const
 
 State::StateTree State::getChildren()
 {
-    StateTree children;
-
     // from -1 to 1, all 8 directions
     for (int i = -1; i <= 1; i++)
     {
@@ -57,10 +66,23 @@ State::StateTree State::getChildren()
             if (board.validLocation(next))
             {
                 // TODO: consider diagonal moves, it should be punished for high risk
-                auto nextState = State(board, current, next, step + 1, maxStep, maxScore);
-                nextState.parent = this;
+                auto nextState = new State(board, current, next, step + 1, maxStep, maxScore);
+                nextState->parent = this;
+                nextState ->board.printBoard();
 
-                children.push_back(nextState);
+                // Cut down useless branches
+                int minScore = 0;
+                if (step > maxStep / 3)
+                {
+                    double percentage = (double)step / (double)maxStep;
+                    minScore = (int)(maxScore * percentage);
+                }
+
+                if (score > minScore)
+                    // Only append if it has enough score
+                    children.push_back(nextState);
+                else
+                    delete nextState;
             }
         }
     }

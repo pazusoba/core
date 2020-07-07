@@ -12,7 +12,7 @@
 class State
 {
     // A list of state
-    typedef std::vector<State> StateTree;
+    typedef std::vector<State*> StateTree;
 
     // The board
     PadBoard board;
@@ -35,8 +35,11 @@ public:
     OrbLocation current;
     // Save the parent's address to track back
     State *parent = NULL;
+    // Every board has an unique id string
+    std::string boardID;
 
     State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+    ~State();
     bool operator<(const State &a) const;
 
     // This returns a list of all possible children states

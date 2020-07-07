@@ -25,65 +25,52 @@ std::string PadSolver::solve(int steps)
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
-    std::map<int, State*> visited;
-    std::priority_queue<State> toVisit;
+    std::map<std::string, int> visited;
+    std::queue<State *> toVisit;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
-    State currentState(board, start, start, 0, steps, board.estimatedBestScore());
-    toVisit.push(currentState);
+    auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
+    toVisit.push(rooState);
 
     while (toVisit.size() > 0)
     {
         // Update current state
-        currentState = toVisit.top();
+        auto currentState = toVisit.front();
         toVisit.pop();
+        int currentStep = currentState->step;
 
-        int step = currentState.step;
-        int minScore = 0;
-        if (step > 5) {
-            minScore = step * 100;
-        }
+        // if (currentState->step > 10)
+        // {
+        //     // DEBUG only
+        //     int a = 0;
+        // }
 
-        if (currentState.score < minScore) 
+        auto boardID = currentState->boardID;
+        int lastStepCount = visited[boardID];
+        if (lastStepCount > 0 && currentStep > lastStepCount)
             continue;
+        else
+            visited[boardID] = currentStep;
 
-        if (currentState.step > 10) 
+        auto children = currentState->getChildren();
+        for (auto s : children)
         {
-            // DEBUG only
-            int a = 0;
-        }
-
-        auto lastVisited = visited[currentState.score];
-        if (lastVisited != NULL && lastVisited -> step < step)
-            continue;
-
-        auto children = currentState.getChildren();
-        for (const State s : children)
-        {
-            if (toVisit.size() > 100)
-            {
-                // Must be better than the best state
-                const auto topState = toVisit.top();
-                if (s < topState)
-                    continue;
-            }
+            // if (toVisit.size() > 100)
+            // {
+            //     // Must be better than the best state
+            //     auto topState = toVisit.front();
+            //     if (*s < *topState)
+            //         continue;
+            // }
             toVisit.push(s);
         }
-        visited[currentState.score] = &currentState;
     }
 
     ss << "Search has been completed\n";
 
-    int counter = 0;
-    while (counter < 5)
-    {
-        ss << toVisit.top().score << "\n";
-        toVisit.pop();
-        counter++;
-    }
-
+    delete rooState;
     return ss.str();
 }
 
