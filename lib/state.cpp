@@ -68,9 +68,10 @@ State::StateTree State::getChildren()
             if (board.validLocation(next))
             {
                 // TODO: consider diagonal moves, it should be punished for high risk
-                auto nextState = new State(board, current, next, step + 1, maxStep, maxScore);
+                auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
-                nextState ->board.printBoardForSimulation();
+                printState();
+                nextState -> printState();
 
                 // Cut down useless branches
                 int minScore = 0;
