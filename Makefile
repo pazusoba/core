@@ -9,7 +9,8 @@ build:
 	$(GCC) main.cpp $(CPP_FILES)
 
 test:
-	$(GCC) -Wall -Werror test.cpp $(CPP_FILES)
+	$(GCC) test.cpp
+	./a.exe
 
 # run the program
 run:
