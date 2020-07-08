@@ -1,11 +1,11 @@
-# パズそば (Puzzle & Dragon solver)
-I have been playing this game (the Japanese version) for 2000 days (until 2/7/2020). I started back in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. 
+# パズそば (Puzzle & Dragons solver)
+I have been playing this game (the Japanese version) for 2000 days (until 2/7/2020). I started back in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. C++ reminds me of my good old days with C because you feel like you can anything with it. C/C++ are unique to me because C is my first programming language but it was a tough way to start programming. Lately, I have been using JS, Python, Dart, Swift and Kotlin. They are modern and easier to write but you must not forget about the origin. 
 
-## Goal
-Really quick to find a good enough path. Ideally, it is short and cascading.
+## The goal
+The goal is to find a good enough path quickly. Ideally, it should be short and cascading (except that it is never that ideal). Currently, it is not good enough and can be improved. However, it is not bad and it can do around `max combo - 1 or - 2` depending on how good the board is. Not all boards are equal but my AI cannot adapt to it which is causing some issues. Currently, it is allowed to have 20 - 30 steps but often when I can play the game, it takes 40 steps+ to reach max combo. That's why it might not even be possible to do max combo with only 20 - 30 steps. 
 
 ### Approaches
-Currently, this is not optimal but due to the large amount of possible states, I have pruned many states but it still possible that those states will eventually lead to the optimal path. This is still under development.
+Currently, this is not optimal but due to the large amount of possible states, I have pruned many states but it still possible that those states will eventually lead to the optimal path.
 
 #### Greedy best first search
 This works but is really slow to go through all possible paths even if many are pruned. High score paths are really impressive and some of them are not something I can think of. The only problem with this approach is that often optimal path will not be found. The size of the tree is 7^step which is huge.  
