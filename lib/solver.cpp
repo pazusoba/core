@@ -27,6 +27,7 @@ std::string PadSolver::solve(int steps)
 
     std::map<std::string, int> visited;
     std::priority_queue<State *> toVisit;
+    std::vector<int> bestScorePerStep(steps + 2);
     std::map<int, State *> bestScore;
 
     // Start and end should be the same for step 0
@@ -38,7 +39,7 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        if (counter > 10000)
+        if (counter > 50000)
             break;
 
         // Update current state
@@ -46,6 +47,14 @@ std::string PadSolver::solve(int steps)
         toVisit.pop();
 
         int currentScore = currentState -> score;
+        int currStep = currentState -> step;
+
+        // Not good enough
+        if (bestScorePerStep[currStep] < currentScore)
+            bestScorePerStep[currStep] = currentScore;
+        else if (bestScorePerStep[currStep] / currentScore > 4)
+            continue;
+
         if (bestScore[currentScore] == NULL)
             bestScore[currentScore] = currentState;
 
@@ -67,25 +76,25 @@ std::string PadSolver::solve(int steps)
         for (auto s : children)
         {
             // The number here will affect the result and also speed
-            if (toVisit.size() > 100)
-            {
-                // Must be better than the best state
-                auto topState = toVisit.top();
-                if (*s < *topState)
-                    continue;
-            } else {
-                toVisit.push(s);
-                continue;
-            }
+            // if (toVisit.size() > 100)
+            // {
+            //     // Must be better than the best state
+            //     auto topState = toVisit.top();
+            //     if (*s < *topState)
+            //         continue;
+            // } else {
+            //     toVisit.push(s);
+            //     continue;
+            // }
 
             auto avg = currentState->averageScore;
+            toVisit.push(s);
             // It means that children is not as good as the parent
             if (avg == 0 || currentState->score >= avg)
             {
             }
             else
             {
-                toVisit.push(s);
             }
         }
     }
