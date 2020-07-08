@@ -38,8 +38,8 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit.size() > 0)
     {
-        // if (counter > 100000)
-        //     break;
+        if (counter > 10000)
+            break;
 
         // Update current state
         auto currentState = toVisit.top();
@@ -73,6 +73,9 @@ std::string PadSolver::solve(int steps)
                 auto topState = toVisit.top();
                 if (*s < *topState)
                     continue;
+            } else {
+                toVisit.push(s);
+                continue;
             }
 
             auto avg = currentState->averageScore;
