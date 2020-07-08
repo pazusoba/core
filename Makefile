@@ -1,8 +1,20 @@
-# This Makefile only works on windows machine. There need to be some tweaks to make it work on Linux or Mac
+# set it to `mac` to use max/linux command and use `win` for windows
+PLATFORM=mac
+
+# assign different commands
+ifeq ($(PLATFORM), mac)
+	MAKE=make
+	CLEAN=rm *.out
+	OUTPUT=./a.out
+else ifeq ($(PLATFORM), win)
+	CLEAN=del /s *.exe
+	MAKE=mingw32-make.exe
+	OUTPUT=./a.exe
+endif
+
+# shared arguments
+GCC=g++ -Wall -Werror -std=c++11
 CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp
-GCC=g++ -Wall -Werror
-CLEAN=del /s *.exe
-MAKE=mingw32-make.exe
 
 # build
 build:
@@ -10,19 +22,19 @@ build:
 
 test:
 	$(GCC) test.cpp $(CPP_FILES)
-	./a.exe
+	$(OUTPUT)
 
 # run the program
 run:
-	./a.exe
+	$(OUTPUT)
 
 # run the program with sample 76 board
 run76:
-	./a.exe assets/sample_board_76.txt
+	$(OUTPUT) assets/sample_board_76.txt
 
 # run the program with sample 65 board
 run65:
-	./a.exe assets/sample_board_65.txt
+	$(OUTPUT) assets/sample_board_65.txt
 
 # remove all exe files
 clean:
@@ -36,7 +48,7 @@ all:
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
-	python assets/board_gen.py 7x6 20
-	python assets/board_gen.py 6x5 20
-	python assets/board_gen.py 5x4 20
+	python3 assets/board_gen.py 7x6 20
+	python3 assets/board_gen.py 6x5 20
+	python3 assets/board_gen.py 5x4 20
 	move /y board_*.txt assets/
