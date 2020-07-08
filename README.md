@@ -1,10 +1,12 @@
 # パズそば (Puzzle & Dragon solver)
-I have been playing this game (the Japanese version) for 2000 days (until 2/7/2020). I started back in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories with my friend. 
+I have been playing this game (the Japanese version) for 2000 days (until 2/7/2020). I started back in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. 
 
 ## Goal
 Really quick to find a good enough path. Ideally, it is short and cascading.
 
 ### Approaches
+Currently, this is not optimal but due to the large amount of possible states, I have pruned many states but it still possible that those states will eventually lead to the optimal path. This is still under development.
+
 #### Greedy best first search
 This works but is really slow to go through all possible paths even if many are pruned. High score paths are really impressive and some of them are not something I can think of. The only problem with this approach is that often optimal path will not be found. The size of the tree is 7^step which is huge.  
 
