@@ -5,9 +5,9 @@
 
 #include <fstream>
 #include <sstream>
-#include <queue>
 #include <map>
 #include "solver.h"
+#include "queue.h"
 
 /// Constrcutors
 
@@ -26,7 +26,7 @@ std::string PadSolver::solve(int steps)
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    std::priority_queue<State *> toVisit;
+    PadPriorityQueue *toVisit = new PadPriorityQueue(100);
     std::vector<int> bestScorePerStep(steps + 2);
     std::map<int, State *> bestScore;
 
@@ -34,26 +34,25 @@ std::string PadSolver::solve(int steps)
     auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
-    toVisit.push(rooState);
+    toVisit->insert(rooState);
 
     int counter = 0;
-    while (toVisit.size() > 0)
+    while (toVisit->size > 0)
     {
         if (counter > 50000)
             break;
 
         // Update current state
-        auto currentState = toVisit.top();
-        toVisit.pop();
+        auto currentState = toVisit->pop();
 
-        int currentScore = currentState -> score;
-        int currStep = currentState -> step;
+        int currentScore = currentState->score;
+        // int currStep = currentState -> step;
 
-        // Not good enough
-        if (bestScorePerStep[currStep] < currentScore)
-            bestScorePerStep[currStep] = currentScore;
-        else if (bestScorePerStep[currStep] / currentScore > 4)
-            continue;
+        // // Not good enough
+        // if (bestScorePerStep[currStep] < currentScore)
+        //     bestScorePerStep[currStep] = currentScore;
+        // else if (bestScorePerStep[currStep] / currentScore > 4)
+        //     continue;
 
         if (bestScore[currentScore] == NULL)
             bestScore[currentScore] = currentState;
@@ -87,15 +86,15 @@ std::string PadSolver::solve(int steps)
             //     continue;
             // }
 
-            auto avg = currentState->averageScore;
-            toVisit.push(s);
+            // auto avg = currentState->averageScore;
+            toVisit->insert(s);
             // It means that children is not as good as the parent
-            if (avg == 0 || currentState->score >= avg)
-            {
-            }
-            else
-            {
-            }
+            // if (avg == 0 || currentState->score >= avg)
+            // {
+            // }
+            // else
+            // {
+            // }
         }
     }
 
@@ -109,11 +108,13 @@ std::string PadSolver::solve(int steps)
         else
             i++;
 
-        if (i == 1) continue;
+        if (i == 1)
+            continue;
         auto score = *it;
-        score.second -> printState();
+        score.second->printState();
     }
 
+    delete toVisit;
     delete rooState;
     return ss.str();
 }
