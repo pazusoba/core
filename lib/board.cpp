@@ -47,7 +47,8 @@ int PBoard::rateBoard()
                 for (int y = -1; y <= 1; y++)
                 {
                     // This is the current orb
-                    if (i == 0 && j == 0) continue;
+                    if (i == 0 && j == 0)
+                        continue;
                     if (hasSameOrb(currOrb, i + x, j + y))
                     {
                         orbAround++;
@@ -88,17 +89,30 @@ int PBoard::rateBoard()
             printBoard();
     } while (newCombo > 0);
 
-    // Check how many orbs left, I think less means better because you want to erase more orbs
+    // Check how many combos are left in the board
+    int comboLeft = 0;
     int orbLeft = 0;
+    int *orbCount = new int[pad::ORB_COUNT]{0};
     for (int i = 0; i < column; i++)
     {
         for (int j = 0; j < row; j++)
         {
-            if (board[i][j] != pad::empty)
+            auto orb = board[i][j];
+            if (orb != pad::empty)
+            {
                 orbLeft++;
+                orbCount[orb]++;
+                if (orbCount[orb] == minEraseCondition)
+                {
+                    orbCount[orb] = 0;
+                    comboLeft += 1;
+                }
+            }
         }
     }
+    delete orbCount;
     // Add the score if it erases more orbs
+    score -= comboLeft * pad::ORB_AROUND_SCORE;
     score -= orbLeft * pad::ORB_NEARBY_SCORE;
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count

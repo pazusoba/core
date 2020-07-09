@@ -47,7 +47,8 @@ bool PState::operator<(const PState &a) const
 
 bool PState::operator>(const PState &a) const
 {
-    return score > a.score;
+    // At least same step and more score
+    return score / step > a.score / a.step;
 }
 
 /// Functions

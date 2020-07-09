@@ -67,7 +67,7 @@ namespace pad
         /**
          * score for a single combo
          */
-        ONE_COMBO_SCORE = 1000,
+        ONE_COMBO_SCORE = 10000,
     };
 } // namespace pad
 
