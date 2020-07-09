@@ -19,7 +19,7 @@ PadPriorityQueue::~PadPriorityQueue()
 
 State *PadPriorityQueue::pop()
 {
-    if (top != NULL)
+    if (size > 0)
     {
         // This is element we want to return
         auto toPop = top;
@@ -42,7 +42,7 @@ State *PadPriorityQueue::pop()
         }
 
         delete toPop;
-        this->size--;
+        size--;
         return topState;
     }
 
@@ -110,17 +110,18 @@ void PadPriorityQueue::insert(State *newState)
     {
         PadQueue *newTop = new PadQueue(newState);
         // It was top but now it is second
-        auto second = top;
+        auto topNext = top;
         // Update top and link second with top
         this->top = newTop;
-        newTop->next = second;
-        second->previous = newTop;
+        newTop->next = topNext;
+        topNext->previous = newTop;
 
         // Remove bottom and make second last the last
-        auto secondLast = bottom->previous;
-        delete this->bottom;
-        secondLast->next = NULL;
+        auto toRemove = bottom;
+        auto secondLast = toRemove->previous;
         this->bottom = secondLast;
+        secondLast->next = NULL;
+        delete toRemove;
     }
 }
 

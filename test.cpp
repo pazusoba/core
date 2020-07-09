@@ -70,7 +70,7 @@ void printBoard(Board board)
 void testQueue()
 {
     // Test queue
-    PadPriorityQueue *pq = new PadPriorityQueue(10);
+    PadPriorityQueue *pq = new PadPriorityQueue(100);
     // Nothing inside so returns NULL
     assert(pq->pop() == NULL);
 
@@ -105,23 +105,28 @@ void testQueue()
     pq->insert(testState);
     assert(pq->size == 10);
     pq->insert(testState4);
-    assert(pq->size == 10);
+    assert(pq->size == 11);
     pq->insert(testState);
     pq->insert(testState);
     pq->insert(testState);
     pq->insert(testState);
     pq->insert(testState);
     pq->insert(testState2);
-    // Max size must be 10
-    assert(pq->size == 10);
+    assert(pq->size == 17);
     pq->printQueue();
 
-    // Now, size is 9
+    // Now, size is 16
     assert(pq->pop() == testState2);
-    assert(pq->size == 9);
+    assert(pq->size == 16);
+    pq->printQueue();
+
+    for (int i = 0 ; i < 20000; i++)
+    {
+        pq -> insert(testState2);
+    }
     pq->printQueue();
 
     // Clean up
     delete pq;
-    delete testState;
+    delete testState, delete testState2, delete testState3, delete testState4;
 }

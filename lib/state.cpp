@@ -47,7 +47,7 @@ bool State::operator<(const State &a) const
 
 bool State::operator>(const State &a) const
 {
-    return score > a.score;
+    return score >= a.score;
 }
 
 /// Functions
