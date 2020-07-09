@@ -7,10 +7,21 @@
 using namespace std;
 using namespace pad;
 
+void testBoard();
 Board createBoard(int row, int column);
 void printBoard(Board board);
 
+void testQueue();
+
 int main()
+{
+    testBoard();
+    testQueue();
+
+    return 0;
+}
+
+void testBoard()
 {
     // Test if vector uses deep copy
     auto board1 = createBoard(6, 5);
@@ -27,32 +38,6 @@ int main()
     // board in padBoard1 will be erased
     padBoard1.rateBoard();
     assert(padBoard1.getBoardID() != padBoard2.getBoardID());
-
-    // Test queue
-    PadPriorityQueue *pq = new PadPriorityQueue(10);
-    State *testState = new State(999);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    pq -> insert(testState);
-    assert(pq -> size == 10);
-    pq -> printQueue();
-    
-    delete pq;
-    delete testState;
-
-    return 0;
 }
 
 Board createBoard(int r, int col)
@@ -70,11 +55,71 @@ Board createBoard(int r, int col)
     return board;
 }
 
-void printBoard(Board board) {
-    for (auto row : board) {
-        for (auto orb : row) {
+void printBoard(Board board)
+{
+    for (auto row : board)
+    {
+        for (auto orb : row)
+        {
             cout << orb;
         }
     }
     cout << endl;
+}
+
+void testQueue()
+{
+    // Test queue
+    PadPriorityQueue *pq = new PadPriorityQueue(10);
+    // Nothing inside so returns NULL
+    assert(pq->pop() == NULL);
+
+    State *testState = new State(999);
+    State *testState2 = new State(10000);
+    // Insert and pop, reduce size and get testState
+    pq->insert(testState);
+    assert(pq->size == 1);
+    assert(pq->pop() == testState);
+    assert(pq->size == 0);
+
+    pq->insert(testState);
+    assert(pq->size == 1);
+    pq->insert(testState);
+    assert(pq->size == 2);
+    pq->insert(testState);
+    assert(pq->size == 3);
+    pq->insert(testState);
+    assert(pq->size == 4);
+    pq->insert(testState);
+    assert(pq->size == 5);
+    pq->insert(testState);
+    assert(pq->size == 6);
+    pq->insert(testState);
+    assert(pq->size == 7);
+    pq->insert(testState);
+    assert(pq->size == 8);
+    pq->insert(testState);
+    assert(pq->size == 9);
+    pq->insert(testState);
+    assert(pq->size == 10);
+    pq->insert(testState);
+    assert(pq->size == 10);
+    pq->insert(testState);
+    pq->insert(testState);
+    pq->insert(testState);
+    pq->insert(testState);
+    pq->insert(testState);
+    pq->insert(testState2);
+    // Max size must be 10
+    assert(pq->size == 10);
+    pq->printQueue();
+
+    // Now, size is 9
+    assert(pq->pop() == testState2);
+    assert(pq->size == 9);
+    pq->printQueue();
+
+    // Clean up
+    delete pq;
+    delete testState;
 }

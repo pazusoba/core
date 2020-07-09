@@ -17,6 +17,35 @@ PadPriorityQueue::~PadPriorityQueue()
     }
 }
 
+State *PadPriorityQueue::pop()
+{
+    if (top != NULL)
+    {
+        // Get the state and remove queue
+        auto topState = top->state;
+        delete top;
+
+        // Rearrange the queue
+        auto second = top->next;
+        if (second == NULL)
+        {
+            // only one element, remove it
+            this->top = NULL;
+            this->bottom = NULL;
+        }
+        else
+        {
+            // make second top
+            this->top = second;
+        }
+
+        this->size--;
+        return topState;
+    }
+
+    return NULL;
+}
+
 void PadPriorityQueue::insert(State *newState)
 {
     if (newState == NULL)
@@ -27,7 +56,7 @@ void PadPriorityQueue::insert(State *newState)
         // Make top and bottom the new state
         this->top = new PadQueue(newState);
         this->bottom = this->top;
-        this->size++;
+        this->size = 1;
     }
     else if (size < maxSize)
     {
@@ -93,7 +122,7 @@ void PadPriorityQueue::printQueue()
 {
     using namespace std;
     auto it = top;
-    while (it != NULL && it != bottom)
+    while (it != NULL)
     {
         auto curr = it;
         cout << curr->state->score << " -> ";

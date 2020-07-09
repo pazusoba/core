@@ -21,7 +21,8 @@ struct PadQueue
     PadQueue(State *s) : state(s) {}
 };
 
-struct PadPriorityQueue {
+struct PadPriorityQueue
+{
     int maxSize;
     int size = 0;
 
@@ -33,6 +34,8 @@ struct PadPriorityQueue {
 
     // Insert a new state if size < maxSize or this state is better than top state
     void insert(State *);
+    // Return and remove the top state
+    State *pop();
     // Print out all elements in this queue
     void printQueue();
 };
