@@ -1,15 +1,17 @@
 # set it to `mac` to use max/linux command and use `win` for windows
-PLATFORM=mac
+PLATFORM=win
 
 # assign different commands
 ifeq ($(PLATFORM), mac)
 	MAKE=make
 	CLEAN=rm *.out
 	OUTPUT=./a.out
+	MOVE=mv board_*.txt assets/
 else ifeq ($(PLATFORM), win)
-	CLEAN=del /s *.exe
 	MAKE=mingw32-make.exe
+	CLEAN=del /s *.exe
 	OUTPUT=./a.exe
+	MOVE=move /y board_*.txt assets/
 endif
 
 # shared arguments
@@ -51,4 +53,4 @@ board_gen:
 	python3 assets/board_gen.py 7x6 20
 	python3 assets/board_gen.py 6x5 20
 	python3 assets/board_gen.py 5x4 20
-	move /y board_*.txt assets/
+	$(MOVE)
