@@ -6,18 +6,14 @@
 #include <iostream>
 #include "queue.h"
 
-PadPriorityQueue::~PadPriorityQueue()
+PPriorityQueue::~PPriorityQueue()
 {
-    auto it = top;
-    while (it != NULL && it != bottom)
-    {
-        auto curr = it;
-        it = it->next;
+    foreach([](PElement *curr) {
         delete curr;
-    }
+    });
 }
 
-State *PadPriorityQueue::pop()
+PState *PPriorityQueue::pop()
 {
     if (size > 0)
     {
@@ -49,7 +45,7 @@ State *PadPriorityQueue::pop()
     return NULL;
 }
 
-void PadPriorityQueue::insert(State *newState)
+void PPriorityQueue::insert(PState *newState)
 {
     if (newState == NULL)
         return;
@@ -57,7 +53,7 @@ void PadPriorityQueue::insert(State *newState)
     if (size == 0)
     {
         // Make top and bottom the new state
-        this->top = new PadQueue(newState);
+        this->top = new PElement(newState);
         this->bottom = this->top;
         this->size = 1;
     }
@@ -71,7 +67,7 @@ void PadPriorityQueue::insert(State *newState)
             if (*newState > *(it->state))
             {
                 // Insert here
-                PadQueue *q = new PadQueue(newState);
+                PElement *q = new PElement(newState);
                 auto beforeIt = it->previous;
                 if (beforeIt == NULL)
                 {
@@ -103,7 +99,7 @@ void PadPriorityQueue::insert(State *newState)
         if (!hasInserted)
         {
             // This is the smallest
-            PadQueue *q = new PadQueue(newState);
+            PElement *q = new PElement(newState);
             bottom->next = q;
             q->previous = bottom;
             this->bottom = q;
@@ -113,7 +109,7 @@ void PadPriorityQueue::insert(State *newState)
     }
     else if (*newState > *(top->state))
     {
-        PadQueue *newTop = new PadQueue(newState);
+        PElement *newTop = new PElement(newState);
         // It was top but now it is second
         auto topNext = top;
         // Update top and link second with top
@@ -130,15 +126,22 @@ void PadPriorityQueue::insert(State *newState)
     }
 }
 
-void PadPriorityQueue::printQueue()
+void PPriorityQueue::printQueue()
 {
     using namespace std;
+    foreach([](PElement* curr) {
+        cout << curr->state->score << " -> ";
+    });
+    cout << "NULL\n";
+}
+
+void PPriorityQueue::foreach(void func(PElement *))
+{
     auto it = top;
     while (it != NULL)
     {
         auto curr = it;
-        cout << curr->state->score << " -> ";
         it = it->next;
+        func(curr);
     }
-    cout << "NULL\n";
 }

@@ -26,7 +26,7 @@ typedef std::pair<int, int> OrbLocation;
 // This is used to get all connected orbs that can be erased
 typedef std::set<OrbLocation> OrbSet;
 
-class PadBoard
+class PBoard
 {
      int row;
      int column;
@@ -91,12 +91,12 @@ class PadBoard
      int *collectOrbCount();
 
 public:
-     PadBoard();
-     PadBoard(Board board, int row, int column, int minEraseCondition = 3);
-     ~PadBoard();
-     PadBoard copy()
+     PBoard();
+     PBoard(Board board, int row, int column, int minEraseCondition = 3);
+     ~PBoard();
+     PBoard copy()
      {
-          return PadBoard(board, row, column, minEraseCondition);
+          return PBoard(board, row, column, minEraseCondition);
      }
 
      /**

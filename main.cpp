@@ -6,7 +6,7 @@
  * 
  * It handles user input from the console, mainly board file and min erase condition
  */
-PadSolver *handleInput(int, char **);
+PSolver *handleInput(int, char **);
 
 int main(int argc, char *argv[])
 {
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-PadSolver *handleInput(int argc, char *argv[])
+PSolver *handleInput(int argc, char *argv[])
 {
     std::string filePath = "assets/sample_board_65.txt";
     int minEraseCondition = 3;
@@ -42,5 +42,5 @@ PadSolver *handleInput(int argc, char *argv[])
         maxSize = atoi(argv[4]);
     }
 
-    return new PadSolver(filePath, minEraseCondition, maxStep, maxSize);
+    return new PSolver(filePath, minEraseCondition, maxStep, maxSize);
 }

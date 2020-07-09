@@ -1,6 +1,6 @@
 /**
  * queue.h
- * This is a special queue only for `PadSolver`.
+ * This is a special queue only for `PSolver`.
  * - It has a fixed size and will reject new states if it is not better than the current best
  * - It also stores a list of best states based on their state 
  *
@@ -9,33 +9,36 @@
 
 #include "state.h"
 
-struct PadQueue
+struct PElement
 {
     // Current state
-    State *state = NULL;
+    PState *state = NULL;
     // Link to next state
-    PadQueue *next = NULL;
+    PElement *next = NULL;
     // Link to next state
-    PadQueue *previous = NULL;
+    PElement *previous = NULL;
 
-    PadQueue(State *s) : state(s) {}
+    PElement(PState *s) : state(s) {}
 };
 
-struct PadPriorityQueue
+struct PPriorityQueue
 {
+    // This is max size possible for this queue
     int maxSize;
     int size = 0;
 
-    PadQueue *top = NULL;
-    PadQueue *bottom = NULL;
+    PElement *top = NULL;
+    PElement *bottom = NULL;
 
-    PadPriorityQueue(int size) : maxSize(size) {}
-    ~PadPriorityQueue();
+    PPriorityQueue(int size) : maxSize(size) {}
+    ~PPriorityQueue();
 
     // Insert a new state if size < maxSize or this state is better than top state
-    void insert(State *);
+    void insert(PState *);
     // Return and remove the top state
-    State *pop();
+    PState *pop();
     // Print out all elements in this queue
     void printQueue();
+    // Loop through the queue
+    void foreach(void func(PElement *));
 };

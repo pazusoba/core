@@ -9,7 +9,7 @@
 
 /// Constrctor
 
-State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
+PState::PState(PBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
 {
     // Update the board by swapping orbs
     this->board = board;
@@ -28,7 +28,7 @@ State::State(PadBoard board, OrbLocation from, OrbLocation to, int step, int max
     this->children.clear();
 }
 
-State::~State()
+PState::~PState()
 {
     if (children.size() > 0 && children.size() < 8)
     {
@@ -40,19 +40,19 @@ State::~State()
     }
 }
 
-bool State::operator<(const State &a) const
+bool PState::operator<(const PState &a) const
 {
     return score < a.score;
 }
 
-bool State::operator>(const State &a) const
+bool PState::operator>(const PState &a) const
 {
     return score > a.score;
 }
 
 /// Functions
 
-State::StateTree State::getChildren()
+PState::PStateList PState::getChildren()
 {
     // Stop when max step has been reached
     if (step > maxStep)
@@ -83,7 +83,7 @@ State::StateTree State::getChildren()
             if (board.validLocation(next))
             {
                 // TODO: consider diagonal moves, it should be punished for high risk
-                auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
+                auto nextState = new PState(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
 
                 totalScore += nextState->score;
@@ -108,7 +108,7 @@ State::StateTree State::getChildren()
 
 /// Utils
 
-void State::printStateFromRoot(State *parent)
+void PState::printStateFromRoot(PState *parent)
 {
     if (parent != NULL)
     {
@@ -118,7 +118,7 @@ void State::printStateFromRoot(State *parent)
     }
 }
 
-void State::printState()
+void PState::printState()
 {
     std::cout << score << " - " << step << std::endl;
     board.printBoardForSimulation();

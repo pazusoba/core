@@ -9,8 +9,8 @@
 #include "board.h"
 
 /// Constructors
-PadBoard::PadBoard() {}
-PadBoard::PadBoard(Board board, int row, int column, int minEraseCondition)
+PBoard::PBoard() {}
+PBoard::PBoard(Board board, int row, int column, int minEraseCondition)
 {
     this->board = board;
     this->row = row;
@@ -18,7 +18,7 @@ PadBoard::PadBoard(Board board, int row, int column, int minEraseCondition)
     this->minEraseCondition = minEraseCondition;
 }
 
-PadBoard::~PadBoard()
+PBoard::~PBoard()
 {
     for (auto row : board)
     {
@@ -29,7 +29,7 @@ PadBoard::~PadBoard()
 
 /// Board related
 
-int PadBoard::rateBoard()
+int PBoard::rateBoard()
 {
     int score = 0;
 
@@ -105,7 +105,7 @@ int PadBoard::rateBoard()
     return score;
 }
 
-void PadBoard::moveOrbsDown()
+void PBoard::moveOrbsDown()
 {
     // we start from the second last row -1 and also convert to index so -2
     // i can be 0 for the first row or the first row won't be updated
@@ -129,7 +129,7 @@ void PadBoard::moveOrbsDown()
         std::cout << "Board has been updated\n";
 }
 
-int PadBoard::eraseOrbs()
+int PBoard::eraseOrbs()
 {
     int combo = 0;
 
@@ -186,12 +186,12 @@ int PadBoard::eraseOrbs()
     return combo;
 }
 
-OrbSet PadBoard::findSameOrbsAround(OrbLocation loc)
+OrbSet PBoard::findSameOrbsAround(OrbLocation loc)
 {
     return findSameOrbsAround(loc.first, loc.second);
 }
 
-OrbSet PadBoard::findSameOrbsAround(int x, int y)
+OrbSet PBoard::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
 
@@ -270,12 +270,12 @@ OrbSet PadBoard::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
+OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
 {
     return nextSameOrbAround(vhOrbs, loc.first, loc.second);
 }
 
-OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
+OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 {
     auto orb = board[x][y];
 
@@ -311,12 +311,12 @@ OrbLocation *PadBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
     return NULL;
 }
 
-bool PadBoard::hasSameOrb(Orb orb, OrbLocation loc)
+bool PBoard::hasSameOrb(Orb orb, OrbLocation loc)
 {
     return hasSameOrb(orb, loc.first, loc.second);
 }
 
-bool PadBoard::hasSameOrb(Orb orb, int x, int y)
+bool PBoard::hasSameOrb(Orb orb, int x, int y)
 {
     if (validLocation(x, y))
     {
@@ -326,7 +326,7 @@ bool PadBoard::hasSameOrb(Orb orb, int x, int y)
     return false;
 }
 
-void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
+void PBoard::swapLocation(OrbLocation one, OrbLocation two)
 {
     // TODO: all points should be valid why?
     if (!validLocation(one) || !validLocation(two))
@@ -337,7 +337,7 @@ void PadBoard::swapLocation(OrbLocation one, OrbLocation two)
     ORB(board, two) = temp;
 }
 
-void PadBoard::printBoard()
+void PBoard::printBoard()
 {
     if (isEmptyFile())
     {
@@ -359,7 +359,7 @@ void PadBoard::printBoard()
     std::cout << std::endl;
 }
 
-void PadBoard::printBoardForSimulation()
+void PBoard::printBoardForSimulation()
 {
     std::stringstream ss;
     for (auto row : board)
@@ -374,7 +374,7 @@ void PadBoard::printBoardForSimulation()
     std::cout << ss.str() << std::endl;
 }
 
-void PadBoard::printBoardInfo()
+void PBoard::printBoardInfo()
 {
     if (isEmptyFile())
     {
@@ -404,7 +404,7 @@ void PadBoard::printBoardInfo()
     delete[] counter;
 }
 
-int PadBoard::estimatedBestScore()
+int PBoard::estimatedBestScore()
 {
     int score = 0;
     int maxCombo = getMaxCombo(collectOrbCount());
@@ -420,7 +420,7 @@ int PadBoard::estimatedBestScore()
 
 /// Utils
 
-int PadBoard::getMaxCombo(int *counter)
+int PBoard::getMaxCombo(int *counter)
 {
     if (isEmptyFile())
         return 0;
@@ -473,7 +473,7 @@ int PadBoard::getMaxCombo(int *counter)
     return comboCounter;
 }
 
-std::string PadBoard::getBoardID()
+std::string PBoard::getBoardID()
 {
     // Get unique ID
     std::stringstream id;
@@ -487,17 +487,17 @@ std::string PadBoard::getBoardID()
     return id.str();
 }
 
-int PadBoard::getBoardMaxCombo()
+int PBoard::getBoardMaxCombo()
 {
     return row * column / minEraseCondition;
 }
 
-bool PadBoard::isEmptyFile()
+bool PBoard::isEmptyFile()
 {
     return column == 0 && row == 0;
 }
 
-int *PadBoard::collectOrbCount()
+int *PBoard::collectOrbCount()
 {
     int *counter = new int[pad::ORB_COUNT]{0};
     for (auto row : board)
@@ -510,12 +510,12 @@ int *PadBoard::collectOrbCount()
     return counter;
 }
 
-bool PadBoard::validLocation(OrbLocation loc)
+bool PBoard::validLocation(OrbLocation loc)
 {
     return validLocation(loc.first, loc.second);
 }
 
-bool PadBoard::validLocation(int x, int y)
+bool PBoard::validLocation(int x, int y)
 {
     return x >= 0 && x < column && y >= 0 && y < row;
 }

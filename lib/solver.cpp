@@ -11,31 +11,31 @@
 
 /// Constrcutors
 
-PadSolver::PadSolver(std::string filePath, int minEraseCondition, int steps, int size)
+PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int size)
 {
     this->size = size;
     this->steps = steps;
     auto currBoard = readBoard(filePath);
-    board = PadBoard(currBoard, row, column, minEraseCondition);
+    board = PBoard(currBoard, row, column, minEraseCondition);
 }
 
 /// Solve the board
 
-std::string PadSolver::solve()
+std::string PSolver::solve()
 {
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    PadPriorityQueue *toVisit = new PadPriorityQueue(size);
+    PPriorityQueue *toVisit = new PPriorityQueue(size);
     std::vector<int> bestScorePerStep(steps + 2);
-    std::map<int, State *> bestScore;
+    std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(3, 2);
     // Basically, the start state is like holding the orb so start and end locations are the same
-    auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
+    auto rooState = new PState(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(rooState);
 
     int counter = 0;
@@ -124,7 +124,7 @@ std::string PadSolver::solve()
 
 /// Read the board from filePath
 
-Board PadSolver::readBoard(std::string filePath)
+Board PSolver::readBoard(std::string filePath)
 {
     Board board;
     std::string lines;

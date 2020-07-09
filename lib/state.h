@@ -9,22 +9,22 @@
 #include <map>
 #include "board.h"
 
-class State
+class PState
 {
     // A list of state
-    typedef std::vector<State*> StateTree;
+    typedef std::vector<PState*> PStateList;
 
     // The board
-    PadBoard board;
+    PBoard board;
     // An estimation of a good score
     int maxScore;
     // This is max step we want to go (termination point)
     int maxStep;
     // ALl possible moves from this state
-    StateTree children;
+    PStateList children;
 
     // This is a recursive function to print from the beginning
-    void printStateFromRoot(State *parent);
+    void printStateFromRoot(PState *parent);
 
 public:
     // This score shows how good the current board is
@@ -39,21 +39,21 @@ public:
     // This is current orb which is active (the player is holding it)
     OrbLocation current;
     // Save the parent's address to track back
-    State *parent = NULL;
+    PState *parent = NULL;
     // Every board has an unique id string
     std::string boardID;
 
     // This is only for testing
-    State(int s) : score(s) {}
-    State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
-    ~State();
+    PState(int s) : score(s) {}
+    PState(PBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+    ~PState();
 
     // Override operators
-    bool operator<(const State &a) const;
-    bool operator>(const State &a) const;
+    bool operator<(const PState &a) const;
+    bool operator>(const PState &a) const;
 
     // This returns a list of all possible children states
-    StateTree getChildren();
+    PStateList getChildren();
 
     // Print out current state, its board, score and more
     void printState();

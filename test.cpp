@@ -32,8 +32,8 @@ void testBoard()
     printBoard(board1);
     printBoard(board2);
 
-    // Test if PadBoard uses deep copy
-    auto padBoard1 = PadBoard(board2, 6, 5);
+    // Test if PBoard uses deep copy
+    auto padBoard1 = PBoard(board2, 6, 5);
     auto padBoard2 = padBoard1;
     // board in padBoard1 will be erased
     padBoard1.rateBoard();
@@ -70,14 +70,14 @@ void printBoard(Board board)
 void testQueue()
 {
     // Test queue
-    PadPriorityQueue *pq = new PadPriorityQueue(20);
+    PPriorityQueue *pq = new PPriorityQueue(20);
     // Nothing inside so returns NULL
     assert(pq->pop() == NULL);
 
-    State *testState = new State(999);
-    State *testState2 = new State(10000);
-    State *testState3 = new State(1);
-    State *testState4 = new State(100);
+    PState *testState = new PState(999);
+    PState *testState2 = new PState(10000);
+    PState *testState3 = new PState(1);
+    PState *testState4 = new PState(100);
     // Insert and pop, reduce size and get testState
     pq->insert(testState);
     assert(pq->size == 1);

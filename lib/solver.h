@@ -13,13 +13,13 @@
 #include "board.h"
 #include "state.h"
 
-class PadSolver
+class PSolver
 {
     // Row and column are used to count board size
     int row = 0;
     int column = 0;
     // This is the original board
-    PadBoard board;
+    PBoard board;
     int steps = 25;
     int size = 100;
 
@@ -27,7 +27,7 @@ class PadSolver
     Board readBoard(std::string filePath);
 
 public:
-    PadSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
+    PSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
     // Solve the current board
     std::string solve();
 };
