@@ -16,7 +16,7 @@ endif
 
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11
-CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp
+CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp lib/queue.cpp
 
 # build
 build:

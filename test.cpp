@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include "lib/board.h"
+#include "lib/queue.h"
 
 using namespace std;
 using namespace pad;
@@ -26,6 +27,30 @@ int main()
     // board in padBoard1 will be erased
     padBoard1.rateBoard();
     assert(padBoard1.getBoardID() != padBoard2.getBoardID());
+
+    // Test queue
+    PadPriorityQueue *pq = new PadPriorityQueue(10);
+    State *testState = new State(999);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    pq -> insert(testState);
+    assert(pq -> size == 10);
+    pq -> printQueue();
+    
+    delete pq;
+    delete testState;
 
     return 0;
 }

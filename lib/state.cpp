@@ -45,6 +45,11 @@ bool State::operator<(const State &a) const
     return score < a.score;
 }
 
+bool State::operator>(const State &a) const
+{
+    return score > a.score;
+}
+
 /// Functions
 
 State::StateTree State::getChildren()

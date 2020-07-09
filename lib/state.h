@@ -43,9 +43,14 @@ public:
     // Every board has an unique id string
     std::string boardID;
 
+    // This is only for testing
+    State(int s) : score(s) {}
     State(PadBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
     ~State();
+
+    // Override operators
     bool operator<(const State &a) const;
+    bool operator>(const State &a) const;
 
     // This returns a list of all possible children states
     StateTree getChildren();

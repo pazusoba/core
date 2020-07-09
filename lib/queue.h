@@ -17,6 +17,8 @@ struct PadQueue
     PadQueue *next = NULL;
     // Link to next state
     PadQueue *previous = NULL;
+
+    PadQueue(State *s) : state(s) {}
 };
 
 struct PadPriorityQueue {
@@ -31,4 +33,6 @@ struct PadPriorityQueue {
 
     // Insert a new state if size < maxSize or this state is better than top state
     void insert(State *);
+    // Print out all elements in this queue
+    void printQueue();
 };
