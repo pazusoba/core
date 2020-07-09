@@ -46,13 +46,17 @@ int PadBoard::rateBoard()
             {
                 for (int y = -1; y <= 1; y++)
                 {
+                    // This is the current orb
+                    if (i == 0 && j == 0) continue;
                     if (hasSameOrb(currOrb, i + x, j + y))
                     {
                         orbAround++;
                         if ((x == 0 && ((y == 1) || (y == -1))) ||
                             (y == 0 && ((x == 1) || (x == -1))))
                         {
+                            // This means that it is a line
                             twoInLine += 1;
+                            orbAround -= 1;
                         }
                     }
                 }
@@ -79,18 +83,18 @@ int PadBoard::rateBoard()
         newCombo = eraseOrbs();
     }
 
-    // // Check how many orbs left, I think less means better because you want to erase more orbs
-    // int orbLeft = 0;
-    // for (int i = 0; i < column; i++)
-    // {
-    //     for (int j = 0; j < row; j++)
-    //     {
-    //         if (board[i][j] == pad::empty) continue;
-    //         orbLeft++;
-    //     }
-    // }
-    // // Reduce the score if there are orb left
-    // score -= orbLeft * 50;
+    // Check how many orbs left, I think less means better because you want to erase more orbs
+    int erasedOrbs = 0;
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            if (board[i][j] == pad::empty)
+                erasedOrbs++;
+        }
+    }
+    // Reduce the score if there are orb left
+    score += erasedOrbs * pad::ORB_AROUND_SCORE;
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * combo;
@@ -357,14 +361,17 @@ void PadBoard::printBoard()
 
 void PadBoard::printBoardForSimulation()
 {
+    std::stringstream ss;
     for (auto row : board)
     {
         for (auto orb : row)
         {
             std::cout << pad::ORB_SIMULATION_NAMES[orb];
+            ss << (int)(orb - 1);
         }
     }
     std::cout << std::endl;
+    std::cout << ss.str() << std::endl;
 }
 
 void PadBoard::printBoardInfo()

@@ -47,7 +47,7 @@ bool State::operator<(const State &a) const
 
 bool State::operator>(const State &a) const
 {
-    return score >= a.score;
+    return score > a.score;
 }
 
 /// Functions
@@ -65,15 +65,14 @@ State::StateTree State::getChildren()
     {
         for (int j = -1; j <= 1; j++)
         {
-            int stepOffset = 1;
-            // if (
-            //     (i == -1 && j == -1) ||
-            //     (i == 1 && j == 1) ||
-            //     (i == -1 && j == 1) ||
-            //     (i == 1 && j == -1))
-            // {
-            //     stepOffset = 2;
-            // }
+            if (
+                (i == -1 && j == -1) ||
+                (i == 1 && j == 1) ||
+                (i == -1 && j == 1) ||
+                (i == 1 && j == -1))
+            {
+                // continue;
+            }
 
             auto next = LOCATION(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations
@@ -84,21 +83,21 @@ State::StateTree State::getChildren()
             if (board.validLocation(next))
             {
                 // TODO: consider diagonal moves, it should be punished for high risk
-                auto nextState = new State(board.copy(), current, next, step + stepOffset, maxStep, maxScore);
+                auto nextState = new State(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
 
                 totalScore += nextState->score;
                 totalState += 1;
 
-                int minScore = 0;
-                // Cut down useless branches
-                minScore = step / 3 * 800;
+                children.push_back(nextState);
+                // int minScore = 0;
+                // // Cut down useless branches
+                // // minScore = step / 3 * 800;
 
-                if (score > minScore)
-                    // Only append if it has enough score
-                    children.push_back(nextState);
-                else
-                    delete nextState;
+                // if (score > minScore)
+                //     // Only append if it has enough score
+                // else
+                //     delete nextState;
             }
         }
     }

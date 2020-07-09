@@ -11,27 +11,29 @@
 
 /// Constrcutors
 
-PadSolver::PadSolver(std::string filePath, int minEraseCondition)
+PadSolver::PadSolver(std::string filePath, int minEraseCondition, int steps, int size)
 {
+    this->size = size;
+    this->steps = steps;
     auto currBoard = readBoard(filePath);
     board = PadBoard(currBoard, row, column, minEraseCondition);
 }
 
 /// Solve the board
 
-std::string PadSolver::solve(int steps)
+std::string PadSolver::solve()
 {
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
     std::map<std::string, int> visited;
-    PadPriorityQueue *toVisit = new PadPriorityQueue(100);
+    PadPriorityQueue *toVisit = new PadPriorityQueue(size);
     std::vector<int> bestScorePerStep(steps + 2);
     std::map<int, State *> bestScore;
 
     // Start and end should be the same for step 0
-    auto start = OrbLocation(2, 0);
+    auto start = OrbLocation(3, 2);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto rooState = new State(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(rooState);
@@ -39,8 +41,8 @@ std::string PadSolver::solve(int steps)
     int counter = 0;
     while (toVisit->size > 0)
     {
-        if (counter > 50000)
-            break;
+        // if (counter > 50000)
+        //     break;
 
         // Update current state
         auto currentState = toVisit->pop();
@@ -63,12 +65,13 @@ std::string PadSolver::solve(int steps)
         //     int a = 0;
         // }
 
+        // Prevent duplcate boards
         // auto boardID = currentState->boardID;
         // int lastStepCount = visited[boardID];
-        // if (lastStepCount > 0 && currentStep > lastStepCount)
+        // if (lastStepCount > 0 && currStep > lastStepCount)
         //     continue;
         // else
-        //     visited[boardID] = currentStep;
+        //     visited[boardID] = currStep;
 
         counter++;
         auto children = currentState->getChildren();
@@ -103,7 +106,7 @@ std::string PadSolver::solve(int steps)
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i > 10)
+        if (i > 3)
             break;
         else
             i++;

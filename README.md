@@ -56,5 +56,6 @@ Things that are helpful during my experiments
 - http://maaak.net/pad/ for simulation
 - https://pad.dawnglare.com/ for better simulation (support 7x6, replay, share and more)
     - https://pad.dawnglare.com/?height=6&width=7 (7x6)
-- https://github.com/matthargett/padopt, an optimal PAD solver
+- https://padopt.macboy.me/, an optimal PAD solver
     - This is another level and is a lot better than pazusoba
+    - https://github.com/matthargett/padopt

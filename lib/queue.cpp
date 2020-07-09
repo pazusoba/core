@@ -78,6 +78,11 @@ void PadPriorityQueue::insert(State *newState)
                     // There is only one element in the queue
                     this->top = q;
                     q->next = it;
+                    // Link previous as well
+                    it->previous = q;
+                    // There was only one element so it is now bottom
+                    if (size == 1)
+                        this->bottom = it;
                     hasInserted = true;
                     break;
                 }

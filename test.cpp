@@ -70,7 +70,7 @@ void printBoard(Board board)
 void testQueue()
 {
     // Test queue
-    PadPriorityQueue *pq = new PadPriorityQueue(100);
+    PadPriorityQueue *pq = new PadPriorityQueue(20);
     // Nothing inside so returns NULL
     assert(pq->pop() == NULL);
 
