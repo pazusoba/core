@@ -70,31 +70,36 @@ int PBoard::rateBoard()
 
     // total combo
     int combo = 0;
-    // I encourage cascade even if it does less combo
+    // If you move more, you get more combo in real life but sometimes not
     int moveCount = 0;
-    int newCombo = eraseOrbs();
-    while (newCombo > 0)
+    int newCombo = 0;
+    do
     {
-        moveCount++;
-        combo += newCombo;
+        newCombo = eraseOrbs();
+        if (newCombo > 0)
+        {
+            combo += newCombo;
+            // Even if it has at least one new combo
+            moveOrbsDown();
+            moveCount++;
+        }
+
         if (printMoreMessages)
             printBoard();
-        moveOrbsDown();
-        newCombo = eraseOrbs();
-    }
+    } while (newCombo > 0);
 
     // Check how many orbs left, I think less means better because you want to erase more orbs
-    int erasedOrbs = 0;
+    int orbLeft = 0;
     for (int i = 0; i < column; i++)
     {
         for (int j = 0; j < row; j++)
         {
-            if (board[i][j] == pad::empty)
-                erasedOrbs++;
+            if (board[i][j] != pad::empty)
+                orbLeft++;
         }
     }
-    // Reduce the score if there are orb left
-    score += erasedOrbs * pad::ORB_AROUND_SCORE;
+    // Add the score if it erases more orbs
+    score -= orbLeft * pad::ORB_NEARBY_SCORE;
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * combo;
@@ -517,5 +522,11 @@ bool PBoard::validLocation(OrbLocation loc)
 
 bool PBoard::validLocation(int x, int y)
 {
-    return x >= 0 && x < column && y >= 0 && y < row;
+    if (x >= 0 && x < column && y >= 0 && y < row)
+    {
+        // You cannot move a sealed orb
+        return board[x][y] != pad::seal;
+    }
+
+    return false;
 }
