@@ -76,6 +76,8 @@ void testQueue()
 
     State *testState = new State(999);
     State *testState2 = new State(10000);
+    State *testState3 = new State(1);
+    State *testState4 = new State(100);
     // Insert and pop, reduce size and get testState
     pq->insert(testState);
     assert(pq->size == 1);
@@ -84,25 +86,25 @@ void testQueue()
 
     pq->insert(testState);
     assert(pq->size == 1);
-    pq->insert(testState);
+    pq->insert(testState3);
     assert(pq->size == 2);
-    pq->insert(testState);
+    pq->insert(testState4);
     assert(pq->size == 3);
     pq->insert(testState);
     assert(pq->size == 4);
-    pq->insert(testState);
+    pq->insert(testState3);
     assert(pq->size == 5);
-    pq->insert(testState);
+    pq->insert(testState4);
     assert(pq->size == 6);
     pq->insert(testState);
     assert(pq->size == 7);
-    pq->insert(testState);
+    pq->insert(testState3);
     assert(pq->size == 8);
-    pq->insert(testState);
+    pq->insert(testState4);
     assert(pq->size == 9);
     pq->insert(testState);
     assert(pq->size == 10);
-    pq->insert(testState);
+    pq->insert(testState4);
     assert(pq->size == 10);
     pq->insert(testState);
     pq->insert(testState);

@@ -21,12 +21,13 @@ State *PadPriorityQueue::pop()
 {
     if (top != NULL)
     {
+        // This is element we want to return
+        auto toPop = top;
         // Get the state and remove queue
-        auto topState = top->state;
-        delete top;
+        auto topState = toPop->state;
 
         // Rearrange the queue
-        auto second = top->next;
+        auto second = toPop->next;
         if (second == NULL)
         {
             // only one element, remove it
@@ -37,8 +38,10 @@ State *PadPriorityQueue::pop()
         {
             // make second top
             this->top = second;
+            second->previous = NULL;
         }
 
+        delete toPop;
         this->size--;
         return topState;
     }
@@ -62,8 +65,8 @@ void PadPriorityQueue::insert(State *newState)
     {
         bool hasInserted = false;
         // Loop though the queue and find a great place tp insert
-        auto it = top;
-        do
+        auto it = this->top;
+        while (it != NULL)
         {
             if (*newState > *(it->state))
             {
@@ -73,21 +76,24 @@ void PadPriorityQueue::insert(State *newState)
                 if (beforeIt == NULL)
                 {
                     // There is only one element in the queue
-                    it->previous = q;
+                    this->top = q;
+                    q->next = it;
+                    hasInserted = true;
+                    break;
                 }
                 else
                 {
                     // Insert in between
                     beforeIt->next = q;
                     q->previous = beforeIt;
+                    q->next = it;
                     it->previous = q;
                 }
-                q->next = it;
                 hasInserted = true;
                 break;
             }
             it = it->next;
-        } while (it != NULL && it != bottom);
+        };
 
         if (!hasInserted)
         {

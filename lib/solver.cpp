@@ -27,6 +27,7 @@ std::string PadSolver::solve(int steps)
 
     std::map<std::string, int> visited;
     PadPriorityQueue *toVisit = new PadPriorityQueue(100);
+    PadPriorityQueue *pq = new PadPriorityQueue(100);
     std::vector<int> bestScorePerStep(steps + 2);
     std::map<int, State *> bestScore;
 
