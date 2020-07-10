@@ -52,8 +52,8 @@ bool PState::operator>(const PState &a) const
 
 PState::PStateList PState::getChildren()
 {
-    // Stop when max step has been reached
-    if (step > maxStep)
+    // Stop when max step has been reached or children has been collected before
+    if (step > maxStep || children.size() > 0)
         return children;
 
     int totalScore = 0;
@@ -85,11 +85,27 @@ PState::PStateList PState::getChildren()
                 nextState->parent = this;
                 // Save the improvement
                 nextState->improvement = nextState->score - score;
-
+                // Track for average children score
                 totalScore += nextState->score;
                 totalState += 1;
 
+                // auto nextChildren = nextState->getChildren();
+                // bool isBetter = false;
+                // for (auto c : nextChildren) {
+                //     // See if next children is worse than current
+                //     if (c->score > score) {
+                //         isBetter = true;
+                //         break;
+                //     }
+                // }
+
+                // if (isBetter)
+                //     children.push_back(nextState);
+                // else
+                //     delete nextState;
+
                 children.push_back(nextState);
+                
                 // int minScore = 0;
                 // // Cut down useless branches
                 // // minScore = step / 3 * 800;
