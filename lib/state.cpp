@@ -30,14 +30,11 @@ PState::PState(PBoard board, OrbLocation from, OrbLocation to, int step, int max
 
 PState::~PState()
 {
-    if (children.size() > 0 && children.size() < 8)
+    for (auto c : children)
     {
-        for (auto c : children)
-        {
-            delete c;
-        }
-        children.clear();
+        delete c;
     }
+    children.clear();
 }
 
 bool PState::operator<(const PState &a) const
@@ -86,6 +83,8 @@ PState::PStateList PState::getChildren()
                 // TODO: consider diagonal moves, it should be punished for high risk
                 auto nextState = new PState(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
+                // Save the improvement
+                nextState->improvement = nextState->score - score;
 
                 totalScore += nextState->score;
                 totalState += 1;

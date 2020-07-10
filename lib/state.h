@@ -29,6 +29,8 @@ class PState
 public:
     // This score shows how good the current board is
     int score = 0;
+    // How much better this state is compared to the parent
+    int improvement = 0;
     // This can reflex how good this path is
     int averageScore = 0;
     // This is the number of steps (depth)
