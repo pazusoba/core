@@ -122,10 +122,10 @@ int PBoard::rateBoard()
                 if (z == pad::empty)
                     continue;
 
-                if (orbCount[z] == minEraseCondition - 1)
+                if (orbCount[z] > 0 && orbCount[z] < minEraseCondition)
                 {
                     // Less than minErase but still there are some orbs around
-                    // score += pad::ORB_AROUND_SCORE;
+                    score += pad::ORB_AROUND_SCORE;
                 }
             }
 

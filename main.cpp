@@ -21,8 +21,8 @@ PSolver *handleInput(int argc, char *argv[])
 {
     std::string filePath = "assets/sample_board_65.txt";
     int minEraseCondition = 3;
-    int maxStep = 25;
-    int maxSize = 100;
+    int maxStep = 20;
+    int maxSize = 1000;
 
     // Read from command line
     if (argc > 1)
