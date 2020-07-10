@@ -34,38 +34,106 @@ int PBoard::rateBoard()
     int score = 0;
 
     // Loop through each orbs and see if there similar orbs around it
-    for (int i = 0; i < column; i++)
+    // for (int i = 0; i < column; i++)
+    // {
+    //     for (int j = 0; j < row; j++)
+    //     {
+    //         auto currOrb = board[i][j];
+    //         // Check for same colour around in a 3x3 grid, curr orb is in the middle
+    //         int orbAround = 0;
+    //         int twoInLine = 0;
+    //         for (int x = -1; x <= 1; x++)
+    //         {
+    //             for (int y = -1; y <= 1; y++)
+    //             {
+    //                 // This is the current orb
+    //                 if (i == 0 && j == 0)
+    //                     continue;
+    //                 if (hasSameOrb(currOrb, i + x, j + y))
+    //                 {
+    //                     orbAround++;
+    //                     if ((x == 0 && ((y == 1) || (y == -1))) ||
+    //                         (y == 0 && ((x == 1) || (x == -1))))
+    //                     {
+    //                         // This means that it is a line
+    //                         twoInLine += 1;
+    //                         orbAround -= 1;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         // Having same colour orb nearby
+    //         score += pad::ORB_NEARBY_SCORE * orbAround;
+    //         // Two orbs in a line, easier to make combo
+    //         score += pad::ORB_AROUND_SCORE * twoInLine;
+    //     }
+    // }
+
+    // so example 6x5 and minErase is 3, it will check 3x3 boards
+    for (int i = 0; i <= column - minEraseCondition; i++)
     {
-        for (int j = 0; j < row; j++)
+        for (int j = 0; j <= row - minEraseCondition; j++)
         {
-            auto currOrb = board[i][j];
-            // Check for same colour around in a 3x3 grid, curr orb is in the middle
+            int *orbCount = new int[pad::ORB_COUNT] {0};
+            int comboCount = 0;
             int orbAround = 0;
             int twoInLine = 0;
-            for (int x = -1; x <= 1; x++)
+            // Inner loop
+            for (int x = 0; x < minEraseCondition; x++)
             {
-                for (int y = -1; y <= 1; y++)
+                for (int y = 0; y < minEraseCondition; y++)
                 {
-                    // This is the current orb
-                    if (i == 0 && j == 0)
-                        continue;
-                    if (hasSameOrb(currOrb, i + x, j + y))
+                    auto curr = board[i + x][j + y];
+                    // Check if there are same orbs around
+                    for (int a = -1; a <= 1; a++)
                     {
-                        orbAround++;
-                        if ((x == 0 && ((y == 1) || (y == -1))) ||
-                            (y == 0 && ((x == 1) || (x == -1))))
+                        for (int b = -1; b <= 1; b++)
                         {
-                            // This means that it is a line
-                            twoInLine += 1;
-                            orbAround -= 1;
+                            // This is the current orb
+                            if (a == 0 && b == 0)
+                                continue;
+                            if (hasSameOrb(curr, i + x + a, j + y + b))
+                            {
+                                orbAround++;
+                                if ((x == 0 && ((y == 1) || (y == -1))) ||
+                                    (y == 0 && ((x == 1) || (x == -1))))
+                                {
+                                    // This means that it is a line
+                                    twoInLine += 1;
+                                    orbAround -= 1;
+                                }
+                            }
                         }
+                    }
+
+                    // Count orbs in this area
+                    orbCount[curr]++;
+                    if (orbCount[curr] == minEraseCondition)
+                    {
+                        orbCount[curr] = 0;
+                        comboCount++;
                     }
                 }
             }
-            // Having same colour orb nearby
-            score += pad::ORB_NEARBY_SCORE * orbAround;
-            // Two orbs in a line, easier to make combo
-            score += pad::ORB_AROUND_SCORE * twoInLine;
+
+            // Loop through the orb list
+            for (int z = 0; z < pad::ORB_COUNT; z++)
+            {
+                if (z == pad::empty)
+                    continue;
+
+                if (orbCount[z] == minEraseCondition - 1)
+                {
+                    // Less than minErase but still there are some orbs around
+                    // score += pad::ORB_AROUND_SCORE;
+                }
+            }
+
+            // Encourage to group orbs in a 3x3 area or 4x4 or 5x5...
+            score += comboCount * pad::CASCADE_SCORE;
+            score += twoInLine * pad::ORB_AROUND_SCORE;
+            score += orbAround * pad::ORB_NEARBY_SCORE;
+            delete orbCount;
         }
     }
 
