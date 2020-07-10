@@ -72,7 +72,7 @@ PState::PStateList PState::getChildren()
                 (i == -1 && j == 1) ||
                 (i == 1 && j == -1))
             {
-                // continue;
+                continue;
             }
 
             auto next = LOCATION(current.first + i, current.second + j);
