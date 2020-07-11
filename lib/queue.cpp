@@ -4,7 +4,7 @@
  */
 
 #include <iostream>
-#include "queue.h"
+#include "queue.hpp"
 
 PPriorityQueue::~PPriorityQueue()
 {

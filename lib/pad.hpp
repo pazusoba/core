@@ -1,5 +1,5 @@
 /**
- * pad.h
+ * pad.hpp
  * by Yiheng Quan
  */
 

@@ -1,5 +1,5 @@
 /**
- * state.h
+ * state.hpp
  * by Yiheng Quan
  */
 
@@ -7,7 +7,7 @@
 #define STATE_H
 
 #include <map>
-#include "board.h"
+#include "board.hpp"
 
 class PState
 {

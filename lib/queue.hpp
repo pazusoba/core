@@ -1,5 +1,5 @@
 /**
- * queue.h
+ * queue.hpp
  * This is a special queue only for `PSolver`.
  * - It has a fixed size and will reject new states if it is not better than the current best
  * - It also stores a list of best states based on their state 
@@ -7,7 +7,7 @@
  * by Yiheng Quan
  */
 
-#include "state.h"
+#include "state.hpp"
 
 struct PElement
 {

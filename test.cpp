@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include "lib/board.h"
-#include "lib/queue.h"
+#include "lib/board.hpp"
+#include "lib/queue.hpp"
 
 using namespace std;
 using namespace pad;

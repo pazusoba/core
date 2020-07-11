@@ -6,8 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-#include "solver.h"
-#include "queue.h"
+#include "solver.hpp"
+#include "queue.hpp"
 
 /// Constrcutors
 

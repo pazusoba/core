@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-#include "board.h"
+#include "board.hpp"
 
 /// Constructors
 PBoard::PBoard() {}
