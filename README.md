@@ -27,7 +27,7 @@ The program accepts 4 arguments
 By increasing the queue size, it will take significantly more time to compute.
 
 ### QT
-Maybe I will write a GUI with qt creator but who knows.
+This is my first ever qt application. I will add more functions to read boards in multiple ways and solve it at realtime to display the top results with basic replay features. It might be used for Q learning in the future.
 
 ## Resources
 Things that are helpful during my experiments
@@ -41,6 +41,9 @@ Things that are helpful during my experiments
 - https://padopt.macboy.me/, an optimal PAD solver
     - This is another level and is a lot better than pazusoba
     - https://github.com/matthargett/padopt
+
+## License
+My code is under [MIT license](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) but the GUI is built on top of QT so it is under [LGPL license](https://doc.qt.io/qt-5/lgpl.html)
 
 ## 2000 days
 ![2000日たまドラ](https://raw.githubusercontent.com/HenryQuan/pazusoba/master/assets/2000.jpg?token=ABTRDFH6WOWXATCBOZXXCGK7BAJ5G)
