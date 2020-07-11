@@ -2,5 +2,8 @@
 **/*.out
 **/*.exe
 **/*.gch
+
+# generated boards
 **/board_*.txt
+# program output
 **/output.txt

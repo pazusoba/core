@@ -110,8 +110,8 @@ void testQueue()
     pq->insert(testState);
     pq->insert(testState);
     pq->insert(testState);
-    pq->insert(testState);
     pq->insert(testState2);
+    pq->insert(testState);
     assert(pq->size == 17);
     pq->printQueue();
 
@@ -120,9 +120,9 @@ void testQueue()
     assert(pq->size == 16);
     pq->printQueue();
 
-    for (int i = 0 ; i < 20000; i++)
+    for (int i = 0; i < 20000; i++)
     {
-        pq -> insert(testState2);
+        pq->insert(testState2);
     }
     pq->printQueue();
 

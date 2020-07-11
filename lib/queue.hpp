@@ -40,5 +40,5 @@ struct PPriorityQueue
     // Print out all elements in this queue
     void printQueue();
     // Loop through the queue
-    void foreach(void func(PElement *));
+    void foreach (void func(PElement *));
 };

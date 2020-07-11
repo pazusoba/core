@@ -44,7 +44,7 @@ bool PState::operator<(const PState &a) const
 
 bool PState::operator>(const PState &a) const
 {
-    // At least same step and more score
+    // Here, you need to have more score per step
     return score / step > a.score / a.step;
 }
 
@@ -56,8 +56,6 @@ PState::PStateList PState::getChildren()
     if (step > maxStep || children.size() > 0)
         return children;
 
-    int totalScore = 0;
-    int totalState = 0;
     // from -1 to 1, all 8 directions
     for (int i = -1; i <= 1; i++)
     {
@@ -69,6 +67,7 @@ PState::PStateList PState::getChildren()
                 (i == -1 && j == 1) ||
                 (i == 1 && j == -1))
             {
+                // This will ignore all diagonal moves
                 continue;
             }
 
@@ -80,45 +79,14 @@ PState::PStateList PState::getChildren()
             // It must be a valid location so not out of bound
             if (board.validLocation(next))
             {
-                // TODO: consider diagonal moves, it should be punished for high risk
+                // Setup new state and add this to children
                 auto nextState = new PState(board.copy(), current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
-                // Save the improvement
-                nextState->improvement = nextState->score - score;
-                // Track for average children score
-                totalScore += nextState->score;
-                totalState += 1;
-
-                // auto nextChildren = nextState->getChildren();
-                // bool isBetter = false;
-                // for (auto c : nextChildren) {
-                //     // See if next children is worse than current
-                //     if (c->score > score) {
-                //         isBetter = true;
-                //         break;
-                //     }
-                // }
-
-                // if (isBetter)
-                //     children.push_back(nextState);
-                // else
-                //     delete nextState;
-
                 children.push_back(nextState);
-                
-                // int minScore = 0;
-                // // Cut down useless branches
-                // // minScore = step / 3 * 800;
-
-                // if (score > minScore)
-                //     // Only append if it has enough score
-                // else
-                //     delete nextState;
             }
         }
     }
 
-    averageScore = totalScore / totalState;
     return children;
 }
 

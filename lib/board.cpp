@@ -33,49 +33,14 @@ int PBoard::rateBoard()
 {
     int score = 0;
 
-    // Loop through each orbs and see if there similar orbs around it
-    // for (int i = 0; i < column; i++)
-    // {
-    //     for (int j = 0; j < row; j++)
-    //     {
-    //         auto currOrb = board[i][j];
-    //         // Check for same colour around in a 3x3 grid, curr orb is in the middle
-    //         int orbAround = 0;
-    //         int twoInLine = 0;
-    //         for (int x = -1; x <= 1; x++)
-    //         {
-    //             for (int y = -1; y <= 1; y++)
-    //             {
-    //                 // This is the current orb
-    //                 if (i == 0 && j == 0)
-    //                     continue;
-    //                 if (hasSameOrb(currOrb, i + x, j + y))
-    //                 {
-    //                     orbAround++;
-    //                     if ((x == 0 && ((y == 1) || (y == -1))) ||
-    //                         (y == 0 && ((x == 1) || (x == -1))))
-    //                     {
-    //                         // This means that it is a line
-    //                         twoInLine += 1;
-    //                         orbAround -= 1;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         // Having same colour orb nearby
-    //         score += pad::ORB_NEARBY_SCORE * orbAround;
-    //         // Two orbs in a line, easier to make combo
-    //         score += pad::ORB_AROUND_SCORE * twoInLine;
-    //     }
-    // }
-
     // so example 6x5 and minErase is 3, it will check 4x4 boards
-    for (int subBoardSize = minEraseCondition + 1; subBoardSize < column; subBoardSize++) {
+    for (int subBoardSize = minEraseCondition + 1; subBoardSize < column; subBoardSize++)
+    {
         for (int i = 0; i <= column - subBoardSize; i++)
         {
             for (int j = 0; j <= row - subBoardSize; j++)
             {
-                int *orbCount = new int[pad::ORB_COUNT] {0};
+                int *orbCount = new int[pad::ORB_COUNT]{0};
                 int comboCount = 0;
                 int orbAround = 0;
                 int twoInLine = 0;
@@ -181,9 +146,6 @@ int PBoard::rateBoard()
         }
     }
     delete orbCount;
-    // Add the score if it erases more orbs
-    // score -= comboLeft * pad::ORB_AROUND_SCORE;
-    // score -= orbLeft * pad::ORB_NEARBY_SCORE;
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * combo;

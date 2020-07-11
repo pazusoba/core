@@ -8,7 +8,7 @@
 
 PPriorityQueue::~PPriorityQueue()
 {
-    foreach([](PElement *curr) {
+    foreach ([](PElement *curr) {
         delete curr;
     });
 }
@@ -129,13 +129,13 @@ void PPriorityQueue::insert(PState *newState)
 void PPriorityQueue::printQueue()
 {
     using namespace std;
-    foreach([](PElement* curr) {
+    foreach ([](PElement *curr) {
         cout << curr->state->score << " -> ";
     });
     cout << "NULL\n";
 }
 
-void PPriorityQueue::foreach(void func(PElement *))
+void PPriorityQueue::foreach (void func(PElement *))
 {
     auto it = top;
     while (it != NULL)

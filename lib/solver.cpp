@@ -27,98 +27,55 @@ std::string PSolver::solve()
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
-    std::map<std::string, int> visited;
     PPriorityQueue *toVisit = new PPriorityQueue(size);
-    std::vector<int> bestScorePerStep(steps + 2);
     std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
     auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
-    auto rooState = new PState(board, start, start, 0, steps, board.estimatedBestScore());
-    toVisit->insert(rooState);
+    auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
+    toVisit->insert(root);
 
-    int counter = 0;
     while (toVisit->size > 0)
     {
-        // if (counter > 50000)
-        //     break;
-
-        // Update current state
+        // Get the best state
         auto currentState = toVisit->pop();
 
+        // Save current score for printing out later
         int currentScore = currentState->score;
-        // int currStep = currentState -> step;
-
-        // // Not good enough
-        // if (bestScorePerStep[currStep] < currentScore)
-        //     bestScorePerStep[currStep] = currentScore;
-        // else if (bestScorePerStep[currStep] / currentScore > 4)
-        //     continue;
-
         if (bestScore[currentScore] == NULL)
             bestScore[currentScore] = currentState;
 
-        // if (currentState->step > 10)
-        // {
-        //     // DEBUG only
-        //     int a = 0;
-        // }
-
-        // Prevent duplcate boards
-        // auto boardID = currentState->boardID;
-        // int lastStepCount = visited[boardID];
-        // if (lastStepCount > 0 && currStep > lastStepCount)
-        //     continue;
-        // else
-        //     visited[boardID] = currStep;
-
-        counter++;
+        // All all possible children
         auto children = currentState->getChildren();
         for (auto s : children)
         {
-            // The number here will affect the result and also speed
-            // if (toVisit.size() > 100)
-            // {
-            //     // Must be better than the best state
-            //     auto topState = toVisit.top();
-            //     if (*s < *topState)
-            //         continue;
-            // } else {
-            //     toVisit.push(s);
-            //     continue;
-            // }
-
-            // auto avg = currentState->averageScore;
+            // Simply insert because states compete with each other
             toVisit->insert(s);
-            // It means that children is not as good as the parent
-            // if (avg == 0 || currentState->score >= avg)
-            // {
-            // }
-            // else
-            // {
-            // }
         }
     }
 
     ss << "Search has been completed\n";
 
+    // This prints top ten
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i > 10)
+        if (i > 10) 
             break;
-        else
+        else 
             i++;
-
-        if (i == 1)
+        if (i == 1) 
             continue;
+
         auto score = *it;
         score.second->printState();
     }
 
+    // Free up memories
     delete toVisit;
-    delete rooState;
+    delete root;
+
     return ss.str();
 }
 
