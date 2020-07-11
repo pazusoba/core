@@ -5,7 +5,7 @@ I have been playing this game (the Japanese version) for more than 2000 days (un
 The goal is to find a good enough path quickly. Ideally, it should be short, cascading and aiming for max combo (except that it is never that ideal). 
 
 ## My approach
-A speicial priority queue is used which limits the size to a fixed number. Only states with a better score than the best can be inserted to the queue. Thus, this is a greedy approch. Overall, it is better than me but it struggles to do 8 combo.
+A speicial priority queue is used which limits the size to a fixed number. Only states with a better score than the best can be inserted to the queue. Thus, this is a greedy approch. Overall, it is better than me but it struggles to do 8 combo. **Btw, now it always start from location (2, 0) and it might not work for all boards.**
 
 ## How to compile
 This is written on a windows computer so I am using the `mingw` package from `choco`. 
