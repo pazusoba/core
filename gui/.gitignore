@@ -1,0 +1,2 @@
+# ignore all build folders and only show the source code
+**/build-**
