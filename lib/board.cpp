@@ -69,71 +69,73 @@ int PBoard::rateBoard()
     //     }
     // }
 
-    // so example 6x5 and minErase is 3, it will check 3x3 boards
-    for (int i = 0; i <= column - minEraseCondition; i++)
-    {
-        for (int j = 0; j <= row - minEraseCondition; j++)
+    // so example 6x5 and minErase is 3, it will check 4x4 boards
+    for (int subBoardSize = minEraseCondition + 1; subBoardSize < column; subBoardSize++) {
+        for (int i = 0; i <= column - subBoardSize; i++)
         {
-            int *orbCount = new int[pad::ORB_COUNT] {0};
-            int comboCount = 0;
-            int orbAround = 0;
-            int twoInLine = 0;
-            // Inner loop
-            for (int x = 0; x < minEraseCondition; x++)
+            for (int j = 0; j <= row - subBoardSize; j++)
             {
-                for (int y = 0; y < minEraseCondition; y++)
+                int *orbCount = new int[pad::ORB_COUNT] {0};
+                int comboCount = 0;
+                int orbAround = 0;
+                int twoInLine = 0;
+                // Inner loop
+                for (int x = 0; x < subBoardSize; x++)
                 {
-                    auto curr = board[i + x][j + y];
-                    // Check if there are same orbs around
-                    for (int a = -1; a <= 1; a++)
+                    for (int y = 0; y < subBoardSize; y++)
                     {
-                        for (int b = -1; b <= 1; b++)
+                        auto curr = board[i + x][j + y];
+                        // Check if there are same orbs around
+                        for (int a = -1; a <= 1; a++)
                         {
-                            // This is the current orb
-                            if (a == 0 && b == 0)
-                                continue;
-                            if (hasSameOrb(curr, i + x + a, j + y + b))
+                            for (int b = -1; b <= 1; b++)
                             {
-                                orbAround++;
-                                if ((x == 0 && ((y == 1) || (y == -1))) ||
-                                    (y == 0 && ((x == 1) || (x == -1))))
+                                // This is the current orb
+                                if (a == 0 && b == 0)
+                                    continue;
+                                if (hasSameOrb(curr, i + x + a, j + y + b))
                                 {
-                                    // This means that it is a line
-                                    twoInLine += 1;
-                                    orbAround -= 1;
+                                    orbAround++;
+                                    if ((x == 0 && ((y == 1) || (y == -1))) ||
+                                        (y == 0 && ((x == 1) || (x == -1))))
+                                    {
+                                        // This means that it is a line
+                                        twoInLine += 1;
+                                        orbAround -= 1;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Count orbs in this area
-                    orbCount[curr]++;
-                    if (orbCount[curr] == minEraseCondition)
-                    {
-                        orbCount[curr] = 0;
-                        comboCount++;
+                        // Count orbs in this area
+                        orbCount[curr]++;
+                        if (orbCount[curr] == minEraseCondition)
+                        {
+                            orbCount[curr] = 0;
+                            comboCount++;
+                        }
                     }
                 }
-            }
 
-            // Loop through the orb list
-            for (int z = 0; z < pad::ORB_COUNT; z++)
-            {
-                if (z == pad::empty)
-                    continue;
-
-                if (orbCount[z] > 0 && orbCount[z] < minEraseCondition)
+                // Loop through the orb list
+                for (int z = 0; z < pad::ORB_COUNT; z++)
                 {
-                    // Less than minErase but still there are some orbs around
-                    score += pad::ORB_AROUND_SCORE;
-                }
-            }
+                    if (z == pad::empty)
+                        continue;
 
-            // Encourage to group orbs in a 3x3 area or 4x4 or 5x5...
-            score += comboCount * pad::CASCADE_SCORE;
-            score += twoInLine * pad::ORB_AROUND_SCORE;
-            score += orbAround * pad::ORB_NEARBY_SCORE;
-            delete orbCount;
+                    if (orbCount[z] > 0 && orbCount[z] < minEraseCondition)
+                    {
+                        // Less than minErase but still there are some orbs around
+                        score += pad::ORB_AROUND_SCORE;
+                    }
+                }
+
+                // Encourage to group orbs in a 3x3 area or 4x4 or 5x5...
+                score += comboCount * pad::CASCADE_SCORE;
+                score += twoInLine * pad::ORB_AROUND_SCORE;
+                score += orbAround * pad::ORB_NEARBY_SCORE;
+                delete orbCount;
+            }
         }
     }
 
@@ -180,12 +182,12 @@ int PBoard::rateBoard()
     }
     delete orbCount;
     // Add the score if it erases more orbs
-    score -= comboLeft * pad::ORB_AROUND_SCORE;
-    score -= orbLeft * pad::ORB_NEARBY_SCORE;
+    // score -= comboLeft * pad::ORB_AROUND_SCORE;
+    // score -= orbLeft * pad::ORB_NEARBY_SCORE;
 
     // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
     score += pad::ONE_COMBO_SCORE * combo;
-    score += pad::CASCADE_SCORE * moveCount;
+    // score += pad::CASCADE_SCORE * moveCount;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";

@@ -130,7 +130,8 @@ void PState::printStateFromRoot(PState *parent)
     {
         printStateFromRoot(parent->parent);
         auto loc = parent->current;
-        std::cout << "(" << loc.first << ", " << loc.second << ") -> ";
+        int score = parent->score;
+        std::cout << "(" << loc.first << ", " << loc.second << ") " << score << " -> ";
     }
 }
 

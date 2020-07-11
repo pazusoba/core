@@ -3,3 +3,4 @@
 **/*.exe
 **/*.gch
 **/board_*.txt
+**/output.txt
