@@ -31,7 +31,7 @@ std::string PSolver::solve()
     std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
-    auto start = OrbLocation(2, 0);
+    auto start = OrbLocation(4, 2);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(root);

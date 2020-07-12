@@ -94,10 +94,6 @@ public:
     PBoard();
     PBoard(Board board, int row, int column, int minEraseCondition = 3);
     ~PBoard();
-    PBoard copy()
-    {
-        return PBoard(board, row, column, minEraseCondition);
-    }
 
     /**
          * Rate current board. This is the heuristic

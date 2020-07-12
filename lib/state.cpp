@@ -80,7 +80,7 @@ PState::PStateList PState::getChildren()
             if (board.validLocation(next))
             {
                 // Setup new state and add this to children
-                auto nextState = new PState(board.copy(), current, next, step + 1, maxStep, maxScore);
+                auto nextState = new PState(board, current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
                 children.push_back(nextState);
             }
