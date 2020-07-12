@@ -18,15 +18,17 @@ class PSolver
     // Row and column are used to count board size
     int row = 0;
     int column = 0;
+    int minEraseCondition = 3;
     // This is the original board
     PBoard board;
     int steps = 25;
-    int size = 100;
+    int size = 1000;
 
     // Read board from filePath, return the board
     Board readBoard(std::string filePath);
 
 public:
+    PSolver(int minEraseCondition, int maxStep, int maxSize);
     PSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
     // Solve the current board
     std::string solve();

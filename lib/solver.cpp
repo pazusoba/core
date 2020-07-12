@@ -11,12 +11,66 @@
 
 /// Constrcutors
 
-PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int size)
+PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
 {
-    this->size = size;
+    this->minEraseCondition = minEraseCondition;
     this->steps = steps;
-    auto currBoard = readBoard(filePath);
-    board = PBoard(currBoard, row, column, minEraseCondition);
+    this->size = size;
+}
+
+PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int size) : PSolver(minEraseCondition, steps, size)
+{
+    if (filePath.find(".txt") != std::string::npos)
+    {
+        auto currBoard = readBoard(filePath);
+        board = PBoard(currBoard, row, column, minEraseCondition);
+    }
+    else
+    {
+        // This is a board
+        auto board = filePath;
+        // This is just a string with the board
+        int size = board.length();
+        // It is just a string so must be fixed size
+        if (size == 20) // 5x4
+        {
+            row = 5;
+            column = 4;
+        }
+        else if (size == 30) // 6x5
+        {
+            row = 6;
+            column = 5;
+        }
+        else if (size == 42) // 7x6
+        {
+            row = 7;
+            column = 6;
+        }
+
+        // Read from a string
+        Board currBoard;
+        for (int i = 0; i < column; i++)
+        {
+            Row r;
+            for (int j = 0; j < row; j++)
+            {
+                int index = j + i * row;
+                char orb = board[index];
+                for (int k = 0; k < pad::ORB_COUNT; k++)
+                {
+                    if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
+                    {
+                        r.push_back(Orb(k));
+                        break;
+                    }
+                }
+            }
+            currBoard.push_back(r);
+        }
+
+        this->board = PBoard(currBoard, row, column, minEraseCondition);
+    }
 }
 
 /// Solve the board
@@ -61,11 +115,11 @@ std::string PSolver::solve()
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i > 10) 
+        if (i > 10)
             break;
-        else 
+        else
             i++;
-        if (i == 1) 
+        if (i == 1)
             continue;
 
         auto score = *it;

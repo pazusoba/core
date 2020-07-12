@@ -12,11 +12,13 @@ Board createBoard(int row, int column);
 void printBoard(Board board);
 
 void testQueue();
+void testSolver();
 
 int main()
 {
     testBoard();
     testQueue();
+    testSolver();
 
     return 0;
 }
@@ -129,4 +131,8 @@ void testQueue()
     // Clean up
     delete pq;
     delete testState, delete testState2, delete testState3, delete testState4;
+}
+
+void testSolver() {
+
 }
