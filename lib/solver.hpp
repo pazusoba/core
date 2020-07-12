@@ -21,7 +21,7 @@ class PSolver
     int minEraseCondition = 3;
     // This is the original board
     PBoard board;
-    int steps = 25;
+    int steps = 20;
     int size = 1000;
 
     // Read board from filePath, return the board

@@ -17,7 +17,7 @@ PState::PState(PBoard board, OrbLocation from, OrbLocation to, int step, int max
     this->board.swapLocation(from, to);
     this->boardID = this->board.getBoardID();
     auto copy = this->board;
-    this->score = copy.rateBoard();
+    this->score = copy.rateBoard(step);
 
     // Copy other variables
     this->previous = from;

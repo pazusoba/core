@@ -14,8 +14,8 @@
 PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
 {
     this->minEraseCondition = minEraseCondition;
-    this->steps = steps;
-    this->size = size;
+    this->steps = maxStep;
+    this->size = maxSize;
 }
 
 PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int size) : PSolver(minEraseCondition, steps, size)
@@ -85,7 +85,8 @@ std::string PSolver::solve()
     std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
-    auto start = OrbLocation(4, 2);
+    auto start = board.findBestStartingLocation();
+    // auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(root);

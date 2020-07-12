@@ -5,7 +5,8 @@
 
 #include <iostream>
 #include <sstream>
-#include <cmath>
+#include <cstdlib>
+#include <ctime>
 #include "board.hpp"
 
 /// Constructors
@@ -29,7 +30,7 @@ PBoard::~PBoard()
 
 /// Board related
 
-int PBoard::rateBoard()
+int PBoard::rateBoard(int step)
 {
     int score = 0;
 
@@ -146,14 +147,61 @@ int PBoard::rateBoard()
         }
     }
     delete orbCount;
-
-    // Here is a simple calculation, moveCount should -1 because the first movement doesn't count
+    
     score += pad::ONE_COMBO_SCORE * combo;
-    // score += pad::CASCADE_SCORE * moveCount;
+    score += pad::CASCADE_SCORE * moveCount;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
     return score;
+}
+
+OrbLocation PBoard::findBestStartingLocation()
+{
+    // Loop through the board to see the number of each orb we have
+    auto counter = collectOrbCount();
+    int size = pad::ORB_COUNT;
+    std::set<Orb> goodStartingOrbs;
+    for (int i = 0; i < size; i++)
+    {
+        // To achieve max combo, we should always erase when it reaches the min condition
+        counter[i] %= minEraseCondition;
+        if (counter[i] == 1)
+        {
+            goodStartingOrbs.insert(Orb(i));
+        }
+    }
+
+    std::vector<OrbLocation> possibleLocations;
+    // Now, in the board find orb
+    for (int i = 0; i < column; i++)
+    {
+        // Outside only
+        for (int j = 0; j < row; j++)
+        {
+            if (i > 0 && i < column - 1 && j > 0 && j < row - 1)
+                continue;
+            auto orb = board[i][j];
+            if (goodStartingOrbs.count(orb) > 0)
+            {
+                possibleLocations.push_back(OrbLocation(i, j));
+            }
+        }
+    }
+
+    delete counter;
+
+    // Return any of it
+    int locationSize = possibleLocations.size();
+    if (locationSize > 0)
+    {
+        srand((unsigned int)time(NULL));
+        int randomIndex = rand() % locationSize;
+        return possibleLocations[randomIndex];
+    }
+
+    // Bottom left by default
+    return OrbLocation(column - 1, 0);
 }
 
 void PBoard::moveOrbsDown()
