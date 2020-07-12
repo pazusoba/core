@@ -7,7 +7,18 @@ Window {
     height: 480
     title: qsTr("パズそば - Puzzle & Dragons Solver")
 
-    Text {
-        text: qsTr("Hello QT!")
+    Grid {
+        id: grid
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.horizontalCenter: parent.horizontalCenter
+        columns: 6
+        rows: 5
+        spacing: 4
+        Repeater {
+            id: repeater
+            model: 30
+            Rectangle { color: "red"; radius: 25; width: 50; height: 50 }
+        }
     }
 }
