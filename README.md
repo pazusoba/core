@@ -9,6 +9,16 @@ A speicial priority queue is used which limits the size to a fixed number. Only 
 ### Issues
 The main issue is that it is shortsighted and might filter out better solutions early on. I am thinking of looking ahead. The number will decrease as the step increases because there are more states deep down the tree. In the beginning, it is good to search down a little bit and see what's going on.
 
+### Improvements
+- [ ] Improving combo counting (especially for combo with many orbs sticking together)
+    - Union find
+    - Flood fill
+- [ ] Better scoring algorithm (I think the curent one is good enough)
+    - Combo
+    - Cacasde
+- [ ] Using beam search to scan the entire board (it only chooses the top ones)
+    - This cuts down so many branches but at the same time, it won't ignore those with potential
+
 ## How to compile
 This is written on a windows computer so I am using the `mingw` package from `choco`. 
 On Mac or Linux, you need to have `g++` installed and change `win` to `mac` in the Makefile.
@@ -48,6 +58,7 @@ Things that are helpful during my experiments
 - https://puzzleanddragonsforum.com/threads/genetic-algorithm-for-pad.95084/, a great discussion
 - https://cory.li/puzzle-and-dragons/, a great post
 - flood fill algorithm
+- beam search algorithm
 
 ## License
 My code is under [MIT license](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) but the GUI is built on top of QT so it is under [LGPL license](https://doc.qt.io/qt-5/lgpl.html)
