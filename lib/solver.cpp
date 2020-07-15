@@ -82,6 +82,7 @@ std::string PSolver::solve()
     board.printBoardForSimulation();
 
     PPriorityQueue *toVisit = new PPriorityQueue(size);
+    std::map<std::string, int> visited;
     std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
@@ -91,20 +92,52 @@ std::string PSolver::solve()
     auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(root);
 
+    int node = 0;
     while (toVisit->size > 0)
     {
+        node++;
+        if (node > 100000)
+        {
+            int a = 0;
+        }
         // Get the best state
         auto currentState = toVisit->pop();
 
         // Save current score for printing out later
         int currentScore = currentState->score;
+        int currentStep = currentState->step;
+
+        // Update best score
         if (bestScore[currentScore] == NULL)
+        {
             bestScore[currentScore] = currentState;
+        }
+        else
+        {
+            auto saved = bestScore[currentScore];
+            if (saved -> step > currentStep)
+            {
+                // We found a better one
+                bestScore[currentScore] = currentState;
+            }
+        }
 
         // All all possible children
         auto children = currentState->getChildren();
         for (auto s : children)
         {
+            // Check if we have visited it before
+            auto hash = s->boardID;
+            if (visited[hash] == 0)
+            {
+                // -1 just for the starting board because it will be the same
+                visited[hash] = currentStep > 0 ? currentStep : -1;
+            }
+            else if (visited[hash] > 0)
+            {
+                continue;
+            }
+
             // Simply insert because states compete with each other
             toVisit->insert(s);
         }

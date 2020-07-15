@@ -580,7 +580,8 @@ std::string PBoard::getBoardID()
     {
         for (auto orb : row)
         {
-            id << (int)orb;
+            // , is important because you have 10 which can be 1 0 or just 10
+            id << (int)orb << ",";
         }
     }
     return id.str();

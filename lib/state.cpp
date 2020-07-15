@@ -82,6 +82,7 @@ PState::PStateList PState::getChildren()
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep, maxScore);
                 nextState->parent = this;
+                // nextState->score += score;
                 children.push_back(nextState);
             }
         }

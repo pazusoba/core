@@ -57,7 +57,7 @@ void PPriorityQueue::insert(PState *newState)
         this->bottom = this->top;
         this->size = 1;
     }
-    else if (size < maxSize)
+    else if (size > 0)
     {
         bool hasInserted = false;
         // Loop though the queue and find a great place tp insert
