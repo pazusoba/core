@@ -81,39 +81,35 @@ std::string PSolver::solve()
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
+    // A queue that only saves top 100, 1000 based on the size
     PPriorityQueue *toVisit = new PPriorityQueue(size);
-    std::map<std::string, int> visited;
+    // This saves all chidren of states to visit
+    std::vector<PState *> childrenStates;
+    // This saves the best score
     std::map<int, PState *> bestScore;
 
-    // Start and end should be the same for step 0
-    // auto start = board.findBestStartingLocation();
-    auto start = OrbLocation(2, 0);
-    // Basically, the start state is like holding the orb so start and end locations are the same
-    auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
-    toVisit->insert(root);
+    // This is the root state, 30 of them in a list to be deleted later
+    std::vector<PState *> rootStates;
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            auto loc = OrbLocation(i, j);
+            auto root = new PState(board, loc, loc, 0, steps, board.estimatedBestScore());
+            rootStates.push_back(root);
+            toVisit->insert(root);
+        }
+    }
 
     while (toVisit->size > 0)
     {
         // Get the best state
         auto currentState = toVisit->pop();
-
         // Save current score for printing out later
         int currentScore = currentState->score;
         int currentStep = currentState->step;
 
-        // Check if we have visited it before
-        auto hash = currentState->boardID;
-        if (visited[hash] == 0)
-        {
-            // -1 just for the starting board because it will be the same
-            visited[hash] = currentStep > 0 ? currentStep : -1;
-        }
-        else if (visited[hash] > 0)
-        {
-            continue;
-        }
-
-        // Update best score
+        // Save best scores
         if (bestScore[currentScore] == NULL)
         {
             bestScore[currentScore] = currentState;
@@ -121,7 +117,7 @@ std::string PSolver::solve()
         else
         {
             auto saved = bestScore[currentScore];
-            if (saved -> step > currentStep)
+            if (saved->step > currentStep)
             {
                 // We found a better one
                 bestScore[currentScore] = currentState;
@@ -133,7 +129,18 @@ std::string PSolver::solve()
         for (auto s : children)
         {
             // Simply insert because states compete with each other
-            toVisit->insert(s);
+            childrenStates.push_back(s);
+        }
+
+        // We have visited everything in toVisit
+        if (toVisit->size == 0)
+        {
+            // Now, we need to insert from childrenStates
+            for (auto s : childrenStates)
+            {
+                toVisit->insert(s);
+            }
+            childrenStates.clear();
         }
     }
 
@@ -156,7 +163,10 @@ std::string PSolver::solve()
 
     // Free up memories
     delete toVisit;
-    delete root;
+    for (auto s : rootStates)
+    {
+        delete s;
+    }
 
     return ss.str();
 }
