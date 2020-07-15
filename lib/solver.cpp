@@ -86,26 +86,32 @@ std::string PSolver::solve()
     std::map<int, PState *> bestScore;
 
     // Start and end should be the same for step 0
-    auto start = board.findBestStartingLocation();
-    // auto start = OrbLocation(2, 0);
+    // auto start = board.findBestStartingLocation();
+    auto start = OrbLocation(2, 0);
     // Basically, the start state is like holding the orb so start and end locations are the same
     auto root = new PState(board, start, start, 0, steps, board.estimatedBestScore());
     toVisit->insert(root);
 
-    int node = 0;
     while (toVisit->size > 0)
     {
-        node++;
-        if (node > 100000)
-        {
-            int a = 0;
-        }
         // Get the best state
         auto currentState = toVisit->pop();
 
         // Save current score for printing out later
         int currentScore = currentState->score;
         int currentStep = currentState->step;
+
+        // Check if we have visited it before
+        auto hash = currentState->boardID;
+        if (visited[hash] == 0)
+        {
+            // -1 just for the starting board because it will be the same
+            visited[hash] = currentStep > 0 ? currentStep : -1;
+        }
+        else if (visited[hash] > 0)
+        {
+            continue;
+        }
 
         // Update best score
         if (bestScore[currentScore] == NULL)
@@ -126,18 +132,6 @@ std::string PSolver::solve()
         auto children = currentState->getChildren();
         for (auto s : children)
         {
-            // Check if we have visited it before
-            auto hash = s->boardID;
-            if (visited[hash] == 0)
-            {
-                // -1 just for the starting board because it will be the same
-                visited[hash] = currentStep > 0 ? currentStep : -1;
-            }
-            else if (visited[hash] > 0)
-            {
-                continue;
-            }
-
             // Simply insert because states compete with each other
             toVisit->insert(s);
         }
