@@ -55,19 +55,19 @@ namespace pad
         /**
          * nearby means vertically, horizontally and diagonally
          */
-        ORB_NEARBY_SCORE = 20,
+        ORB_NEARBY_SCORE = 5,
         /**
          * nearby means only vertically and horizontally
          */
-        ORB_AROUND_SCORE = 100,
+        ORB_AROUND_SCORE = 10,
         /**
          * encourage to cascade
          */
-        CASCADE_SCORE = 400,
+        CASCADE_SCORE = 100,
         /**
          * score for a single combo
          */
-        ONE_COMBO_SCORE = 10000,
+        ONE_COMBO_SCORE = 1000,
     };
 } // namespace pad
 

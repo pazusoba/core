@@ -1,6 +1,5 @@
 # パズそば (Puzzle & Dragons solver)
 
-
 ## The goal
 The goal is to find a good enough path quickly. Ideally, it should be short, cascading and aiming for max combo (except that it is never that ideal). 
 
@@ -43,6 +42,9 @@ Things that are helpful during my experiments
     - https://github.com/matthargett/padopt
 - https://github.com/alexknutson/Combo.Tips
 - https://github.com/ethanlu/pazudora-solver
+- https://puzzleanddragonsforum.com/threads/genetic-algorithm-for-pad.95084/, a great discussion
+- https://cory.li/puzzle-and-dragons/, a great post
+- flood fill algorithm
 
 ## License
 My code is under [MIT license](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) but the GUI is built on top of QT so it is under [LGPL license](https://doc.qt.io/qt-5/lgpl.html)

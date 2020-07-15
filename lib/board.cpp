@@ -148,6 +148,8 @@ int PBoard::rateBoard(int step)
     }
     delete orbCount;
     
+    score -= pad::CASCADE_SCORE * comboLeft;
+    score -= pad::ORB_AROUND_SCORE * orbLeft;
     score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
 
