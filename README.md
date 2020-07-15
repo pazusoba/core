@@ -41,6 +41,8 @@ Things that are helpful during my experiments
 - https://padopt.macboy.me/, an optimal PAD solver
     - This is another level and is a lot better than pazusoba
     - https://github.com/matthargett/padopt
+- https://github.com/alexknutson/Combo.Tips
+- https://github.com/ethanlu/pazudora-solver
 
 ## License
 My code is under [MIT license](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) but the GUI is built on top of QT so it is under [LGPL license](https://doc.qt.io/qt-5/lgpl.html)
