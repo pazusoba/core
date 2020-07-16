@@ -1,23 +1,35 @@
 # パズそば (Puzzle & Dragons solver)
+Puzzle & Dragons is a mobile app developed by Gungho. In this game, there is a board and you can erase orbs to make combo and damage dungeon monsters. Every combo will increase your attack by 25%. In addition, there are skyfall orbs that might potentially make more combos.
 
 ## The goal
-The goal is to find a good enough path quickly. Ideally, it should be short, cascading and aiming for max combo (except that it is never that ideal). 
+There are 30 * 3^step possible states for a 6 x 5 board so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal). 
 
 ## My approach
-A speicial priority queue is used which limits the size to a fixed number. Only states with a better score than the best can be inserted to the queue. Thus, this is a greedy approch. Overall, it is better than me but it struggles to do 8 combo. 
+A speicial priority queue is used which limits the size to a fixed number. Only states with a better score can be inserted to the queue. Thus, this is a greedy approch. I have improved the search with `BEAM SEARCH` so that more states will be visited. Overall, it has surpassed me but it still struggles to do max combo. However, it is not possible to achieve max combo with merely 20 steps sometimes.
 
-### Issues
-The main issue is that it is shortsighted and might filter out better solutions early on. I am thinking of looking ahead. The number will decrease as the step increases because there are more states deep down the tree. In the beginning, it is good to search down a little bit and see what's going on.
+### Why beam search
+Greedy DFS -> Greedy B(best)FS -> My special greedy BFS -> Beam Search
+
+As you can see, they are all greedy algorithms based on a heuristic. The reason is that the end goal is unknown and there are also negative values. Simply choosing the local maxima may result in poor solutions. 
+
+Best first search improves the overall performance but it is consumes too much memory and is extremely slowly in computation. That's why I wanted to prune useless branches because a better path is guaranteed to have a better score.
+
+My special BFS was thus introduced. It can be seen as my attempt on the Beam Search algorithm but it has a problem, shortsighted. With size 1000, it can only check 6 steps (3^6) and after that, it only inserts if a state is better than the current best state. However, states with more potential might be blocked by local maxima because currently, it has less score.
+
+Introducing beam search, it checks more states compared to my special BFS and accepts states with a lower score. For a beam size of 1000, it always checks for 3000 states per step and chooses the best 1000 and continue with the next step. It is not optimal but often, really close. This algorithm makes the complexity from 30 * 3^25 to 25 * 1000 * 3 (step 25, size 1000 and no diagonal moves). 
 
 ### Improvements
+Currently, evaluating score and board related parts can be slow. By improving them, a larger size can be used to produce even better solutions.
 - [ ] Improving combo counting (especially for combo with many orbs sticking together)
     - Union find
     - Flood fill
-- [ ] Better scoring algorithm (I think the curent one is good enough)
+- [ ] Better scoring algorithm (I think the curent one is good enough thought)
     - Combo
     - Cacasde
-- [ ] Using beam search to scan the entire board (it only chooses the top ones)
-    - This cuts down so many branches but at the same time, it won't ignore those with potential
+    - Increase the speed
+- [x] Using beam search to scan the entire board (it only chooses the top ones)
+    - This cuts down so many branches but at the same time, it doesn't ignore those with potential
+    - My solution is now actually getting close to padopt
 
 ## How to compile
 This is written on a windows computer so I am using the `mingw` package from `choco`. 
@@ -34,24 +46,25 @@ The program accepts 4 arguments
 - Path to the board
 - Minimum erase condition (by default 3)
 - Max step (by default 20)
-- Max queue size (by default 1000)
+- Max beam size (by default 1000)
 
-By increasing the queue size, it will take significantly more time to compute.
+By increasing the beam size, it will take a bit more time to compute.
 
 ### QT
 This is my first ever qt application. I will add more functions to read boards in multiple ways and solve it at realtime to display the top results with basic replay features. It might be used for Q learning in the future.
 
 ## Resources
-Things that are helpful during my experiments
+Things that were helpful during my experiments
 
 - https://www.slideshare.net/mobile/tnkt37/6-37838644, tnkt37さんのスライド
-    - tnkt37さん made a fancy robot that can solve the puzzle in realtime
+    - tnkt37さん made a fancy robot that can solve the board in realtime
     - He also has a [repo](https://github.com/tnkt37/PuzzDraSolver) with the code behind it
-- http://maaak.net/pad/ for simulation
+    - The introduction of `beam search` inspired me and it took me less than 5 min to implement it but it had improved the performance significantly
+- http://maaak.net/pad/ for basic simulation
 - https://pad.dawnglare.com/ for better simulation (support 7x6, replay, share and more)
     - https://pad.dawnglare.com/?height=6&width=7 (7x6)
 - https://padopt.macboy.me/, an optimal PAD solver
-    - This is another level and is a lot better than pazusoba
+    - This is an amazing optimizer
     - https://github.com/matthargett/padopt
 - https://github.com/alexknutson/Combo.Tips
 - https://github.com/ethanlu/pazudora-solver
