@@ -5,14 +5,14 @@ Puzzle & Dragons is a mobile app developed by Gungho. In this game, there is a b
 There are 30 * 3^step possible states for a 6 x 5 board so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal). 
 
 ## My approach
-A speicial priority queue is used which limits the size to a fixed number. Only states with a better score can be inserted to the queue. Thus, this is a greedy approch. I have improved the search with `BEAM SEARCH` so that more states will be visited. Overall, it has surpassed me but it still struggles to do max combo. However, it is not possible to achieve max combo with merely 20 steps sometimes.
+A special priority queue is used which limits the size to a fixed number. Only states with a better score can be inserted to the queue. Thus, this is a greedy approach. I have improved the search with `BEAM SEARCH` so that more states will be visited. Overall, it has surpassed me but it still struggles to do max combo. However, it is not possible to achieve max combo with merely 20 steps sometimes.
 
 ### Why beam search
 Greedy DFS -> Greedy B(best)FS -> My special greedy BFS -> Beam Search
 
 As you can see, they are all greedy algorithms based on a heuristic. The reason is that the end goal is unknown and there are also negative values. Simply choosing the local maxima may result in poor solutions. 
 
-Best first search improves the overall performance but it is consumes too much memory and is extremely slowly in computation. That's why I wanted to prune useless branches because a better path is guaranteed to have a better score.
+Best first search improves the overall performance but it consumes too much memory and is extremely slow in computation. That's why I wanted to prune useless branches because a better path is guaranteed to have a better score.
 
 My special BFS was thus introduced. It can be seen as my attempt on the Beam Search algorithm but it has a problem, shortsighted. With size 1000, it can only check 6 steps (3^6) and after that, it only inserts if a state is better than the current best state. However, states with more potential might be blocked by local maxima because currently, it has less score.
 
@@ -23,9 +23,9 @@ Currently, evaluating score and board related parts can be slow. By improving th
 - [ ] Improving combo counting (especially for combo with many orbs sticking together)
     - Union find
     - Flood fill
-- [ ] Better scoring algorithm (I think the curent one is good enough thought)
+- [ ] Better scoring algorithm (I think the current one is good enough though)
     - Combo
-    - Cacasde
+    - Cascade
     - Increase the speed
 - [x] Using beam search to scan the entire board (it only chooses the top ones)
     - This cuts down so many branches but at the same time, it doesn't ignore those with potential
