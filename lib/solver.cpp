@@ -90,6 +90,7 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 std::string PSolver::solve()
 {
+    timer::shared().start(9999);
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
@@ -164,6 +165,7 @@ std::string PSolver::solve()
         }
         childrenStates.clear();
     }
+    timer::shared().end(9999);
 
     ss << "Search has been completed\n";
     // This prints top ten
