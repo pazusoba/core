@@ -6,8 +6,20 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <queue>
+#include <chrono>
 #include "solver.hpp"
 #include "queue.hpp"
+
+class PointerCompare
+{
+public:
+    template <typename T>
+    bool operator()(T *a, T *b)
+    {
+        return (*a) < (*b);
+    }
+};
 
 /// Constrcutors
 
@@ -77,12 +89,14 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 std::string PSolver::solve()
 {
+    auto start = std::chrono::high_resolution_clock::now();
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
-    PPriorityQueue *toVisit = new PPriorityQueue(size);
+    // PPriorityQueue *toVisit = new PPriorityQueue(size);
+    std::priority_queue<PState *, std::vector<PState *>, PointerCompare> toVisit;
     // This saves all chidren of states to visit
     std::vector<PState *> childrenStates;
     // This saves the best score
@@ -90,60 +104,67 @@ std::string PSolver::solve()
 
     // This is the root state, 30 of them in a list to be deleted later
     std::vector<PState *> rootStates;
-    for (int i = 0; i < column; i++)
+    for (int i = 0; i < column; ++i)
     {
-        for (int j = 0; j < row; j++)
+        for (int j = 0; j < row; ++j)
         {
             auto loc = OrbLocation(i, j);
             auto root = new PState(board, loc, loc, 0, steps, board.estimatedBestScore());
             rootStates.push_back(root);
-            toVisit->insert(root);
+            toVisit.push(root);
         }
     }
 
-    while (toVisit->size > 0)
+    // Only take first 1000, reset for every step
+    for (int i = 0; i < steps; ++i)
     {
-        // Get the best state
-        auto currentState = toVisit->pop();
-        // Save current score for printing out later
-        int currentScore = currentState->score;
-        int currentStep = currentState->step;
+        for (int j = 0; j < size; ++j)
+        {
+            // Early steps might not have enough size
+            if (toVisit.empty())
+                break;
 
-        // Save best scores
-        if (bestScore[currentScore] == NULL)
-        {
-            bestScore[currentScore] = currentState;
-        }
-        else
-        {
-            auto saved = bestScore[currentScore];
-            if (saved->step > currentStep)
+            // Get the best state
+            auto currentState = toVisit.top();
+            toVisit.pop();
+            // Save current score for printing out later
+            int currentScore = currentState->score;
+            int currentStep = currentState->step;
+
+            // Save best scores
+            if (bestScore[currentScore] == NULL)
             {
-                // We found a better one
                 bestScore[currentScore] = currentState;
             }
-        }
-
-        // All all possible children
-        auto children = currentState->getChildren();
-        for (auto s : children)
-        {
-            // Simply insert because states compete with each other
-            childrenStates.push_back(s);
-        }
-
-        // We have visited everything in toVisit
-        if (toVisit->size == 0)
-        {
-            // Now, we need to insert from childrenStates
-            for (auto s : childrenStates)
+            else
             {
-                toVisit->insert(s);
+                auto saved = bestScore[currentScore];
+                if (saved->step > currentStep)
+                {
+                    // We found a better one
+                    bestScore[currentScore] = currentState;
+                }
             }
-            childrenStates.clear();
-        }
-    }
 
+            // All all possible children
+            auto children = currentState->getChildren();
+            for (auto s : children)
+            {
+                // Simply insert because states compete with each other
+                childrenStates.push_back(s);
+            }
+        }
+
+        toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
+        for (const auto &s : childrenStates)
+        {
+            toVisit.push(s);
+        }
+        childrenStates.clear();
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    ss << "Elapsed time: " << elapsed.count() << " s\n";
     ss << "Search has been completed\n";
 
     // This prints top ten
@@ -162,7 +183,6 @@ std::string PSolver::solve()
     }
 
     // Free up memories
-    delete toVisit;
     for (auto s : rootStates)
     {
         delete s;
