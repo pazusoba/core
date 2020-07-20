@@ -15,7 +15,8 @@ else ifeq ($(PLATFORM), win)
 endif
 
 # shared arguments
-GCC=g++ -Wall -Werror -std=c++11
+# Ofast - increase the speed quite significantly
+GCC=g++ -Wall -Werror -std=c++11 -Ofast
 CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp lib/queue.cpp
 
 # build
