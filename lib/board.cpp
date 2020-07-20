@@ -21,7 +21,7 @@ PBoard::PBoard(Board board, int row, int column, int minEraseCondition)
 
 PBoard::~PBoard()
 {
-    for (auto row : board)
+    for (auto &row : board)
     {
         row.clear();
     }
@@ -275,7 +275,7 @@ int PBoard::eraseOrbs()
             // There should be orbs inside, check if the size is more than minEraseCondition (it was causing some issues)
             if ((int)vhOrbs.size() >= minEraseCondition)
             {
-                for (auto xy : vhOrbs)
+                for (auto const &xy : vhOrbs)
                 {
                     ORB(board, xy) = pad::empty;
                 }
@@ -449,9 +449,9 @@ void PBoard::printBoard()
     // Print everything out nicely
     std::cout << std::endl;
     std::cout << row << " x " << column << std::endl;
-    for (auto row : board)
+    for (auto const &row : board)
     {
-        for (auto orb : row)
+        for (auto const &orb : row)
         {
             std::cout << pad::ORB_NAMES[orb] << "\t";
         }
@@ -463,9 +463,9 @@ void PBoard::printBoard()
 void PBoard::printBoardForSimulation()
 {
     std::stringstream ss;
-    for (auto row : board)
+    for (auto const &row : board)
     {
-        for (auto orb : row)
+        for (auto const &orb : row)
         {
             std::cout << pad::ORB_SIMULATION_NAMES[orb];
             ss << (int)(orb - 1);
@@ -578,9 +578,9 @@ std::string PBoard::getBoardID()
 {
     // Get unique ID
     std::stringstream id;
-    for (auto row : board)
+    for (auto const &row : board)
     {
-        for (auto orb : row)
+        for (auto const &orb : row)
         {
             // , is important because you have 10 which can be 1 0 or just 10
             id << (int)orb << ",";
@@ -602,9 +602,9 @@ bool PBoard::isEmptyFile()
 int *PBoard::collectOrbCount()
 {
     int *counter = new int[pad::ORB_COUNT]{0};
-    for (auto row : board)
+    for (auto const &row : board)
     {
-        for (auto orb : row)
+        for (auto const &orb : row)
         {
             counter[orb]++;
         }

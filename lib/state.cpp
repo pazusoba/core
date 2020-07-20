@@ -30,7 +30,7 @@ PState::PState(PBoard board, OrbLocation from, OrbLocation to, int step, int max
 
 PState::~PState()
 {
-    for (auto c : children)
+    for (auto const &c : children)
     {
         delete c;
     }

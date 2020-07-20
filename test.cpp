@@ -59,9 +59,9 @@ Board createBoard(int r, int col)
 
 void printBoard(Board board)
 {
-    for (auto row : board)
+    for (auto const &row : board)
     {
-        for (auto orb : row)
+        for (auto const &orb : row)
         {
             cout << orb;
         }

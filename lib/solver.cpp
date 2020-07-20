@@ -148,7 +148,7 @@ std::string PSolver::solve()
 
             // All all possible children
             auto children = currentState->getChildren();
-            for (auto s : children)
+            for (const auto &s : children)
             {
                 // Simply insert because states compete with each other
                 childrenStates.push_back(s);
@@ -183,7 +183,7 @@ std::string PSolver::solve()
     }
 
     // Free up memories
-    for (auto s : rootStates)
+    for (auto const &s : rootStates)
     {
         delete s;
     }
