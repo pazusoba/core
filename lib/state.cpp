@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include "state.hpp"
+#include "timer.hpp"
 
 /// Constrctor
 

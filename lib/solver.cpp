@@ -169,19 +169,19 @@ std::string PSolver::solve()
 
     ss << "Search has been completed\n";
     // This prints top ten
-    // int i = 0;
-    // for (auto it = bestScore.end(); it != bestScore.begin(); it--)
-    // {
-    //     if (i > 10)
-    //         break;
-    //     else
-    //         i++;
-    //     if (i == 1)
-    //         continue;
+    int i = 0;
+    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
+    {
+        if (i > 10)
+            break;
+        else
+            i++;
+        if (i == 1)
+            continue;
 
-    //     auto score = *it;
-    //     score.second->printState();
-    // }
+        auto score = *it;
+        score.second->printState();
+    }
 
     // Free up memories
     for (auto const &s : rootStates)

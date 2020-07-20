@@ -147,7 +147,7 @@ int PBoard::rateBoard(int step)
         }
     }
     delete orbCount;
-    
+
     // score -= pad::CASCADE_SCORE * comboLeft;
     // score -= pad::ORB_AROUND_SCORE * orbLeft;
     score += pad::ONE_COMBO_SCORE * combo;
@@ -208,26 +208,41 @@ OrbLocation PBoard::findBestStartingLocation()
 
 void PBoard::moveOrbsDown()
 {
-    // we start from the second last row -1 and also convert to index so -2
-    // i can be 0 for the first row or the first row won't be updated
-    for (int i = column - 2; i >= 0; i--)
+    for (int j = 0; j < row; j++)
     {
-        for (int j = 0; j < row; j++)
+        std::vector<pad::orbs> orbs(column);
+        bool hasEmptyOrb = false;
+        // Start checking from the bottom most column
+        for (int i = column - 1; i >= 0; i--)
         {
-            // Keep checking if bottom orb is empty until it is not or out of bound
-            int k = 1;
-            while (i + k < column && pad::empty == board[i + k][j])
+            auto orb = board[i][j];
+            if (pad::empty != orb)
             {
-                // k - 1 because you want to compare with the orb right below
-                // k is increasing so k - 1 is the orb below (if you don't do it, nothing will be updated)
-                board[i + k][j] = board[i + k - 1][j];
-                board[i + k - 1][j] = pad::empty;
-                k += 1;
+                orbs.push_back(orb);
+                // Erase it
+                board[i][j] = pad::empty;
+            }
+            else
+            {
+                hasEmptyOrb = true;
+            }
+        }
+
+        // Only when there is at least 1 empty orb in this column
+        if (hasEmptyOrb)
+        {
+            // Fill the saved orbs
+            for (int i = column - 1; i >= 0; i--)
+            {
+                // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
+                auto orb = orbs[column - i - 1];
+                // If orb is 0, it means all saved orbs are pushed, by default it is set to 0
+                if (0 == orb)
+                    break;
+                board[i][j] = orb;
             }
         }
     }
-    if (printMoreMessages)
-        std::cout << "Board has been updated\n";
 }
 
 int PBoard::eraseOrbs()
