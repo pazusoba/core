@@ -172,7 +172,7 @@ std::string PSolver::solve()
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i > 10)
+        if (i > 4)
             break;
         else
             i++;

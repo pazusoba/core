@@ -34,77 +34,6 @@ int PBoard::rateBoard(int step)
 {
     int score = 0;
 
-    // so example 6x5 and minErase is 3, it will check 4x4 boards
-    for (int subBoardSize = minEraseCondition + 1; subBoardSize < column; subBoardSize++)
-    {
-        for (int i = 0; i <= column - subBoardSize; i++)
-        {
-            for (int j = 0; j <= row - subBoardSize; j++)
-            {
-                int *orbCount = new int[pad::ORB_COUNT]{0};
-                int comboCount = 0;
-                int orbAround = 0;
-                int twoInLine = 0;
-                // Inner loop
-                for (int x = 0; x < subBoardSize; x++)
-                {
-                    for (int y = 0; y < subBoardSize; y++)
-                    {
-                        auto curr = board[i + x][j + y];
-                        // Check if there are same orbs around
-                        for (int a = -1; a <= 1; a++)
-                        {
-                            for (int b = -1; b <= 1; b++)
-                            {
-                                // This is the current orb
-                                if (a == 0 && b == 0)
-                                    continue;
-                                if (hasSameOrb(curr, i + x + a, j + y + b))
-                                {
-                                    orbAround++;
-                                    if ((x == 0 && ((y == 1) || (y == -1))) ||
-                                        (y == 0 && ((x == 1) || (x == -1))))
-                                    {
-                                        // This means that it is a line
-                                        twoInLine += 1;
-                                        orbAround -= 1;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Count orbs in this area
-                        orbCount[curr]++;
-                        if (orbCount[curr] == minEraseCondition)
-                        {
-                            orbCount[curr] = 0;
-                            comboCount++;
-                        }
-                    }
-                }
-
-                // Loop through the orb list
-                for (int z = 0; z < pad::ORB_COUNT; z++)
-                {
-                    if (z == pad::empty)
-                        continue;
-
-                    if (orbCount[z] > 0 && orbCount[z] < minEraseCondition)
-                    {
-                        // Less than minErase but still there are some orbs around
-                        score += pad::ORB_AROUND_SCORE;
-                    }
-                }
-
-                // Encourage to group orbs in a 3x3 area or 4x4 or 5x5...
-                score += comboCount * pad::CASCADE_SCORE;
-                score += twoInLine * pad::ORB_AROUND_SCORE;
-                score += orbAround * pad::ORB_NEARBY_SCORE;
-                delete orbCount;
-            }
-        }
-    }
-
     // total combo
     int combo = 0;
     // If you move more, you get more combo in real life but sometimes not
@@ -120,38 +49,47 @@ int PBoard::rateBoard(int step)
             moveOrbsDown();
             moveCount++;
         }
-
-        if (printMoreMessages)
-            printBoard();
     } while (newCombo > 0);
 
-    // Check how many combos are left in the board
-    int comboLeft = 0;
-    int orbLeft = 0;
-    int *orbCount = new int[pad::ORB_COUNT]{0};
+    /// See if the remaining orbs are close to each other
+    int orbAround = 0;
+    int orbNearby = 0;
     for (int i = 0; i < column; i++)
     {
         for (int j = 0; j < row; j++)
         {
-            auto orb = board[i][j];
-            if (orb != pad::empty)
+            auto curr = board[i][j];
+            if (curr == pad::empty)
+                continue;
+
+            // Check if there are same orbs around
+            for (int a = -1; a <= 1; a++)
             {
-                orbLeft++;
-                orbCount[orb]++;
-                if (orbCount[orb] == minEraseCondition)
+                for (int b = -1; b <= 1; b++)
                 {
-                    orbCount[orb] = 0;
-                    comboLeft += 1;
+                    // This is the current orb
+                    if (a == 0 && b == 0)
+                        continue;
+                    if (hasSameOrb(curr, i + a, j + b))
+                    {
+                        orbAround++;
+                        if ((a == 0 && ((b == 1) || (b == -1))) ||
+                            (b == 0 && ((a == 1) || (a == -1))))
+                        {
+                            // This means that it is a line
+                            orbNearby += 1;
+                            orbAround -= 1;
+                        }
+                    }
                 }
             }
         }
     }
-    delete orbCount;
 
-    // score -= pad::CASCADE_SCORE * comboLeft;
-    // score -= pad::ORB_AROUND_SCORE * orbLeft;
     score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
+    score += pad::ORB_AROUND_SCORE * orbAround;
+    score += pad::ORB_NEARBY_SCORE * orbNearby;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
@@ -210,8 +148,8 @@ void PBoard::moveOrbsDown()
 {
     for (int j = 0; j < row; j++)
     {
-        std::vector<pad::orbs> orbs(column);
-        bool hasEmptyOrb = false;
+        std::vector<pad::orbs> orbs;
+        int emptyCount = 0;
         // Start checking from the bottom most column
         for (int i = column - 1; i >= 0; i--)
         {
@@ -224,21 +162,19 @@ void PBoard::moveOrbsDown()
             }
             else
             {
-                hasEmptyOrb = true;
+                emptyCount++;
             }
         }
 
         // Only when there is at least 1 empty orb in this column
-        if (hasEmptyOrb)
+        if (emptyCount > 0 && emptyCount < column)
         {
             // Fill the saved orbs
-            for (int i = column - 1; i >= 0; i--)
+            int k = 0;
+            for (int i = column - 1; i >= 0 && k < (int)orbs.size(); --i, ++k)
             {
                 // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
-                auto orb = orbs[column - i - 1];
-                // If orb is 0, it means all saved orbs are pushed, by default it is set to 0
-                if (0 == orb)
-                    break;
+                auto orb = orbs[k];
                 board[i][j] = orb;
             }
         }
