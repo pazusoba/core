@@ -168,20 +168,20 @@ std::string PSolver::solve()
     timer::shared().end(9999);
 
     ss << "Search has been completed\n";
-    // This prints top ten
-    // int i = 0;
-    // for (auto it = bestScore.end(); it != bestScore.begin(); it--)
-    // {
-    //     if (i > 4)
-    //         break;
-    //     else
-    //         i++;
-    //     if (i == 1)
-    //         continue;
+    // This prints top 5
+    int i = 0;
+    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
+    {
+        if (i > 6)
+            break;
+        else
+            i++;
+        if (i == 1)
+            continue;
 
-    //     auto score = *it;
-    //     score.second->printState();
-    // }
+        auto score = *it;
+        score.second->printState();
+    }
 
     // Free up memories
     for (auto const &s : rootStates)

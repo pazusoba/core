@@ -131,8 +131,6 @@ void PBoard::moveOrbsDown()
             if (pad::empty != orb)
             {
                 orbs.push_back(orb);
-                // Erase it
-                board[i][j] = pad::empty;
             }
             else
             {
@@ -141,15 +139,22 @@ void PBoard::moveOrbsDown()
         }
 
         // Must be less than column (it means that this column is all empty)
-        if (emptyCount < column)
+        if (emptyCount > 0 && emptyCount < column)
         {
             // Fill the saved orbs
-            int k = 0;
-            for (int i = column - 1; i >= 0 && k < (int)orbs.size(); --i, ++k)
+            int k = 0, s = (int)orbs.size();
+            for (int i = column - 1; i >= 0; --i, ++k)
             {
-                // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
-                auto orb = orbs[k];
-                board[i][j] = orb;
+                if (k >= s)
+                {
+                    board[i][j] = pad::empty;
+                }
+                else 
+                {
+                    // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
+                    auto orb = orbs[k];
+                    board[i][j] = orb;
+                }
             }
         }
     }
