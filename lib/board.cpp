@@ -51,97 +51,49 @@ int PBoard::rateBoard(int step)
         }
     } while (newCombo > 0);
 
-    /// See if the remaining orbs are close to each other
-    int orbAround = 0;
-    int orbNearby = 0;
-    for (int i = 0; i < column; i++)
-    {
-        for (int j = 0; j < row; j++)
-        {
-            auto curr = board[i][j];
-            if (curr == pad::empty)
-                continue;
+    // /// See if the remaining orbs are close to each other
+    // int orbAround = 0;
+    // int orbNearby = 0;
+    // for (int i = 0; i < column; i++)
+    // {
+    //     for (int j = 0; j < row; j++)
+    //     {
+    //         auto curr = board[i][j];
+    //         if (curr == pad::empty)
+    //             continue;
 
-            // Check if there are same orbs around
-            for (int a = -1; a <= 1; a++)
-            {
-                for (int b = -1; b <= 1; b++)
-                {
-                    // This is the current orb
-                    if (a == 0 && b == 0)
-                        continue;
-                    if (hasSameOrb(curr, i + a, j + b))
-                    {
-                        orbAround++;
-                        if ((a == 0 && ((b == 1) || (b == -1))) ||
-                            (b == 0 && ((a == 1) || (a == -1))))
-                        {
-                            // This means that it is a line
-                            orbNearby += 1;
-                            orbAround -= 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    //         // Check if there are same orbs around
+    //         for (int a = -1; a <= 1; a++)
+    //         {
+    //             for (int b = -1; b <= 1; b++)
+    //             {
+    //                 // This is the current orb
+    //                 if (a == 0 && b == 0)
+    //                     continue;
+    //                 if (hasSameOrb(curr, i + a, j + b))
+    //                 {
+    //                     orbAround++;
+    //                     if ((a == 0 && ((b == 1) || (b == -1))) ||
+    //                         (b == 0 && ((a == 1) || (a == -1))))
+    //                     {
+    //                         // This means that it is a line
+    //                         orbNearby += 1;
+    //                         orbAround -= 1;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
+    // score += pad::ORB_AROUND_SCORE * orbAround;
+    // score += pad::ORB_NEARBY_SCORE * orbNearby;
     score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
-    score += pad::ORB_AROUND_SCORE * orbAround;
-    score += pad::ORB_NEARBY_SCORE * orbNearby;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
     return score;
-}
-
-OrbLocation PBoard::findBestStartingLocation()
-{
-    // Loop through the board to see the number of each orb we have
-    auto counter = collectOrbCount();
-    int size = pad::ORB_COUNT;
-    std::set<Orb> goodStartingOrbs;
-    for (int i = 0; i < size; i++)
-    {
-        // To achieve max combo, we should always erase when it reaches the min condition
-        counter[i] %= minEraseCondition;
-        if (counter[i] == 1)
-        {
-            goodStartingOrbs.insert(Orb(i));
-        }
-    }
-
-    std::vector<OrbLocation> possibleLocations;
-    // Now, in the board find orb
-    for (int i = 0; i < column; i++)
-    {
-        // Outside only
-        for (int j = 0; j < row; j++)
-        {
-            if (i > 0 && i < column - 1 && j > 0 && j < row - 1)
-                continue;
-            auto orb = board[i][j];
-            if (goodStartingOrbs.count(orb) > 0)
-            {
-                possibleLocations.push_back(OrbLocation(i, j));
-            }
-        }
-    }
-
-    delete counter;
-
-    // Return any of it
-    int locationSize = possibleLocations.size();
-    if (locationSize > 0)
-    {
-        srand((unsigned int)time(NULL));
-        int randomIndex = rand() % locationSize;
-        return possibleLocations[randomIndex];
-    }
-
-    // Bottom left by default
-    return OrbLocation(column - 1, 0);
 }
 
 void PBoard::moveOrbsDown()

@@ -103,9 +103,6 @@ public:
          */
      int rateBoard(int step);
 
-     // Find the best location to start doing combo, this might improve the output significantly
-     OrbLocation findBestStartingLocation();
-
      /**
          * Print out a board nicely formatted
          */
