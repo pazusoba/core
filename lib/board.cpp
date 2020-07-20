@@ -51,7 +51,7 @@ int PBoard::rateBoard(int step)
         }
     } while (newCombo > 0);
 
-    /// See if the remaining orbs are close to each other
+    // See if the remaining orbs are close to each other
     // int orbAround = 0;
     // int orbNearby = 0;
     // for (int i = 0; i < column; i++)
@@ -87,30 +87,31 @@ int PBoard::rateBoard(int step)
 
     // score += pad::ORB_AROUND_SCORE * orbAround;
     // score += pad::ORB_NEARBY_SCORE * orbNearby;
-    // score += pad::ONE_COMBO_SCORE * combo;
+
+    score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
 
-    // Try out amen puzzle
-    int orbLeft = 0;
-    for (int i = 0; i < column; i++)
-    {
-        for (int j = 0; j < row; j++)
-        {
-            auto curr = board[i][j];
-            if (curr != pad::empty)
-                orbLeft++;
-        }
-    }
+    // // Try out amen puzzle
+    // int orbLeft = 0;
+    // for (int i = 0; i < column; i++)
+    // {
+    //     for (int j = 0; j < row; j++)
+    //     {
+    //         auto curr = board[i][j];
+    //         if (curr != pad::empty)
+    //             orbLeft++;
+    //     }
+    // }
 
-    int comboMoreOrLess = abs(combo - 7);
-    int orbLeftMore = orbLeft - 3;
-    if (comboMoreOrLess == 0 && orbLeftMore <= 0)
-    {
-        score += 7000;
-    }
+    // int comboMoreOrLess = abs(combo - 7);
+    // int orbLeftMore = orbLeft - 3;
+    // if (comboMoreOrLess == 0 && orbLeftMore <= 0)
+    // {
+    //     score += 7000;
+    // }
 
-    score -= orbLeftMore * pad::ONE_COMBO_SCORE;
-    score -= comboMoreOrLess * pad::CASCADE_SCORE;
+    // score -= orbLeftMore * pad::ONE_COMBO_SCORE;
+    // score -= comboMoreOrLess * pad::CASCADE_SCORE;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
@@ -139,8 +140,8 @@ void PBoard::moveOrbsDown()
             }
         }
 
-        // Only when there is at least 1 empty orb in this column
-        if (emptyCount >= 0 && emptyCount < column)
+        // Must be less than column (it means that this column is all empty)
+        if (emptyCount < column)
         {
             // Fill the saved orbs
             int k = 0;

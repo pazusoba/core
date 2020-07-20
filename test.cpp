@@ -38,7 +38,7 @@ void testBoard()
     auto padBoard1 = PBoard(board2, 6, 5);
     auto padBoard2 = padBoard1;
     // board in padBoard1 will be erased
-    padBoard1.rateBoard();
+    padBoard1.rateBoard(0);
     assert(padBoard1.getBoardID() != padBoard2.getBoardID());
 }
 
