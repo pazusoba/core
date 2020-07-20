@@ -52,41 +52,41 @@ int PBoard::rateBoard(int step)
     } while (newCombo > 0);
 
     // See if the remaining orbs are close to each other
-    // int orbAround = 0;
-    // int orbNearby = 0;
-    // for (int i = 0; i < column; i++)
-    // {
-    //     for (int j = 0; j < row; j++)
-    //     {
-    //         auto curr = board[i][j];
-    //         if (curr == pad::empty)
-    //             continue;
-    //         // Check if there are same orbs around
-    //         for (int a = -1; a <= 1; a++)
-    //         {
-    //             for (int b = -1; b <= 1; b++)
-    //             {
-    //                 // This is the current orb
-    //                 if (a == 0 && b == 0)
-    //                     continue;
-    //                 if (hasSameOrb(curr, i + a, j + b))
-    //                 {
-    //                     orbAround++;
-    //                     if ((a == 0 && ((b == 1) || (b == -1))) ||
-    //                         (b == 0 && ((a == 1) || (a == -1))))
-    //                     {
-    //                         // This means that it is a line
-    //                         orbNearby += 1;
-    //                         orbAround -= 1;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    int orbAround = 0;
+    int orbNearby = 0;
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            auto curr = board[i][j];
+            if (curr == pad::empty)
+                continue;
+            // Check if there are same orbs around
+            for (int a = -1; a <= 1; a++)
+            {
+                for (int b = -1; b <= 1; b++)
+                {
+                    // This is the current orb
+                    if (a == 0 && b == 0)
+                        continue;
+                    if (hasSameOrb(curr, i + a, j + b))
+                    {
+                        orbAround++;
+                        if ((a == 0 && ((b == 1) || (b == -1))) ||
+                            (b == 0 && ((a == 1) || (a == -1))))
+                        {
+                            // This means that it is a line
+                            orbNearby += 1;
+                            orbAround -= 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-    // score += pad::ORB_AROUND_SCORE * orbAround;
-    // score += pad::ORB_NEARBY_SCORE * orbNearby;
+    score += pad::ORB_AROUND_SCORE * orbAround;
+    score += pad::ORB_NEARBY_SCORE * orbNearby;
 
     score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
