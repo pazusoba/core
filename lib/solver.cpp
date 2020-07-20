@@ -5,11 +5,12 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <map>
 #include <queue>
-#include <chrono>
 #include "solver.hpp"
 #include "queue.hpp"
+#include "timer.hpp"
 
 class PointerCompare
 {
@@ -89,7 +90,6 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 std::string PSolver::solve()
 {
-    auto start = std::chrono::high_resolution_clock::now();
     std::stringstream ss;
     ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
@@ -118,6 +118,7 @@ std::string PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
+        timer::shared().start(i);
         for (int j = 0; j < size; ++j)
         {
             // Early steps might not have enough size
@@ -154,6 +155,7 @@ std::string PSolver::solve()
                 childrenStates.push_back(s);
             }
         }
+        timer::shared().end(i);
 
         toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
         for (const auto &s : childrenStates)
@@ -162,25 +164,22 @@ std::string PSolver::solve()
         }
         childrenStates.clear();
     }
-    auto finish = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = finish - start;
-    ss << "Elapsed time: " << elapsed.count() << " s\n";
+
     ss << "Search has been completed\n";
-
     // This prints top ten
-    int i = 0;
-    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
-    {
-        if (i > 10)
-            break;
-        else
-            i++;
-        if (i == 1)
-            continue;
+    // int i = 0;
+    // for (auto it = bestScore.end(); it != bestScore.begin(); it--)
+    // {
+    //     if (i > 10)
+    //         break;
+    //     else
+    //         i++;
+    //     if (i == 1)
+    //         continue;
 
-        auto score = *it;
-        score.second->printState();
-    }
+    //     auto score = *it;
+    //     score.second->printState();
+    // }
 
     // Free up memories
     for (auto const &s : rootStates)
