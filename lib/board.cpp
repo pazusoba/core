@@ -11,7 +11,7 @@
 
 /// Constructors
 PBoard::PBoard() {}
-PBoard::PBoard(Board board, int row, int column, int minEraseCondition)
+PBoard::PBoard(const Board &board, int row, int column, int minEraseCondition)
 {
     this->board = board;
     this->row = row;

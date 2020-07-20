@@ -9,7 +9,7 @@
 
 /// Constrctor
 
-PState::PState(PBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore)
+PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep, int maxScore)
 {
     // Update the board by swapping orbs
     this->board = board;

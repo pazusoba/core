@@ -43,7 +43,7 @@ public:
 
     // This is only for testing
     PState(int s) : score(s) {}
-    PState(PBoard board, OrbLocation from, OrbLocation to, int step, int maxStep, int maxScore);
+    PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep, int maxScore);
     ~PState();
 
     // Override operators

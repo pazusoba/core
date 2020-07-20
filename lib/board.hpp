@@ -92,7 +92,7 @@ class PBoard
 
 public:
      PBoard();
-     PBoard(Board board, int row, int column, int minEraseCondition = 3);
+     PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
      ~PBoard();
 
      /**
