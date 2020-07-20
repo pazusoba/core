@@ -16,7 +16,7 @@ endif
 
 # shared arguments
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
-OPTIMISATION=-Ofast
+OPTIMISATION=-Ofast -flto
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
 CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp lib/queue.cpp
 
