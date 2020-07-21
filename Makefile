@@ -1,4 +1,4 @@
-# set it to `mac` to use max/linux command and use `win` for windows
+# set it to `mac` to use mac/linux command and use `win` for windows
 PLATFORM=win
 
 # assign different commands
