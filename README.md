@@ -18,7 +18,7 @@ My special BFS was thus introduced. It can be seen as my attempt on the Beam Sea
 
 Introducing beam search, it checks more states compared to my special BFS and accepts states with a lower score. For a beam size of 1000, it always checks for 3000 states per step and chooses the best 1000 and continue with the next step. It is not optimal but often, really close. This algorithm makes the complexity from 30 * 3 ^ 25 to 25 * 1000 * 3 (step 25, size 1000 and no diagonal moves). 
 
-Now, with compiler optimisation and multi-threading, it runs quite fast. On my main desktop, it is even faster than padopt due to multi-threading. I am cetain that with a better `eraseOrb()` function, pazusoba can be even faster.
+Now, with compiler optimisation and multi-threading, it runs quite fast. On my main desktop, it is even faster than padopt due to multi-threading. I am certain that with a better `eraseOrb()` function, pazusoba can be even faster.
 
 ### Improvements
 Currently, evaluating score and board related parts can be slow. By improving them, a larger size can be used to produce even better solutions.

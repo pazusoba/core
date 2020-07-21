@@ -26,7 +26,6 @@ class PSolver
 
     // Read board from filePath, return the board
     Board readBoard(std::string filePath);
-    void solveThread();
 
 public:
     PSolver(int minEraseCondition, int maxStep, int maxSize);

@@ -90,10 +90,6 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 /// Solve the board
 
-void PSolver::solveThread()
-{
-}
-
 void PSolver::solve()
 {
     timer::shared().start(0);
@@ -145,8 +141,12 @@ void PSolver::solve()
             boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
+                    mtx.lock();
+                    bool isEmpty = toVisit.empty();
+                    mtx.unlock();
+
                     // Early steps might not have enough size
-                    if (toVisit.empty())
+                    if (isEmpty)
                         return;
 
                     mtx.lock();

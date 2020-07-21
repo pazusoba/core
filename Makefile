@@ -40,6 +40,10 @@ run76:
 run65:
 	$(OUTPUT) assets/sample_board_65.txt
 
+# run the program with sample 65 board, step 25 and size 10000
+run10000:
+	$(OUTPUT) assets/sample_board_65.txt 3 25 10000
+
 # remove all exe files
 clean:
 	$(CLEAN)
