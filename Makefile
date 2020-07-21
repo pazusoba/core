@@ -15,10 +15,10 @@ else ifeq ($(PLATFORM), win)
 endif
 
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
-OPTIMISATION=-Ofast -flto
+OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
-CPP_FILES=lib/solver.cpp lib/board.cpp lib/state.cpp lib/queue.cpp
+CPP_FILES=lib/*.cpp
 
 # build
 build:

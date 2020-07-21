@@ -118,10 +118,9 @@ void PSolver::solve()
         }
     }
 
-    // Use 1000 threads to speed up everything
     std::vector<std::thread> boardThreads;
-    // auto processor_count = (int)std::thread::hardware_concurrency() / 3;
-    int processor_count = 2;
+    // Don't use all cores, it may freeze your computer
+    int processor_count = std::thread::hardware_concurrency() - 1;
     if (processor_count == 0)
     {
         processor_count = 1;
@@ -136,7 +135,7 @@ void PSolver::solve()
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
-            boardThreads.emplace_back([&]() {
+            boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
                     // Early steps might not have enough size
@@ -151,7 +150,7 @@ void PSolver::solve()
                     int currentStep = currentState->step;
 
                     // Save best scores
-                    if (bestScore[currentScore] == NULL)
+                    if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
                     }

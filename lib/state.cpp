@@ -93,7 +93,7 @@ PState::PStateList PState::getChildren()
 
 void PState::printStateFromRoot(PState *parent)
 {
-    if (parent != NULL)
+    if (parent != nullptr)
     {
         printStateFromRoot(parent->parent);
         auto loc = parent->current;
@@ -108,5 +108,5 @@ void PState::printState()
     board.printBoardForSimulation();
 
     printStateFromRoot(this);
-    std::cout << "NULL\n\n";
+    std::cout << "nullptr\n\n";
 }

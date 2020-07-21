@@ -35,7 +35,7 @@ public:
     // This is current orb which is active (the player is holding it)
     OrbLocation current;
     // Save the parent's address to track back
-    PState *parent = NULL;
+    PState *parent = nullptr;
 
     // This is only for testing
     PState(int s) : score(s) {}

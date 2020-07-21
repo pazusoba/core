@@ -185,7 +185,7 @@ int PBoard::eraseOrbs()
                 // nextOrb is a pointer to the next pair
                 auto nextOrb = nextSameOrbAround(&vhOrbs, *it);
                 // Only search if there are new orbs
-                if (nextOrb != NULL)
+                if (nextOrb != nullptr)
                 {
                     auto newOrbs = findSameOrbsAround(*nextOrb);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
@@ -339,7 +339,7 @@ OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 
     // Remember to release it
     delete pair;
-    return NULL;
+    return nullptr;
 }
 
 bool PBoard::hasSameOrb(Orb orb, OrbLocation loc)

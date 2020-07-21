@@ -12,11 +12,11 @@
 struct PElement
 {
     // Current state
-    PState *state = NULL;
+    PState *state = nullptr;
     // Link to next state
-    PElement *next = NULL;
+    PElement *next = nullptr;
     // Link to next state
-    PElement *previous = NULL;
+    PElement *previous = nullptr;
 
     PElement(PState *s) : state(s) {}
 };
@@ -27,8 +27,8 @@ struct PPriorityQueue
     int maxSize;
     int size = 0;
 
-    PElement *top = NULL;
-    PElement *bottom = NULL;
+    PElement *top = nullptr;
+    PElement *bottom = nullptr;
 
     PPriorityQueue(int size) : maxSize(size) {}
     ~PPriorityQueue();

@@ -24,17 +24,17 @@ PState *PPriorityQueue::pop()
 
         // Rearrange the queue
         auto second = toPop->next;
-        if (second == NULL)
+        if (second == nullptr)
         {
             // only one element, remove it
-            this->top = NULL;
-            this->bottom = NULL;
+            this->top = nullptr;
+            this->bottom = nullptr;
         }
         else
         {
             // make second top
             this->top = second;
-            second->previous = NULL;
+            second->previous = nullptr;
         }
 
         delete toPop;
@@ -42,12 +42,12 @@ PState *PPriorityQueue::pop()
         return topState;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void PPriorityQueue::insert(PState *newState)
 {
-    if (newState == NULL)
+    if (newState == nullptr)
         return;
 
     if (size == 0)
@@ -62,14 +62,14 @@ void PPriorityQueue::insert(PState *newState)
         bool hasInserted = false;
         // Loop though the queue and find a great place tp insert
         auto it = this->top;
-        while (it != NULL)
+        while (it != nullptr)
         {
             if (*newState > *(it->state))
             {
                 // Insert here
                 PElement *q = new PElement(newState);
                 auto beforeIt = it->previous;
-                if (beforeIt == NULL)
+                if (beforeIt == nullptr)
                 {
                     // There is only one element in the queue
                     this->top = q;
@@ -121,7 +121,7 @@ void PPriorityQueue::insert(PState *newState)
         auto toRemove = bottom;
         auto secondLast = toRemove->previous;
         this->bottom = secondLast;
-        secondLast->next = NULL;
+        secondLast->next = nullptr;
         delete toRemove;
     }
 }
@@ -132,13 +132,13 @@ void PPriorityQueue::printQueue()
     foreach ([](PElement *curr) {
         cout << curr->state->score << " -> ";
     });
-    cout << "NULL\n";
+    cout << "nullptr\n";
 }
 
 void PPriorityQueue::foreach (void func(PElement *))
 {
     auto it = top;
-    while (it != NULL)
+    while (it != nullptr)
     {
         auto curr = it;
         it = it->next;

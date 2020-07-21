@@ -73,8 +73,8 @@ void testQueue()
 {
     // Test queue
     PPriorityQueue *pq = new PPriorityQueue(20);
-    // Nothing inside so returns NULL
-    assert(pq->pop() == NULL);
+    // Nothing inside so returns nullptr
+    assert(pq->pop() == nullptr);
 
     PState *testState = new PState(999);
     PState *testState2 = new PState(10000);
