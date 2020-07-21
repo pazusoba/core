@@ -89,6 +89,10 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 /// Solve the board
 
+void PSolver::solveThread()
+{
+}
+
 void PSolver::solve()
 {
     timer::shared().start(9999);
@@ -163,23 +167,17 @@ void PSolver::solve()
                             bestScore[currentScore] = currentState;
                         }
                     }
-                    try
+
+                    // All all possible children
+                    for (auto &s : currentState->getChildren())
                     {
-                        // All all possible children
-                        for (auto &s : currentState->getChildren())
-                        {
-                            // Simply insert because states compete with each other
-                            childrenStates.emplace_back(s);
-                        }
+                        // Simply insert because states compete with each other
+                        childrenStates.emplace_back(s);
                     }
-                    catch(...)
-                    {
-                        std::cerr << "Something went wrong";
-                    }
-                    
                 }
             });
         }
+        
         // Make sure all threads are completed
         for (auto &t : boardThreads)
         {
