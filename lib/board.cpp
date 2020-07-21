@@ -91,7 +91,7 @@ int PBoard::rateBoard(int step)
     score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
 
-    // // Try out amen puzzle
+    // Try out amen puzzle
     // int orbLeft = 0;
     // for (int i = 0; i < column; i++)
     // {
