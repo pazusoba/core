@@ -94,8 +94,8 @@ public:
         cout << "(" << start.first + 1 << ", " << start.second + 1 << ") ";
         for (const auto &d : directions)
         {
-            cout << pad::DIRECTION_NAMES[d] << " - ";
+            cout << pad::DIRECTION_NAMES[d] << " ";
         }
-        cout << "DONE\n";
+        cout << "\n\n";
     }
 };

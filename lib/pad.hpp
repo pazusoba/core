@@ -54,7 +54,7 @@ namespace pad
         downRight
     };
     // Direction names
-    const std::string DIRECTION_NAMES[8] = {"UP LEFT", "UP", "UP RIGHT", "LEFT", "RIGHT", "DOWN LEFT", "DOWN", "DOWN RIGHT"};
+    const std::string DIRECTION_NAMES[8] = {"UL", "U", "UR", "L", "R", "DL", "D", "DR"};
 
     enum score
     {
