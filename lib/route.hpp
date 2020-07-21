@@ -39,6 +39,7 @@ class Route
         }
         else
         {
+            // When parent is null, we have reached step 0
             start = curr->current;
         }
     }
@@ -46,10 +47,6 @@ class Route
     // Convert orbLocation to a direction
     pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev)
     {
-        // The first move??
-        if (curr == prev)
-            return pad::nothing;
-
         if (curr.first > prev.first)
         {
             // Moved down
@@ -60,7 +57,7 @@ class Route
             else
                 return pad::downLeft;
         }
-        else if (curr.first < prev.second)
+        else if (curr.first < prev.first)
         {
             // Moved up
             if (curr.second == prev.second)

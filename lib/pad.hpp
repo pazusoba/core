@@ -44,7 +44,6 @@ namespace pad
     // All 8 possible directions to move to
     enum direction
     {
-        nothing,
         upLeft,
         up,
         upRight,
@@ -55,7 +54,7 @@ namespace pad
         downRight
     };
     // Direction names
-    const std::string DIRECTION_NAMES[9] = {"START", "UP LEFT", "UP", "UP RIGHT", "LEFT", "RIGHT", "DOWN LEFT", "DOWN", "DOWN RIGHT"};
+    const std::string DIRECTION_NAMES[8] = {"UP LEFT", "UP", "UP RIGHT", "LEFT", "RIGHT", "DOWN LEFT", "DOWN", "DOWN RIGHT"};
 
     enum score
     {
