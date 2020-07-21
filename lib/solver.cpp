@@ -160,6 +160,7 @@ void PSolver::solve()
                     int currentStep = currentState->step;
 
                     // Save best scores
+                    mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
@@ -173,6 +174,7 @@ void PSolver::solve()
                             bestScore[currentScore] = currentState;
                         }
                     }
+                    mtx.unlock();
 
                     // All all possible children
                     for (auto &s : currentState->getChildren())
