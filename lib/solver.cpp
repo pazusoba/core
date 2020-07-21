@@ -13,6 +13,7 @@
 #include "solver.hpp"
 #include "queue.hpp"
 #include "timer.hpp"
+#include "route.hpp"
 
 class PointerCompare
 {
@@ -127,6 +128,7 @@ void PSolver::solve()
         processor_count = 1;
     }
     boardThreads.reserve(processor_count);
+    // Cut into equal sizes
     int threadSize = size / processor_count;
     // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
     // By locking and unlocking, it will make sure it is safe
@@ -187,7 +189,7 @@ void PSolver::solve()
                 }
             });
         }
-        
+
         // Make sure all threads are completed
         for (auto &t : boardThreads)
         {
@@ -206,19 +208,29 @@ void PSolver::solve()
     Timer::shared().end(0);
 
     std::cout << "Search has been completed\n\n";
-    // This prints top 5
+
+    int routeSize = 5;
+    std::vector<Route> routes;
+    routes.reserve(routeSize);
+    // This gets routes for best 100
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
-        if (i > 6)
+        if (i > routeSize)
             break;
         else
             i++;
+
         if (i == 1)
             continue;
 
-        auto score = *it;
-        score.second->printState();
+        routes.emplace_back(it->second);
+    }
+
+    // Print saved routes
+    for (auto &r : routes)
+    {
+        r.printRoute();
     }
 
     // Free up memories

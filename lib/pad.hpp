@@ -41,15 +41,21 @@ namespace pad
 
     // TODO: consider weight to adjust the heuristic
 
-    /**
-     * This is the MAX STEPS for 5 seconds, the default time
-     * 
-     * New player -> 3 - 4 steps per second 
-     * Intermediate player -> 7 - 9 steps per second 
-     * Pro player -> 13 - 15 steps per second 
-     * Bot player -> 20 steps per second
-     */
-    const int MAX_STEPS = 100;
+    // All 8 possible directions to move to
+    enum direction
+    {
+        nothing,
+        upLeft,
+        up,
+        upRight,
+        left,
+        right,
+        downLeft,
+        down,
+        downRight
+    };
+    // Direction names
+    const std::string DIRECTION_NAMES[9] = {"START", "UP LEFT", "UP", "UP RIGHT", "LEFT", "RIGHT", "DOWN LEFT", "DOWN", "DOWN RIGHT"};
 
     enum score
     {

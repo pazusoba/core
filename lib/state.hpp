@@ -14,8 +14,6 @@ class PState
     // A list of state
     typedef std::vector<PState *> PStateList;
 
-    // The board
-    PBoard board;
     // This is max step we want to go (termination point)
     int maxStep;
     // ALl possible moves from this state
@@ -25,6 +23,8 @@ class PState
     void printStateFromRoot(PState *parent);
 
 public:
+    // The board
+    PBoard board;
     // This score shows how good the current board is
     int score = 0;
     // This is the number of steps (depth)
