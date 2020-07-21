@@ -11,18 +11,18 @@
 #include <chrono>
 #include <map>
 
-class timer
+class Timer
 {
 private:
     // This tracks all starting time
     std::map<int, std::chrono::_V2::system_clock::time_point> timers;
-    timer() {}
+    Timer() {}
 
 public:
     // A shared instance
-    static timer &shared()
+    static Timer &shared()
     {
-        static timer instance;
+        static Timer instance;
         return instance;
     }
 
