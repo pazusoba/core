@@ -96,7 +96,7 @@ void PSolver::solveThread()
 
 void PSolver::solve()
 {
-    timer::shared().start(9999);
+    timer::shared().start(0);
     std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
@@ -124,7 +124,7 @@ void PSolver::solve()
     }
 
     std::vector<std::thread> boardThreads;
-    // Don't use all cores, it may freeze your computer
+    // This uses all your cores, make sure you don't make the size too large
     int processor_count = std::thread::hardware_concurrency();
     if (processor_count == 0)
     {
@@ -139,7 +139,6 @@ void PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
-        timer::shared().start(i);
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
@@ -201,9 +200,8 @@ void PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
-        timer::shared().end(i);
     }
-    timer::shared().end(9999);
+    timer::shared().end(0);
 
     std::cout << "Search has been completed\n\n";
     // This prints top 5

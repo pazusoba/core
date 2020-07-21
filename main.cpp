@@ -22,7 +22,7 @@ PSolver *handleInput(int argc, char *argv[])
     std::string filePath = "assets/sample_board_65.txt";
     // std::string filePath = "RDHHLBBLHDHRBRDLHHDGRGBGLRGHLG";
     int minEraseCondition = 3;
-    int maxStep = 20;
+    int maxStep = 25;
     int maxSize = 1000;
 
     // Read from command line
@@ -41,6 +41,9 @@ PSolver *handleInput(int argc, char *argv[])
     if (argc > 4)
     {
         maxSize = atoi(argv[4]);
+        // Cannot be more than 20000 or the threads might still crash
+        if (maxSize > 20000)
+            maxSize = 20000;
     }
 
     return new PSolver(filePath, minEraseCondition, maxStep, maxSize);
