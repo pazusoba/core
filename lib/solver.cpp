@@ -120,7 +120,8 @@ void PSolver::solve()
 
     // Use 1000 threads to speed up everything
     std::vector<std::thread> boardThreads;
-    auto processor_count = (int)std::thread::hardware_concurrency();
+    // auto processor_count = (int)std::thread::hardware_concurrency() / 3;
+    int processor_count = 2;
     if (processor_count == 0)
     {
         processor_count = 1;
@@ -141,6 +142,7 @@ void PSolver::solve()
                     // Early steps might not have enough size
                     if (toVisit.empty())
                         return;
+
                     // Get the best state
                     auto currentState = toVisit.top();
                     toVisit.pop();
@@ -162,18 +164,24 @@ void PSolver::solve()
                             bestScore[currentScore] = currentState;
                         }
                     }
-                    // All all possible children
-                    auto children = currentState->getChildren();
-                    for (const auto &s : children)
+                    try
                     {
-                        // Simply insert because states compete with each other
-                        childrenStates.push_back(s);
+                        // All all possible children
+                        for (auto &s : currentState->getChildren())
+                        {
+                            // Simply insert because states compete with each other
+                            childrenStates.emplace_back(s);
+                        }
                     }
+                    catch(...)
+                    {
+                        std::cerr << "Something went wrong";
+                    }
+                    
                 }
             });
         }
-
-        // Make sure all threads are done
+        // Make sure all threads are completed
         for (auto &t : boardThreads)
         {
             t.join();
