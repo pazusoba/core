@@ -183,7 +183,7 @@ void PSolver::solve()
                     {
                         mtx.lock();
                         // Simply insert because states compete with each other
-                        childrenStates.emplace_back(s);
+                        childrenStates.push_back(s);
                         mtx.unlock();
                     }
                 }
