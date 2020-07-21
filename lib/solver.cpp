@@ -9,6 +9,7 @@
 #include <map>
 #include <queue>
 #include <thread>
+#include <mutex>
 #include "solver.hpp"
 #include "queue.hpp"
 #include "timer.hpp"
@@ -124,13 +125,16 @@ void PSolver::solve()
 
     std::vector<std::thread> boardThreads;
     // Don't use all cores, it may freeze your computer
-    int processor_count = std::thread::hardware_concurrency() - 1;
+    int processor_count = std::thread::hardware_concurrency();
     if (processor_count == 0)
     {
         processor_count = 1;
     }
     boardThreads.reserve(processor_count);
     int threadSize = size / processor_count;
+    // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
+    // By locking and unlocking, it will make sure it is safe
+    std::mutex mtx;
 
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
@@ -146,9 +150,12 @@ void PSolver::solve()
                     if (toVisit.empty())
                         return;
 
+                    mtx.lock();
                     // Get the best state
                     auto currentState = toVisit.top();
                     toVisit.pop();
+                    mtx.unlock();
+
                     // Save current score for printing out later
                     int currentScore = currentState->score;
                     int currentStep = currentState->step;
@@ -171,8 +178,10 @@ void PSolver::solve()
                     // All all possible children
                     for (auto &s : currentState->getChildren())
                     {
+                        mtx.lock();
                         // Simply insert because states compete with each other
                         childrenStates.emplace_back(s);
+                        mtx.unlock();
                     }
                 }
             });
