@@ -11,7 +11,7 @@ PSolver *handleInput(int, char **);
 int main(int argc, char *argv[])
 {
     auto soba = handleInput(argc, argv);
-    std::cout << soba->solve() << std::endl;
+    soba->solve();
     delete soba;
 
     return 0;

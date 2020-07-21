@@ -435,20 +435,6 @@ void PBoard::printBoardInfo()
     delete[] counter;
 }
 
-int PBoard::estimatedBestScore()
-{
-    int score = 0;
-    int maxCombo = getMaxCombo(collectOrbCount());
-    // TODO: a naive implementation
-
-    int maxBoardMovement = column - 2 + row - 3;
-    score += maxCombo * pad::ONE_COMBO_SCORE;
-    score += maxBoardMovement * pad::CASCADE_SCORE;
-    // Take orb left into account
-    score -= (row * column - maxCombo * minEraseCondition) * 50;
-    return score;
-}
-
 /// Utils
 
 int PBoard::getMaxCombo(int *counter)

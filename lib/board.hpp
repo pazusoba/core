@@ -124,11 +124,6 @@ public:
      std::string getBoardID();
 
      /**
-      * A simple estimation on the final score
-      */
-     int estimatedBestScore();
-
-     /**
          * Swap the value of two orbs
          */
      void swapLocation(OrbLocation one, OrbLocation two);

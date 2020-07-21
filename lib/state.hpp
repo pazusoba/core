@@ -16,8 +16,6 @@ class PState
 
     // The board
     PBoard board;
-    // An estimation of a good score
-    int maxScore;
     // This is max step we want to go (termination point)
     int maxStep;
     // ALl possible moves from this state
@@ -38,12 +36,10 @@ public:
     OrbLocation current;
     // Save the parent's address to track back
     PState *parent = NULL;
-    // Every board has an unique id string
-    std::string boardID;
 
     // This is only for testing
     PState(int s) : score(s) {}
-    PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep, int maxScore);
+    PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep);
     ~PState();
 
     // Override operators

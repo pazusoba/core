@@ -9,13 +9,12 @@
 
 /// Constrctor
 
-PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep, int maxScore)
+PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep)
 {
     // Update the board by swapping orbs
     this->board = board;
     // don't use current and previous because they are not yet initialised
     this->board.swapLocation(from, to);
-    this->boardID = this->board.getBoardID();
     auto copy = this->board;
     this->score = copy.rateBoard(step);
 
@@ -24,8 +23,8 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
     this->current = to;
     this->step = step;
     this->maxStep = maxStep;
-    this->maxScore = maxScore;
-    this->children.clear();
+    // Max 7 positions
+    this->children.reserve(7);
 }
 
 PState::~PState()
@@ -80,7 +79,7 @@ PState::PStateList PState::getChildren()
             if (board.validLocation(next))
             {
                 // Setup new state and add this to children
-                auto nextState = new PState(board, current, next, step + 1, maxStep, maxScore);
+                auto nextState = new PState(board, current, next, step + 1, maxStep);
                 nextState->parent = this;
                 children.push_back(nextState);
             }

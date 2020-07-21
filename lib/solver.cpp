@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <thread>
 #include "solver.hpp"
 #include "queue.hpp"
 #include "timer.hpp"
@@ -88,11 +89,10 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 /// Solve the board
 
-std::string PSolver::solve()
+void PSolver::solve()
 {
     timer::shared().start(9999);
-    std::stringstream ss;
-    ss << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
+    std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
@@ -100,63 +100,86 @@ std::string PSolver::solve()
     std::priority_queue<PState *, std::vector<PState *>, PointerCompare> toVisit;
     // This saves all chidren of states to visit
     std::vector<PState *> childrenStates;
+    childrenStates.reserve(size * 3);
     // This saves the best score
     std::map<int, PState *> bestScore;
 
     // This is the root state, 30 of them in a list to be deleted later
     std::vector<PState *> rootStates;
+    rootStates.reserve(row * column);
     for (int i = 0; i < column; ++i)
     {
         for (int j = 0; j < row; ++j)
         {
             auto loc = OrbLocation(i, j);
-            auto root = new PState(board, loc, loc, 0, steps, board.estimatedBestScore());
-            rootStates.push_back(root);
-            toVisit.push(root);
+            auto root = new PState(board, loc, loc, 0, steps);
+            rootStates.emplace_back(root);
+            toVisit.emplace(root);
         }
     }
+
+    // Use 1000 threads to speed up everything
+    std::vector<std::thread> boardThreads;
+    auto processor_count = (int)std::thread::hardware_concurrency();
+    if (processor_count == 0)
+    {
+        processor_count = 1;
+    }
+    boardThreads.reserve(processor_count);
+    int threadSize = size / processor_count;
 
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
         timer::shared().start(i);
-        for (int j = 0; j < size; ++j)
+        // Use multi threading
+        for (int j = 0; j < processor_count; j++)
         {
-            // Early steps might not have enough size
-            if (toVisit.empty())
-                break;
-
-            // Get the best state
-            auto currentState = toVisit.top();
-            toVisit.pop();
-            // Save current score for printing out later
-            int currentScore = currentState->score;
-            int currentStep = currentState->step;
-
-            // Save best scores
-            if (bestScore[currentScore] == NULL)
-            {
-                bestScore[currentScore] = currentState;
-            }
-            else
-            {
-                auto saved = bestScore[currentScore];
-                if (saved->step > currentStep)
+            boardThreads.emplace_back([&]() {
+                for (int k = 0; k < threadSize; ++k)
                 {
-                    // We found a better one
-                    bestScore[currentScore] = currentState;
-                }
-            }
+                    // Early steps might not have enough size
+                    if (toVisit.empty())
+                        return;
+                    // Get the best state
+                    auto currentState = toVisit.top();
+                    toVisit.pop();
+                    // Save current score for printing out later
+                    int currentScore = currentState->score;
+                    int currentStep = currentState->step;
 
-            // All all possible children
-            auto children = currentState->getChildren();
-            for (const auto &s : children)
-            {
-                // Simply insert because states compete with each other
-                childrenStates.push_back(s);
-            }
+                    // Save best scores
+                    if (bestScore[currentScore] == NULL)
+                    {
+                        bestScore[currentScore] = currentState;
+                    }
+                    else
+                    {
+                        auto saved = bestScore[currentScore];
+                        if (saved->step > currentStep)
+                        {
+                            // We found a better one
+                            bestScore[currentScore] = currentState;
+                        }
+                    }
+                    // All all possible children
+                    auto children = currentState->getChildren();
+                    for (const auto &s : children)
+                    {
+                        // Simply insert because states compete with each other
+                        childrenStates.push_back(s);
+                    }
+                }
+            });
         }
-        timer::shared().end(i);
+
+        // Make sure all threads are done
+        for (auto &t : boardThreads)
+        {
+            t.join();
+        }
+        // Clear for next round
+        boardThreads.clear();
 
         toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
         for (const auto &s : childrenStates)
@@ -164,10 +187,11 @@ std::string PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
+        timer::shared().end(i);
     }
     timer::shared().end(9999);
 
-    ss << "Search has been completed\n";
+    std::cout << "Search has been completed\n\n";
     // This prints top 5
     int i = 0;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
@@ -188,8 +212,6 @@ std::string PSolver::solve()
     {
         delete s;
     }
-
-    return ss.str();
 }
 
 /// Read the board from filePath

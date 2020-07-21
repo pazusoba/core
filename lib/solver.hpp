@@ -31,7 +31,7 @@ public:
     PSolver(int minEraseCondition, int maxStep, int maxSize);
     PSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
     // Solve the current board
-    std::string solve();
+    void solve();
 };
 
 #endif
