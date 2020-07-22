@@ -30,7 +30,7 @@ PBoard::~PBoard()
 
 /// Board related
 
-int PBoard::rateBoard(int step)
+int PBoard::rateBoard()
 {
     int score = 0;
 

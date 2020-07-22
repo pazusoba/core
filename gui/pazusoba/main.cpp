@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     // Register a type to use in QML
-    qmlRegisterType<Bridge>("org.github.henryquan.bridge", 1, 0, "Soba");
+    qmlRegisterType<Bridge>("org.github.henryquan.bridge", 1, 0, "Bridge");
 
     // Actually load the qml
     const QUrl url(QStringLiteral("qrc:/main.qml"));

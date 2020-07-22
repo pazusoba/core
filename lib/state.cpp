@@ -16,7 +16,7 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
     // don't use current and previous because they are not yet initialised
     this->board.swapLocation(from, to);
     auto copy = this->board;
-    this->score = copy.rateBoard(step);
+    this->score = copy.rateBoard();
 
     // Copy other variables
     this->previous = from;

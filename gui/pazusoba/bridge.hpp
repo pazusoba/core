@@ -9,17 +9,16 @@ class Bridge : public QObject
     Q_OBJECT
 
     // Properties
-    Q_PROPERTY(QString message READ getHelloWorld)
+    Q_PROPERTY(QString message READ getMessage)
 
 public:
     explicit Bridge(QObject *parent = nullptr);
+    QString getMessage() const
+        { return m_msg; }
 signals:
 
 private:
-    QString getHelloWorld()
-    {
-        return "Hello WOrld";
-    }
+    QString m_msg;
 };
 
 #endif // BRIDGE_HPP

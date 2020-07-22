@@ -101,7 +101,7 @@ public:
          * - two in a line (100pt)
          * - more coming soon
          */
-     int rateBoard(int step);
+     int rateBoard();
 
      /**
          * Print out a board nicely formatted
