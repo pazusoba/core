@@ -10,6 +10,7 @@ ApplicationWindow {
     height: 480
     title: qsTr("パズそば - Puzzle & Dragons Solver")
 
+    // Make sure you actually use it or it never works
     Bridge {
         id: soba
     }
@@ -24,8 +25,11 @@ ApplicationWindow {
         spacing: 4
         Repeater {
             id: repeater
-            model: 30
-            Rectangle { color: "red"; radius: 25; width: 50; height: 50 }
+            model: soba.column * soba.row
+            Image {
+                id: orbImage
+                source: "images/1.png"
+            }
         }
     }
 }

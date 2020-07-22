@@ -28,6 +28,7 @@ class PSolver
     Board readBoard(std::string filePath);
 
 public:
+    PSolver() {}
     PSolver(int minEraseCondition, int maxStep, int maxSize);
     PSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
     // Solve the current board

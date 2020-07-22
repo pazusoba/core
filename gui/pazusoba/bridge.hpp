@@ -2,7 +2,6 @@
 #define BRIDGE_HPP
 
 #include <QObject>
-#include <vector>
 #include "../../lib/solver.hpp"
 
 class Bridge : public QObject
@@ -20,6 +19,8 @@ signals:
 private:
     // Define the size of the board
     int m_row, m_column;
+    // Let's just pass in some default parameter first
+    PSolver solver;
 };
 
 #endif // BRIDGE_HPP
