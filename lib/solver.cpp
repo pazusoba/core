@@ -192,7 +192,8 @@ std::vector<Route> PSolver::solve()
         // Make sure all threads are completed
         for (auto &t : boardThreads)
         {
-            t.join();
+            if (t.joinable())
+                t.join();
         }
         // Clear for next round
         boardThreads.clear();

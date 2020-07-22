@@ -19,6 +19,13 @@ ApplicationWindow {
     Material.theme: Material.System
     Material.accent: Material.Blue
 
+    State {
+        name: "gridImage"
+        PropertyChanges {
+            target: window
+        }
+    }
+
     property int gridImageSize: Math.min((Screen.width > window.width ? window.width : Screen.width) / soba.row - 8, 64)
 
     // Make sure you actually use it or it never works
@@ -34,9 +41,6 @@ ApplicationWindow {
     // Depend on the screen size, it switches to horizontal or vertical
     GridLayout {
         id: rootGrid
-        anchors.fill: parent
-        anchors.topMargin: 16
-        anchors.margins: 16
         flow: width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
         ColumnLayout {
@@ -55,6 +59,7 @@ ApplicationWindow {
                 Repeater {
                     model: soba.initialBoard.length
                     Image {
+                        id: gridImage
                         height: gridImageSize
                         width: gridImageSize
                         // Use js to get corresponding image based on index
@@ -69,7 +74,6 @@ ApplicationWindow {
             RowLayout {
                 id: buttonRow
                 Button {
-                    Layout.fillWidth: true
                     text: "Solve"
                     onClicked: {
                         soba.solve()
@@ -77,11 +81,9 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    Layout.fillWidth: true
                     text: "Routes"
                 }
                 Button {
-                    Layout.fillWidth: true
                     text: "Reset"
                     onClicked: {
                         boardGrid.showInitial = true;
