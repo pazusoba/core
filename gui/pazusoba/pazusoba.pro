@@ -37,5 +37,7 @@ HEADERS += \
     ../../lib/board.hpp \
     ../../lib/pad.hpp \
     ../../lib/queue.hpp \
+    ../../lib/route.hpp \
     ../../lib/solver.hpp \
-    ../../lib/state.hpp
+    ../../lib/state.hpp \
+    ../../lib/timer.hpp
