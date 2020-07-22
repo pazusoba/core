@@ -32,15 +32,18 @@ ApplicationWindow {
     }
 
     // Depend on the screen size, it switches to horizontal or vertical
-    Grid {
-        anchors.margins: 16
+    GridLayout {
+        id: rootGrid
         anchors.fill: parent
+        anchors.topMargin: 16
+        anchors.margins: 16
         flow: width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
-        Column {
-            id: column
+        ColumnLayout {
+            id: leftColumn
+            Layout.alignment: Qt.AlignCenter
             Grid {
-                id: board
+                id: boardGrid
                 property bool showInitial: true
                 property var currentBoard: []
                 anchors.margins: 4
@@ -56,38 +59,45 @@ ApplicationWindow {
                         width: gridImageSize
                         // Use js to get corresponding image based on index
                         source: {
-                            if (board.showInitial) return `images/${soba.initialBoard[index]}.png`;
+                            if (boardGrid.showInitial) return `images/${soba.initialBoard[index]}.png`;
                             return `images/${soba.bestBoard[index]}.png`
                         }
                     }
                 }
             }
 
-            Row {
+            RowLayout {
+                id: buttonRow
                 Button {
+                    Layout.fillWidth: true
                     text: "Solve"
                     onClicked: {
                         soba.solve()
-                        board.showInitial = false;
+                        boardGrid.showInitial = false;
                     }
                 }
                 Button {
+                    Layout.fillWidth: true
                     text: "Routes"
                 }
                 Button {
+                    Layout.fillWidth: true
                     text: "Reset"
                     onClicked: {
-                        board.showInitial = true;
+                        boardGrid.showInitial = true;
                     }
                 }
             }
         }
 
         ListView {
+            id: routeList
+            Layout.fillHeight: true
+            Layout.fillWidth: true
             ScrollBar.vertical: ScrollBar {}
             model: 100
             delegate: Text {
-                color: Material.foreground
+                color: Material.primaryTextColor
                 text: qsTr(`This is index ${index}`)
             }
         }
