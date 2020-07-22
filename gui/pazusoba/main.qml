@@ -16,6 +16,7 @@ ApplicationWindow {
     }
 
     onVisibleChanged: {
+        // This used for basic testing
         console.log(soba.initialBoard)
     }
 
@@ -30,11 +31,18 @@ ApplicationWindow {
         Repeater {
             model: soba.initialBoard.length
             Image {
-                id: orbImage
-                source: {
-                    return `images/${soba.initialBoard[index]}.png`;
-                }
+                // Use js to get corresponding image based on index
+                source: `images/${soba.initialBoard[index]}.png`
             }
+        }
+    }
+
+    ListView {
+        width: 50; height: 200
+        ScrollBar.vertical: ScrollBar {}
+        model: soba.initialBoard.length
+        delegate: Text {
+            text: `${index} index +++++++++++++++`
         }
     }
 }
