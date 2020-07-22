@@ -1,34 +1,40 @@
 import QtQuick 2.12
-import QtQuick.Window 2.12
+import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
+import QtQuick.Window 2.12
 import org.github.henryquan.bridge 1.0
 
 ApplicationWindow {
-    id: rootWindow
+    id: window
     visible: true
-    width: 640
-    height: 480
+    width: 480
+    height: 640
     title: qsTr("パズそば - Puzzle & Dragons Solver")
+
+    property int gridImageSize: Math.min(window.width / soba.row - 8, 64)
 
     // Make sure you actually use it or it never works
     Bridge {
         id: soba
     }
 
-    onVisibleChanged: {
-        // This used for basic testing
-        console.log(soba.initialBoard)
+    onWidthChanged: {
+        // -6 just for extra spacing
+        gridImageSize = Math.min(window.width / soba.row - 8, 64)
     }
 
-    Column {
-        // Put column in the middle
-        anchors.horizontalCenter: parent.horizontalCenter
-        Grid {
-            id: grid
+    ColumnLayout {
+        anchors.fill: parent
+
+        GridLayout {
+            id: board
+            Layout.alignment: Qt.AlignHCenter
+            Layout.margins: 4
+            Layout.preferredWidth: 100
             // To display properly, you need to swap row and column here
             columns: soba.row
             rows: soba.column
-            spacing: 4
+
             Repeater {
                 model: soba.initialBoard.length
                 Image {
@@ -39,8 +45,9 @@ ApplicationWindow {
         }
 
         ListView {
-
-            width: 200; height: 200
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillHeight: true
+            Layout.bottomMargin: 16
             ScrollBar.vertical: ScrollBar {}
             model: soba.initialBoard.length
             delegate: Text {
