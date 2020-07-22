@@ -10,6 +10,7 @@
 #include <vector>
 #include <set>
 #include "pad.hpp"
+#include "route.hpp"
 #include "board.hpp"
 #include "state.hpp"
 
@@ -33,7 +34,7 @@ public:
     PSolver(int minEraseCondition, int maxStep, int maxSize);
     PSolver(std::string filePath, int minEraseCondition, int maxStep, int maxSize);
     // Solve the current board
-    void solve();
+    std::vector<Route> solve();
 };
 
 #endif

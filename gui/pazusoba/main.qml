@@ -23,8 +23,12 @@ ApplicationWindow {
         gridImageSize = Math.min(window.width / soba.row - 8, 64)
     }
 
-    ColumnLayout {
+    GridLayout {
         anchors.fill: parent
+        anchors.margins: 20
+        rowSpacing: 20
+        columnSpacing: 20
+        flow:  width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
         GridLayout {
             id: board

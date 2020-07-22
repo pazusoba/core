@@ -13,7 +13,6 @@
 #include "solver.hpp"
 #include "queue.hpp"
 #include "timer.hpp"
-#include "route.hpp"
 
 class PointerCompare
 {
@@ -91,7 +90,7 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
 
 /// Solve the board
 
-void PSolver::solve()
+std::vector<Route> PSolver::solve()
 {
     Timer::shared().start(0);
     std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
@@ -238,6 +237,8 @@ void PSolver::solve()
     {
         delete s;
     }
+
+    return routes;
 }
 
 /// Read the board from filePath
