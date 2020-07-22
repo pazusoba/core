@@ -86,6 +86,12 @@ public:
         convertFromState(state);
     }
 
+    // Just for QT to show the current board
+    inline std::vector<int> getBoardOrbs()
+    {
+        return finalBoard.getBoardOrbs();
+    }
+
     inline void printRoute()
     {
         using namespace std;

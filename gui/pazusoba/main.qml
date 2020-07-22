@@ -48,7 +48,7 @@ ApplicationWindow {
                         // Use js to get corresponding image based on index
                         source: {
                             if (board.showInitial) return `images/${soba.initialBoard[index]}.png`;
-                            return `images/${soba.initialBoard[index]}.png`
+                            return `images/${soba.bestBoard[index]}.png`
                         }
                     }
                 }
@@ -59,7 +59,7 @@ ApplicationWindow {
                     text: "Solve"
                     onClicked: {
                         soba.solve();
-                        console.log(soba.routes);
+                        board.showInitial = false;
                     }
                 }
                 Button {

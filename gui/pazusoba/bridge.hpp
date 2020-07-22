@@ -13,7 +13,7 @@ class Bridge : public QObject
     Q_PROPERTY(int row MEMBER m_row CONSTANT)
     Q_PROPERTY(int column MEMBER m_column CONSTANT)
     Q_PROPERTY(std::vector<int> initialBoard MEMBER m_initialBoard CONSTANT)
-    Q_PROPERTY(std::vector<Route> routes MEMBER m_routes CONSTANT)
+    Q_PROPERTY(std::vector<int> bestBoard MEMBER m_bestBoard CONSTANT)
 
 public:
     explicit Bridge(QObject *parent = nullptr);
@@ -26,6 +26,7 @@ private:
     int m_row, m_column;
     // This is the initial board for display in the beginning
     std::vector<int> m_initialBoard;
+    std::vector<int> m_bestBoard;
     // All routes
     std::vector<Route> m_routes;
 

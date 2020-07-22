@@ -2,7 +2,7 @@
 
 Bridge::Bridge(QObject *parent) : QObject(parent)
 {
-    solver = PSolver("D:\\Windows\\Programming\\AI\\pad-solver\\assets\\board_76_b97e4a.txt", 3, 25, 1000);
+    solver = PSolver("D:\\Windows\\Programming\\AI\\pad-solver\\assets\\sample_board_65.txt", 3, 25, 6000);
     m_row = solver.row;
     m_column = solver.column;
     m_initialBoard = solver.board.getBoardOrbs();
@@ -17,4 +17,6 @@ void Bridge::solve()
         // Just call solve and save all solutions
         m_routes = solver.solve();
     }
+
+    m_bestBoard = m_routes[0].getBoardOrbs();
 }
