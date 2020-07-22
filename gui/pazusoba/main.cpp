@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    // Register a type to use in QML
+    // Register types to use in QML
     qmlRegisterType<Bridge>("org.github.henryquan.bridge", 1, 0, "Bridge");
 
     // Actually load the qml

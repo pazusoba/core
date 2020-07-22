@@ -59,6 +59,7 @@ ApplicationWindow {
                     text: "Solve"
                     onClicked: {
                         soba.solve();
+                        console.log(soba.routes);
                     }
                 }
                 Button {
@@ -78,9 +79,9 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.bottomMargin: 16
             ScrollBar.vertical: ScrollBar {}
-            model: soba.initialBoard.length
+            model: soba.routes.length
             delegate: Text {
-                text: `${index} index +++++++++++++++`
+                text: `{soba.routes[$index]}`
             }
         }
     }
