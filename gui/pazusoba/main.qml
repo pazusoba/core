@@ -14,18 +14,13 @@ ApplicationWindow {
         id: soba
     }
 
-    Text {
-        id: test
-        text: qsTr(soba.message)
-    }
-
     Grid {
         id: grid
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
-        columns: 6
-        rows: 5
+        columns: soba.column
+        rows: soba.row
         spacing: 4
         Repeater {
             id: repeater
