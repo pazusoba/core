@@ -43,3 +43,6 @@ HEADERS += \
     ../../lib/state.hpp \
     ../../lib/timer.hpp \
     bridge.hpp
+
+# Optimisations
+QMAKE_CXXFLAGS += -Ofast -flto -lpthread

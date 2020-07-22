@@ -18,11 +18,15 @@ public:
     explicit Bridge(QObject *parent = nullptr);
 signals:
 
+public slots:
+    void solve();
 private:
     // Define the size of the board
     int m_row, m_column;
     // This is the initial board for display in the beginning
     std::vector<int> m_initialBoard;
+    // All routes
+    std::vector<Route> m_routes;
 
     // Let's just pass in some default parameter first
     PSolver solver;

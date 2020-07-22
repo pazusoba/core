@@ -30,20 +30,45 @@ ApplicationWindow {
         columnSpacing: 20
         flow:  width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
-        GridLayout {
-            id: board
-            Layout.alignment: Qt.AlignHCenter
-            Layout.margins: 4
-            Layout.preferredWidth: 100
-            // To display properly, you need to swap row and column here
-            columns: soba.row
-            rows: soba.column
+        Column {
+            GridLayout {
+                id: board
+                property bool showInitial: true
+                property var currentBoard: []
+                Layout.alignment: Qt.AlignHCenter
+                Layout.margins: 4
+                Layout.preferredWidth: 100
+                // To display properly, you need to swap row and column here
+                columns: soba.row
+                rows: soba.column
 
-            Repeater {
-                model: soba.initialBoard.length
-                Image {
-                    // Use js to get corresponding image based on index
-                    source: `images/${soba.initialBoard[index]}.png`
+                Repeater {
+                    model: soba.initialBoard.length
+                    Image {
+                        // Use js to get corresponding image based on index
+                        source: {
+                            if (board.showInitial) return `images/${soba.initialBoard[index]}.png`;
+                            return `images/${soba.initialBoard[index]}.png`
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                Button {
+                    text: "Solve"
+                    onClicked: {
+                        soba.solve();
+                    }
+                }
+                Button {
+                    text: "Routes"
+                }
+                Button {
+                    text: "Reset"
+                    onClicked: {
+                        board.showInitial = true;
+                    }
                 }
             }
         }

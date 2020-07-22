@@ -7,3 +7,14 @@ Bridge::Bridge(QObject *parent) : QObject(parent)
     m_column = solver.column;
     m_initialBoard = solver.board.getBoardOrbs();
 }
+
+void Bridge::solve()
+{
+    // Don't call it multiple times
+    // TODO: add async to this so that UI will not freeze
+    if (m_routes.empty())
+    {
+        // Just call solve and save all solutions
+        m_routes = solver.solve();
+    }
+}
