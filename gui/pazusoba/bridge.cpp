@@ -2,5 +2,5 @@
 
 Bridge::Bridge(QObject *parent) : QObject(parent)
 {
-    m_msg = "Hello World from C++";
+    m_msg = { 1, 2, 3, 4, 5, 6 };
 }

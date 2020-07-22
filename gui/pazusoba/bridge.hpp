@@ -2,6 +2,7 @@
 #define BRIDGE_HPP
 
 #include <QObject>
+#include <vector>
 #include "../../lib/solver.hpp"
 
 class Bridge : public QObject
@@ -9,16 +10,16 @@ class Bridge : public QObject
     Q_OBJECT
 
     // Properties
-    Q_PROPERTY(QString message READ getMessage)
+    Q_PROPERTY(std::vector<int> message READ getMessage)
 
 public:
     explicit Bridge(QObject *parent = nullptr);
-    QString getMessage() const
+    std::vector<int> getMessage() const
         { return m_msg; }
 signals:
 
 private:
-    QString m_msg;
+    std::vector<int> m_msg;
 };
 
 #endif // BRIDGE_HPP
