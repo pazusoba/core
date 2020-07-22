@@ -2,7 +2,8 @@
 
 Bridge::Bridge(QObject *parent) : QObject(parent)
 {
-    solver = PSolver("D:\\Windows\\Programming\\AI\\pad-solver\\assets\\sample_board_65.txt", 3, 25, 6000);
+    // Path is different for all platforms so let's just use a string instead
+    solver = PSolver("RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL", 3, 25, 6000);
     m_row = solver.row;
     m_column = solver.column;
     m_initialBoard = solver.board.getBoardOrbs();

@@ -7,3 +7,4 @@
 **/board_*.txt
 # program output
 **/output.txt
+**/.DS_Store

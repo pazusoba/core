@@ -15,7 +15,7 @@ class Timer
 {
 private:
     // This tracks all starting time
-    std::map<int, std::chrono::_V2::system_clock::time_point> timers;
+    std::map<int, std::chrono::system_clock::time_point> timers;
     Timer() {}
 
 public:
@@ -29,13 +29,13 @@ public:
     // Use int as a key
     void start(int key)
     {
-        timers[key] = std::chrono::high_resolution_clock::now();
+        timers[key] = std::chrono::system_clock::now();
     }
 
     // Check how long it has passed
     void end(int key)
     {
-        auto end = std::chrono::high_resolution_clock::now();
+        auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> t = end - timers[key];
         std::cout << "Key " << key << " - time: " << t.count() << "s\n";
     }
