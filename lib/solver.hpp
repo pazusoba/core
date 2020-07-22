@@ -15,9 +15,6 @@
 
 class PSolver
 {
-    // Row and column are used to count board size
-    int row = 0;
-    int column = 0;
     int minEraseCondition = 3;
     int steps = 25;
     int size = 1000;
@@ -26,6 +23,9 @@ class PSolver
     Board readBoard(std::string filePath);
 
 public:
+    // Row and column are used to count board size
+    int row = 0;
+    int column = 0;
     // This is the original board
     PBoard board;
 

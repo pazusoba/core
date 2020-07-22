@@ -20,29 +20,32 @@ ApplicationWindow {
         console.log(soba.initialBoard)
     }
 
-    Grid {
-        id: grid
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
+    Column {
+        // Put column in the middle
         anchors.horizontalCenter: parent.horizontalCenter
-        columns: soba.column
-        rows: soba.row
-        spacing: 4
-        Repeater {
-            model: soba.initialBoard.length
-            Image {
-                // Use js to get corresponding image based on index
-                source: `images/${soba.initialBoard[index]}.png`
+        Grid {
+            id: grid
+            // To display properly, you need to swap row and column here
+            columns: soba.row
+            rows: soba.column
+            spacing: 4
+            Repeater {
+                model: soba.initialBoard.length
+                Image {
+                    // Use js to get corresponding image based on index
+                    source: `images/${soba.initialBoard[index]}.png`
+                }
             }
         }
-    }
 
-    ListView {
-        width: 50; height: 200
-        ScrollBar.vertical: ScrollBar {}
-        model: soba.initialBoard.length
-        delegate: Text {
-            text: `${index} index +++++++++++++++`
+        ListView {
+
+            width: 200; height: 200
+            ScrollBar.vertical: ScrollBar {}
+            model: soba.initialBoard.length
+            delegate: Text {
+                text: `${index} index +++++++++++++++`
+            }
         }
     }
 }
