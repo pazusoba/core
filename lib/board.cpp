@@ -149,7 +149,7 @@ void PBoard::moveOrbsDown()
                 {
                     board[i][j] = pad::empty;
                 }
-                else 
+                else
                 {
                     // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
                     auto orb = orbs[k];
@@ -503,6 +503,21 @@ std::string PBoard::getBoardID()
         }
     }
     return id.str();
+}
+
+std::vector<int> PBoard::getBoardOrbs()
+{
+    std::vector<int> orbs;
+    orbs.reserve(row * column);
+    for (auto const &row : board)
+    {
+        for (auto const &orb : row)
+        {
+            // , is important because you have 10 which can be 1 0 or just 10
+            orbs.push_back(orb);
+        }
+    }
+    return orbs;
 }
 
 int PBoard::getBoardMaxCombo()

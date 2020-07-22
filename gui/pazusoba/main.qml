@@ -15,6 +15,10 @@ ApplicationWindow {
         id: soba
     }
 
+    onVisibleChanged: {
+        console.log(soba.initialBoard)
+    }
+
     Grid {
         id: grid
         anchors.bottom: parent.bottom
@@ -24,11 +28,12 @@ ApplicationWindow {
         rows: soba.row
         spacing: 4
         Repeater {
-            id: repeater
-            model: soba.column * soba.row
+            model: soba.initialBoard.length
             Image {
                 id: orbImage
-                source: "images/1.png"
+                source: {
+                    return `images/${soba.initialBoard[index]}.png`;
+                }
             }
         }
     }
