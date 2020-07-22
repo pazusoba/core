@@ -18,6 +18,7 @@ SOURCES += \
         ../../lib/queue.cpp \
         ../../lib/solver.cpp \
         ../../lib/state.cpp \
+        bridge.cpp \
         main.cpp
 
 RESOURCES += qml.qrc
@@ -40,4 +41,5 @@ HEADERS += \
     ../../lib/route.hpp \
     ../../lib/solver.hpp \
     ../../lib/state.hpp \
-    ../../lib/timer.hpp
+    ../../lib/timer.hpp \
+    bridge.hpp
