@@ -1,11 +1,23 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
+import QtQuick.Controls 2.12
+import org.github.henryquan.bridge 1.0
 
-Window {
+ApplicationWindow {
+    id: root
     visible: true
     width: 640
     height: 480
     title: qsTr("パズそば - Puzzle & Dragons Solver")
+
+    onVisibleChanged: {
+        console.log(Soba.message)
+    }
+
+    Text {
+        id: test
+        text: qsTr(Soba.message)
+    }
 
     Grid {
         id: grid
