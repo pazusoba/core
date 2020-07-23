@@ -35,7 +35,6 @@ class Route
     pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev);
 
 public:
-    Route() {}
     Route(const PState *state);
 
     void printRoute();

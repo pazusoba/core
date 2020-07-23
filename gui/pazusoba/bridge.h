@@ -2,8 +2,9 @@
 #define Q_BRIDGE_H
 
 #include <QObject>
+#include <vector>
 #include "../../lib/solver.h"
-#include "route.h"
+#include "michi.h"
 
 class QBridge : public QObject
 {

@@ -21,7 +21,7 @@ SOURCES += \
         ../../lib/state.cpp \
         bridge.cpp \
         main.cpp \
-        route.cpp
+        michi.cpp
 
 RESOURCES += qml.qrc
 
@@ -45,7 +45,7 @@ HEADERS += \
     ../../lib/state.h \
     ../../lib/timer.h \
     bridge.h \
-    route.h
+    michi.h
 
 # Optimisations
 QMAKE_CXXFLAGS += -Ofast -flto -lpthread

@@ -2,12 +2,13 @@
 #define Q_ROUTE_H
 
 #include <QObject>
+#include <vector>
 #include "../../lib/route.h"
 
 class QRoute
 {
     Q_PROPERTY(QString info MEMBER m_info CONSTANT)
-    Q_PROPERTY(std::vector board MEMBER m_board CONSTANT)
+    Q_PROPERTY(std::vector<int> board MEMBER m_board CONSTANT)
 
 public:
     QRoute(Route &r);
