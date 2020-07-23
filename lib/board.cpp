@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <ctime>
-#include "board.hpp"
+#include "board.h"
 
 /// Constructors
 PBoard::PBoard() {}

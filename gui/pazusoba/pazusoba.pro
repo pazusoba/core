@@ -37,13 +37,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../../lib/board.hpp \
-    ../../lib/pad.hpp \
-    ../../lib/queue.hpp \
-    ../../lib/route.hpp \
-    ../../lib/solver.hpp \
-    ../../lib/state.hpp \
-    ../../lib/timer.hpp \
+    ../../lib/board.h \
+    ../../lib/pad.h \
+    ../../lib/queue.h \
+    ../../lib/route.h \
+    ../../lib/solver.h \
+    ../../lib/state.h \
+    ../../lib/timer.h \
     bridge.h \
     route.h
 

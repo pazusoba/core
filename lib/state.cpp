@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "state.hpp"
+#include "state.h"
 
 /// Constrctor
 

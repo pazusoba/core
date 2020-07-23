@@ -10,9 +10,9 @@
 #include <queue>
 #include <thread>
 #include <mutex>
-#include "solver.hpp"
-#include "queue.hpp"
-#include "timer.hpp"
+#include "solver.h"
+#include "queue.h"
+#include "timer.h"
 
 class PointerCompare
 {

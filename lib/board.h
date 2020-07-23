@@ -1,5 +1,5 @@
 /**
- * board.hpp
+ * board.h
  * by Yiheng Quan
  */
 
@@ -8,14 +8,14 @@
 
 #include <vector>
 #include <set>
-#include "pad.hpp"
+#include "pad.h"
 
 // shorten the code to make a pair
 #define LOCATION(x, y) (std::make_pair(x, y))
 // shotern the code to get/set an orb from the board
 #define ORB(board, location) (board[location.first][location.second])
 
-// Another name for orb enum from pad.hpp
+// Another name for orb enum from pad.h
 typedef pad::orbs Orb;
 // Row is a list of Orb
 typedef std::vector<Orb> Row;

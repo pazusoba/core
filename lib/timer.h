@@ -1,11 +1,11 @@
 /**
- * timer.hpp
+ * timer.h
  * a simple timer singleton to track time
  * by Yiheng Quan
  */
 
-#ifndef TIMER_HPP
-#define TIMER_HPP
+#ifndef TIMER_H
+#define TIMER_H
 
 #include <iostream>
 #include <chrono>

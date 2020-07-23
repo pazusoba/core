@@ -1,18 +1,18 @@
 /**
- * route.hpp
+ * route.h
  * This saves routes from states and prints a readable path
  * 
  * by Yiheng Quan
  */
 
-#ifndef ROUTE_HPP
-#define ROUTE_HPP
+#ifndef ROUTE_H
+#define ROUTE_H
 
 #include <vector>
 #include <iostream>
-#include "board.hpp"
-#include "state.hpp"
-#include "pad.hpp"
+#include "board.h"
+#include "state.h"
+#include "pad.h"
 
 typedef std::vector<pad::direction> Directions;
 

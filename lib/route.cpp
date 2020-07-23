@@ -3,7 +3,7 @@
  * by Yiheng Quan
  */
 
-#include "route.hpp"
+#include "route.h"
 
 Route::Route(const PState *state)
 {

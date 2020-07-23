@@ -2,7 +2,7 @@
 #define Q_BRIDGE_H
 
 #include <QObject>
-#include "../../lib/solver.hpp"
+#include "../../lib/solver.h"
 #include "route.h"
 
 class QBridge : public QObject
@@ -33,4 +33,4 @@ private:
     PSolver solver;
 };
 
-#endif // BRIDGE_HPP
+#endif // BRIDGE_H

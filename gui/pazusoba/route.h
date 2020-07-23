@@ -2,7 +2,7 @@
 #define Q_ROUTE_H
 
 #include <QObject>
-#include "../../lib/route.hpp"
+#include "../../lib/route.h"
 
 class QRoute : public QObject
 {

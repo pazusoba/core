@@ -1,5 +1,5 @@
 /**
- * solver.hpp
+ * solver.h
  * by Yiheng Quan
  */
 
@@ -9,10 +9,10 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "pad.hpp"
-#include "route.hpp"
-#include "board.hpp"
-#include "state.hpp"
+#include "pad.h"
+#include "route.h"
+#include "board.h"
+#include "state.h"
 
 class PSolver
 {
