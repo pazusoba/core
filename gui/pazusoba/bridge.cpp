@@ -3,7 +3,7 @@
 QBridge::QBridge(QObject *parent) : QObject(parent)
 {
     // Path is different for all platforms so let's just use a string instead
-    solver = PSolver("RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL", 3, 25, 6000);
+    solver = PSolver("RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL", 3, 25, 100);
     m_row = solver.row;
     m_column = solver.column;
     m_initialBoard = solver.board.getBoardOrbs();

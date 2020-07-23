@@ -59,7 +59,7 @@ ApplicationWindow {
                         // Use js to get corresponding image based on index
                         source: {
                             if (boardGrid.showInitial) return `images/${soba.initialBoard[index]}.png`;
-                            return `images/${soba.bestBoard[index]}.png`
+                            return `images/1.png`
                         }
                     }
                 }
@@ -70,7 +70,7 @@ ApplicationWindow {
                 Button {
                     text: "Solve"
                     onClicked: {
-                        soba.solve()
+                        soba.solve();
                         boardGrid.showInitial = false;
                     }
                 }

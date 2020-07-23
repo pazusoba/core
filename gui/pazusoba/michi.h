@@ -19,7 +19,4 @@ private:
     QString m_info;
 };
 
-// Convert Route to JS??
-// Q_DECLARE_METATYPE(QRoute)
-
 #endif // Q_ROUTE_H
