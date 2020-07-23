@@ -182,10 +182,10 @@ int PBoard::eraseOrbs()
             {
                 // nextOrb is a pointer to the next pair
                 auto nextOrb = nextSameOrbAround(&vhOrbs, *it);
-                // Only search if there are new orbs
-                if (nextOrb != nullptr)
+                // Only search if there are new orbs, if nothing has been found (-1, -1) is returned
+                if (nextOrb.first > -1)
                 {
-                    auto newOrbs = findSameOrbsAround(*nextOrb);
+                    auto newOrbs = findSameOrbsAround(nextOrb);
                     vhOrbs.insert(newOrbs.begin(), newOrbs.end());
                     // Must check if there are new orbs or it will be an infinite loop
                     if (newOrbs.size() > 0)
@@ -196,7 +196,6 @@ int PBoard::eraseOrbs()
                         continue;
                     }
                 }
-                delete nextOrb;
                 it++;
             }
 
@@ -294,40 +293,38 @@ OrbSet PBoard::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
+OrbLocation PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 {
     auto orb = board[x][y];
 
     // Find up, down, left and right
-    auto pair = new OrbLocation;
     if (hasSameOrb(orb, x - 1, y))
     {
-        *pair = LOCATION(x - 1, y);
-        if (vhOrbs->count(*pair) == 0)
+        OrbLocation pair = LOCATION(x - 1, y);
+        if (vhOrbs->count(pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x + 1, y))
     {
-        *pair = LOCATION(x + 1, y);
-        if (vhOrbs->count(*pair) == 0)
+        OrbLocation pair = LOCATION(x + 1, y);
+        if (vhOrbs->count(pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x, y - 1))
     {
-        *pair = LOCATION(x, y - 1);
-        if (vhOrbs->count(*pair) == 0)
+        OrbLocation pair = LOCATION(x, y - 1);
+        if (vhOrbs->count(pair) == 0)
             return pair;
     }
     if (hasSameOrb(orb, x, y + 1))
     {
-        *pair = LOCATION(x, y + 1);
-        if (vhOrbs->count(*pair) == 0)
+        OrbLocation pair = LOCATION(x, y + 1);
+        if (vhOrbs->count(pair) == 0)
             return pair;
     }
 
-    // Remember to release it
-    delete pair;
-    return nullptr;
+    // Return a default value
+    return LOCATION(-1, -1);
 }
 
 void PBoard::printBoard()

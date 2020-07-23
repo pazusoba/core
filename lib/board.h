@@ -62,8 +62,8 @@ class PBoard
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-     OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
-     inline OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
+     OrbLocation nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
+     inline OrbLocation nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
      {
           return nextSameOrbAround(vhOrbs, loc.first, loc.second);
      }
