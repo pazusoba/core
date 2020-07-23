@@ -18,7 +18,6 @@ void QBridge::solve()
         // Just call solve and save all solutions
         for (Route &s : solver.solve())
         {
-            auto temp = QRoute();
             m_routes.emplace_back(s);
         }
     }

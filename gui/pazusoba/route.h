@@ -4,18 +4,13 @@
 #include <QObject>
 #include "../../lib/route.h"
 
-class QRoute : public QObject
+class QRoute
 {
-    Q_OBJECT
-
     Q_PROPERTY(QString info MEMBER m_info CONSTANT)
     Q_PROPERTY(std::vector board MEMBER m_board CONSTANT)
 
 public:
-    explicit QRoute(QObject *parent = nullptr) : QObject(parent) {}
-    void convert(Route &r);
-
-signals:
+    QRoute(Route &r);
 
 private:
     // The UI only needs a board for the grid and a string for the list
@@ -23,4 +18,7 @@ private:
     QString m_info;
 };
 
-#endif // QROUTE_H
+// Convert Route to JS??
+// Q_DECLARE_METATYPE(QRoute)
+
+#endif // Q_ROUTE_H

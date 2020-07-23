@@ -1,6 +1,6 @@
 #include "route.h"
 
-void QRoute::convert(Route &r)
+QRoute::QRoute(Route &r)
 {
     // Convert a route to a qt route
     m_board = r.getBoardOrbs();

@@ -33,4 +33,4 @@ private:
     PSolver solver;
 };
 
-#endif // BRIDGE_H
+#endif // Q_BRIDGE_H
