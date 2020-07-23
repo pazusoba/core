@@ -71,6 +71,7 @@ ApplicationWindow {
                     text: "Solve"
                     onClicked: {
                         soba.solve();
+                        console.log(soba.routes[0]);
                         boardGrid.showInitial = false;
                     }
                 }

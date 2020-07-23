@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     // Register types to use in QML
-    qRegisterMetaType<std::vector<QRoute>>("std::vector<QRoute>");
+    qRegisterMetaType<QList<QRoute>>("QList<QRoute>");
     qmlRegisterType<QBridge>("org.github.henryquan.bridge", 1, 0, "QBridge");
 
     // Actually load the qml

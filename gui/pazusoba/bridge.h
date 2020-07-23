@@ -14,7 +14,7 @@ class QBridge : public QObject
     Q_PROPERTY(int row MEMBER m_row CONSTANT)
     Q_PROPERTY(int column MEMBER m_column CONSTANT)
     Q_PROPERTY(std::vector<int> initialBoard MEMBER m_initialBoard CONSTANT)
-    Q_PROPERTY(std::vector<QRoute> routes MEMBER m_routes CONSTANT)
+    Q_PROPERTY(QList<QRoute> routes MEMBER m_routes CONSTANT)
 
 public:
     explicit QBridge(QObject *parent = nullptr);
@@ -28,7 +28,7 @@ private:
     // This is the initial board for display in the beginning
     std::vector<int> m_initialBoard;
     // All routes
-    std::vector<QRoute> m_routes;
+    QList<QRoute> m_routes;
 
     // Let's just pass in some default parameter first
     PSolver solver;

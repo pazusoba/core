@@ -11,6 +11,7 @@ class QRoute
     Q_PROPERTY(std::vector<int> board MEMBER m_board CONSTANT)
 
 public:
+    QRoute() {}
     QRoute(Route &r);
 
 private:
