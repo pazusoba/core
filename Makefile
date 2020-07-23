@@ -28,6 +28,9 @@ test:
 	$(GCC) test.cpp $(CPP_FILES)
 	$(OUTPUT)
 
+debug:
+	$(GCC) -g main.cpp $(CPP_FILES)
+
 # run the program
 run:
 	$(OUTPUT)

@@ -29,11 +29,14 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
 
 PState::~PState()
 {
-    for (auto const &c : children)
+    if (children.size() > 0)
     {
-        delete c;
+        for (auto const &c : children)
+        {
+            delete c;
+        }
+        children.clear();
     }
-    children.clear();
 }
 
 bool PState::operator<(const PState &a) const

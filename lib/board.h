@@ -28,112 +28,177 @@ typedef std::set<OrbLocation> OrbSet;
 
 class PBoard
 {
-    int row;
-    int column;
-    // This tells the soler how to erase orb (by default, erase orbs if 3 or more of them are connected)
-    int minEraseCondition = 3;
-    // This saves all orbs in a 2D array, support all orb types
-    Board board;
-    // When it is true, more messages will be printed to the console
-    bool printMoreMessages = false;
+     int row;
+     int column;
+     // This tells the soler how to erase orb (by default, erase orbs if 3 or more of them are connected)
+     int minEraseCondition = 3;
+     // This saves all orbs in a 2D array, support all orb types
+     Board board;
+     // When it is true, more messages will be printed to the console
+     bool printMoreMessages = false;
 
-    /**
+     /**
          * Move orbs down if there is an empty orb below
          */
-    void moveOrbsDown();
+     void moveOrbsDown();
 
-    /**
+     /**
          * Erase orbs that are connected in a line.
          * return - the number of combos
          */
-    int eraseOrbs();
+     int eraseOrbs();
 
-    /**
+     /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
          * return - a set of xy that can be erased
          */
-    OrbSet findSameOrbsAround(int x, int y);
-    OrbSet findSameOrbsAround(OrbLocation loc);
+     OrbSet findSameOrbsAround(int x, int y);
+     inline OrbSet findSameOrbsAround(OrbLocation loc)
+     {
+          return findSameOrbsAround(loc.first, loc.second);
+     }
 
-    /**
+     /**
          * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
          * return - a pair pointer that should be checked next
          */
-    OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
-    OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc);
+     OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
+     inline OrbLocation *nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
+     {
+          return nextSameOrbAround(vhOrbs, loc.first, loc.second);
+     }
 
-    /**
+     /**
          * Check if orb at (x, y) has the same orb
          */
-    bool hasSameOrb(Orb orb, int x, int y);
-    bool hasSameOrb(Orb orb, OrbLocation loc);
+     inline bool hasSameOrb(Orb orb, OrbLocation loc)
+     {
+          return hasSameOrb(orb, loc.first, loc.second);
+     }
 
-    /**
+     inline bool hasSameOrb(Orb orb, int x, int y)
+     {
+          if (validLocation(x, y))
+          {
+               return board[x][y] == orb;
+          }
+
+          return false;
+     }
+
+     /**
          * Calculate max combo from a list of orbs.
          * NOTE that this is not the true MAX COMBO possible,
          * but it represents the max combo an averge player can do.
          */
-    int getMaxCombo(int *counter);
+     int getMaxCombo(int *counter);
 
-    /**
+     /**
          * Max combo is simply row x column / 3
          */
-    int getBoardMaxCombo();
+     inline int getBoardMaxCombo()
+     {
+          return row * column / minEraseCondition;
+     }
 
-    /**
+     /**
          * Check if the file is empty or doesn't exists
          */
-    bool isEmptyFile();
+     inline bool isEmptyFile()
+     {
+          return column == 0 && row == 0;
+     }
 
-    /**
+     /**
          * Loop through the vector and count the number of each orbs
          */
-    int *collectOrbCount();
+     inline int *collectOrbCount()
+     {
+          int *counter = new int[pad::ORB_COUNT]{0};
+          for (auto const &row : board)
+          {
+               for (auto const &orb : row)
+               {
+                    counter[orb]++;
+               }
+          }
+          return counter;
+     }
 
 public:
-    PBoard();
-    PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
-    ~PBoard();
+     PBoard();
+     PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
+     ~PBoard();
 
-    /**
+     /**
          * Rate current board. This is the heuristic
          * - three in a line (1000pt), based on 10^orb
          * - two in a line (100pt)
          * - more coming soon
          */
-    int rateBoard();
+     int rateBoard();
 
-    /**
+     /**
          * Print out a board nicely formatted
          */
-    void printBoard();
+     void printBoard();
 
-    /**
+     /**
      * Print out all orbs in a line and it can be used for simulation
      */
-    void printBoardForSimulation();
+     void printBoardForSimulation();
 
-    /**
+     /**
          * Print out some info about the board we have
          */
-    void printBoardInfo();
+     void printBoardInfo();
 
-    /** 
-      * Update the unique ID after update
-      */
-    std::string getBoardID();
+     // This is for displaying the board in QT
+     inline std::vector<int> getBoardOrbs()
+     {
+          std::vector<int> orbs;
+          orbs.reserve(row * column);
+          for (auto const &row : board)
+          {
+               for (auto const &orb : row)
+               {
+                    // , is important because you have 10 which can be 1 0 or just 10
+                    orbs.push_back(orb);
+               }
+          }
+          return orbs;
+     }
 
-    // This is for displaying the board in QT
-    std::vector<int> getBoardOrbs();
-
-    /**
+     /**
          * Swap the value of two orbs
          */
-    void swapLocation(OrbLocation one, OrbLocation two);
+     inline void swapLocation(OrbLocation one, OrbLocation two)
+     {
+          // TODO: all points should be valid why?
+          if (!validLocation(one) || !validLocation(two))
+               return;
 
-    // Check if this loc is valid (not out of index)
-    bool validLocation(OrbLocation loc);
-    bool validLocation(int x, int y);
+          auto temp = ORB(board, one);
+          ORB(board, one) = ORB(board, two);
+          ORB(board, two) = temp;
+     }
+
+     // Check if this loc is valid (not out of index)
+     inline bool validLocation(OrbLocation loc)
+     {
+          return validLocation(loc.first, loc.second);
+     }
+
+     inline bool validLocation(int x, int y)
+     {
+          if (x >= 0 && x < column && y >= 0 && y < row)
+          {
+               // You cannot move a sealed orb
+               return board[x][y] != pad::seal;
+          }
+
+          return false;
+     }
 };
 
 #endif

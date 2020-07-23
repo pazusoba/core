@@ -5,8 +5,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
-#include <ctime>
 #include "board.h"
 
 /// Constructors
@@ -217,11 +215,6 @@ int PBoard::eraseOrbs()
     return combo;
 }
 
-OrbSet PBoard::findSameOrbsAround(OrbLocation loc)
-{
-    return findSameOrbsAround(loc.first, loc.second);
-}
-
 OrbSet PBoard::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
@@ -301,11 +294,6 @@ OrbSet PBoard::findSameOrbsAround(int x, int y)
     return vOrbs;
 }
 
-OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
-{
-    return nextSameOrbAround(vhOrbs, loc.first, loc.second);
-}
-
 OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 {
     auto orb = board[x][y];
@@ -340,32 +328,6 @@ OrbLocation *PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
     // Remember to release it
     delete pair;
     return nullptr;
-}
-
-bool PBoard::hasSameOrb(Orb orb, OrbLocation loc)
-{
-    return hasSameOrb(orb, loc.first, loc.second);
-}
-
-bool PBoard::hasSameOrb(Orb orb, int x, int y)
-{
-    if (validLocation(x, y))
-    {
-        return board[x][y] == orb;
-    }
-
-    return false;
-}
-
-void PBoard::swapLocation(OrbLocation one, OrbLocation two)
-{
-    // TODO: all points should be valid why?
-    if (!validLocation(one) || !validLocation(two))
-        return;
-
-    auto temp = ORB(board, one);
-    ORB(board, one) = ORB(board, two);
-    ORB(board, two) = temp;
 }
 
 void PBoard::printBoard()
@@ -488,73 +450,4 @@ int PBoard::getMaxCombo(int *counter)
     } while (moreComboCount > 0);
 
     return comboCounter;
-}
-
-std::string PBoard::getBoardID()
-{
-    // Get unique ID
-    std::stringstream id;
-    for (auto const &row : board)
-    {
-        for (auto const &orb : row)
-        {
-            // , is important because you have 10 which can be 1 0 or just 10
-            id << (int)orb << ",";
-        }
-    }
-    return id.str();
-}
-
-std::vector<int> PBoard::getBoardOrbs()
-{
-    std::vector<int> orbs;
-    orbs.reserve(row * column);
-    for (auto const &row : board)
-    {
-        for (auto const &orb : row)
-        {
-            // , is important because you have 10 which can be 1 0 or just 10
-            orbs.push_back(orb);
-        }
-    }
-    return orbs;
-}
-
-int PBoard::getBoardMaxCombo()
-{
-    return row * column / minEraseCondition;
-}
-
-bool PBoard::isEmptyFile()
-{
-    return column == 0 && row == 0;
-}
-
-int *PBoard::collectOrbCount()
-{
-    int *counter = new int[pad::ORB_COUNT]{0};
-    for (auto const &row : board)
-    {
-        for (auto const &orb : row)
-        {
-            counter[orb]++;
-        }
-    }
-    return counter;
-}
-
-bool PBoard::validLocation(OrbLocation loc)
-{
-    return validLocation(loc.first, loc.second);
-}
-
-bool PBoard::validLocation(int x, int y)
-{
-    if (x >= 0 && x < column && y >= 0 && y < row)
-    {
-        // You cannot move a sealed orb
-        return board[x][y] != pad::seal;
-    }
-
-    return false;
 }
