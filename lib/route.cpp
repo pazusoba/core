@@ -13,7 +13,7 @@ Route::Route(const PState *state)
     convertFromState(state);
 }
 
-inline void Route::printRoute()
+void Route::printRoute()
 {
     using namespace std;
     cout << score << " - " << step << "\n";
