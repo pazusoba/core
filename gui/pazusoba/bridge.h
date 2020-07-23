@@ -1,5 +1,5 @@
-#ifndef QBRIDGE_H
-#define QBRIDGE_H
+#ifndef Q_BRIDGE_H
+#define Q_BRIDGE_H
 
 #include <QObject>
 #include "../../lib/solver.hpp"

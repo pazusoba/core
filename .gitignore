@@ -8,3 +8,6 @@
 # program output
 **/output.txt
 **/.DS_Store
+
+# debug
+**/*.dSYM

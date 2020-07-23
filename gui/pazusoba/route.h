@@ -1,5 +1,5 @@
-#ifndef QROUTE_H
-#define QROUTE_H
+#ifndef Q_ROUTE_H
+#define Q_ROUTE_H
 
 #include <QObject>
 #include "../../lib/route.hpp"

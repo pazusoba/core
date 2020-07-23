@@ -52,7 +52,7 @@ bool PState::operator>(const PState &a) const
 PState::PStateList PState::getChildren()
 {
     // Stop when max step has been reached or children has been collected before
-    if (step > maxStep || children.size() > 0)
+    if (step > maxStep)
         return children;
 
     // from -1 to 1, all 8 directions
