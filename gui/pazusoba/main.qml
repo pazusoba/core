@@ -29,7 +29,7 @@ ApplicationWindow {
     property int gridImageSize: Math.min((Screen.width > window.width ? window.width : Screen.width) / soba.row - 8, 64)
 
     // Make sure you actually use it or it never works
-    Bridge {
+    QBridge {
         id: soba
     }
 

@@ -1,6 +1,6 @@
 #include "bridge.hpp"
 
-Bridge::Bridge(QObject *parent) : QObject(parent)
+QBridge::QBridge(QObject *parent) : QObject(parent)
 {
     // Path is different for all platforms so let's just use a string instead
     solver = PSolver("RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL", 3, 25, 6000);
@@ -9,7 +9,7 @@ Bridge::Bridge(QObject *parent) : QObject(parent)
     m_initialBoard = solver.board.getBoardOrbs();
 }
 
-void Bridge::solve()
+void QBridge::solve()
 {
     // Don't call it multiple times
     // TODO: add async to this so that UI will not freeze

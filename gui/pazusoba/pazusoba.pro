@@ -19,7 +19,8 @@ SOURCES += \
         ../../lib/solver.cpp \
         ../../lib/state.cpp \
         bridge.cpp \
-        main.cpp
+        main.cpp \
+        route.cpp
 
 RESOURCES += qml.qrc
 
@@ -42,7 +43,8 @@ HEADERS += \
     ../../lib/solver.hpp \
     ../../lib/state.hpp \
     ../../lib/timer.hpp \
-    bridge.hpp
+    bridge.h \
+    route.h
 
 # Optimisations
 QMAKE_CXXFLAGS += -Ofast -flto -lpthread

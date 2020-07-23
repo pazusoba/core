@@ -1,11 +1,11 @@
-#ifndef BRIDGE_HPP
-#define BRIDGE_HPP
+#ifndef QBRIDGE_HPP
+#define QBRIDGE_HPP
 
 #include <QObject>
 #include <vector>
 #include "../../lib/solver.hpp"
 
-class Bridge : public QObject
+class QBridge : public QObject
 {
     Q_OBJECT
 
@@ -16,7 +16,7 @@ class Bridge : public QObject
     Q_PROPERTY(std::vector<int> bestBoard MEMBER m_bestBoard CONSTANT)
 
 public:
-    explicit Bridge(QObject *parent = nullptr);
+    explicit QBridge(QObject *parent = nullptr);
 signals:
 
 public slots:
