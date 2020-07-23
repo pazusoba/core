@@ -7,6 +7,9 @@
  * by Yiheng Quan
  */
 
+#ifndef MY_QUEUE_HPP
+#define MY_QUEUE_HPP
+
 #include "state.hpp"
 
 struct PElement
@@ -42,3 +45,5 @@ struct PPriorityQueue
     // Loop through the queue
     void foreach (void func(PElement *));
 };
+
+#endif

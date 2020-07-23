@@ -19,16 +19,10 @@ ApplicationWindow {
     Material.theme: Material.System
     Material.accent: Material.Blue
 
-    State {
-        name: "gridImage"
-        PropertyChanges {
-            target: window
-        }
-    }
-
+    // Some properties
     property int gridImageSize: Math.min((Screen.width > window.width ? window.width : Screen.width) / soba.row - 8, 64)
 
-    // Make sure you actually use it or it never works
+    // Import the C++ bridge
     QBridge {
         id: soba
     }
@@ -97,10 +91,10 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.fillWidth: true
             ScrollBar.vertical: ScrollBar {}
-            model: 100
+            model: soba.routes.length
             delegate: Text {
                 color: Material.primaryTextColor
-                text: qsTr(`This is index ${index}`)
+                text: soba.routes[index].info
             }
         }
     }

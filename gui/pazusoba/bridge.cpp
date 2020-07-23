@@ -1,4 +1,4 @@
-#include "bridge.hpp"
+#include "bridge.h"
 
 QBridge::QBridge(QObject *parent) : QObject(parent)
 {
@@ -16,8 +16,10 @@ void QBridge::solve()
     if (m_routes.empty())
     {
         // Just call solve and save all solutions
-        m_routes = solver.solve();
+        for (Route &s : solver.solve())
+        {
+            auto temp = QRoute();
+            m_routes.emplace_back(s);
+        }
     }
-
-    m_bestBoard = m_routes[0].getBoardOrbs();
 }

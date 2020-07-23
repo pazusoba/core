@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <iostream>
-#include "bridge.hpp"
+#include "bridge.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 
     // Register types to use in QML
+    qmlRegisterType<QRoute>("org.github.henryquan.route", 1, 0, "QRoute");
     qmlRegisterType<QBridge>("org.github.henryquan.bridge", 1, 0, "QBridge");
 
     // Actually load the qml

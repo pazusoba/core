@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         ../../lib/board.cpp \
         ../../lib/queue.cpp \
+        ../../lib/route.cpp \
         ../../lib/solver.cpp \
         ../../lib/state.cpp \
         bridge.cpp \
