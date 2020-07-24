@@ -28,17 +28,26 @@ ApplicationWindow {
     }
 
     onWidthChanged: {
-        // -10 just for extra spacing
-        gridImageSize = Math.min((Screen.width > window.width ? window.width : Screen.width) / soba.row - 8, 64);
+        if (window.width > window.height) {
+            // Based on height now
+            gridImageSize = window.height / soba.row * 0.618;
+        } else {
+            // -10 just for extra spacing
+            gridImageSize = Math.min((Screen.width > window.width ? window.width : Screen.width) / soba.row - 8, 64);
+        }
     }
 
     // Depend on the screen size, it switches to horizontal or vertical
     GridLayout {
         id: rootGrid
+        anchors.fill: parent
+        Layout.maximumWidth: 1000
         flow: window.width > window.height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
         ColumnLayout {
             id: leftColumn
+            Layout.margins: 16
+            Layout.alignment: Qt.AlignCenter
             Grid {
                 id: boardGrid
                 property bool showInitial: true
@@ -66,6 +75,7 @@ ApplicationWindow {
 
             RowLayout {
                 id: buttonRow
+                Layout.alignment: Qt.AlignHCenter
                 Button {
                     text: "Solve"
                     onClicked: {
@@ -84,26 +94,25 @@ ApplicationWindow {
             }
         }
 
-        ColumnLayout {
-            id: rightColumn
-            ListView {
-                id: routeList
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                ScrollBar.vertical: ScrollBar {}
-                model: soba.routes
-                delegate: MouseArea {
-                    height: 48
-                    width: 100
-                    onClicked: {
-                        boardGrid.currentBoard = modelData["board"];
-                        boardGrid.showInitial = false;
-                    }
+        ListView {
+            id: routeList
+            Layout.margins: 16
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            ScrollBar.vertical: ScrollBar {}
+            model: soba.routes
+            delegate: MouseArea {
+                height: 64
+                width: routeList.width
+                onClicked: {
+                    boardGrid.currentBoard = modelData["board"];
+                    boardGrid.showInitial = false;
+                }
 
-                    Text {
-                        color: Material.primaryTextColor
-                        text: qsTr(modelData['info'])
-                    }
+                Text {
+                    wrapMode: Text.Wrap
+                    color: Material.primaryTextColor
+                    text: qsTr(modelData['info'])
                 }
             }
         }
