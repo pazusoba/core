@@ -14,10 +14,13 @@ class QBridge : public QObject
     Q_PROPERTY(int row MEMBER m_row CONSTANT)
     Q_PROPERTY(int column MEMBER m_column CONSTANT)
     Q_PROPERTY(std::vector<int> initialBoard MEMBER m_initialBoard CONSTANT)
-    Q_PROPERTY(QList<QRoute *> routes MEMBER m_routes CONSTANT)
+    Q_PROPERTY(QList<QRoute *> routes MEMBER m_routes NOTIFY routeChanged)
 
 public:
     explicit QBridge(QObject *parent = nullptr);
+
+signals:
+    void routeChanged();
 
 public slots:
     void solve();

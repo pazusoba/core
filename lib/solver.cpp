@@ -209,7 +209,7 @@ std::vector<Route> PSolver::solve()
 
     std::cout << "Search has been completed\n\n";
 
-    int routeSize = 5;
+    int routeSize = 100;
     std::vector<Route> routes;
     routes.reserve(routeSize);
     // This gets routes for best 100

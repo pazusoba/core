@@ -70,7 +70,6 @@ ApplicationWindow {
                     text: "Solve"
                     onClicked: {
                         soba.solve();
-                        console.log(soba.routes[0]);
                     }
                 }
                 Button {
@@ -85,19 +84,26 @@ ApplicationWindow {
             }
         }
 
-        ListView {
-            id: routeList
-            Layout.fillWidth: true
-            ScrollBar.vertical: ScrollBar {}
-            model: soba.routes.length
-            delegate: MouseArea {
-                onClicked: {
-                    boardGrid.currentBoard = soba.routes[index]["board"];
-                }
+        ColumnLayout {
+            id: rightColumn
+            ListView {
+                id: routeList
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                ScrollBar.vertical: ScrollBar {}
+                model: soba.routes
+                delegate: MouseArea {
+                    height: 48
+                    width: 100
+                    onClicked: {
+                        boardGrid.currentBoard = modelData["board"];
+                        boardGrid.showInitial = false;
+                    }
 
-                Text {
-                    color: Material.primaryTextColor
-                    text: soba.routes[index]["info"]
+                    Text {
+                        color: Material.primaryTextColor
+                        text: qsTr(modelData['info'])
+                    }
                 }
             }
         }

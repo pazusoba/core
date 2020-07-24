@@ -1,4 +1,5 @@
 #include "michi.h"
+#include "../../lib/pad.h"
 
 QRoute::QRoute(Route &r)
 {
@@ -6,10 +7,10 @@ QRoute::QRoute(Route &r)
     m_board = r.getBoardOrbs();
 
     // Get all info about this route and convert them into a single string
-    auto boardInfo = QString("%1 - %2\n").arg(r.getScore(), r.getStep());
+    auto boardInfo = QString("%1 - %2\n").arg(r.getScore()).arg(r.getStep());
     for (const auto &d : r.getDirections())
     {
-        boardInfo += QString("%1 ").arg(d);
+        boardInfo += QString::fromStdString(pad::DIRECTION_NAMES[d]) + " ";
     }
     m_info = boardInfo;
 }
