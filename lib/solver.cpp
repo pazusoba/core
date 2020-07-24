@@ -10,10 +10,13 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <cstdlib>
+#include <ctime>
 #include "solver.h"
 #include "queue.h"
 #include "timer.h"
 
+// This is only for the priority queue
 class PointerCompare
 {
 public:
@@ -31,9 +34,12 @@ PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
     this->minEraseCondition = minEraseCondition;
     this->steps = maxStep;
     this->size = maxSize;
+
+    // Generate a random board
+    setRandomBoard(6, 5);
 }
 
-PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int size) : PSolver(minEraseCondition, steps, size)
+PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int size) : PSolver(minEraseCondition, steps, size)
 {
     if (filePath.find(".txt") != std::string::npos)
     {
@@ -42,49 +48,7 @@ PSolver::PSolver(std::string filePath, int minEraseCondition, int steps, int siz
     }
     else
     {
-        // This is a board
-        auto board = filePath;
-        // This is just a string with the board
-        int size = board.length();
-        // It is just a string so must be fixed size
-        if (size == 20) // 5x4
-        {
-            row = 5;
-            column = 4;
-        }
-        else if (size == 30) // 6x5
-        {
-            row = 6;
-            column = 5;
-        }
-        else if (size == 42) // 7x6
-        {
-            row = 7;
-            column = 6;
-        }
-
-        // Read from a string
-        Board currBoard;
-        for (int i = 0; i < column; i++)
-        {
-            Row r;
-            for (int j = 0; j < row; j++)
-            {
-                int index = j + i * row;
-                char orb = board[index];
-                for (int k = 0; k < pad::ORB_COUNT; k++)
-                {
-                    if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
-                    {
-                        r.push_back(Orb(k));
-                        break;
-                    }
-                }
-            }
-            currBoard.push_back(r);
-        }
-
-        this->board = PBoard(currBoard, row, column, minEraseCondition);
+        setBoardFrom(filePath);
     }
 }
 
@@ -242,9 +206,9 @@ std::vector<Route> PSolver::solve()
     return routes;
 }
 
-/// Read the board from filePath
+/// Read the board from filePath or a string
 
-Board PSolver::readBoard(std::string filePath)
+Board PSolver::readBoard(std::string &filePath)
 {
     Board board;
     std::string lines;
@@ -286,4 +250,91 @@ Board PSolver::readBoard(std::string filePath)
 
     boardFile.close();
     return board;
+}
+
+void PSolver::setBoardFrom(std::string &board)
+{
+    // This is just a string with the board
+    int size = board.length();
+    // It is just a string so must be fixed size
+    if (size == 20) // 5x4
+    {
+        row = 5;
+        column = 4;
+    }
+    else if (size == 30) // 6x5
+    {
+        row = 6;
+        column = 5;
+    }
+    else if (size == 42) // 7x6
+    {
+        row = 7;
+        column = 6;
+    }
+
+    // Read from a string
+    Board currBoard;
+    for (int i = 0; i < column; i++)
+    {
+        Row r;
+        for (int j = 0; j < row; j++)
+        {
+            int index = j + i * row;
+            char orb = board[index];
+
+            // Check if it is a number between 1 and 9
+            if (orb >= '0' && orb <= '9')
+            {
+                r.push_back(pad::orbs(orb - '0'));
+            }
+
+            // Check if it is a letter (RBGLDH)
+            for (int k = 0; k < pad::ORB_COUNT; k++)
+            {
+                if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
+                {
+                    r.push_back(Orb(k));
+                    break;
+                }
+            }
+        }
+        currBoard.push_back(r);
+    }
+
+    this->board = PBoard(currBoard, row, column, minEraseCondition);
+}
+
+/// Setters, mainly for Qt
+
+void PSolver::setRandomBoard(int row, int column)
+{
+    // Set row and column
+    this->row = row;
+    this->column = column;
+
+    // Update seed
+    srand(time(NULL));
+    Board currBoard;
+    for (int i = 0; i < column; i++)
+    {
+        Row r;
+        for (int j = 0; j < row; j++)
+        {
+            r.push_back(pad::orbs(std::rand() % 6 + 1));
+        }
+        currBoard.push_back(r);
+    }
+
+    this->board = PBoard(currBoard, row, column, minEraseCondition);
+}
+
+void PSolver::setBeamSize(int size)
+{
+    this->size = size;
+}
+
+void PSolver::setStepLimit(int step)
+{
+    this->steps = step;
 }

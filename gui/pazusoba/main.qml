@@ -77,18 +77,18 @@ ApplicationWindow {
                 id: buttonRow
                 Layout.alignment: Qt.AlignHCenter
                 Button {
-                    text: "Solve"
-                    onClicked: {
-                        soba.solve();
-                    }
-                }
-                Button {
-                    text: "Routes"
+                    text: "Random"
                 }
                 Button {
                     text: "Reset"
                     onClicked: {
                         boardGrid.showInitial = true;
+                    }
+                }
+                Button {
+                    text: "Solve"
+                    onClicked: {
+                        soba.solve();
                     }
                 }
             }
