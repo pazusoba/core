@@ -35,11 +35,10 @@ ApplicationWindow {
     // Depend on the screen size, it switches to horizontal or vertical
     GridLayout {
         id: rootGrid
-        flow: width > height ? GridLayout.LeftToRight : GridLayout.TopToBottom
+        flow: window.width > window.height ? GridLayout.LeftToRight : GridLayout.TopToBottom
 
         ColumnLayout {
             id: leftColumn
-            Layout.alignment: Qt.AlignCenter
             Grid {
                 id: boardGrid
                 property bool showInitial: true
@@ -59,7 +58,7 @@ ApplicationWindow {
                         // Use js to get corresponding image based on index
                         source: {
                             if (boardGrid.showInitial) return `images/${soba.initialBoard[index]}.png`;
-                            return `images/1.png`
+                            return `images/${boardGrid.currentBoard[index]}.png`
                         }
                     }
                 }
@@ -72,7 +71,6 @@ ApplicationWindow {
                     onClicked: {
                         soba.solve();
                         console.log(soba.routes[0]);
-                        boardGrid.showInitial = false;
                     }
                 }
                 Button {
@@ -89,13 +87,18 @@ ApplicationWindow {
 
         ListView {
             id: routeList
-            Layout.fillHeight: true
             Layout.fillWidth: true
             ScrollBar.vertical: ScrollBar {}
             model: soba.routes.length
-            delegate: Text {
-                color: Material.primaryTextColor
-                text: soba.routes[index].info
+            delegate: MouseArea {
+                onClicked: {
+                    boardGrid.currentBoard = soba.routes[index]["board"];
+                }
+
+                Text {
+                    color: Material.primaryTextColor
+                    text: soba.routes[index]["info"]
+                }
             }
         }
     }

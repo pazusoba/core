@@ -5,13 +5,14 @@
 #include <vector>
 #include "../../lib/route.h"
 
-class QRoute
+class QRoute : public QObject
 {
+    Q_OBJECT
+
     Q_PROPERTY(QString info MEMBER m_info CONSTANT)
     Q_PROPERTY(std::vector<int> board MEMBER m_board CONSTANT)
 
 public:
-    QRoute() {}
     QRoute(Route &r);
 
 private:

@@ -1,4 +1,3 @@
-#include <QVariant>
 #include "bridge.h"
 
 QBridge::QBridge(QObject *parent) : QObject(parent)
@@ -19,7 +18,7 @@ void QBridge::solve()
         // Just call solve and save all solutions
         for (Route &s : solver.solve())
         {
-            m_routes.push_back(QRoute(s));
+            m_routes.append(new QRoute(s));
         }
     }
 }
