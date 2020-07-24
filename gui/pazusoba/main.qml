@@ -73,6 +73,34 @@ ApplicationWindow {
                 }
             }
 
+            TextArea {
+                id: boardInput
+                implicitWidth: boardGrid.width
+                placeholderText: qsTr("Paste a board string")
+            }
+
+            RowLayout {
+                id: solverRow
+                width: boardGrid.width
+                Layout.alignment: Qt.AlignHCenter
+                Text {
+                    text: qsTr("Beam")
+                }
+                ComboBox {
+                    id: beamBox
+                    currentIndex: 2
+                    model: [100, 500, 1000, 5000, 10000]
+                }
+                Text {
+                    text: qsTr("Step")
+                }
+                ComboBox {
+                    id: stepBox
+                    currentIndex: 1
+                    model: [20, 25, 30, 40, 50]
+                }
+            }
+
             RowLayout {
                 id: buttonRow
                 Layout.alignment: Qt.AlignHCenter

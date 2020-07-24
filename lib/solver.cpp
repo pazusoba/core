@@ -321,6 +321,7 @@ void PSolver::setRandomBoard(int row, int column)
         Row r;
         for (int j = 0; j < row; j++)
         {
+            // From 1 to 6 are normal orbs
             r.push_back(pad::orbs(std::rand() % 6 + 1));
         }
         currBoard.push_back(r);
