@@ -106,6 +106,11 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter
                 Button {
                     text: "Random"
+                    onClicked: {
+                        soba.random();
+                        // Set show initial again
+                        boardGrid.showInitial = true;
+                    }
                 }
                 Button {
                     text: "Reset"

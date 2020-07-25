@@ -13,7 +13,7 @@ class QBridge : public QObject
     // Properties
     Q_PROPERTY(int row MEMBER m_row CONSTANT)
     Q_PROPERTY(int column MEMBER m_column CONSTANT)
-    Q_PROPERTY(std::vector<int> initialBoard MEMBER m_initialBoard CONSTANT)
+    Q_PROPERTY(std::vector<int> initialBoard MEMBER m_initialBoard NOTIFY initialBoardChanged)
     Q_PROPERTY(QList<QRoute *> routes MEMBER m_routes NOTIFY routeChanged)
 
 public:
@@ -21,9 +21,11 @@ public:
 
 signals:
     void routeChanged();
+    void initialBoardChanged();
 
 public slots:
     void solve();
+    void random();
 
 private:
     // Define the size of the board

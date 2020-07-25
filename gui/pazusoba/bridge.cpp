@@ -25,3 +25,13 @@ void QBridge::solve()
         routeChanged();
     }
 }
+
+void QBridge::random()
+{
+    solver.setRandomBoard(m_row, m_column);
+    // Update saved board as well
+    m_initialBoard = solver.board.getBoardOrbs();
+    // Clear all routes
+    m_routes.clear();
+    initialBoardChanged();
+}
