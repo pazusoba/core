@@ -84,6 +84,7 @@ ApplicationWindow {
                 width: boardGrid.width
                 Layout.alignment: Qt.AlignHCenter
                 Text {
+                    color: Material.primaryTextColor
                     text: qsTr("Beam")
                 }
                 ComboBox {
@@ -95,6 +96,7 @@ ApplicationWindow {
                     model: soba.beamList
                 }
                 Text {
+                    color: Material.primaryTextColor
                     text: qsTr("Step")
                 }
                 ComboBox {
