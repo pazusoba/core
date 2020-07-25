@@ -89,7 +89,10 @@ ApplicationWindow {
                 ComboBox {
                     id: beamBox
                     currentIndex: 2
-                    model: [100, 500, 1000, 5000, 10000]
+                    onCurrentIndexChanged: {
+                        soba.updateBeam(currentIndex);
+                    }
+                    model: soba.beamList
                 }
                 Text {
                     text: qsTr("Step")
@@ -97,7 +100,10 @@ ApplicationWindow {
                 ComboBox {
                     id: stepBox
                     currentIndex: 1
-                    model: [20, 25, 30, 40, 50]
+                    onCurrentIndexChanged: {
+                        soba.updateStep(currentIndex);
+                    }
+                    model: soba.stepList
                 }
             }
 

@@ -13,8 +13,10 @@ void QBridge::solve()
 {
     // Don't call it multiple times
     // TODO: add async to this so that UI will not freeze
-    if (m_routes.empty())
+    if (shouldSolve)
     {
+        // Clear all old routes
+        m_routes.clear();
         // Just call solve and save all solutions
         for (Route &s : solver.solve())
         {
@@ -23,6 +25,7 @@ void QBridge::solve()
 
         // Notify out fancy UI
         routeChanged();
+        shouldSolve = false;
     }
 }
 
@@ -33,5 +36,18 @@ void QBridge::random()
     m_initialBoard = solver.board.getBoardOrbs();
     // Clear all routes
     m_routes.clear();
+    shouldSolve = true;
     initialBoardChanged();
+}
+
+void QBridge::updateBeam(int index)
+{
+    solver.setBeamSize(m_beamList[index].toInt());
+    shouldSolve = true;
+}
+
+void QBridge::updateStep(int index)
+{
+    solver.setStepLimit(m_stepList[index].toInt());
+    shouldSolve = true;
 }
