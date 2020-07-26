@@ -40,7 +40,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     {
         // Remember to reset
         hasCombo = false;
-        for (int i = column - 1; i >= 0; i--)
+        for (int i = 0; i < column; i++)
         {
             for (int j = 0; j < row; j++)
             {
@@ -50,10 +50,10 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
                 // Start finding combos
                 auto erased = eraseCombo(&combo, i, j);
-                if (erased && !hasCombo)
+                if (erased)
                 {
                     // Just to prevent setting it to false again
-                    hasCombo = erased;
+                    hasCombo = true;
                 }
             }
         }
@@ -281,6 +281,7 @@ void PBoard::moveOrbsDown()
     for (int j = 0; j < row; j++)
     {
         std::vector<pad::orbs> orbs;
+        orbs.reserve(column);
         int emptyCount = 0;
         // Start checking from the bottom most column
         for (int i = column - 1; i >= 0; i--)
