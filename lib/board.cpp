@@ -7,6 +7,7 @@
 #include <sstream>
 #include <queue>
 #include <unordered_map>
+#include <set>
 #include "board.h"
 
 /// Constructors
@@ -81,6 +82,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
     using namespace std;
     queue<OrbLocation> toVisit;
+    set<OrbLocation> inserted;
     toVisit.emplace(LOCATION(ox, oy));
     Combo combo;
     unordered_map<OrbLocation, bool, PairHash> visited;
@@ -99,7 +101,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
         auto orb = board[x][y];
         // Look vertically
         int up = x, down = x;
-        int upOrb = 1, downOrb = 1;
+        int upOrb = 0, downOrb = 0;
         while (--up >= 0)
         {
             // Break immediately if nothing matches, a deadend
@@ -116,7 +118,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
                 break;
         }
         // We need to have at least 3 (eraseCondition) connected
-        if (upOrb + downOrb - 1 >= minEraseCondition)
+        if (upOrb + downOrb + 1 >= minEraseCondition)
         {
             // Add them in connected orbs
             for (int i = x - upOrb; i < x + downOrb; i++)
@@ -125,14 +127,14 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
                 // Don't add to connected orbs multiple times
                 if (visited[l])
                     continue;
-                combo.push_back(l);
+                inserted.insert(l);
                 toVisit.push(l);
             }
         }
 
         // Look horizontally
         int left = y, right = y;
-        int leftOrb = 1, rightOrb = 1;
+        int leftOrb = 0, rightOrb = 0;
         while (--left >= 0)
         {
             if (hasSameOrb(orb, x, left))
@@ -148,16 +150,16 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
                 break;
         }
         // Same as above
-        if (leftOrb + rightOrb - 1 >= minEraseCondition)
+        if (leftOrb + rightOrb + 1 >= minEraseCondition)
         {
             // Add them in connected orbs
-            for (int i = y - leftOrb; i < y + right; i++)
+            for (int i = y - leftOrb; i < y + rightOrb; i++)
             {
                 auto l = LOCATION(x, i);
                 // Don't add to connected orbs multiple times
                 if (visited[l])
                     continue;
-                combo.push_back(l);
+                inserted.insert(l);
                 toVisit.push(l);
             }
         }
@@ -167,12 +169,14 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     }
 
     // Erase all connected orbs
-    bool hasCombo = combo.size() >= minEraseCondition;
+    bool hasCombo = inserted.size() >= minEraseCondition;
     if (hasCombo)
     {
-        for (const auto &l : combo)
+        combo.reserve(inserted.size());
+        for (const auto &l : inserted)
         {
             board[l.first][l.second] = pad::empty;
+            combo.push_back(l);
         }
 
         list->push_back(combo);
