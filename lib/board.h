@@ -203,7 +203,8 @@ public:
           if (x >= 0 && x < column && y >= 0 && y < row)
           {
                // You cannot move a sealed orb
-               return board[x][y] != pad::seal;
+               // return board[x][y] != pad::seal;
+               return true;
           }
 
           return false;
