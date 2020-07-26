@@ -60,7 +60,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
-    Timer::shared().start(0);
+    Timer::shared().start(999);
     std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
@@ -104,9 +104,14 @@ std::vector<Route> PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
+        Timer::shared().start(i);
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
+            // Early break for early steps
+            if (toVisit.empty())
+                break;
+
             boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
@@ -172,8 +177,9 @@ std::vector<Route> PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
+        Timer::shared().end(i);
     }
-    Timer::shared().end(0);
+    Timer::shared().end(999);
 
     std::cout << "Search has been completed\n\n";
 
