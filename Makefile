@@ -4,7 +4,7 @@ PLATFORM=mac
 # assign different commands
 ifeq ($(PLATFORM), mac)
 	MAKE=make
-	CLEAN=rm *.out
+	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store
 	OUTPUT=./a.out
 	MOVE=mv board_*.txt assets/
 else ifeq ($(PLATFORM), win)
