@@ -35,10 +35,12 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     ComboList combo;
 
-    bool hasCombo = false;
+    bool hasCombo;
     do
     {
-        for (int i = 0; i < column; i++)
+        // Remember to reset
+        hasCombo = false;
+        for (int i = column - 1; i >= 0; i--)
         {
             for (int j = 0; j < row; j++)
             {
@@ -48,7 +50,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
                 // Start finding combos
                 auto erased = eraseCombo(&combo, i, j);
-                if (!hasCombo)
+                if (erased && !hasCombo)
                 {
                     // Just to prevent setting it to false again
                     hasCombo = erased;
@@ -84,7 +86,6 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     queue<OrbLocation> toVisit;
     set<OrbLocation> inserted;
     toVisit.emplace(LOCATION(ox, oy));
-    Combo combo;
     unordered_map<OrbLocation, bool, PairHash> visited;
 
     // Keep searching until all locations are visited
@@ -172,6 +173,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     bool hasCombo = inserted.size() >= minEraseCondition;
     if (hasCombo)
     {
+        Combo combo;
         combo.reserve(inserted.size());
         for (const auto &l : inserted)
         {
