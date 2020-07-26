@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <queue>
+#include <unordered_map>
 #include "board.h"
 
 /// Constructors
@@ -28,6 +30,156 @@ PBoard::~PBoard()
 
 /// Board related
 
+ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
+{
+    ComboList combo;
+
+    bool hasCombo = false;
+    do
+    {
+        for (int i = 0; i < column; i++)
+        {
+            for (int j = 0; j < row; j++)
+            {
+                // Ignore empty orbs
+                if (board[i][j] == pad::empty)
+                    continue;
+
+                // Start finding combos
+                auto erased = eraseCombo(&combo, i, j);
+                if (!hasCombo)
+                {
+                    // Just to prevent setting it to false again
+                    hasCombo = erased;
+                }
+            }
+        }
+
+        // Only move orbs down if there is at least one combo
+        if (hasCombo)
+        {
+            moveOrbsDown();
+            *moveCount += 1;
+        }
+    } while (hasCombo);
+
+    return combo;
+}
+
+// From https://stackoverflow.com/a/20602159
+struct PairHash
+{
+public:
+    template <typename T, typename U>
+    std::size_t operator()(const std::pair<T, U> &x) const
+    {
+        return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+    }
+};
+
+bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
+{
+    using namespace std;
+    queue<OrbLocation> toVisit;
+    toVisit.emplace(LOCATION(ox, oy));
+    Combo combo;
+    unordered_map<OrbLocation, bool, PairHash> visited;
+
+    // Keep searching until all locations are visited
+    while (toVisit.size() > 0)
+    {
+        auto currentLocation = toVisit.front();
+        toVisit.pop();
+
+        // Don't visit the same location twice
+        if (visited[currentLocation])
+            continue;
+
+        int x = currentLocation.first, y = currentLocation.second;
+        auto orb = board[x][y];
+        // Look vertically
+        int up = x, down = x;
+        int upOrb = 1, downOrb = 1;
+        while (--up >= 0)
+        {
+            // Break immediately if nothing matches, a deadend
+            if (hasSameOrb(orb, up, y))
+                upOrb++;
+            else
+                break;
+        }
+        while (++down < column)
+        {
+            if (hasSameOrb(orb, down, y))
+                downOrb++;
+            else
+                break;
+        }
+        // We need to have at least 3 (eraseCondition) connected
+        if (upOrb + downOrb - 1 >= minEraseCondition)
+        {
+            // Add them in connected orbs
+            for (int i = x - upOrb; i < x + downOrb; i++)
+            {
+                auto l = LOCATION(i, y);
+                // Don't add to connected orbs multiple times
+                if (visited[l])
+                    continue;
+                combo.push_back(l);
+                toVisit.push(l);
+            }
+        }
+
+        // Look horizontally
+        int left = y, right = y;
+        int leftOrb = 1, rightOrb = 1;
+        while (--left >= 0)
+        {
+            if (hasSameOrb(orb, x, left))
+                leftOrb++;
+            else
+                break;
+        }
+        while (++right < row)
+        {
+            if (hasSameOrb(orb, x, right))
+                rightOrb++;
+            else
+                break;
+        }
+        // Same as above
+        if (leftOrb + rightOrb - 1 >= minEraseCondition)
+        {
+            // Add them in connected orbs
+            for (int i = y - leftOrb; i < y + right; i++)
+            {
+                auto l = LOCATION(x, i);
+                // Don't add to connected orbs multiple times
+                if (visited[l])
+                    continue;
+                combo.push_back(l);
+                toVisit.push(l);
+            }
+        }
+
+        // Finally set currentLocation to be visited
+        visited[currentLocation] = true;
+    }
+
+    // Erase all connected orbs
+    bool hasCombo = combo.size() >= minEraseCondition;
+    if (hasCombo)
+    {
+        for (const auto &l : combo)
+        {
+            board[l.first][l.second] = pad::empty;
+        }
+
+        list->push_back(combo);
+    }
+    return hasCombo;
+}
+
 int PBoard::rateBoard()
 {
     int score = 0;
@@ -36,18 +188,20 @@ int PBoard::rateBoard()
     int combo = 0;
     // If you move more, you get more combo in real life but sometimes not
     int moveCount = 0;
-    int newCombo = 0;
-    do
-    {
-        newCombo = eraseOrbs();
-        if (newCombo > 0)
-        {
-            combo += newCombo;
-            // Even if it has at least one new combo
-            moveOrbsDown();
-            moveCount++;
-        }
-    } while (newCombo > 0);
+    // int newCombo = 0;
+    // do
+    // {
+    //     newCombo = eraseOrbs();
+    //     if (newCombo > 0)
+    //     {
+    //         combo += newCombo;
+    //         // Even if it has at least one new combo
+    //         moveOrbsDown();
+    //         moveCount++;
+    //     }
+    // } while (newCombo > 0);
+    auto list = eraseComboAndMoveOrbs(&moveCount);
+    combo = list.size();
 
     // See if the remaining orbs are close to each other
     int orbAround = 0;

@@ -39,8 +39,12 @@ PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
     setRandomBoard(6, 5);
 }
 
-PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int size) : PSolver(minEraseCondition, steps, size)
+PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int size)
 {
+    this->minEraseCondition = minEraseCondition;
+    this->steps = steps;
+    this->size = size;
+
     if (filePath.find(".txt") != std::string::npos)
     {
         auto currBoard = readBoard(filePath);

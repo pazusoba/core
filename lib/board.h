@@ -17,7 +17,7 @@
 
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
-// Row is a list of Orb
+// Row is a list of Orbs
 typedef std::vector<Orb> Row;
 // Board is just a 2D vector
 typedef std::vector<Row> Board;
@@ -25,6 +25,9 @@ typedef std::vector<Row> Board;
 typedef std::pair<int, int> OrbLocation;
 // This is used to get all connected orbs that can be erased
 typedef std::set<OrbLocation> OrbSet;
+// Combo needs to save orb locations
+typedef std::vector<OrbLocation> Combo;
+typedef std::vector<Combo> ComboList;
 
 class PBoard
 {
@@ -47,6 +50,12 @@ class PBoard
          * return - the number of combos
          */
      int eraseOrbs();
+
+     // Erase a combo and put it inside the list, return whether a combo is erased
+     bool eraseCombo(ComboList *list, int x, int y);
+
+     // Erase all combos, move orbs down and track the move count
+     ComboList eraseComboAndMoveOrbs(int *moveCount);
 
      /**
          * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
