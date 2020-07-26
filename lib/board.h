@@ -41,9 +41,9 @@ class PBoard
      bool printMoreMessages = false;
 
      /**
-         * Move orbs down if there is an empty orb below
+         * Move orbs down if there is an empty orb below, return whether board has been changed
          */
-     void moveOrbsDown();
+     bool moveOrbsDown();
 
      /**
          * Erase orbs that are connected in a line.

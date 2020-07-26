@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <queue>
-#include <unordered_map>
+#include <map>
 #include <set>
 #include "board.h"
 
@@ -35,11 +35,11 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     ComboList combo;
 
-    bool hasCombo;
+    bool moreCombo;
     do
     {
         // Remember to reset
-        hasCombo = false;
+        moreCombo = false;
         for (int i = 0; i < column; i++)
         {
             for (int j = 0; j < row; j++)
@@ -53,32 +53,22 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 if (erased)
                 {
                     // Just to prevent setting it to false again
-                    hasCombo = true;
+                    moreCombo = true;
                 }
             }
         }
 
         // Only move orbs down if there is at least one combo
-        if (hasCombo)
+        if (moreCombo)
         {
-            moveOrbsDown();
+            // If the board is not moved, there won't be new combos so break;
+            moreCombo = moveOrbsDown();
             *moveCount += 1;
         }
-    } while (hasCombo);
+    } while (moreCombo);
 
     return combo;
 }
-
-// From https://stackoverflow.com/a/20602159
-struct PairHash
-{
-public:
-    template <typename T, typename U>
-    std::size_t operator()(const std::pair<T, U> &x) const
-    {
-        return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
-    }
-};
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
@@ -87,7 +77,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     set<OrbLocation> inserted;
     toVisit.emplace(LOCATION(ox, oy));
     // vertical 10, horizontal 1
-    unordered_map<OrbLocation, int, PairHash> visited;
+    map<OrbLocation, int> visited;
 
     // Keep searching until all locations are visited
     while (toVisit.size() > 0)
@@ -100,7 +90,8 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
         if (currentMode == 0b11)
             continue;
 
-        int x = currentLocation.first, y = currentLocation.second;
+        int x = currentLocation.first;
+        int y = currentLocation.second;
         auto orb = board[x][y];
 
         // haven't check vertically
@@ -137,7 +128,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
                 }
             }
         }
-        
+
         // haven't check horizontally
         if ((currentMode & 0b1) != 0b1)
         {
@@ -177,11 +168,12 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     }
 
     // Erase all connected orbs
-    bool hasCombo = inserted.size() >= minEraseCondition;
+    int comboSize = inserted.size();
+    bool hasCombo = comboSize >= minEraseCondition;
     if (hasCombo)
     {
         Combo combo;
-        combo.reserve(inserted.size());
+        combo.reserve(comboSize);
         for (const auto &l : inserted)
         {
             board[l.first][l.second] = pad::empty;
@@ -283,8 +275,9 @@ int PBoard::rateBoard()
     return score;
 }
 
-void PBoard::moveOrbsDown()
+bool PBoard::moveOrbsDown()
 {
+    bool changed = false;
     for (int j = 0; j < row; j++)
     {
         std::vector<pad::orbs> orbs;
@@ -319,11 +312,17 @@ void PBoard::moveOrbsDown()
                 {
                     // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
                     auto orb = orbs[k];
+                    auto currOrb = board[i][j];
                     board[i][j] = orb;
+
+                    // Board is changed if currOrb is not actually orb
+                    if (currOrb != orb)
+                        changed = true;
                 }
             }
         }
     }
+    return changed;
 }
 
 int PBoard::eraseOrbs()
