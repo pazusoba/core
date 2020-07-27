@@ -34,11 +34,6 @@ PBoard::~PBoard()
 ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     ComboList combo;
-    if (board[2][0] == pad::fire)
-    {
-        int a = 0;
-        a++;
-    }
 
     bool moreCombo;
     do
