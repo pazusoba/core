@@ -104,7 +104,7 @@ std::vector<Route> PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
-        Timer::shared().start(i);
+        // Timer::shared().start(i);
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
@@ -177,7 +177,7 @@ std::vector<Route> PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
-        Timer::shared().end(i);
+        // Timer::shared().end(i);
     }
     Timer::shared().end(999);
 

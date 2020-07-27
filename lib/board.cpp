@@ -119,7 +119,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
             if (upOrb + downOrb + 1 >= minEraseCondition)
             {
                 // Add them in connected orbs
-                for (int i = x - upOrb; i < x + downOrb; i++)
+                for (int i = x - upOrb; i <= x + downOrb; i++)
                 {
                     auto l = LOCATION(i, y);
                     inserted.insert(l);
@@ -153,7 +153,7 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
             if (leftOrb + rightOrb + 1 >= minEraseCondition)
             {
                 // Add them in connected orbs
-                for (int i = y - leftOrb; i < y + rightOrb; i++)
+                for (int i = y - leftOrb; i <= y + rightOrb; i++)
                 {
                     auto l = LOCATION(x, i);
                     inserted.insert(l);
