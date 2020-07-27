@@ -46,6 +46,11 @@ public:
         return finalBoard.getBoardOrbs();
     }
 
+    inline OrbLocation getStartLocation()
+    {
+        return start;
+    }
+
     inline Directions getDirections()
     {
         return directions;
