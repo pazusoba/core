@@ -246,7 +246,7 @@ int PBoard::rateBoard()
     // score += pad::ORB_AROUND_SCORE * orbAround;
     // score += pad::ORB_NEARBY_SCORE * orbNearby;
 
-    score += pad::ONE_COMBO_SCORE * combo;
+    // score += pad::ONE_COMBO_SCORE * combo;
     score += pad::CASCADE_SCORE * moveCount;
 
     // Try out amen puzzle
@@ -268,14 +268,11 @@ int PBoard::rateBoard()
         score += (connected - minEraseCondition) * pad::CASCADE_SCORE;
     }
 
-    int comboMore = combo - 7;
-    if (comboMore > 0)
-    {
-        score -= comboMore * pad::ONE_COMBO_SCORE;
-    }
+    int comboMore = 7 - abs(combo - 7);
+    score += pad::ONE_COMBO_SCORE * comboMore;
 
     int orbLeftMore = orbLeft - 3;
-    score -= orbLeftMore * 100;
+    score -= orbLeftMore * 500;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
