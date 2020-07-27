@@ -193,6 +193,7 @@ int PBoard::rateBoard()
     int combo = 0;
     // If you move more, you get more combo in real life but sometimes not
     int moveCount = 0;
+    // This is the old implementation
     // int newCombo = 0;
     // do
     // {
@@ -209,66 +210,73 @@ int PBoard::rateBoard()
     combo = list.size();
 
     // See if the remaining orbs are close to each other
-    int orbAround = 0;
-    int orbNearby = 0;
-    for (int i = 0; i < column; i++)
-    {
-        for (int j = 0; j < row; j++)
-        {
-            auto curr = board[i][j];
-            if (curr == pad::empty)
-                continue;
-            // Check if there are same orbs around
-            for (int a = -1; a <= 1; a++)
-            {
-                for (int b = -1; b <= 1; b++)
-                {
-                    // This is the current orb
-                    if (a == 0 && b == 0)
-                        continue;
-                    if (hasSameOrb(curr, i + a, j + b))
-                    {
-                        orbAround++;
-                        if ((a == 0 && ((b == 1) || (b == -1))) ||
-                            (b == 0 && ((a == 1) || (a == -1))))
-                        {
-                            // This means that it is a line
-                            orbNearby += 1;
-                            orbAround -= 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    score += pad::ORB_AROUND_SCORE * orbAround;
-    score += pad::ORB_NEARBY_SCORE * orbNearby;
-
-    score += pad::ONE_COMBO_SCORE * combo;
-    score += pad::CASCADE_SCORE * moveCount;
-
-    // Try out amen puzzle
-    // int orbLeft = 0;
+    // int orbAround = 0;
+    // int orbNearby = 0;
     // for (int i = 0; i < column; i++)
     // {
     //     for (int j = 0; j < row; j++)
     //     {
     //         auto curr = board[i][j];
-    //         if (curr != pad::empty)
-    //             orbLeft++;
+    //         if (curr == pad::empty)
+    //             continue;
+    //         // Check if there are same orbs around
+    //         for (int a = -1; a <= 1; a++)
+    //         {
+    //             for (int b = -1; b <= 1; b++)
+    //             {
+    //                 // This is the current orb
+    //                 if (a == 0 && b == 0)
+    //                     continue;
+    //                 if (hasSameOrb(curr, i + a, j + b))
+    //                 {
+    //                     orbAround++;
+    //                     if ((a == 0 && ((b == 1) || (b == -1))) ||
+    //                         (b == 0 && ((a == 1) || (a == -1))))
+    //                     {
+    //                         // This means that it is a line
+    //                         orbNearby += 1;
+    //                         orbAround -= 1;
+    //                     }
+    //                 }
+    //             }
+    //         }
     //     }
     // }
 
-    // int comboMoreOrLess = abs(combo - 7);
-    // int orbLeftMore = orbLeft - 3;
-    // if (comboMoreOrLess == 0 && orbLeftMore <= 0)
-    // {
-    //     score += 7000;
-    // }
+    // score += pad::ORB_AROUND_SCORE * orbAround;
+    // score += pad::ORB_NEARBY_SCORE * orbNearby;
 
-    // score -= orbLeftMore * pad::ONE_COMBO_SCORE;
-    // score -= comboMoreOrLess * pad::CASCADE_SCORE;
+    // score += pad::ONE_COMBO_SCORE * combo;
+    // score += pad::CASCADE_SCORE * moveCount;
+
+    // Try out amen puzzle
+    int orbLeft = 0;
+    for (int i = 0; i < column; i++)
+    {
+        for (int j = 0; j < row; j++)
+        {
+            auto curr = board[i][j];
+            if (curr != pad::empty)
+                orbLeft++;
+        }
+    }
+
+    for (const auto &l : list)
+    {
+        // More connected better
+        int connected = l.size();
+        score += (connected - minEraseCondition) * 50;
+    }
+
+    int comboMoreOrLess = abs(combo - 7);
+    int orbLeftMore = orbLeft - 3;
+    if (comboMoreOrLess == 0 && orbLeftMore <= 0)
+    {
+        score += 7000;
+    }
+
+    score -= orbLeftMore * pad::ONE_COMBO_SCORE;
+    score -= comboMoreOrLess * pad::CASCADE_SCORE;
 
     if (printMoreMessages)
         std::cout << "That was " << combo << " combo\n";
