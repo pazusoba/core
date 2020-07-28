@@ -105,17 +105,22 @@ public:
                         if (a == 0 && b == 0)
                             continue;
 
-                        // Check orbs are the same
-                        // TODO: check if index is ok
-                        if (curr == board[i + a][j + b])
+                        int x = i + a, y = j + b;
+                        // check x & y are valid
+                        if (x >= 0 && x < column && y >= 0 && y < row)
                         {
-                            orbAround++;
-                            if ((a == 0 && ((b == 1) || (b == -1))) ||
-                                (b == 0 && ((a == 1) || (a == -1))))
+                            // Check orbs are the same
+                            auto orb = board[x][y];
+                            if (curr == orb)
                             {
-                                // This means that it is a line
-                                orbNearby += 1;
-                                orbAround -= 1;
+                                orbAround++;
+                                if ((a == 0 && ((b == 1) || (b == -1))) ||
+                                    (b == 0 && ((a == 1) || (a == -1))))
+                                {
+                                    // This means that it is a line
+                                    orbNearby += 1;
+                                    orbAround -= 1;
+                                }
                             }
                         }
                     }
