@@ -37,8 +37,6 @@ class PBoard
      int minEraseCondition = 3;
      // This saves all orbs in a 2D array, support all orb types
      Board board;
-     // When it is true, more messages will be printed to the console
-     bool printMoreMessages = false;
 
      /**
          * Move orbs down if there is an empty orb below, return whether board has been changed

@@ -15,6 +15,7 @@
 #include "solver.h"
 #include "queue.h"
 #include "timer.h"
+#include "profile.h"
 
 // This is only for the priority queue
 class PointerCompare
@@ -60,6 +61,9 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
+    // Just add a combo profile for now
+    ProfileManager::shared().addProfile(new ComboProfile);
+
     Timer::shared().start(999);
     std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
