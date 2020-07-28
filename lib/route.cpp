@@ -4,6 +4,7 @@
  */
 
 #include "route.h"
+#include "profile.h"
 
 Route::Route(const PState *state)
 {

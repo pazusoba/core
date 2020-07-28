@@ -1,5 +1,5 @@
 # set it to `mac` to use mac/linux command and use `win` for windows
-PLATFORM=win
+PLATFORM=mac
 
 # assign different commands
 ifeq ($(PLATFORM), mac)
