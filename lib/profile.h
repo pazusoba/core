@@ -17,9 +17,9 @@
 class Profile
 {
 public:
-    virtual ~Profile() = default;
-    virtual std::string getProfileName() const;
-    virtual int getScore(ComboList &list, Board &board, int moveCount) const;
+    virtual ~Profile() {}
+    virtual std::string getProfileName() const = 0;
+    virtual int getScore(const ComboList &list, const Board &board, int moveCount) const = 0;
 };
 
 // This is a singleton class to update profiles at run time
@@ -77,7 +77,7 @@ public:
         return "combo";
     }
 
-    int getScore(ComboList &list, Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         int combo = list.size();
@@ -106,6 +106,7 @@ public:
                             continue;
 
                         // Check orbs are the same
+                        // TODO: check if index is ok
                         if (curr == board[i + a][j + b])
                         {
                             orbAround++;
@@ -127,7 +128,7 @@ public:
 
         score += pad::ONE_COMBO_SCORE * combo;
         score += pad::CASCADE_SCORE * moveCount;
-        return 0;
+        return score;
     }
 };
 
@@ -140,7 +141,7 @@ public:
         return "colour";
     }
 
-    int getScore(ComboList &list, Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         return 0;
     }
@@ -155,7 +156,7 @@ public:
         return "shape";
     }
 
-    int getScore(ComboList &list, Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         return 0;
     }
@@ -170,7 +171,7 @@ public:
         return "orb remains";
     }
 
-    int getScore(ComboList &list, Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         return 0;
     }
