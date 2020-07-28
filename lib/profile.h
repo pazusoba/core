@@ -138,6 +138,15 @@ public:
     }
 };
 
+class FixedComboProfile : public ComboProfile
+{
+public:
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        
+    }
+};
+
 // More points for more colour erased
 class ColourProfile : public Profile
 {
@@ -199,6 +208,17 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
+        int emptyOrbs = 0;
+        // Need to loop through the board see how many orbs are remaining
+        for (const auto &c : board)
+        {
+            for (const auto &r : c)
+            {
+                if (r == pad::empty)
+                    emptyOrbs++;
+            }
+        }
+        score += emptyOrbs * 1000;    
         return score;
     }
 };
