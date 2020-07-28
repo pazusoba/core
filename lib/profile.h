@@ -9,6 +9,7 @@
 #define PROFILE_H
 
 #include <vector>
+#include <set>
 #include <string>
 #include "board.h"
 #include "pad.h"
@@ -148,22 +149,41 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
-        return 0;
+        int score = 0;
+        std::set<Orb> colours;
+        for (const auto &c : list)
+        {
+            int x = c[0].first, y = c[0].second;
+            colours.insert(board[x][y]);
+        }
+        score += colours.size() * 500;
+        return score;
     }
 };
 
 // More points if a combo has a certain shape
 class ShapeProfile : public Profile
 {
+};
+
+class TwoWayProfile : public ShapeProfile
+{
 public:
     std::string getProfileName() const override
     {
-        return "shape";
+        return "2U";
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
-        return 0;
+        int score = 0;
+        for (const auto &c : list)
+        {
+            // 2U needs 4 orbs connected
+            if (c.size() == 4)
+                score += 500;
+        }
+        return score;
     }
 };
 
@@ -178,7 +198,8 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
-        return 0;
+        int score = 0;
+        return score;
     }
 };
 

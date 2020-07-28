@@ -62,7 +62,8 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 std::vector<Route> PSolver::solve()
 {
     // Just add a combo profile for now
-    ProfileManager::shared().addProfile(new ComboProfile);
+    std::vector<Profile *> profiles{new ComboProfile, new ColourProfile, new TwoWayProfile};
+    ProfileManager::shared().updateProfile(profiles);
 
     Timer::shared().start(999);
     std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
