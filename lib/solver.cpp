@@ -62,7 +62,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 std::vector<Route> PSolver::solve()
 {
     // Just add a combo profile for now
-    std::vector<Profile *> profiles{new ComboProfile, new ColourProfile, new OrbProfile};
+    std::vector<Profile *> profiles{new OrbProfile(0)};
     ProfileManager::shared().updateProfile(profiles);
 
     Timer::shared().start(999);
@@ -188,7 +188,7 @@ std::vector<Route> PSolver::solve()
 
     std::cout << "Search has been completed\n\n";
 
-    int routeSize = 5;
+    int routeSize = 100;
     std::vector<Route> routes;
     routes.reserve(routeSize);
     // This gets routes for best 100

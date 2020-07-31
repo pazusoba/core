@@ -51,6 +51,14 @@ public:
         return score;
     }
 
+    void clear() {
+        // Delete all profiles
+        for (const auto &p : profiles)
+        {
+            delete p;
+        }
+    }
+
     // Add a profile to current list
     void addProfile(Profile *p)
     {
@@ -60,6 +68,7 @@ public:
     // Clear all profiles and set it to a new one
     void updateProfile(std::vector<Profile *> &p)
     {
+        clear();
         for (const auto &p : profiles)
         {
             delete p;
@@ -72,7 +81,15 @@ public:
 // More points for more combos
 class ComboProfile : public Profile
 {
+    // If it is-1, always aim for more combo
+    int targetCombo = -1;
+
 public:
+    // Just a default profile
+    ComboProfile() {}
+    // With a target combo
+    ComboProfile(int combo) : targetCombo(combo) {}
+
     std::string getProfileName() const override
     {
         return "combo";
@@ -129,27 +146,43 @@ public:
             }
         }
 
-        score += pad::ORB_AROUND_SCORE * orbAround;
-        score += pad::ORB_NEARBY_SCORE * orbNearby;
+        if (targetCombo < 0)
+        {
+            // Always aim for max combo
+            score += pad::ORB_AROUND_SCORE * orbAround;
+            score += pad::ORB_NEARBY_SCORE * orbNearby;
+            score += pad::ONE_COMBO_SCORE * combo;
+            score += pad::CASCADE_SCORE * moveCount;
+        }
+        else if (targetCombo == 0)
+        {
+            // Aim for zero combo and make sure orbs are not close to each other
+            score -= pad::ORB_AROUND_SCORE * orbAround;
+            score -= pad::ORB_NEARBY_SCORE * orbNearby;
+            score -= pad::ONE_COMBO_SCORE * combo;
+            score -= pad::CASCADE_SCORE * moveCount;
+        }
+        else
+        {
+            // Make sure to get the absolute path for combo
+            // If you want 5 combo, 6 combo is liek 4 combo
+            combo = targetCombo - abs(targetCombo - combo);
+            score += pad::ORB_AROUND_SCORE * orbAround;
+            score += pad::ORB_NEARBY_SCORE * orbNearby;
+            score += pad::ONE_COMBO_SCORE * combo;
+            score += pad::CASCADE_SCORE * moveCount;
+        }
 
-        score += pad::ONE_COMBO_SCORE * combo;
-        score += pad::CASCADE_SCORE * moveCount;
         return score;
-    }
-};
-
-class FixedComboProfile : public ComboProfile
-{
-public:
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
-    {
-        
     }
 };
 
 // More points for more colour erased
 class ColourProfile : public Profile
 {
+    // If empty, we just want to erase everything or certain colours
+    std::vector<Orb> orbs;
+
 public:
     std::string getProfileName() const override
     {
@@ -199,7 +232,12 @@ public:
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
+    int targetNumber = -1;
+
 public:
+    OrbProfile() {}
+    OrbProfile(int count) : targetNumber(count) {}
+
     std::string getProfileName() const override
     {
         return "orb remains";
@@ -207,18 +245,23 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
+        int boardSize = board.size() * board[0].size();
+        // -1 means no target so why use this?
+        if (targetNumber < 0 || targetNumber > boardSize)
+            return 0;
+
         int score = 0;
-        int emptyOrbs = 0;
+        int orbRemain = 0;
         // Need to loop through the board see how many orbs are remaining
         for (const auto &c : board)
         {
             for (const auto &r : c)
             {
-                if (r == pad::empty)
-                    emptyOrbs++;
+                if (r != pad::empty)
+                    orbRemain++;
             }
         }
-        score += emptyOrbs * 1000;    
+        score -= (orbRemain - targetNumber) * 500;
         return score;
     }
 };
