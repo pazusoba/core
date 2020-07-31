@@ -180,10 +180,13 @@ public:
 // More points for more colour erased
 class ColourProfile : public Profile
 {
-    // If empty, we just want to erase everything or certain colours
-    std::vector<Orb> orbs;
+    // By default, all main colours
+    std::vector<Orb> orbs { pad::fire, pad::water, pad::wood, pad::light, pad::dark, pad::recovery };
 
 public:
+    ColourProfile() {}
+    ColourProfile(std::vector<Orb> o) : orbs(o) {}
+
     std::string getProfileName() const override
     {
         return "colour";
@@ -198,6 +201,8 @@ public:
             int x = c[0].first, y = c[0].second;
             colours.insert(board[x][y]);
         }
+
+        // Check if colours matches
         score += colours.size() * 500;
         return score;
     }
