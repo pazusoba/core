@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include <string>
 #include "board.h"
 #include "pad.h"
@@ -265,19 +266,23 @@ public:
 
         int score = 0;
         int orbRemain = 0;
+        std::map<Orb, int> allOrbs;
         for (const auto &c : board)
         {
             for (const auto &r : c)
             {
                 if (r != pad::empty)
+                {
+                    allOrbs[r]++;
                     orbRemain++;
+                }
             }
         }
 
-        // More points for connecting more
+        // Better to connect more orbs per type
         for (const auto &c : list)
         {
-            score += c.size() * pad::TIER_THREE_SCORE;
+            score += c.size() * pad::TIER_SIX_SCORE;
         }
 
         score -= (orbRemain - targetNumber) * pad::TIER_EIGHT_SCORE;
