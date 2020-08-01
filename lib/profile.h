@@ -174,7 +174,7 @@ public:
             if (combo > targetCombo)
             {
                 // Punish for doing more combo
-                offset *= 2;
+                offset *= 3;
             }
             combo -= offset;
             // Usually, you don't have skyfall so don't need to bother with all thoses
@@ -383,7 +383,7 @@ public:
         for (const auto &c : list)
         {
             auto orb = c[0].orb;
-            score -= allOrbs[orb] * pad::TIER_SIX_SCORE;
+            score -= allOrbs[orb] * pad::TIER_FIVE_SCORE;
         }
 
         // Less than that number, we are good
