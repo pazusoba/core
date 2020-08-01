@@ -237,7 +237,7 @@ public:
         {
             // 2U needs 4 orbs connected
             if (c.size() == 4)
-                score += 500;
+                score += 200;
         }
         return score;
     }
@@ -259,18 +259,32 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
-        int boardSize = board.size() * board[0].size();
+        // Get column and row based on board size
+        int column = board.size();
+        int row = board[0].size();
+        int boardSize = row * column;
         // -1 means no target so why use this?
         if (targetNumber < 0 || targetNumber > boardSize)
             return 0;
 
         int score = 0;
         int orbRemain = 0;
+        for (int i = 0; i < column; i++)
+        {
+            for (int j = 0; j < row; j++)
+            {
+                auto orb = board[i][j];
+                if (orb != pad::empty)
+                    orbRemain++;
+            }
+        }
+        
         // More points for connecting more
         for (const auto &c : list)
         {
-            score += c.size() * 100;
+            score += c.size() * 10;
         }
+
         score -= (orbRemain - targetNumber) * 500;
         return score;
     }
