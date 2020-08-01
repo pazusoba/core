@@ -15,7 +15,9 @@ else ifeq ($(PLATFORM), win)
 endif
 
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
-OPTIMISATION=-Ofast -flto -lpthread
+# lpthread - thread
+# flto - linking
+OPTIMISATION=-Ofast -flto
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
 CPP_FILES=lib/*.cpp

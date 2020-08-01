@@ -104,7 +104,9 @@ std::vector<Route> PSolver::solve()
     int threadSize = size / processor_count;
     // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
     // By locking and unlocking, it will make sure it is safe
-    std::mutex mtx;
+    // std::mutex mtx;
+    std::recursive_mutex mtx;
+
 
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
@@ -120,15 +122,17 @@ std::vector<Route> PSolver::solve()
             boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
+                    mtx.lock();
                     bool isEmpty = toVisit.empty();
+                    mtx.unlock();
 
                     // Early steps might not have enough size
                     if (isEmpty)
                         return;
 
                     // Get the best state
-                    auto currentState = toVisit.top();
                     mtx.lock();
+                    auto currentState = toVisit.top();
                     toVisit.pop();
                     mtx.unlock();
 
