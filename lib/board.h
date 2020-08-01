@@ -26,7 +26,16 @@ typedef std::pair<int, int> OrbLocation;
 // This is used to get all connected orbs that can be erased
 typedef std::set<OrbLocation> OrbSet;
 // Combo needs to save orb locations
-typedef std::vector<OrbLocation> Combo;
+
+// A special structure for ComboInfo
+struct ComboInfo
+{
+     int first;
+     int second;
+     Orb orb;
+     ComboInfo(int f, int s, Orb o) : first(f), second(s), orb(o) {}
+};
+typedef std::vector<ComboInfo> Combo;
 typedef std::vector<Combo> ComboList;
 
 class PBoard

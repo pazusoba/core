@@ -282,7 +282,8 @@ public:
         // Better to connect more orbs per type
         for (const auto &c : list)
         {
-            score += c.size() * pad::TIER_FOUR_SCORE;
+            auto orb = c[0].orb;
+            score -= (allOrbs[orb] - c.size()) * pad::TIER_SIX_SCORE;
         }
 
         score -= (orbRemain - targetNumber) * pad::TIER_SEVEN_SCORE;

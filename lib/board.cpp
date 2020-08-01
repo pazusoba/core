@@ -177,8 +177,9 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
         combo.reserve(comboSize);
         for (const auto &l : inserted)
         {
+            auto orb = board[l.first][l.second];
             board[l.first][l.second] = pad::empty;
-            combo.push_back(l);
+            combo.emplace_back(l.first, l.second, orb);
         }
 
         list->push_back(combo);
