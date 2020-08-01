@@ -30,6 +30,11 @@ class ProfileManager
     ProfileManager() {}
 
 public:
+    ~ProfileManager()
+    {
+        clear();
+    }
+
     // Return a shared instance of profile manager
     static ProfileManager &shared()
     {
@@ -51,12 +56,14 @@ public:
         return score;
     }
 
-    void clear() {
+    void clear()
+    {
         // Delete all profiles
         for (const auto &p : profiles)
         {
             delete p;
         }
+        profiles.clear();
     }
 
     // Add a profile to current list
@@ -181,7 +188,7 @@ public:
 class ColourProfile : public Profile
 {
     // By default, all main colours
-    std::vector<Orb> orbs { pad::fire, pad::water, pad::wood, pad::light, pad::dark, pad::recovery };
+    std::vector<Orb> orbs{pad::fire, pad::water, pad::wood, pad::light, pad::dark, pad::recovery};
 
 public:
     ColourProfile() {}
@@ -211,6 +218,8 @@ public:
 // More points if a combo has a certain shape
 class ShapeProfile : public Profile
 {
+    // This determine which orb we are targetting
+    virtual std::vector<Orb> targetOrbs();
 };
 
 class TwoWayProfile : public ShapeProfile
@@ -257,14 +266,10 @@ public:
 
         int score = 0;
         int orbRemain = 0;
-        // Need to loop through the board see how many orbs are remaining
-        for (const auto &c : board)
+        // More points for connecting more
+        for (const auto &c : list)
         {
-            for (const auto &r : c)
-            {
-                if (r != pad::empty)
-                    orbRemain++;
-            }
+            score += c.size() * 100;
         }
         score -= (orbRemain - targetNumber) * 500;
         return score;
