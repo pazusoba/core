@@ -67,6 +67,8 @@ namespace pad
         TIER_SIX_SCORE = 100,
         TIER_SEVEN_SCORE = 500,
         TIER_EIGHT_SCORE = 1000,
+        TIER_NINE_SCORE = 5000,
+        TIER_TEN_SCORE = 10000,
     };
 } // namespace pad
 

@@ -169,9 +169,14 @@ public:
         }
         else
         {
-            // Make sure to get the absolute value for combo
-            // If you want 5 combo, 6 combo is liek 4 combo
-            combo = targetCombo - abs(targetCombo - combo);
+            // If you want 5 combo, 6 combo is like 4 combo
+            int offset = abs(targetCombo - combo);
+            if (combo > targetCombo)
+            {
+                // Punish for doing more combo
+                offset *= 2;
+            }
+            combo -= offset;
             // Usually, you don't have skyfall so don't need to bother with all thoses
             score += pad::TIER_FIVE_SCORE * moveCount;
             score += pad::TIER_EIGHT_SCORE * combo;
@@ -216,7 +221,7 @@ public:
 class ShapeProfile : public Profile
 {
     // This determine which orb we are targetting
-    virtual std::vector<Orb> targetOrbs();
+    // virtual std::vector<Orb> targetOrbs();
 };
 
 class TwoWayProfile : public ShapeProfile
@@ -234,7 +239,7 @@ public:
         {
             // 2U needs 4 orbs connected
             if (c.size() == 4)
-                score += pad::TIER_SIX_SCORE;
+                score += pad::TIER_SEVEN_SCORE;
         }
         return score;
     }
@@ -256,30 +261,79 @@ public:
             // L shape must erase 5 orbs
             if (c.size() == 5)
             {
-                for (int i = 0; i < 5; i++)
+                std::map<int, int> vertical;
+                std::map<int, int> horizontal;
+                for (const auto &loc : c)
                 {
-                    auto currLoc = c[i];
-                    bool matchLShape = false;
-                    for (int j = 0; j < 4; j++)
-                    {
-                        auto otherLoc = c[i + j];
-                        if (j > 1)
-                        {
-                            // Check horizontal
-                        }
-                        else
-                        {
-                            // Check vertical
+                    vertical[loc.first]++;
+                    horizontal[loc.second]++;
+                }
+            }
+        }
+        return score;
+    }
+};
 
-                        }
-                    }
+class PlusProfile : public ShapeProfile
+{
+public:
+    std::string getProfileName() const override
+    {
+        return "+";
+    }
 
-                    if (matchLShape)
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        int score = 0;
+        for (const auto &c : list)
+        {
+            // L shape must erase 5 orbs
+            if (c.size() == 5)
+            {
+                std::map<int, int> vertical;
+                std::map<int, int> horizontal;
+                for (const auto &loc : c)
+                {
+                    vertical[loc.first]++;
+                    horizontal[loc.second]++;
+                }
+            }
+        }
+        return score;
+    }
+};
+
+class OneRowProfile : public ShapeProfile
+{
+public:
+    std::string getProfileName() const override
+    {
+        return "row";
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        int score = 0;
+        auto row = board[0].size();
+        for (const auto &c : list)
+        {
+            // It has a row, xxxxxx
+            if (c.size() == row)
+            {
+                // It must have the same x value
+                bool isRow = true;
+                int x = c[0].first;
+                for (const auto &loc : c)
+                {
+                    if (loc.first != x)
                     {
-                        score += pad::TIER_SIX_SCORE;
+                        isRow = false;
                         break;
                     }
                 }
+
+                if (isRow)
+                    score += pad::TIER_NINE_SCORE;
             }
         }
         return score;
@@ -332,7 +386,10 @@ public:
             score -= allOrbs[orb] * pad::TIER_SIX_SCORE;
         }
 
-        score -= (orbRemain - targetNumber) * pad::TIER_FOUR_SCORE;
+        // Less than that number, we are good
+        int distance = orbRemain - targetNumber;
+        if (distance > 0)
+            score -= distance * pad::TIER_SEVEN_SCORE;
         return score;
     }
 };
