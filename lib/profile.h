@@ -240,6 +240,52 @@ public:
     }
 };
 
+class LProfile : public ShapeProfile
+{
+public:
+    std::string getProfileName() const override
+    {
+        return "L";
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        int score = 0;
+        for (const auto &c : list)
+        {
+            // L shape must erase 5 orbs
+            if (c.size() == 5)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    auto currLoc = c[i];
+                    bool matchLShape = false;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        auto otherLoc = c[i + j];
+                        if (j > 1)
+                        {
+                            // Check horizontal
+                        }
+                        else
+                        {
+                            // Check vertical
+
+                        }
+                    }
+
+                    if (matchLShape)
+                    {
+                        score += pad::TIER_SIX_SCORE;
+                        break;
+                    }
+                }
+            }
+        }
+        return score;
+    }
+};
+
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
@@ -283,10 +329,10 @@ public:
         for (const auto &c : list)
         {
             auto orb = c[0].orb;
-            score -= (allOrbs[orb] - c.size()) * pad::TIER_SIX_SCORE;
+            score -= allOrbs[orb] * pad::TIER_SIX_SCORE;
         }
 
-        score -= (orbRemain - targetNumber) * pad::TIER_SEVEN_SCORE;
+        score -= (orbRemain - targetNumber) * pad::TIER_FOUR_SCORE;
         return score;
     }
 };
