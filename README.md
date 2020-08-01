@@ -41,6 +41,15 @@ Currently, evaluating score and board related parts can be slow. By improving th
 - [x] Compiler optimisation
 - [x] Threading
 
+## Profiles
+There are many playstyles in Puzzle & Dragons and profile is just for that. Now, it supports combo, colour, shape and orb based profiles.
+- Combo focuses on doing more combo with cascading and skyfall
+- Colour focuses on erasing more kinds of orbs (ideally, it should have a weight)
+- Shape encourages a certain shape (2U, +, L, one row)
+- Orb encourages to have less orbs remaining but this one doesn't work that well
+
+You can mix everything together and use for many teams. More coming soon...
+
 ## How to compile
 This is written on a windows computer so I am using the `mingw` package from `choco`. 
 On Mac or Linux, you need to have `g++` installed and change `win` to `mac` in the Makefile. Also, there might be some issues on mac.
