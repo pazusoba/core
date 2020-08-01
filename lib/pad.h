@@ -56,24 +56,17 @@ namespace pad
     // Direction names
     const std::string DIRECTION_NAMES[8] = {"UL", "U", "UR", "L", "R", "DL", "D", "DR"};
 
+    // This is for all profiles and based on how important it is
     enum score
     {
-        /**
-         * nearby means vertically, horizontally and diagonally
-         */
-        ORB_NEARBY_SCORE = 1,
-        /**
-         * nearby means only vertically and horizontally
-         */
-        ORB_AROUND_SCORE = 5,
-        /**
-         * encourage to cascade
-         */
-        CASCADE_SCORE = 20,
-        /**
-         * score for a single combo
-         */
-        ONE_COMBO_SCORE = 1000,
+        TIER_ONE_SCORE = 1,
+        TIER_TWO_SCORE = 5,
+        TIER_THREE_SCORE = 10,
+        TIER_FOUR_SCORE = 20,
+        TIER_FIVE_SCORE = 50,
+        TIER_SIX_SCORE = 100,
+        TIER_SEVEN_SCORE = 500,
+        TIER_EIGHT_SCORE = 1000,
     };
 } // namespace pad
 

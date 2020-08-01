@@ -107,7 +107,7 @@ public:
 
         // Check if there are orbs next to each other
         int orbAround = 0;
-        int orbNearby = 0;
+        int orbNext2 = 0;
         for (int i = 0; i < column; i++)
         {
             for (int j = 0; j < row; j++)
@@ -138,7 +138,7 @@ public:
                                     (b == 0 && ((a == 1) || (a == -1))))
                                 {
                                     // This means that it is a line
-                                    orbNearby += 1;
+                                    orbNext2 += 1;
                                     orbAround -= 1;
                                 }
                             }
@@ -151,28 +151,28 @@ public:
         if (targetCombo < 0)
         {
             // Always aim for max combo
-            score += pad::ORB_AROUND_SCORE * orbAround;
-            score += pad::ORB_NEARBY_SCORE * orbNearby;
-            score += pad::ONE_COMBO_SCORE * combo;
-            score += pad::CASCADE_SCORE * moveCount;
+            score += pad::TIER_TWO_SCORE * orbAround;
+            score += pad::TIER_THREE_SCORE * orbNext2;
+            score += pad::TIER_FIVE_SCORE * moveCount;
+            score += pad::TIER_EIGHT_SCORE * combo;
         }
         else if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
-            score -= pad::ORB_AROUND_SCORE * orbAround;
-            score -= pad::ORB_NEARBY_SCORE * orbNearby;
-            score -= pad::ONE_COMBO_SCORE * combo;
-            score -= pad::CASCADE_SCORE * moveCount;
+            score -= pad::TIER_TWO_SCORE * orbAround;
+            score -= pad::TIER_THREE_SCORE * orbNext2;
+            score -= pad::TIER_FIVE_SCORE * moveCount;
+            score -= pad::TIER_EIGHT_SCORE * combo;
         }
         else
         {
             // Make sure to get the absolute path for combo
             // If you want 5 combo, 6 combo is liek 4 combo
             combo = targetCombo - abs(targetCombo - combo);
-            score += pad::ORB_AROUND_SCORE * orbAround;
-            score += pad::ORB_NEARBY_SCORE * orbNearby;
-            score += pad::ONE_COMBO_SCORE * combo;
-            score += pad::CASCADE_SCORE * moveCount;
+            score += pad::TIER_TWO_SCORE * orbAround;
+            score += pad::TIER_THREE_SCORE * orbNext2;
+            score += pad::TIER_FIVE_SCORE * moveCount;
+            score += pad::TIER_EIGHT_SCORE * combo;
         }
 
         return score;
@@ -205,7 +205,7 @@ public:
         }
 
         // Check if colours matches
-        score += colours.size() * 500;
+        score += colours.size() * pad::TIER_SIX_SCORE;
         return score;
     }
 };
@@ -232,7 +232,7 @@ public:
         {
             // 2U needs 4 orbs connected
             if (c.size() == 4)
-                score += 200;
+                score += pad::TIER_SIX_SCORE;
         }
         return score;
     }
@@ -274,12 +274,12 @@ public:
         }
         
         // More points for connecting more
-        // for (const auto &c : list)
-        // {
-        //     score += c.size() * 10;
-        // }
+        for (const auto &c : list)
+        {
+            score += c.size() * pad::TIER_THREE_SCORE;
+        }
 
-        score -= (orbRemain - targetNumber) * 500;
+        score -= (orbRemain - targetNumber) * pad::TIER_EIGHT_SCORE;
         return score;
     }
 };

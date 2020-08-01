@@ -69,8 +69,10 @@ PState::PStateList PState::getChildren()
                 (i == -1 && j == 1) ||
                 (i == 1 && j == -1))
             {
-                // This will ignore all diagonal moves
-                continue;
+                // Only allow diagonal when it is close to the end
+                double percent = double(step) / double(maxStep);
+                if (percent < 0.80)
+                    continue;
             }
 
             auto next = LOCATION(current.first + i, current.second + j);

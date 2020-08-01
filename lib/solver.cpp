@@ -62,7 +62,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 std::vector<Route> PSolver::solve()
 {
     // Just add a combo profile for now
-    std::vector<Profile *> profiles{new OrbProfile(3)};
+    std::vector<Profile *> profiles{new OrbProfile(3), new ComboProfile(7)};
     ProfileManager::shared().updateProfile(profiles);
 
     Timer::shared().start(999);
