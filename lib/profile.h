@@ -173,9 +173,15 @@ public:
             int offset = abs(targetCombo - combo);
             if (combo > targetCombo)
             {
-                // Punish for doing more combo
+                // Punish more for doing more combo
                 offset *= 3;
             }
+            else if (combo == targetCombo)
+            {
+                // More points for doing exactly target combo
+                score += pad::TIER_NINE_SCORE;
+            }
+
             combo -= offset;
             // Usually, you don't have skyfall so don't need to bother with all thoses
             score += pad::TIER_FIVE_SCORE * moveCount;
@@ -383,13 +389,10 @@ public:
         for (const auto &c : list)
         {
             auto orb = c[0].orb;
-            score -= allOrbs[orb] * pad::TIER_FIVE_SCORE;
+            score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);
         }
 
-        // Less than that number, we are good
-        int distance = orbRemain - targetNumber;
-        if (distance > 0)
-            score -= distance * pad::TIER_SEVEN_SCORE;
+        score -= (orbRemain - targetNumber) * pad::TIER_NINE_SCORE;
         return score;
     }
 };

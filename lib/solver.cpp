@@ -62,7 +62,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 std::vector<Route> PSolver::solve()
 {
     // Just add a combo profile for now
-    std::vector<Profile *> profiles{new OrbProfile(3), new ComboProfile(7), new TwoWayProfile};
+    std::vector<Profile *> profiles{new OrbProfile(3), new ComboProfile(7)};
     ProfileManager::shared().updateProfile(profiles);
 
     Timer::shared().start(999);
@@ -104,9 +104,7 @@ std::vector<Route> PSolver::solve()
     int threadSize = size / processor_count;
     // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
     // By locking and unlocking, it will make sure it is safe
-    // std::mutex mtx;
-    std::recursive_mutex mtx;
-
+    std::mutex mtx;
 
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
@@ -190,7 +188,7 @@ std::vector<Route> PSolver::solve()
 
     std::cout << "Search has been completed\n\n";
 
-    int routeSize = 5;
+    int routeSize = 10;
     std::vector<Route> routes;
     routes.reserve(routeSize);
     // This gets routes for best 100
