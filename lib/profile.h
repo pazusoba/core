@@ -282,10 +282,10 @@ public:
         // Better to connect more orbs per type
         for (const auto &c : list)
         {
-            score += c.size() * pad::TIER_SIX_SCORE;
+            score += c.size() * pad::TIER_FOUR_SCORE;
         }
 
-        score -= (orbRemain - targetNumber) * pad::TIER_EIGHT_SCORE;
+        score -= (orbRemain - targetNumber) * pad::TIER_SEVEN_SCORE;
         return score;
     }
 };
