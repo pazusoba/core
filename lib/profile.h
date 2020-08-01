@@ -30,11 +30,6 @@ class ProfileManager
     ProfileManager() {}
 
 public:
-    ~ProfileManager()
-    {
-        clear();
-    }
-
     // Return a shared instance of profile manager
     static ProfileManager &shared()
     {
@@ -269,21 +264,20 @@ public:
 
         int score = 0;
         int orbRemain = 0;
-        for (int i = 0; i < column; i++)
+        for (const auto &c : board)
         {
-            for (int j = 0; j < row; j++)
+            for (const auto &r : c)
             {
-                auto orb = board[i][j];
-                if (orb != pad::empty)
+                if (r != pad::empty)
                     orbRemain++;
             }
         }
         
         // More points for connecting more
-        for (const auto &c : list)
-        {
-            score += c.size() * 10;
-        }
+        // for (const auto &c : list)
+        // {
+        //     score += c.size() * 10;
+        // }
 
         score -= (orbRemain - targetNumber) * 500;
         return score;
