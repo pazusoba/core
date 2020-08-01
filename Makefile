@@ -1,5 +1,5 @@
 # set it to `mac` to use mac/linux command and use `win` for windows
-PLATFORM=win
+PLATFORM=mac
 
 # assign different commands
 ifeq ($(PLATFORM), mac)
@@ -17,7 +17,7 @@ endif
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
 # lpthread - thread
 # flto - linking
-OPTIMISATION=-Ofast -flto
+OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
 CPP_FILES=lib/*.cpp
