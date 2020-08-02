@@ -169,20 +169,17 @@ public:
         }
         else
         {
-            // If you want 5 combo, 6 combo is like 4 combo
-            int offset = abs(targetCombo - combo);
             if (combo > targetCombo)
             {
-                // Punish more for doing more combo
-                offset *= 3;
+                // More than target combo means nothing, you must be equal or lower
+                combo = 0;
             }
             else if (combo == targetCombo)
             {
                 // More points for doing exactly target combo
-                score += pad::TIER_NINE_SCORE;
+                score += pad::TIER_EIGHT_PLUS_SCORE;
             }
 
-            combo -= offset;
             // Usually, you don't have skyfall so don't need to bother with all thoses
             score += pad::TIER_FIVE_SCORE * moveCount;
             score += pad::TIER_EIGHT_SCORE * combo;
@@ -269,10 +266,37 @@ public:
             {
                 std::map<int, int> vertical;
                 std::map<int, int> horizontal;
+                int bigFirst = -1;
+                int bigSecond = -1;
+
+                // Collect info
                 for (const auto &loc : c)
                 {
-                    vertical[loc.first]++;
-                    horizontal[loc.second]++;
+                    int x = loc.first;
+                    int y = loc.second;
+                    vertical[x]++;
+                    horizontal[y]++;
+
+                    // Track the largest number
+                    if (vertical[x] >= 3)
+                        bigFirst = x;
+                    if (horizontal[y] >= 3)
+                        bigSecond = y;
+                }
+
+                // This is the center point
+                if (bigFirst > -1 && bigSecond > -1)
+                {
+                    int counter = 0;
+                    // Check if bigFirst -2 or +2 exists
+                    if (vertical[bigFirst - 2] > 0 || vertical[bigFirst + 2] > 0)
+                        counter++;
+                    // Same for bigSecond
+                    if (horizontal[bigSecond - 2] > 0 || horizontal[bigSecond + 2] > 0)
+                        counter++;
+                    
+                    if (counter == 2)
+                        score += pad::TIER_EIGHT_PLUS_SCORE;
                 }
             }
         }
