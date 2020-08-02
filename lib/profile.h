@@ -372,6 +372,7 @@ public:
 
         int score = 0;
         int orbRemain = 0;
+        // Score how many orbs are left for each type
         std::map<Orb, int> allOrbs;
         for (const auto &c : board)
         {
@@ -385,14 +386,20 @@ public:
             }
         }
 
-        // Better to connect more orbs per type
-        for (const auto &c : list)
+        // Get the distance from the goal
+        auto distance = orbRemain - targetNumber;
+        score -= distance * pad::TIER_NINE_SCORE;
+        // Do this only if we haven't reached the goal
+        if (distance > 0)
         {
-            auto orb = c[0].orb;
-            score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);
+            // Better to connect more orbs per type
+            for (const auto &c : list)
+            {
+                // Since that orb was erased so we just need to punish for not erasing more of it
+                auto orb = c[0].orb;
+                score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);
+            }
         }
-
-        score -= (orbRemain - targetNumber) * pad::TIER_NINE_SCORE;
         return score;
     }
 };
