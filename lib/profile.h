@@ -172,8 +172,8 @@ public:
         {
             if (combo > targetCombo)
             {
-                // More than target combo means nothing, you must be equal or lower
-                combo = 0;
+                // Punish heavily for doing more combo that needed
+                combo = (targetCombo - combo) * 5;
             }
             else if (combo == targetCombo)
             {
@@ -465,7 +465,6 @@ public:
 
         // Get the distance from the goal
         auto distance = orbRemain - targetNumber;
-        score -= distance * pad::TIER_NINE_SCORE;
         // Do this only if we haven't reached the goal
         if (distance > 0)
         {
@@ -476,6 +475,8 @@ public:
                 auto orb = c[0].orb;
                 score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);
             }
+            // As long it is less than target number, it is good
+            score -= distance * pad::TIER_NINE_SCORE;
         }
         return score;
     }
