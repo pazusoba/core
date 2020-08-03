@@ -71,7 +71,7 @@ PState::PStateList PState::getChildren()
             {
                 // Only allow diagonal when it is close to the end
                 double percent = double(step) / double(maxStep);
-                if (percent < 0.91)
+                if (percent < 0.96)
                     continue;
             }
 
