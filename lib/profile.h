@@ -12,6 +12,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <iostream>
 #include "board.h"
 #include "pad.h"
 
@@ -359,6 +360,30 @@ public:
     }
 };
 
+// Connect 10 - 12 orbs together and you get +1 combo and a green soybean
+class SoybeanProfile : public ShapeProfile
+{
+public:
+    std::string getProfileName() const override
+    {
+        return "soybean";
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        int score = 0;
+        for (const auto &c : list)
+        {
+            int size = c.size();
+            if (size >= 10 && size <= 12)
+            {
+                score += pad::TIER_TEN_SCORE;
+            }
+        }
+        return score;
+    }
+};
+
 class OneRowProfile : public ShapeProfile
 {
 public:
@@ -373,23 +398,25 @@ public:
         auto row = board[0].size();
         for (const auto &c : list)
         {
-            // It has a row, xxxxxx
-            if (c.size() == row)
+            // It has a row, xxxxxx or more
+            if (c.size() >= row)
             {
-                // It must have the same x value
-                bool isRow = true;
-                int x = c[0].first;
+                // Record all encountered x
+                std::map<int, int> xs;
                 for (const auto &loc : c)
                 {
-                    if (loc.first != x)
+                    xs[loc.first]++;
+                }
+
+                // Sometimes, it is a long L so just check which x has more than row times
+                for (auto curr = xs.begin(); curr != xs.end(); curr++)
+                {
+                    if (curr->second >= (int)row)
                     {
-                        isRow = false;
+                        score += pad::TIER_NINE_SCORE;
                         break;
                     }
                 }
-
-                if (isRow)
-                    score += pad::TIER_NINE_SCORE;
             }
         }
         return score;
