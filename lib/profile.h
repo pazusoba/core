@@ -360,6 +360,68 @@ public:
     }
 };
 
+// Void damage penetration 無効貫通
+class VoidPenProfile : public ShapeProfile
+{
+public:
+    std::string getProfileName() const override
+    {
+        return "void damage penetration";
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        // Try this board
+        // DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH
+        int score = 0;
+        for (const auto &c : list)
+        {
+            int size = c.size();
+            // must be a 3x3 so 9 orbs
+            if (size == 9)
+            {
+                // Do the same like + and L
+                std::map<int, int> vertical;
+                std::map<int, int> horizontal;
+
+                // Collect info
+                for (const auto &loc : c)
+                {
+                    int x = loc.first;
+                    int y = loc.second;
+                    vertical[x]++;
+                    horizontal[y]++;
+                }
+
+                // All x and y are 3 because it is 3x3
+                if (vertical.size() == 3 && horizontal.size() == 3)
+                {
+                    int count = 0;
+                    for (auto curr = vertical.begin(); curr != vertical.end(); curr++)
+                    {
+                        if (curr->second == 3)
+                            count++;
+                    }
+                    for (auto curr = horizontal.begin(); curr != horizontal.end(); curr++)
+                    {
+                        if (curr->second == 3)
+                            count++;
+                    }
+                    if (count == 6)
+                        score += pad::TIER_TEN_SCORE;
+                }
+            }
+            else
+            {
+                // Punish if it is less than or more than 9 orbs
+                score -= abs(9 - size) * pad::TIER_EIGHT_SCORE;
+            }
+        }
+        return score;
+    }
+};
+
+
 // Connect 10 - 12 orbs together and you get +1 combo and a green soybean
 class SoybeanProfile : public ShapeProfile
 {
