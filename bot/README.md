@@ -1,6 +1,2 @@
 # Automation
-This part is written in Python for taking screenshot, recognising current board, solving the board and perform the best solution.
-
-## Setup
-- ADB must be installed
-- Install `pure-python-adb`
+Currently, I am using `scrcpy` to mirror and control my phone. This way, I can simply capture a screenshot and get board easily.
