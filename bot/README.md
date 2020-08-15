@@ -20,5 +20,5 @@ It is easily to control Android devices from desktop but for iOS, it is a bit mo
 
 ### Tools
 - https://er.run/ but it is paid for iOS
-- `Dell Mobile Connect`, all in one solution but it requires a `dell` computer
+- `Dell Mobile Connect`, it works for iOS but is really slow
 - Jailbreak your device but not recommended
