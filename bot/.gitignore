@@ -1,3 +1,6 @@
 # screenshots
 **/*.png
 **/__pycache__
+
+# allow images only in sample folder
+!sample/*
