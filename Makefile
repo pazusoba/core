@@ -61,7 +61,8 @@ all:
 
 # build a dll based on solver
 dll:
-	g++ -shared binding.cpp -o pazusoba.dll
+	g++ -c -fPIC binding.cpp -o binding.o
+	g++ -static -shared -o pazusoba.so binding.o
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:

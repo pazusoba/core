@@ -4,11 +4,12 @@
  * by Yiheng Quan
  */
 
+#include <string>
 
 extern "C"
 {
-    int hello()
+    std::string hello()
     {
-        return 123;
+        return "hello world";
     }
 }
