@@ -4,12 +4,12 @@ PLATFORM=win
 # assign different commands
 ifeq ($(PLATFORM), mac)
 	MAKE=make
-	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store
+	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll
 	OUTPUT=./a.out
 	MOVE=mv board_*.txt assets/
 else ifeq ($(PLATFORM), win)
 	MAKE=mingw32-make.exe
-	CLEAN=del /s *.exe
+	CLEAN=del /s *.exe *.o *.so *.dll
 	OUTPUT=./a.exe
 	MOVE=move /y board_*.txt assets/
 endif
@@ -61,8 +61,7 @@ all:
 
 # build a dll based on solver
 dll:
-	g++ -c -fPIC lib/*.cpp
-	g++ -shared -Wl,-soname,pazusoba.so -o pazusoba.so *.o
+	g++ -shared binding.cpp -o pazusoba.dll
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
