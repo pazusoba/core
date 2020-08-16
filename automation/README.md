@@ -7,6 +7,9 @@ Now, there are different orb styles in the game so there should be a range for e
 However, for starters, it is fine just to detect the most tradition style. 
 Recoevery, jammer, bomb and poison are fixed and they will not change. Therefore, they can be matched with a sample image.
 
+#### All orb styles
+- https://pad.protic.site/resource/orb-skins/
+
 ### Codes
 - Fire/Red (R)
 - Water/Blue (B)
