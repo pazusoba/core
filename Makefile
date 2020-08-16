@@ -59,6 +59,11 @@ all:
 	$(MAKE) build
 	$(MAKE) run
 
+# build a dll based on solver
+dll:
+	g++ -c -fPIC lib/*.cpp
+	g++ -shared -Wl,-soname,pazusoba.so -o pazusoba.so *.o
+
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
 	python3 assets/board_gen.py 7x6 20

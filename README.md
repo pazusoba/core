@@ -52,15 +52,20 @@ You can mix everything together and use for many teams. More coming soon...
 
 ## How to compile
 This is written on a windows computer so I am using the `mingw` package from `choco`. 
-On Mac or Linux, you need to have `g++` installed and change `win` to `mac` in the Makefile. Also, there might be some issues on mac.
+On Mac or Linux, you need to have `g++` installed and change `win` to `mac` in the Makefile. Also, there might be some issues on mac. 
+You also need to have [pybind11](https://github.com/pybind/pybind11) for binding C++ to python. 
 ~~~shell
 $ mingw32-make.exe
 $ ./a.exe
+$ mingw32-make.exe dll
 ~~~
 ~~~shell
 $ make
 $ ./a.out
+$ make dll
 ~~~
+**Then, you need to drag `pazusoba.so` into `automation/` or the python script won't run.**
+
 The program accepts 4 arguments
 - Path to the board
 - Minimum erase condition (by default 3)
