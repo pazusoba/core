@@ -25,3 +25,7 @@ It is easily to control Android devices from desktop but for iOS, it is a bit mo
 - https://er.run/ but it is paid for iOS
 - `Dell Mobile Connect`, it works for iOS but is really slow
 - Jailbreak your device but not recommended
+
+
+# OpenCV
+- [Template Matching with Multiple Objects](https://docs.opencv.org/4.2.0/d4/dc6/tutorial_py_template_matching.html)
