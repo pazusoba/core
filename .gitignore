@@ -5,6 +5,7 @@
 **/*.so
 **/*.exe
 **/*.gch
+**/*_wrap.cxx
 
 # generated boards
 **/board_*.txt

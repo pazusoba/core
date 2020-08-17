@@ -61,8 +61,10 @@ all:
 
 # build a dll based on solver
 dll:
-	g++ -c -fPIC binding.cpp -o binding.o
-	g++ -static -shared -o pazusoba.so binding.o
+	swig -c++ -python -py3 lib/solver.i
+	g++ -c -fPIC -I"C:\Program Files\Python38\include" -L"C:\Program Files\Python38\libs" -lpython38 lib/solver_wrap.cxx
+	g++ -c -fPIC lib/*.cpp
+	g++ -shared -fPIC *.o -o pazusoba.so 
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
