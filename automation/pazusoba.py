@@ -61,6 +61,67 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
+class SwigPyIterator(object):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+
+    def __init__(self, *args, **kwargs):
+        raise AttributeError("No constructor defined - class is abstract")
+    __repr__ = _swig_repr
+    __swig_destroy__ = _pazusoba.delete_SwigPyIterator
+
+    def value(self) -> "PyObject *":
+        return _pazusoba.SwigPyIterator_value(self)
+
+    def incr(self, n: "size_t"=1) -> "swig::SwigPyIterator *":
+        return _pazusoba.SwigPyIterator_incr(self, n)
+
+    def decr(self, n: "size_t"=1) -> "swig::SwigPyIterator *":
+        return _pazusoba.SwigPyIterator_decr(self, n)
+
+    def distance(self, x: "SwigPyIterator") -> "ptrdiff_t":
+        return _pazusoba.SwigPyIterator_distance(self, x)
+
+    def equal(self, x: "SwigPyIterator") -> "bool":
+        return _pazusoba.SwigPyIterator_equal(self, x)
+
+    def copy(self) -> "swig::SwigPyIterator *":
+        return _pazusoba.SwigPyIterator_copy(self)
+
+    def next(self) -> "PyObject *":
+        return _pazusoba.SwigPyIterator_next(self)
+
+    def __next__(self) -> "PyObject *":
+        return _pazusoba.SwigPyIterator___next__(self)
+
+    def previous(self) -> "PyObject *":
+        return _pazusoba.SwigPyIterator_previous(self)
+
+    def advance(self, n: "ptrdiff_t") -> "swig::SwigPyIterator *":
+        return _pazusoba.SwigPyIterator_advance(self, n)
+
+    def __eq__(self, x: "SwigPyIterator") -> "bool":
+        return _pazusoba.SwigPyIterator___eq__(self, x)
+
+    def __ne__(self, x: "SwigPyIterator") -> "bool":
+        return _pazusoba.SwigPyIterator___ne__(self, x)
+
+    def __iadd__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator &":
+        return _pazusoba.SwigPyIterator___iadd__(self, n)
+
+    def __isub__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator &":
+        return _pazusoba.SwigPyIterator___isub__(self, n)
+
+    def __add__(self, n: "ptrdiff_t") -> "swig::SwigPyIterator *":
+        return _pazusoba.SwigPyIterator___add__(self, n)
+
+    def __sub__(self, *args) -> "ptrdiff_t":
+        return _pazusoba.SwigPyIterator___sub__(self, *args)
+    def __iter__(self):
+        return self
+
+# Register SwigPyIterator in _pazusoba:
+_pazusoba.SwigPyIterator_swigregister(SwigPyIterator)
+
 class PSolver(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
@@ -71,7 +132,7 @@ class PSolver(object):
     def __init__(self, *args):
         _pazusoba.PSolver_swiginit(self, _pazusoba.new_PSolver(*args))
 
-    def solve(self) -> "std::vector< Route >":
+    def solve(self) -> "std::vector< Route,std::allocator< Route > >":
         return _pazusoba.PSolver_solve(self)
 
     def setBoardFrom(self, board: "std::string &") -> "void":

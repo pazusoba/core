@@ -2,7 +2,7 @@
 **/*.out
 **/*.dll
 **/*.o
-**/*.so
+**/*.pyd
 **/*.exe
 **/*.gch
 **/*_wrap.cxx

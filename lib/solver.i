@@ -2,7 +2,21 @@
 
 %{
 #include "solver.h"
+#include "board.h"
+#include "pad.h"
+#include "profile.h"
+#include "queue.h"
+#include "route.h"
+#include "route.h"
+#include "state.h"
+#include "timer.h"
 %}
+
+%include "std_string.i"
+%include "std_vector.i"
+%include "std_map.i"
+%include "std_set.i"
+%include "std_deque.i"
 
 class PSolver
 {

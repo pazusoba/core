@@ -60,15 +60,14 @@ all:
 	$(MAKE) run
 
 # build a dll based on solver
-PYTHON_32=C:\Users\nateq\AppData\Local\Programs\Python\Python38-32
 PYTHON_64=C:\Program Files\Python38
 PYTHON_INCLUDE=-I"$(PYTHON_64)\include"
-PYTHON_LIB=$(PYTHON_INCLUDE) -L"$(PYTHON_64)\libs" -lpython38
+PYTHON_LIB=-L"$(PYTHON_64)\libs" -lpython38
 dll:
 	swig -c++ -python -py3 lib/solver.i
-	g++ -O2 -c -fPIC lib/solver_wrap.cxx $(PYTHON_INCLUDE)
-	g++ -O2 -c -fPIC lib/*.cpp
-	g++ -shared *.o -o pazusoba.so 
+	g++ -O2 -c -fPIC lib/solver_wrap.cxx lib/*.cpp $(PYTHON_INCLUDE)
+# must link the python here
+	g++ -shared -static *.o -o pazusoba.pyd $(PYTHON_LIB)
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
