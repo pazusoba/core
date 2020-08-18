@@ -65,8 +65,13 @@ std::vector<Route> PSolver::solve()
     // Remove previous output file
     remove("path.pazusoba");
 
-    // Just add a combo profile for now
-    std::vector<Profile *> profiles{new ComboProfile, new PlusProfile};
+    // +
+    // std::vector<Profile *> profiles{new ComboProfile, new PlusProfile};
+    // Amen
+    // std::vector<Profile *> profiles{new ComboProfile(7), new OrbProfile(2)};
+    // Combo only
+    std::vector<Profile *> profiles{new ComboProfile};
+
     ProfileManager::shared().updateProfile(profiles);
 
     Timer::shared().start(999);

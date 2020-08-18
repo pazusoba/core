@@ -421,7 +421,6 @@ public:
     }
 };
 
-
 // Connect 10 - 12 orbs together and you get +1 combo and a green soybean
 class SoybeanProfile : public ShapeProfile
 {
@@ -488,7 +487,7 @@ public:
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
-    int targetNumber = -1;
+    int targetNumber = 0;
 
 public:
     OrbProfile() {}
@@ -539,6 +538,10 @@ public:
             }
             // As long it is less than target number, it is good
             score -= distance * pad::TIER_NINE_SCORE;
+        }
+        else
+        {
+            score += distance * pad::TIER_SIX_SCORE;
         }
         return score;
     }
