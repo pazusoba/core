@@ -59,15 +59,8 @@ all:
 	$(MAKE) build
 	$(MAKE) run
 
-# build a dll based on solver
-PYTHON_64=C:\Program Files\Python38
-PYTHON_INCLUDE=-I"$(PYTHON_64)\include"
-PYTHON_LIB=-L"$(PYTHON_64)\libs" -lpython38
-dll:
-	swig -c++ -python -py3 lib/solver.i
-	g++ -O2 -c -fPIC lib/solver_wrap.cxx lib/*.cpp $(PYTHON_INCLUDE)
-# must link the python here
-	g++ -shared -static *.o -o pazusoba.pyd $(PYTHON_LIB)
+python:
+	$(GCC) main.cpp $(CPP_FILES) -o pazusoba
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
