@@ -96,6 +96,24 @@ PState::PStateList PState::getChildren()
 
 /// Utils
 
+void PState::saveStateFromRoot(PState *parent, std::ofstream* file)
+{
+    if (parent != nullptr)
+    {
+        saveStateFromRoot(parent->parent, file);
+        auto loc = parent->current;
+        *file << loc.first << "," << loc.second << "|";
+    }
+}
+
+void PState::saveToDisk() 
+{
+    std::ofstream f;
+    f.open("path.pazusoba");
+    saveStateFromRoot(this, &f);
+    f.close();
+}
+
 void PState::printStateFromRoot(PState *parent)
 {
     if (parent != nullptr)

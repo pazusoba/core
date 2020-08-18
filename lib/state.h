@@ -7,6 +7,7 @@
 #define STATE_H
 
 #include <map>
+#include <fstream>
 #include "board.h"
 
 class PState
@@ -21,6 +22,8 @@ class PState
 
     // This is a recursive function to print from the beginning
     void printStateFromRoot(PState *parent);
+    // This is a recursive function to save state from the beginning
+    void saveStateFromRoot(PState *parent, std::ofstream* file);
 
 public:
     // The board
@@ -51,6 +54,9 @@ public:
 
     // Print out current state, its board, score and more
     void printState();
+
+    // Save the entire state from begining to the end to the disk
+    void saveToDisk();
 };
 
 #endif

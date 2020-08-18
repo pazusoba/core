@@ -1,6 +1,9 @@
 # Automation
 This is the ultimate goal for pazusoba, actually solving and doing the puzzle all by the AI. Currently, I am using `scrcpy` to mirror and control my phone (Android only). This way, I can simply capture a screenshot and get the board directly.
 
+## Setup
+
+
 ## Orbs
 There are 5 colours, recovery, jammer, bomb, poison and poison+. The main goal is to at least detect 5 colours (R, B, G, L, D) and recovery (H). 
 Now, there are different orb styles in the game so there should be a range for every colour and simple matching won't work for all styles. 

@@ -10,6 +10,7 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include "solver.h"
@@ -61,6 +62,9 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
+    // Remove previous output file
+    remove("path.pazusoba");
+
     // Just add a combo profile for now
     std::vector<Profile *> profiles{new OrbProfile(3), new ComboProfile(7), new TwoWayProfile};
     ProfileManager::shared().updateProfile(profiles);
@@ -194,6 +198,7 @@ std::vector<Route> PSolver::solve()
     routes.reserve(routeSize);
     // This gets routes for best 100
     int i = 0;
+    PState *bestState;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
         if (i > routeSize)
@@ -203,9 +208,12 @@ std::vector<Route> PSolver::solve()
 
         if (i == 1)
             continue;
-
+        // Save this state
+        else if (i == 2)
+            bestState = it->second;
         routes.emplace_back(it->second);
     }
+    bestState->saveToDisk();
 
     // Print saved routes
     for (auto &r : routes)
