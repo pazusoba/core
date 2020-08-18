@@ -1,34 +1,17 @@
 # Automation
-This is the ultimate goal for pazusoba, actually solving and doing the puzzle all by the AI. Currently, I am using `scrcpy` to mirror and control my phone (Android only). This way, I can simply capture a screenshot and get the board directly.
+This is the ultimate goal for pazusoba, solving the puzzle and performing the solution. `scrcpy` is used to mirror and control my Android devices. For iOS devices, `Dell Mobile Connect` can be used.
 
 ## Setup
+***The automation project is only for education purpose.*** `DO NOT` use it for any other purposes.
 
+~~~shell
+$ cd ../
+$ mingw32-make.exe python
+~~~
+Move `pazusoba` to `automation` folder. Then, you can start using the program. 
 
-## Orbs
-There are 5 colours, recovery, jammer, bomb, poison and poison+. The main goal is to at least detect 5 colours (R, B, G, L, D) and recovery (H). 
-Now, there are different orb styles in the game so there should be a range for every colour and simple matching won't work for all styles. 
-However, for starters, it is fine just to detect the most tradition style. 
-Recoevery, jammer, bomb and poison are fixed and they will not change. Therefore, they can be matched with a sample image.
-
-#### All orb styles
-- https://pad.protic.site/resource/orb-skins/
-
-### Codes
-- Fire/Red (R)
-- Water/Blue (B)
-- Wood/Green (G)
-- Light (L)
-- Dark (D)
-- Recovery/Heal (H)
-
-## iOS
-It is easily to control Android devices from desktop but for iOS, it is a bit more challenging. It is indeed possible to do it but I haven't found a great solution yet. However, it is still easy to mirror iOS devices so maybe I can show the path somehow but I still need to do the puzzle by myself.
-
-### Tools
-- https://er.run/ but it is paid for iOS
-- `Dell Mobile Connect`, it works for iOS but is really slow
-- Jailbreak your device but not recommended
-
-
-# OpenCV
+# Extra
+- [All orb styles](https://pad.protic.site/resource/orb-skins/)
 - [Template Matching with Multiple Objects](https://docs.opencv.org/4.2.0/d4/dc6/tutorial_py_template_matching.html)
+
+**Special thanks to my op `cody` senpai for helping me with opencv.**

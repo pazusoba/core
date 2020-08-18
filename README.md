@@ -1,66 +1,46 @@
-# パズそば (Puzzle & Dragons solver)
+# パズそば🍜
 Puzzle & Dragons is a mobile game developed by Gungho. In this game, there is a board and you can erase orbs to make combos and damage dungeon monsters. Every combo will increase your attack by 25%. Also, there are skyfall orbs that might potentially make more combos.
 
 ## The goal
-There are 30 * 3 ^ 25 possible states for a 6 x 5 board (with max steps of 25) so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal). 
+There are 30 * 3 ^ 25 possible states for a 6 x 5 board (with max steps of 25) so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal).
 
 ## My approach
-A special priority queue is used which limits the size to a fixed number manually. Only states with a better score can be inserted to the queue. Thus, this is a greedy approach. I have improved the search with `BEAM SEARCH` so that more states will be visited. Overall, it has surpassed me especially in two/three colour boards.
+A priority queue is used which limits the size to a fixed number and only states with a better score can be inserted to the queue. Thus, this is a very greedy approach and it is callled `BEAM SEARCH`. Overall, it has surpassed many pro players but it is not perfect. I will keep making it better over times.
+
+<details>
+<summary>Show more</summary>
 
 ### Why beam search
 Greedy DFS -> Greedy B(best)FS -> My special greedy BFS -> Beam Search
 
-As you can see, they are all greedy algorithms based on a heuristic. The reason is that the end goal is unknown and there are also negative values. Simply choosing the local maxima may result in poor solutions. 
+As you can see, they are all greedy algorithms based on a heuristic. The reason is that the end goal is unknown and there are also negative values. Simply choosing the local maxima may result in poor solutions.
 
 Best first search improves the overall performance but it consumes too much memory and is extremely slow in computation. That's why I wanted to prune useless branches because a better path is guaranteed to have a better score.
 
 My special BFS was thus introduced. It can be seen as my attempt on the Beam Search algorithm but it has a problem, shortsighted. With size 1000, it can only check 6 steps (3^6) and after that, it only inserts if a state is better than the current best state. However, states with more potential might be blocked by local maxima because currently, it has less score.
 
-Introducing beam search, it checks more states compared to my special BFS and accepts states with a lower score. For a beam size of 1000, it always checks for 3000 states per step and chooses the best 1000 and continue with the next step. It is not optimal but often, really close. This algorithm makes the complexity from 30 * 3 ^ 25 to 25 * 1000 * 3 (step 25, size 1000 and no diagonal moves). 
+Introducing beam search, it checks more states compared to my special BFS and accepts states with a lower score. For a beam size of 1000, it always checks for 3000 states per step and chooses the best 1000 and continue with the next step. It is not optimal but often, really close. This algorithm makes the complexity from 30 * 3 ^ 25 to 25 * 1000 * 3 (step 25, size 1000 and no diagonal moves).
 
 Now, with compiler optimisation and multi-threading, it runs quite fast. On my main desktop, it is even faster than padopt due to multi-threading. I am certain that with a better `eraseOrb()` function, pazusoba can be even faster.
+</details>
 
 ### Improvements
-Currently, evaluating score and board related parts can be slow. By improving them, a larger size can be used to produce even better solutions.
+- Safe thread
+- Better heuristic for `OrbProfile` and `VoidPenProfile`
 
-- [x] Better heuristic (it is pretty good)
-- [ ] Support different profiles
-    - For example, one row, more combo, colour focused, L, + and less than certain orbs left with certain combos. 
-    - Void damage penetration is kinda hard so not included
-    - This can be done by updating the rate board function and the reward score
-- [ ] Improving combo counting (especially for combos with many orbs sticking together)
-    - Union find
-    - Flood fill
-- [x] Better scoring algorithm (I think the current one is good enough though)
-    - Combo
-    - Cascade
-    - Increase the speed
-- [x] Using beam search to scan the entire board (it only chooses the top ones)
-    - This cuts down so many branches but at the same time, it doesn't ignore those with potential
-    - My solution is now actually getting close to padopt
-- [x] Compiler optimisation
-- [x] Threading
+Many improvements have been done so far. Thread is causing some issues and some profiles can be better (they are worse than me and that's not acceptable).
 
 ## Profiles
 There are many playstyles in Puzzle & Dragons and profile is just for that. Now, it supports combo, colour, shape and orb based profiles.
-- Combo focuses on doing more combo with cascading and skyfall
+- Combo focuses on doing more combo with cascading and skyfall (this is the best so far)
 - Colour focuses on erasing more kinds of orbs (ideally, it should have a weight)
-- Shape encourages a certain shape (2U, +, L, one row)
-- Orb encourages to have less orbs remaining but this one doesn't work that well
+- Shape encourages a certain shape (2U, +, L, one row, void damage pen)
+- Orb encourages to have less orbs remaining (this one doesn't work that well)
 
-You can mix everything together and use for many teams. More coming soon...
+You can mix everything together and use for many teams.
 
 ## How to compile
-This is written on a windows computer so I am using the `mingw` package from `choco`. 
-On Mac or Linux, you need to have `g++` installed and change `win` to `mac` in the Makefile. Also, there might be some issues on mac. 
-~~~shell
-$ mingw32-make.exe
-$ ./a.exe
-~~~
-~~~shell
-$ make
-$ ./a.out
-~~~
+This is written on Windows 10 and Mac OS. On Windows, `mingw` is used to compile and use makefiles. On Mac, you just need to have xcode command line tools.
 
 The program accepts 4 arguments
 - Path to the board
@@ -68,13 +48,13 @@ The program accepts 4 arguments
 - Max step (by default 25)
 - Max beam size (by default 1000)
 
-By increasing the beam size, it will take a bit more time to compute. The complexity is size * 3 * step. For size 1000 and step 25, it is 75,000.
+By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
-### QT
-This is my first ever qt application. I will add more functions to read boards in multiple ways and solve it at realtime to display the top results with basic replay features. However, I have to increase the speed first or it is super slow.
+### QT (Deprecated)
+This is now replaced with `automation`. 
 
 ## Resources
-Things that were helpful during my experiments
+Things that were helpful during my experiments.
 
 - https://www.slideshare.net/mobile/tnkt37/6-37838644, tnkt37さんのスライド
     - tnkt37さん made a fancy robot that can solve the board in realtime
@@ -93,8 +73,14 @@ Things that were helpful during my experiments
 - flood fill & union find
 - beam search
 
+`tnkt37さん`'s video really inspired me and it was the reason why I started this project.
+
 ## License
-My code is under [MIT license](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) but the GUI is built on top of QT so it is under [LGPL license](https://doc.qt.io/qt-5/lgpl.html) (everything inside `gui`)
+- [MIT License](https://github.com/HenryQuan/pazusoba/blob/master/LICENSE) for pazusoba
+- [LGPL License](https://doc.qt.io/qt-5/lgpl.html) for QT
+- [BSD License](https://opencv.org/license/) for opencv
+- [BSD License](https://github.com/asweigart/pyautogui/blob/master/LICENSE.txt) for pyautogui
+- [NumPy License](https://numpy.org/devdocs/license.html)
 
 # Miscellaneous
 ## 2000 days

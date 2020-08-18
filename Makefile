@@ -4,12 +4,12 @@ PLATFORM=win
 # assign different commands
 ifeq ($(PLATFORM), mac)
 	MAKE=make
-	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll
+	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll **/*.pazusoba
 	OUTPUT=./a.out
 	MOVE=mv board_*.txt assets/
 else ifeq ($(PLATFORM), win)
 	MAKE=mingw32-make.exe
-	CLEAN=del /s *.exe *.o *.so *.dll
+	CLEAN=del /s *.exe *.o *.so *.dll *.pazusoba
 	OUTPUT=./a.exe
 	MOVE=move /y board_*.txt assets/
 endif
