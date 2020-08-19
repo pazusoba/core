@@ -198,6 +198,7 @@ class ColourProfile : public Profile
 
 public:
     ColourProfile() {}
+    ColourProfile(std::vector<Orb> o): orbs(o) {}
 
     std::string getProfileName() const override
     {
@@ -231,8 +232,8 @@ public:
 // More points if a combo has a certain shape
 class ShapeProfile : public Profile
 {
-public:
     std::vector<Orb> orbs;
+public:
     ShapeProfile(std::vector<Orb> o) : orbs(o) {}
 
     // Check if orb list contains this orb
@@ -253,6 +254,8 @@ public:
 class TwoWayProfile : public ShapeProfile
 {
 public:
+    TwoWayProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "2U";
@@ -276,6 +279,8 @@ public:
 class LProfile : public ShapeProfile
 {
 public:
+    LProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "L";
@@ -332,6 +337,8 @@ public:
 class PlusProfile : public ShapeProfile
 {
 public:
+    PlusProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "+";
@@ -388,6 +395,8 @@ public:
 class VoidPenProfile : public ShapeProfile
 {
 public:
+    VoidPenProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "void damage penetration";
@@ -449,6 +458,8 @@ public:
 class SoybeanProfile : public ShapeProfile
 {
 public:
+    SoybeanProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "soybean";
@@ -472,6 +483,8 @@ public:
 class OneRowProfile : public ShapeProfile
 {
 public:
+    OneRowProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
     std::string getProfileName() const override
     {
         return "row";
