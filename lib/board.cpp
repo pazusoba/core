@@ -191,7 +191,7 @@ int PBoard::rateBoard()
 {
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
-    int score = ProfileManager::shared().getScore(list, board, moveCount);
+    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition);
 
     return score;
 }
