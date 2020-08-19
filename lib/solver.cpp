@@ -87,7 +87,7 @@ std::vector<Route> PSolver::solve()
     std::priority_queue<PState *, std::vector<PState *>, PointerCompare> toVisit;
     // This saves all chidren of states to visit
     std::vector<PState *> childrenStates;
-    childrenStates.reserve(size * 3);
+    childrenStates.reserve(size * 4);
     // This saves the best score
     std::map<int, PState *> bestScore;
 
@@ -117,8 +117,8 @@ std::vector<Route> PSolver::solve()
     int threadSize = size / processor_count;
     // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
     // By locking and unlocking, it will make sure it is safe
-    // std::mutex mtx;
-    std::recursive_mutex mtx;
+    std::mutex mtx;
+    // std::recursive_mutex mtx;
 
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
@@ -151,7 +151,7 @@ std::vector<Route> PSolver::solve()
                     // Save current score for printing out later
                     int currentScore = currentState->score;
                     int currentStep = currentState->step;
-
+                    
                     // Save best scores
                     mtx.lock();
                     if (bestScore[currentScore] == nullptr)
@@ -161,7 +161,7 @@ std::vector<Route> PSolver::solve()
                     else
                     {
                         auto saved = bestScore[currentScore];
-                        if (saved->step >= currentStep)
+                        if (saved->step > currentStep)
                         {
                             // We found a better one
                             bestScore[currentScore] = currentState;
@@ -170,13 +170,13 @@ std::vector<Route> PSolver::solve()
                     mtx.unlock();
 
                     // All all possible children
+                    mtx.lock();
                     for (auto &s : currentState->getChildren())
                     {
-                        mtx.lock();
                         // Simply insert because states compete with each other
                         childrenStates.push_back(s);
-                        mtx.unlock();
                     }
+                    mtx.unlock();
                 }
             });
         }
