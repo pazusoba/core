@@ -510,7 +510,7 @@ public:
                 // Sometimes, it is a long L so just check which x has more than row times
                 for (auto curr = xs.begin(); curr != xs.end(); curr++)
                 {
-                    if (curr->second >= (int)row)
+                    if (curr->second >= row)
                     {
                         score += pad::TIER_NINE_SCORE;
                         break;
@@ -565,24 +565,23 @@ public:
             }
         }
 
+        // Better to connect more orbs per type
+        for (const auto &c : list)
+        {
+            // Since that orb was erased so we just need to punish for not erasing more of it
+            int size = c.size();
+            score += (size - minEraseCondition) * pad::TIER_SIX_SCORE;
+        }
+
         score += orbErased * pad::TIER_SEVEN_SCORE;
         // Get the distance from the goal
         auto distance = (boardSize - orbErased) - targetNumber;
         // Do this only if we haven't reached the goal
-        if (distance > 0)
+        if (distance <= 0)
         {
-            // Better to connect more orbs per type
-            for (const auto &c : list)
-            {
-                // Since that orb was erased so we just need to punish for not erasing more of it
-                auto orb = c[0].orb;
-                score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);
-            }
+            score += (distance + 1) * pad::TIER_EIGHT_PLUS_SCORE;
         }
-        else
-        {
-            score += (distance + 1) * pad::TIER_NINE_SCORE;
-        }
+
         return score;
     }
 };

@@ -23,8 +23,8 @@ PSolver *handleInput(int argc, char *argv[])
     // std::string filePath = "RRRDGGRRRLLRRRRDLLHHHGBBLGGHHH";
     // std::string filePath = "DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH";
     int minEraseCondition = 3;
-    int maxStep = 50;
-    int maxSize = 6000;
+    int maxStep = 25;
+    int maxSize = 1000;
 
     // Read from command line
     if (argc > 1)

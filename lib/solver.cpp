@@ -161,7 +161,7 @@ std::vector<Route> PSolver::solve()
                     else
                     {
                         auto saved = bestScore[currentScore];
-                        if (saved->step > currentStep)
+                        if (saved->step >= currentStep)
                         {
                             // We found a better one
                             bestScore[currentScore] = currentState;
