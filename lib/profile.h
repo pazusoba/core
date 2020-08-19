@@ -172,13 +172,13 @@ public:
         {
             if (combo > targetCombo)
             {
-                // Punish heavily for doing more combo that needed
-                combo = -99;
+                // Something it is ok to do more combo
+                combo = targetCombo * 2 - combo;
             }
             else if (combo == targetCombo)
             {
                 // More points for doing exactly target combo
-                score += pad::TIER_EIGHT_SCORE;
+                score += pad::TIER_EIGHT_PLUS_SCORE;
             }
 
             // Usually, you don't have skyfall so don't need to bother with all thoses
@@ -573,14 +573,64 @@ public:
             score += (size - minEraseCondition) * pad::TIER_SIX_SCORE;
         }
 
-        score += orbErased * pad::TIER_SEVEN_SCORE;
+        score += orbErased * pad::TIER_SIX_SCORE;
         // Get the distance from the goal
         auto distance = (boardSize - orbErased) - targetNumber;
         // Do this only if we haven't reached the goal
-        if (distance <= 0)
+        if (distance > 0)
         {
-            score += (distance + 1) * pad::TIER_EIGHT_PLUS_SCORE;
+            for (const auto &c : list)	
+            {	
+                // Since that orb was erased so we just need to punish for not erasing more of it	
+                auto orb = c[0].orb;	
+                score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);	
+            }
         }
+
+        int orbAround = 0;
+        int orbNext2 = 0;
+        for (int i = 0; i < column; i++)
+        {
+            for (int j = 0; j < row; j++)
+            {
+                auto curr = board[i][j];
+                if (curr == pad::empty)
+                    continue;
+
+                // Check if there are same orbs around
+                for (int a = -1; a <= 1; a++)
+                {
+                    for (int b = -1; b <= 1; b++)
+                    {
+                        // This is the current orb
+                        if (a == 0 && b == 0)
+                            continue;
+
+                        int x = i + a, y = j + b;
+                        // check x & y are valid
+                        if (x >= 0 && x < column && y >= 0 && y < row)
+                        {
+                            // Check orbs are the same
+                            auto orb = board[x][y];
+                            if (curr == orb)
+                            {
+                                orbAround++;
+                                if ((a == 0 && ((b == 1) || (b == -1))) ||
+                                    (b == 0 && ((a == 1) || (a == -1))))
+                                {
+                                    // This means that it is a line
+                                    orbNext2 += 1;
+                                    orbAround -= 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Always aim for max combo
+        score += pad::TIER_TWO_SCORE * orbAround;
+        score += pad::TIER_THREE_SCORE * orbNext2;
 
         return score;
     }
