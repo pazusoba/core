@@ -173,7 +173,7 @@ public:
             if (combo > targetCombo)
             {
                 // Punish heavily for doing more combo that needed
-                combo = (targetCombo - combo) * 5;
+                combo = -99;
             }
             else if (combo == targetCombo)
             {
@@ -198,7 +198,6 @@ class ColourProfile : public Profile
 
 public:
     ColourProfile() {}
-    ColourProfile(std::vector<Orb> o) : orbs(o) {}
 
     std::string getProfileName() const override
     {
@@ -211,12 +210,20 @@ public:
         std::set<Orb> colours;
         for (const auto &c : list)
         {
-            int x = c[0].first, y = c[0].second;
-            colours.insert(board[x][y]);
+            auto orb = c[0].orb;
+            for (const auto &o : orbs)
+            {
+                if (orb == o)
+                {
+                    // Only insert if matches
+                    colours.insert(o);
+                    break;
+                }
+            }
         }
 
         // Check if colours matches
-        score += colours.size() * pad::TIER_SIX_SCORE;
+        score += colours.size() * pad::TIER_EIGHT_SCORE;
         return score;
     }
 };
@@ -224,8 +231,23 @@ public:
 // More points if a combo has a certain shape
 class ShapeProfile : public Profile
 {
-    // This determine which orb we are targetting
-    // virtual std::vector<Orb> targetOrbs();
+public:
+    std::vector<Orb> orbs;
+    ShapeProfile(std::vector<Orb> o) : orbs(o) {}
+
+    // Check if orb list contains this orb
+    virtual bool isTheOrb(Orb orb) const
+    {
+        for (const auto &o : orbs)
+        {
+            if (orb == o)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 class TwoWayProfile : public ShapeProfile
@@ -242,8 +264,10 @@ public:
         for (const auto &c : list)
         {
             // 2U needs 4 orbs connected
-            if (c.size() == 4)
+            if (c.size() == 4 && isTheOrb(c[0].orb))
+            {
                 score += pad::TIER_SEVEN_SCORE;
+            }
         }
         return score;
     }
@@ -262,8 +286,8 @@ public:
         int score = 0;
         for (const auto &c : list)
         {
-            // L shape must erase 5 orbs
-            if (c.size() == 5)
+            // L shape must erase 5 orbs and right colour
+            if (c.size() == 5 && isTheOrb(c[0].orb))
             {
                 std::map<int, int> vertical;
                 std::map<int, int> horizontal;
@@ -319,7 +343,7 @@ public:
         for (const auto &c : list)
         {
             // L shape must erase 5 orbs
-            if (c.size() == 5)
+            if (c.size() == 5 && isTheOrb(c[0].orb))
             {
                 std::map<int, int> vertical;
                 std::map<int, int> horizontal;
@@ -378,7 +402,7 @@ public:
         {
             int size = c.size();
             // must be a 3x3 so 9 orbs
-            if (size == 9)
+            if (size == 9 && isTheOrb(c[0].orb))
             {
                 // Do the same like + and L
                 std::map<int, int> vertical;
@@ -436,7 +460,7 @@ public:
         for (const auto &c : list)
         {
             int size = c.size();
-            if (size >= 10 && size <= 12)
+            if (size >= 10 && size <= 12 && isTheOrb(c[0].orb))
             {
                 score += pad::TIER_TEN_SCORE;
             }
@@ -456,11 +480,12 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
-        auto row = board[0].size();
+        int row = board[0].size();
         for (const auto &c : list)
         {
+            int size = c.size();
             // It has a row, xxxxxx or more
-            if (c.size() >= row)
+            if (size >= row && isTheOrb(c[0].orb))
             {
                 // Record all encountered x
                 std::map<int, int> xs;
@@ -505,7 +530,7 @@ public:
         int row = board[0].size();
         int boardSize = row * column;
         // -1 means no target so why use this?
-        if (targetNumber < 0 || targetNumber > boardSize)
+        if (targetNumber > boardSize)
             return 0;
 
         int score = 0;
