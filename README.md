@@ -39,6 +39,23 @@ There are many playstyles in Puzzle & Dragons and profile is just for that. Now,
 
 You can mix everything together and use for many teams.
 
+<details>
+<summary>Show all profiles</summary>
+
+- ComboProfile
+- ColourProfile
+- ShapeProfile
+    - TwoWayProfile
+    - LProfile
+    - PlusProfile
+    - VoidPenProfile (doesn't work at the moment)
+    - SoybeanProfile
+    - OneRowProfile
+- OrbProfile (not good enough)
+
+*It is quite simple to add more profiles so feel free to fork this repo and add even more profiles.*
+</details>
+
 ## How to compile
 This is written on Windows 10 and Mac OS. On Windows, `mingw` is used to compile and use makefiles. On Mac, you just need to have xcode command line tools.
 
