@@ -104,91 +104,81 @@ public:
         int score = 0;
         int combo = list.size();
 
-        if (targetCombo <= 0)
+        // Get column and row based on board size
+        int column = board.size();
+        int row = board[0].size();
+        // Check if there are orbs next to each other
+        int orbAround = 0;
+        int orbNext2 = 0;
+        for (int i = 0; i < column; i++)
         {
-            // Get column and row based on board size
-            int column = board.size();
-            int row = board[0].size();
-            // Check if there are orbs next to each other
-            int orbAround = 0;
-            int orbNext2 = 0;
-            for (int i = 0; i < column; i++)
+            for (int j = 0; j < row; j++)
             {
-                for (int j = 0; j < row; j++)
+                auto curr = board[i][j];
+                if (curr == pad::empty)
+                    continue;
+
+                // Check if there are same orbs around
+                for (int a = -1; a <= 1; a++)
                 {
-                    auto curr = board[i][j];
-                    if (curr == pad::empty)
-                        continue;
-
-                    // Check if there are same orbs around
-                    for (int a = -1; a <= 1; a++)
+                    for (int b = -1; b <= 1; b++)
                     {
-                        for (int b = -1; b <= 1; b++)
-                        {
-                            // This is the current orb
-                            if (a == 0 && b == 0)
-                                continue;
+                        // This is the current orb
+                        if (a == 0 && b == 0)
+                            continue;
 
-                            int x = i + a, y = j + b;
-                            // check x & y are valid
-                            if (x >= 0 && x < column && y >= 0 && y < row)
+                        int x = i + a, y = j + b;
+                        // check x & y are valid
+                        if (x >= 0 && x < column && y >= 0 && y < row)
+                        {
+                            // Check orbs are the same
+                            auto orb = board[x][y];
+                            if (curr == orb)
                             {
-                                // Check orbs are the same
-                                auto orb = board[x][y];
-                                if (curr == orb)
+                                orbAround++;
+                                if ((a == 0 && ((b == 1) || (b == -1))) ||
+                                    (b == 0 && ((a == 1) || (a == -1))))
                                 {
-                                    orbAround++;
-                                    if ((a == 0 && ((b == 1) || (b == -1))) ||
-                                        (b == 0 && ((a == 1) || (a == -1))))
-                                    {
-                                        // This means that it is a line
-                                        orbNext2 += 1;
-                                        orbAround -= 1;
-                                    }
+                                    // This means that it is a line
+                                    orbNext2 += 1;
+                                    orbAround -= 1;
                                 }
                             }
                         }
                     }
                 }
             }
-            if (targetCombo < 0)
-            {
-                // Always aim for max combo
-                score += pad::TIER_TWO_SCORE * orbAround;
-                score += pad::TIER_THREE_SCORE * orbNext2;
-                score += pad::TIER_FIVE_SCORE * moveCount;
-                score += pad::TIER_EIGHT_SCORE * combo;
-            }
-            else
-            {
-                // Aim for zero combo and make sure orbs are not close to each other
-                score -= pad::TIER_TWO_SCORE * orbAround;
-                score -= pad::TIER_THREE_SCORE * orbNext2;
-                score -= pad::TIER_FIVE_SCORE * moveCount;
-                score -= pad::TIER_EIGHT_SCORE * combo;
-            }
+        }
+
+        if (targetCombo == 0)
+        {
+            // Aim for zero combo and make sure orbs are not close to each other
+            score -= pad::TIER_TWO_SCORE * orbAround;
+            score -= pad::TIER_THREE_SCORE * orbNext2;
+            score -= pad::TIER_FIVE_SCORE * moveCount;
+            score -= pad::TIER_EIGHT_SCORE * combo;
         }
         else
-        {
-            int distance = combo - targetCombo;
-            if (distance > 0)
+        {    
+            if (targetCombo > 0)
             {
-                // Sometimes, it is ok to do more combo temporarily
-                combo = targetCombo * 2 - combo - 1;
-            }
-            else if (distance == 0)
-            {
-                // More points for doing exactly target combo
-                score += pad::TIER_EIGHT_PLUS_SCORE;
-            }
-            else
-            {
-                // Punish for doing less
-                score -= distance * pad::TIER_SIX_SCORE;
+                int distance = combo - targetCombo;
+                if (distance > 0)
+                {
+                    // Sometimes, it is ok to do more combo temporarily
+                    combo = -99;
+                }
+                else if (distance == 0)
+                {
+                    // More points for doing exactly target combo
+                    score += pad::TIER_EIGHT_PLUS_SCORE;
+                }
             }
 
-            // No skyfall so discourage this
-            score -= pad::TIER_FIVE_SCORE * moveCount;
+            // Always aim for max combo by default
+            score += pad::TIER_TWO_SCORE * orbAround;
+            score += pad::TIER_THREE_SCORE * orbNext2;
+            score += pad::TIER_FIVE_SCORE * moveCount;
             score += pad::TIER_EIGHT_SCORE * combo;
         }
 
@@ -237,7 +227,7 @@ public:
         }
 
         // Check if colours matches
-        score += colours.size() * pad::TIER_EIGHT_SCORE;
+        score += colours.size() * pad::TIER_SEVEN_SCORE;
         return score;
     }
 };
@@ -583,11 +573,10 @@ public:
             score -= distance * pad::TIER_EIGHT_SCORE;
             for (const auto &c : list)	
             {	
-                // Since that orb was erased so we just need to punish for not erasing more of it	
-                auto orb = c[0].orb;
-                score -= (allOrbs[orb] * pad::TIER_SIX_SCORE);
+                int count = allOrbs[c[0].orb];
+                score -= count * pad::TIER_SIX_SCORE;
                 int size = c.size();
-                score += (size - minEraseCondition) * pad::TIER_FOUR_SCORE; 
+                score += (size - minEraseCondition) * pad::TIER_FIVE_SCORE; 
             }
         }
 
