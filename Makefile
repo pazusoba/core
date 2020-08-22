@@ -1,5 +1,5 @@
 # set it to `mac` to use mac/linux command and use `win` for windows
-PLATFORM=win
+PLATFORM=mac
 
 # assign different commands
 ifeq ($(PLATFORM), mac)
@@ -7,11 +7,13 @@ ifeq ($(PLATFORM), mac)
 	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll **/*.pazusoba
 	OUTPUT=./a.out
 	MOVE=mv board_*.txt assets/
+	OUTPUT_PYTHON=pazusoba.out
 else ifeq ($(PLATFORM), win)
 	MAKE=mingw32-make.exe
 	CLEAN=del /s *.exe *.o *.so *.dll *.pazusoba
 	OUTPUT=./a.exe
 	MOVE=move /y board_*.txt assets/
+	OUTPUT_PYTHON=pazusoba.exe
 endif
 
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
@@ -60,7 +62,7 @@ all:
 	$(MAKE) run
 
 python:
-	$(GCC) main.cpp $(CPP_FILES) -o pazusoba
+	$(GCC) main.cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
 
 # get 20 boards of all sizes (76, 65, 54)
 board_gen:
