@@ -170,19 +170,25 @@ public:
         }
         else
         {
-            if (combo > targetCombo)
+            int distance = combo - targetCombo;
+            if (distance > 0)
             {
-                // Something it is ok to do more combo
-                combo = targetCombo * 2 - combo;
+                // Sometimes, it is ok to do more combo temporarily
+                combo = targetCombo * 2 - combo - 1;
             }
-            else if (combo == targetCombo)
+            else if (distance == 0)
             {
                 // More points for doing exactly target combo
                 score += pad::TIER_EIGHT_PLUS_SCORE;
             }
+            else
+            {
+                // Punish for doing less
+                score -= distance * pad::TIER_SIX_SCORE;
+            }
 
-            // Usually, you don't have skyfall so don't need to bother with all thoses
-            score += pad::TIER_FIVE_SCORE * moveCount;
+            // No skyfall so discourage this
+            score -= pad::TIER_FIVE_SCORE * moveCount;
             score += pad::TIER_EIGHT_SCORE * combo;
         }
 
@@ -194,7 +200,7 @@ public:
 class ColourProfile : public Profile
 {
     // By default, all main colours
-    std::vector<Orb> orbs{pad::fire, pad::water, pad::wood, pad::light, pad::dark, pad::recovery};
+    std::vector<Orb> orbs;
 
 public:
     ColourProfile() {}
@@ -212,13 +218,20 @@ public:
         for (const auto &c : list)
         {
             auto orb = c[0].orb;
-            for (const auto &o : orbs)
+            if (orbs.size() == 0)
             {
-                if (orb == o)
+                colours.insert(orb);
+            }
+            else
+            {
+                for (const auto &o : orbs)
                 {
-                    // Only insert if matches
-                    colours.insert(o);
-                    break;
+                    if (orb == o)
+                    {
+                        // Only insert if matches
+                        colours.insert(orb);
+                        break;
+                    }
                 }
             }
         }
@@ -525,7 +538,8 @@ public:
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
-    int targetNumber = 0;
+    // Only amen needs to have less than 3 orbs remaining
+    int targetNumber = 3;
 
 public:
     OrbProfile() {}
@@ -542,95 +556,40 @@ public:
         int column = board.size();
         int row = board[0].size();
         int boardSize = row * column;
-        // -1 means no target so why use this?
         if (targetNumber > boardSize)
             return 0;
 
         int score = 0;
-        int orbErased = 0;
+        int orbRemained = 0;
         // Score how many orbs are left for each type
         std::map<Orb, int> allOrbs;
         for (const auto &c : board)
         {
             for (const auto &r : c)
             {
-                if (r == pad::empty)
+                if (r != pad::empty)
                 {
-                    orbErased++;
-                }
-                else
-                {
+                    orbRemained++;
                     allOrbs[r]++;
                 }
             }
         }
 
-        // Better to connect more orbs per type
-        for (const auto &c : list)
-        {
-            // Since that orb was erased so we just need to punish for not erasing more of it
-            int size = c.size();
-            score += (size - minEraseCondition) * pad::TIER_SIX_SCORE;
-        }
-
-        score += orbErased * pad::TIER_SIX_SCORE;
         // Get the distance from the goal
-        auto distance = (boardSize - orbErased) - targetNumber;
-        // Do this only if we haven't reached the goal
+        auto distance = orbRemained - targetNumber;
+        // Haven't reached the goal yet
         if (distance > 0)
         {
+            score -= distance * pad::TIER_EIGHT_SCORE;
             for (const auto &c : list)	
             {	
                 // Since that orb was erased so we just need to punish for not erasing more of it	
-                auto orb = c[0].orb;	
-                score -= (allOrbs[orb] * pad::TIER_SEVEN_SCORE);	
+                auto orb = c[0].orb;
+                score -= (allOrbs[orb] * pad::TIER_SIX_SCORE);
+                int size = c.size();
+                score += (size - minEraseCondition) * pad::TIER_FOUR_SCORE; 
             }
         }
-
-        int orbAround = 0;
-        int orbNext2 = 0;
-        for (int i = 0; i < column; i++)
-        {
-            for (int j = 0; j < row; j++)
-            {
-                auto curr = board[i][j];
-                if (curr == pad::empty)
-                    continue;
-
-                // Check if there are same orbs around
-                for (int a = -1; a <= 1; a++)
-                {
-                    for (int b = -1; b <= 1; b++)
-                    {
-                        // This is the current orb
-                        if (a == 0 && b == 0)
-                            continue;
-
-                        int x = i + a, y = j + b;
-                        // check x & y are valid
-                        if (x >= 0 && x < column && y >= 0 && y < row)
-                        {
-                            // Check orbs are the same
-                            auto orb = board[x][y];
-                            if (curr == orb)
-                            {
-                                orbAround++;
-                                if ((a == 0 && ((b == 1) || (b == -1))) ||
-                                    (b == 0 && ((a == 1) || (a == -1))))
-                                {
-                                    // This means that it is a line
-                                    orbNext2 += 1;
-                                    orbAround -= 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // Always aim for max combo
-        score += pad::TIER_TWO_SCORE * orbAround;
-        score += pad::TIER_THREE_SCORE * orbNext2;
 
         return score;
     }
