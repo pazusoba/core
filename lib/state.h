@@ -48,6 +48,7 @@ public:
     // Override operators
     bool operator<(const PState &a) const;
     bool operator>(const PState &a) const;
+    bool operator==(const PState &a) const;
 
     // This returns a list of all possible children states
     PStateList getChildren();

@@ -72,13 +72,12 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // Amen
-    // std::vector<Profile *> profiles{
-    //     new ComboProfile(7), 
-    //     new OrbProfile(2),
-    //     new TwoWayProfile({pad::dark})
-    // };
+    std::vector<Profile *> profiles{
+        new ComboProfile(7), 
+        new OrbProfile(2),
+    };
     // Combo only
-    std::vector<Profile *> profiles{new ComboProfile};
+    // std::vector<Profile *> profiles{new ComboProfile};
 
     ProfileManager::shared().updateProfile(profiles);
 
@@ -157,15 +156,19 @@ std::vector<Route> PSolver::solve()
                     int currentStep = currentState->step;
                     
                     // Save best scores
+                    bool shouldAdd = false;
                     mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
+                        shouldAdd = true;
                     }
                     else
                     {
                         auto saved = bestScore[currentScore];
-                        if (saved->step > currentStep)
+                        shouldAdd = !(saved == currentState);
+
+                        if (saved->step >= currentStep)
                         {
                             // We found a better one
                             bestScore[currentScore] = currentState;
@@ -173,13 +176,16 @@ std::vector<Route> PSolver::solve()
                     }
                     mtx.unlock();
 
-                    // All all possible children
-                    for (auto &s : currentState->getChildren())
+                    if (shouldAdd)
                     {
-                        // Simply insert because states compete with each other
-                        mtx.lock();
-                        childrenStates.push_back(s);
-                        mtx.unlock();
+                        // All all possible children
+                        for (auto &s : currentState->getChildren())
+                        {
+                            // Simply insert because states compete with each other
+                            mtx.lock();
+                            childrenStates.push_back(s);
+                            mtx.unlock();
+                        }
                     }
                 }
             });

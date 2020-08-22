@@ -185,6 +185,11 @@ public:
           return orbs;
      }
 
+     inline bool hasSameBoard(const PBoard *b) const
+     {
+          return board == b->board;
+     }
+
      /**
          * Swap the value of two orbs
          */

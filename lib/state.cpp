@@ -50,6 +50,17 @@ bool PState::operator>(const PState &a) const
     return score > a.score;
 }
 
+bool PState::operator==(const PState &a) const
+{
+    // Same previous location
+    if (previous == a.previous)
+    {
+        return board.hasSameBoard(&a.board);
+    }
+
+    return false;
+}
+
 /// Functions
 
 PState::PStateList PState::getChildren()
