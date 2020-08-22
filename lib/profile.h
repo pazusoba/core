@@ -571,12 +571,11 @@ public:
         if (distance > 0)
         {
             score -= distance * pad::TIER_EIGHT_SCORE;
+
             for (const auto &c : list)	
             {	
                 int count = allOrbs[c[0].orb];
-                score -= count * pad::TIER_SIX_SCORE;
-                int size = c.size();
-                score += (size - minEraseCondition) * pad::TIER_FIVE_SCORE; 
+                score -= count * pad::TIER_SEVEN_SCORE;
             }
         }
 
