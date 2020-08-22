@@ -568,15 +568,12 @@ public:
         // Get the distance from the goal
         auto distance = orbRemained - targetNumber;
         // Haven't reached the goal yet
-        if (distance > 0)
-        {
-            score -= distance * pad::TIER_EIGHT_SCORE;
-
-            for (const auto &c : list)	
-            {	
-                int count = allOrbs[c[0].orb];
+        score -= distance * pad::TIER_EIGHT_SCORE;
+        for (const auto &c : list)	
+        {	
+            int count = allOrbs[c[0].orb];
+            if (count <= minEraseCondition)
                 score -= count * pad::TIER_SEVEN_SCORE;
-            }
         }
 
         return score;
