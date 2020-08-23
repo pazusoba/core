@@ -510,7 +510,7 @@ public:
         {
             int size = c.size();
             // It has a row, xxxxxx or more
-            if (size >= row && isTheOrb(c[0].orb))
+            if (size == row && isTheOrb(c[0].orb))
             {
                 // Record all encountered x
                 std::map<int, int> xs;
