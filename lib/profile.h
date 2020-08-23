@@ -159,7 +159,7 @@ public:
             score -= pad::TIER_EIGHT_SCORE * combo;
         }
         else
-        {    
+        {
             if (targetCombo > 0)
             {
                 int distance = combo - targetCombo;
@@ -194,7 +194,7 @@ class ColourProfile : public Profile
 
 public:
     ColourProfile() {}
-    ColourProfile(std::vector<Orb> o): orbs(o) {}
+    ColourProfile(std::vector<Orb> o) : orbs(o) {}
 
     std::string getProfileName() const override
     {
@@ -236,6 +236,7 @@ public:
 class ShapeProfile : public Profile
 {
     std::vector<Orb> orbs;
+
 public:
     ShapeProfile(std::vector<Orb> o) : orbs(o) {}
 
@@ -412,45 +413,53 @@ public:
         int score = 0;
         for (const auto &c : list)
         {
-            int size = c.size();
-            // must be a 3x3 so 9 orbs
-            if (size == 9 && isTheOrb(c[0].orb))
+            if (isTheOrb(c[0].orb))
             {
-                // Do the same like + and L
-                std::map<int, int> vertical;
-                std::map<int, int> horizontal;
-
-                // Collect info
-                for (const auto &loc : c)
+                int size = c.size();
+                if (size < 9)
                 {
-                    int x = loc.first;
-                    int y = loc.second;
-                    vertical[x]++;
-                    horizontal[y]++;
+                    score += size * pad::TIER_SIX_SCORE;
                 }
-
-                // All x and y are 3 because it is 3x3
-                if (vertical.size() == 3 && horizontal.size() == 3)
+                // must be a 3x3 so 9 orbs
+                else if (size == 9)
                 {
-                    int count = 0;
-                    for (auto curr = vertical.begin(); curr != vertical.end(); curr++)
+                    // Do the same like + and L
+                    std::map<int, int> vertical;
+                    std::map<int, int> horizontal;
+
+                    // Collect info
+                    for (const auto &loc : c)
                     {
-                        if (curr->second == 3)
-                            count++;
+                        int x = loc.first;
+                        int y = loc.second;
+                        vertical[x]++;
+                        horizontal[y]++;
                     }
-                    for (auto curr = horizontal.begin(); curr != horizontal.end(); curr++)
+
+                    // All x and y are 3 because it is 3x3
+                    if (vertical.size() == 3 && horizontal.size() == 3)
                     {
-                        if (curr->second == 3)
-                            count++;
+                        int count = 0;
+                        for (auto curr = vertical.begin(); curr != vertical.end(); curr++)
+                        {
+                            if (curr->second == 3)
+                                count++;
+                        }
+                        for (auto curr = horizontal.begin(); curr != horizontal.end(); curr++)
+                        {
+                            if (curr->second == 3)
+                                count++;
+                        }
+                        if (count < 6)
+                            score += count * pad::TIER_SEVEN_SCORE;
+                        else if (count == 6)
+                            score += pad::TIER_TEN_SCORE;
                     }
-                    if (count == 6)
-                        score += pad::TIER_TEN_SCORE;
                 }
-            }
-            else
-            {
-                // Punish if it is less than or more than 9 orbs
-                score -= abs(9 - size) * pad::TIER_EIGHT_SCORE;
+                else
+                {
+                    score -= (size - 9) * pad::TIER_NINE_SCORE;
+                }
             }
         }
         return score;
@@ -568,7 +577,7 @@ public:
         int distance = boardSize - orbErased;
         // Haven't reached the goal yet
         score += orbErased * pad::TIER_SIX_SCORE * 2;
-        for (const auto &c : list)	
+        for (const auto &c : list)
         {
             // Punish a little bit for remaining for orbs if it can make a combo
             score -= allOrbs[c[0].orb] * pad::TIER_FIVE_SCORE;

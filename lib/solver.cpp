@@ -66,11 +66,11 @@ std::vector<Route> PSolver::solve()
     remove("path.pazusoba");
 
     // +
-    std::vector<Profile *> profiles{
-        new ComboProfile,
-        new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-        new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-        new ColourProfile({pad::light, pad::dark})};
+    // std::vector<Profile *> profiles{
+    //     new ComboProfile,
+    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+    //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+    //     new ColourProfile({pad::light, pad::dark})};
     // Amen
     // std::vector<Profile *> profiles{
     //     new ComboProfile(7),
@@ -79,6 +79,12 @@ std::vector<Route> PSolver::solve()
     // };
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
+    // Laou
+    std::vector<Profile *> profiles{
+        new ComboProfile,
+        new OneRowProfile({pad::fire}),
+        new VoidPenProfile({pad::fire}),
+    };
 
     ProfileManager::shared().updateProfile(profiles);
 
