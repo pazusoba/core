@@ -166,12 +166,12 @@ public:
                 if (distance > 0)
                 {
                     // Sometimes, it is ok to do more combo temporarily
-                    combo = -99;
+                    combo = targetCombo - combo;
                 }
                 else if (distance == 0)
                 {
                     // More points for doing exactly target combo
-                    score += pad::TIER_EIGHT_PLUS_SCORE;
+                    score += pad::TIER_EIGHT_SCORE;
                 }
             }
 
@@ -568,11 +568,11 @@ public:
         int distance = boardSize - orbErased;
         // Haven't reached the goal yet
         score += orbErased * pad::TIER_SIX_SCORE * 2;
-        // for (const auto &c : list)	
-        // {
-        //     int size = c.size();
-        //     score += (size - minEraseCondition) * pad::TIER_SIX_SCORE;
-        // }
+        for (const auto &c : list)	
+        {
+            // Punish a little bit for remaining for orbs if it can make a combo
+            score -= allOrbs[c[0].orb] * pad::TIER_FIVE_SCORE;
+        }
 
         if (distance <= targetNumber)
         {
