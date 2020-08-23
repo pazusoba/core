@@ -550,30 +550,33 @@ public:
             return 0;
 
         int score = 0;
-        int orbRemained = 0;
+        int orbErased = 0;
         // Score how many orbs are left for each type
         std::map<Orb, int> allOrbs;
         for (const auto &c : board)
         {
             for (const auto &r : c)
             {
-                if (r != pad::empty)
+                if (r == pad::empty)
                 {
-                    orbRemained++;
-                    allOrbs[r]++;
+                    orbErased++;
                 }
             }
         }
 
         // Get the distance from the goal
-        auto distance = orbRemained - targetNumber;
+        int distance = boardSize - orbErased;
         // Haven't reached the goal yet
-        score -= distance * pad::TIER_EIGHT_SCORE;
-        for (const auto &c : list)	
-        {	
-            int count = allOrbs[c[0].orb];
-            if (count <= minEraseCondition)
-                score -= count * pad::TIER_SEVEN_SCORE;
+        score += orbErased * pad::TIER_SIX_SCORE * 2;
+        // for (const auto &c : list)	
+        // {
+        //     int size = c.size();
+        //     score += (size - minEraseCondition) * pad::TIER_SIX_SCORE;
+        // }
+
+        if (distance <= targetNumber)
+        {
+            score += (targetNumber - distance + 1) * pad::TIER_EIGHT_SCORE;
         }
 
         return score;
