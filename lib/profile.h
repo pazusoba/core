@@ -516,13 +516,14 @@ public:
                 std::map<int, int> xs;
                 for (const auto &loc : c)
                 {
+                    // Track x because it should have the number of row
                     xs[loc.first]++;
                 }
 
                 // Sometimes, it is a long L so just check which x has more than row times
                 for (auto curr = xs.begin(); curr != xs.end(); curr++)
                 {
-                    if (curr->second >= row)
+                    if (curr->second == row)
                     {
                         score += pad::TIER_NINE_SCORE;
                         break;

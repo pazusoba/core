@@ -83,7 +83,7 @@ std::vector<Route> PSolver::solve()
     std::vector<Profile *> profiles{
         new ComboProfile,
         new OneRowProfile({pad::fire}),
-        new VoidPenProfile({pad::fire}),
+        // new VoidPenProfile({pad::fire}),
     };
 
     ProfileManager::shared().updateProfile(profiles);
@@ -175,7 +175,7 @@ std::vector<Route> PSolver::solve()
                         auto saved = bestScore[currentScore];
                         shouldAdd = !(saved == currentState);
 
-                        if (saved->step >= currentStep)
+                        if (saved->step > currentStep)
                         {
                             // We found a better one
                             bestScore[currentScore] = currentState;
