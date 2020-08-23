@@ -82,8 +82,8 @@ std::vector<Route> PSolver::solve()
     // Laou
     std::vector<Profile *> profiles{
         new ComboProfile,
-        new OneRowProfile({pad::fire}),
-        // new VoidPenProfile({pad::fire}),
+        // new OneRowProfile({pad::fire}),
+        new VoidPenProfile({pad::fire}),
     };
 
     ProfileManager::shared().updateProfile(profiles);

@@ -413,16 +413,23 @@ public:
         int score = 0;
         for (const auto &c : list)
         {
-            if (isTheOrb(c[0].orb))
+            auto orb = c[0].orb;
+            // More points if it is a 3x3 shape
+            if (isTheOrb(orb))
             {
                 int size = c.size();
-                if (size < 9)
+                int distance = size - 9;
+
+                if (size == minEraseCondition)
                 {
-                    score += size * pad::TIER_SIX_SCORE;
+                    score -= pad::TIER_NINE_SCORE;
                 }
-                // must be a 3x3 so 9 orbs
-                else if (size == 9)
+
+                if (size <= 9)
                 {
+                    // Must connect more than min erase condition
+                    score += size * pad::TIER_SEVEN_SCORE;
+
                     // Do the same like + and L
                     std::map<int, int> vertical;
                     std::map<int, int> horizontal;
@@ -436,29 +443,38 @@ public:
                         horizontal[y]++;
                     }
 
+                    int v = vertical.size();
+                    int h = horizontal.size();
+                    if (v < 4 && h < 4)
+                        score += (v + h) * pad::TIER_SEVEN_SCORE;
+
                     // All x and y are 3 because it is 3x3
-                    if (vertical.size() == 3 && horizontal.size() == 3)
+                    if (v == 3 && h == 3)
                     {
                         int count = 0;
                         for (auto curr = vertical.begin(); curr != vertical.end(); curr++)
                         {
-                            if (curr->second == 3)
+                            auto value = curr->second;
+                            if (value == 3)
                                 count++;
                         }
                         for (auto curr = horizontal.begin(); curr != horizontal.end(); curr++)
                         {
-                            if (curr->second == 3)
+                            auto value = curr->second;
+                            if (value == 3)
                                 count++;
                         }
+
+
                         if (count < 6)
-                            score += count * pad::TIER_SEVEN_SCORE;
-                        else if (count == 6)
-                            score += pad::TIER_TEN_SCORE;
+                            score += count * pad::TIER_EIGHT_PLUS_SCORE;
+                        if (count == 6)
+                            score += count * pad::TIER_NINE_SCORE;
                     }
                 }
                 else
                 {
-                    score -= (size - 9) * pad::TIER_NINE_SCORE;
+                    score -= distance * pad::TIER_NINE_SCORE;
                 }
             }
         }
