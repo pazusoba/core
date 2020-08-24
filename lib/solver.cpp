@@ -78,13 +78,13 @@ std::vector<Route> PSolver::solve()
     //     new OrbProfile(3),
     // };
     // Combo only
-    // std::vector<Profile *> profiles{new ComboProfile};
+    std::vector<Profile *> profiles{new ComboProfile};
     // Laou
-    std::vector<Profile *> profiles{
-        new ComboProfile,
-        // new OneRowProfile({pad::fire}),
-        new VoidPenProfile({pad::fire}),
-    };
+    // std::vector<Profile *> profiles{
+    //     new ComboProfile,
+    //     // new OneRowProfile({pad::fire}),
+    //     new VoidPenProfile({pad::fire}),
+    // };
 
     ProfileManager::shared().updateProfile(profiles);
 
