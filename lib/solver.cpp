@@ -72,13 +72,13 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // Amen
-    // std::vector<Profile *> profiles{
-    //     new ComboProfile(7),
-    //     // new ColourProfile,
-    //     new OrbProfile(3),
-    // };
+    std::vector<Profile *> profiles{
+        new ComboProfile(7),
+        new ColourProfile,
+        new OrbProfile(3),
+    };
     // Combo only
-    std::vector<Profile *> profiles{new ComboProfile};
+    // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,

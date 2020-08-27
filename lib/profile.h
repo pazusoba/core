@@ -166,12 +166,12 @@ public:
                 if (distance > 0)
                 {
                     // Sometimes, it is ok to do more combo temporarily
-                    combo = targetCombo - combo;
+                    combo -= distance * 3;
                 }
                 else if (distance == 0)
                 {
                     // More points for doing exactly target combo
-                    score += pad::TIER_EIGHT_SCORE;
+                    score += pad::TIER_EIGHT_PLUS_SCORE;
                 }
             }
 
@@ -568,6 +568,7 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition) const override
     {
+
         // Get column and row based on board size
         int column = board.size();
         int row = board[0].size();
@@ -576,33 +577,46 @@ public:
             return 0;
 
         int score = 0;
-        int orbErased = 0;
-        // Score how many orbs are left for each type
-        std::map<Orb, int> allOrbs;
-        for (const auto &c : board)
+        // Only if there is at least one combo
+        if (list.size() > 0)
         {
-            for (const auto &r : c)
+            int orbErased = 0;
+            // Score how many orbs are left for each type
+            std::map<Orb, int> allOrbs;
+            for (const auto &c : board)
             {
-                if (r == pad::empty)
+                for (const auto &r : c)
                 {
-                    orbErased++;
+                    if (r == pad::empty)
+                    {
+                        orbErased++;
+                    }
+                    else
+                    {
+                        allOrbs[r]++;
+                    }
                 }
             }
-        }
 
-        // Get the distance from the goal
-        int distance = boardSize - orbErased;
-        // Haven't reached the goal yet
-        score += orbErased * pad::TIER_SIX_SCORE * 2;
-        for (const auto &c : list)
-        {
-            // Punish a little bit for remaining for orbs if it can make a combo
-            score -= allOrbs[c[0].orb] * pad::TIER_FIVE_SCORE;
-        }
+            score += orbErased * pad::TIER_SIX_SCORE;
+            for (auto curr = allOrbs.begin(); curr != allOrbs.end(); curr++)
+            {
+                int count = curr->second;
+                if (count <= minEraseCondition)
+                {
+                    score -= count * pad::TIER_FIVE_SCORE;
+                }
+            }
 
-        if (distance <= targetNumber)
-        {
-            score += (targetNumber - distance + 1) * pad::TIER_EIGHT_SCORE;
+            int goal = boardSize - targetNumber;
+            int range = goal - targetNumber;
+            if (orbErased >= range)
+            {
+                if (orbErased < goal)
+                {
+                    score -= (goal - orbErased) * pad::TIER_FIVE_SCORE;
+                }
+            }
         }
 
         return score;
