@@ -32,7 +32,7 @@ Now, with compiler optimisation and multi-threading, it runs quite fast. On my m
 - Prevent a cycle especially when the step is more than 60
 - Better queue and loop
 
-Many improvements have been done so far. Thread is causing some issues and some profiles can be better (they are worse than me and that's not acceptable). There are many duplicate board what should I do about it?
+Many improvements have been done so far. Thread is causing some issues and some profiles can be better (they are worse than me and that's not acceptable). There are many duplicate board what should I do about it? If size 20000 only takes about 3s or less, it would be amazing.
 
 ## Profiles
 There are many playstyles in Puzzle & Dragons and profile is just for that. Now, it supports combo, colour, shape and orb based profiles.

@@ -66,17 +66,16 @@ std::vector<Route> PSolver::solve()
     remove("path.pazusoba");
 
     // +
-    // std::vector<Profile *> profiles{
-    //     new ComboProfile,
-    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::light, pad::dark})};
-    // Amen
     std::vector<Profile *> profiles{
-        new ComboProfile(7),
-        new ColourProfile,
-        new OrbProfile(3),
-    };
+        new ComboProfile,
+        new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+        new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+        new ColourProfile({pad::light, pad::dark})};
+    // Amen
+    // std::vector<Profile *> profiles{
+    //     new ComboProfile(7),
+    //     new OrbProfile(2),
+    // };
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
@@ -133,6 +132,8 @@ std::vector<Route> PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
+        int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
+        threadSize = currSize / processor_count;
         Timer::shared().start(i);
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
