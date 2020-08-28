@@ -171,14 +171,17 @@ public:
                 else if (distance == 0)
                 {
                     // More points for doing exactly target combo
-                    score += pad::TIER_EIGHT_PLUS_SCORE;
+                    score += pad::TIER_NINE_SCORE;
                 }
+            }
+            else
+            {
+                score += pad::TIER_FIVE_SCORE * moveCount;
             }
 
             // Always aim for max combo by default
             score += pad::TIER_TWO_SCORE * orbAround;
             score += pad::TIER_THREE_SCORE * orbNext2;
-            score += pad::TIER_FIVE_SCORE * moveCount;
             score += pad::TIER_EIGHT_SCORE * combo;
         }
 
@@ -554,8 +557,8 @@ public:
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
-    // Only amen needs to have less than 3 orbs remaining
-    int targetNumber = 3;
+    // Aim for nothing less
+    int targetNumber = 0;
 
 public:
     OrbProfile() {}
@@ -568,14 +571,6 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition) const override
     {
-
-        // Get column and row based on board size
-        int column = board.size();
-        int row = board[0].size();
-        int boardSize = row * column;
-        if (targetNumber > boardSize)
-            return 0;
-
         int score = 0;
         // Only if there is at least one combo
         if (list.size() > 0)
@@ -588,35 +583,11 @@ public:
                 for (const auto &r : c)
                 {
                     if (r == pad::empty)
-                    {
                         orbErased++;
-                    }
-                    else
-                    {
-                        allOrbs[r]++;
-                    }
                 }
             }
 
-            score += orbErased * pad::TIER_SIX_SCORE;
-            for (auto curr = allOrbs.begin(); curr != allOrbs.end(); curr++)
-            {
-                int count = curr->second;
-                if (count <= minEraseCondition)
-                {
-                    score -= count * pad::TIER_FIVE_SCORE;
-                }
-            }
-
-            int goal = boardSize - targetNumber;
-            int range = goal - targetNumber;
-            if (orbErased >= range)
-            {
-                if (orbErased < goal)
-                {
-                    score -= (goal - orbErased) * pad::TIER_FIVE_SCORE;
-                }
-            }
+            score += orbErased * pad::TIER_SIX_SCORE * 2;
         }
 
         return score;
