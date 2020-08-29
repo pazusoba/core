@@ -53,7 +53,7 @@ bool PState::operator>(const PState &a) const
 bool PState::operator==(const PState &a) const
 {
     // Same previous location
-    if (previous == a.previous)
+    if (step < a.step && previous == a.previous)
     {
         return board.hasSameBoard(&a.board);
     }
@@ -81,9 +81,9 @@ PState::PStateList PState::getChildren()
                 (i == 1 && j == -1))
             {
                 // Only allow diagonal when it is close to the end
-                double percent = double(step) / double(maxStep);
-                if (percent < 0.9)
-                    continue;
+                // double percent = double(step) / double(maxStep);
+                // if (percent < 0.9)
+                //     continue;
             }
 
             auto next = LOCATION(current.first + i, current.second + j);

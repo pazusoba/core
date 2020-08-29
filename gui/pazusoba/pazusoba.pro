@@ -16,11 +16,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        ../../lib/board.cpp \
-        ../../lib/queue.cpp \
-        ../../lib/route.cpp \
-        ../../lib/solver.cpp \
-        ../../lib/state.cpp \
+        ../../core/board.cpp \
+        ../../core/queue.cpp \
+        ../../core/route.cpp \
+        ../../core/solver.cpp \
+        ../../core/state.cpp \
         bridge.cpp \
         main.cpp \
         michi.cpp
@@ -39,13 +39,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    ../../lib/board.h \
-    ../../lib/pad.h \
-    ../../lib/queue.h \
-    ../../lib/route.h \
-    ../../lib/solver.h \
-    ../../lib/state.h \
-    ../../lib/timer.h \
+    ../../core/board.h \
+    ../../core/pad.h \
+    ../../core/queue.h \
+    ../../core/route.h \
+    ../../core/solver.h \
+    ../../core/state.h \
+    ../../core/timer.h \
     bridge.h \
     michi.h
 

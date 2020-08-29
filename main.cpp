@@ -1,5 +1,5 @@
 #include <iostream>
-#include "lib/solver.h"
+#include "core/solver.h"
 
 /**
  * Return a solver pointer.

@@ -22,7 +22,7 @@ endif
 OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
-CPP_FILES=lib/*.cpp
+CPP_FILES=core/*.cpp
 
 # build
 build:

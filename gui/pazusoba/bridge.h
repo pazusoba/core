@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVector>
-#include "../../lib/solver.h"
+#include "../../core/solver.h"
 #include "michi.h"
 
 class QBridge : public QObject

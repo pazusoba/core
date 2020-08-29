@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <vector>
-#include "../../lib/route.h"
+#include "../../core/route.h"
 
 class QRoute : public QObject
 {

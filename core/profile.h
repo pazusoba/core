@@ -573,23 +573,59 @@ public:
     {
         int score = 0;
         // Only if there is at least one combo
-        if (list.size() > 0)
+        int orbErased = 0;
+        int orbLeft = 0;
+        // Score how many orbs are left for each type
+        std::map<Orb, int> allOrbs;
+        for (const auto &c : board)
         {
-            int orbErased = 0;
-            // Score how many orbs are left for each type
-            std::map<Orb, int> allOrbs;
-            for (const auto &c : board)
+            for (const auto &r : c)
             {
-                for (const auto &r : c)
+                if (r == pad::empty)
                 {
-                    if (r == pad::empty)
-                        orbErased++;
+                    orbErased++;
+                }
+                else
+                {
+                    allOrbs[r]++;
+                    orbLeft++;
                 }
             }
-
-            score += orbErased * pad::TIER_SIX_SCORE * 2;
         }
 
+        std::map<Orb, int> comboOrbs;
+        for (const auto &c : list)
+        {
+            comboOrbs[c[0].orb]++;
+            int size = c.size() - minEraseCondition;
+            score += size * pad::TIER_SIX_SCORE;
+        }
+
+        // See what's left but it needs to be based on comboOrbs as well
+        for (auto curr = allOrbs.begin(); curr != allOrbs.end(); curr++)
+        {
+            int count = curr->second;
+            // We could connect it to make a combo but we didn't
+            if (count >= minEraseCondition)
+            {
+                score -= count * pad::TIER_SIX_SCORE;
+            }
+
+            auto orb = curr->first;
+            if (comboOrbs[orb] > 0 && count < minEraseCondition)
+            {
+                // While connecting this orb, we didn't connect it
+                score -= count * pad::TIER_SIX_SCORE;
+            }
+
+        }
+
+        if (orbLeft <= targetNumber)
+        {
+            score += pad::TIER_NINE_SCORE;
+        }
+
+        score += orbErased * pad::TIER_SEVEN_SCORE;
         return score;
     }
 };

@@ -1,5 +1,5 @@
 #include "michi.h"
-#include "../../lib/pad.h"
+#include "../../core/pad.h"
 
 QRoute::QRoute(Route &r)
 {
