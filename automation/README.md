@@ -1,5 +1,5 @@
 # Automation
-This is the ultimate goal for pazusoba, solving the puzzle and performing the solution. `scrcpy` is used to mirror and control my Android devices. For iOS devices, `Dell Mobile Connect` can be used.
+This is the ultimate goal for pazusoba, solving the puzzle and performing the solution. `scrcpy` is used to mirror and control my Android devices. For iOS devices, `Dell Mobile Connect` can be used. `Wormhole` is another alternative and is quite good but it is paid.
 
 #### Scrcpy
 It might be a good idea to reduce the bit rate and resolution so that it won't affect the performance of your device. The solver only needs to take a screenshot of it so it doesn't need to be too high resolution. The board is recognised by colour so it should work for all games.
@@ -28,5 +28,6 @@ Move `pazusoba.exe` to `automation` folder. Then, use `board_location.py` to loc
 # Extra
 - [All orb styles](https://pad.protic.site/resource/orb-skins/)
 - [Template Matching with Multiple Objects](https://docs.opencv.org/4.2.0/d4/dc6/tutorial_py_template_matching.html)
+- [Wormhole website](https://www.er.run/), not sponsored
 
 **Special thanks to my op `cody` dai senpai for helping me with opencv.**
