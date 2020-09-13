@@ -175,7 +175,7 @@ public:
             }
             
             // Less points if far away
-            score -= pad::TIER_FOUR_SCORE * distance;
+            score -= pad::TIER_SEVEN_SCORE * distance;
         }
 
         if (targetCombo == 0)
@@ -194,7 +194,7 @@ public:
                 if (distance > 0)
                 {
                     // Sometimes, it is ok to do more combo temporarily
-                    combo -= distance * 4;
+                    combo *= -1;
                 }
                 else if (distance == 0)
                 {
@@ -270,11 +270,15 @@ class ShapeProfile : public Profile
     std::vector<Orb> orbs;
 
 public:
+    ShapeProfile() {}
     ShapeProfile(std::vector<Orb> o) : orbs(o) {}
 
     // Check if orb list contains this orb
     virtual bool isTheOrb(Orb orb) const
     {
+        if (orbs.size() == 0)
+            return true;
+
         for (const auto &o : orbs)
         {
             if (orb == o)
@@ -290,6 +294,7 @@ public:
 class TwoWayProfile : public ShapeProfile
 {
 public:
+    TwoWayProfile(): ShapeProfile() {}
     TwoWayProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -315,6 +320,7 @@ public:
 class LProfile : public ShapeProfile
 {
 public:
+    LProfile(): ShapeProfile() {}
     LProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -373,6 +379,7 @@ public:
 class PlusProfile : public ShapeProfile
 {
 public:
+    PlusProfile(): ShapeProfile() {}
     PlusProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -431,6 +438,7 @@ public:
 class VoidPenProfile : public ShapeProfile
 {
 public:
+    VoidPenProfile(): ShapeProfile() {}
     VoidPenProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -518,6 +526,7 @@ public:
 class SoybeanProfile : public ShapeProfile
 {
 public:
+    SoybeanProfile(): ShapeProfile() {}
     SoybeanProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -543,6 +552,7 @@ public:
 class OneRowProfile : public ShapeProfile
 {
 public:
+    OneRowProfile(): ShapeProfile() {}
     OneRowProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -583,6 +593,50 @@ public:
     }
 };
 
+class OneColumnProfile : public ShapeProfile
+{
+public:
+    OneColumnProfile(): ShapeProfile() {}
+    OneColumnProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
+
+    std::string getProfileName() const override
+    {
+        return "column";
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition) const override
+    {
+        int score = 0;
+        int column = board[0].size();
+        for (const auto &c : list)
+        {
+            int size = c.size();
+            // It is a column
+            if (size == column && isTheOrb(c[0].orb))
+            {
+                // Record all encountered x
+                std::map<int, int> xs;
+                for (const auto &loc : c)
+                {
+                    // Track x because it should have the number of row
+                    xs[loc.second]++;
+                }
+
+                // Sometimes, it is a long L so just check which x has more than row times
+                for (auto curr = xs.begin(); curr != xs.end(); curr++)
+                {
+                    if (curr->second == column)
+                    {
+                        score += pad::TIER_NINE_SCORE;
+                        break;
+                    }
+                }
+            }
+        }
+        return score;
+    }
+};
+
 // More points if there are less orbs left
 class OrbProfile : public Profile
 {
@@ -601,87 +655,47 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition) const override
     {
         int score = 0;
-        // Only if there is at least one combo
+
+        // Track how many orbs are erased and left
         int orbErased = 0;
         int orbLeft = 0;
-        // Get column and row based on board size
-        int column = board.size();
-        int row = board[0].size();
-
-        // Score how many orbs are left for each type
-        std::map<Orb, int> allOrbs;
-        // Collect all orbs with current location
-        std::map<Orb, std::vector<OrbLocation>> distanceInfo;
-        for (int i = 0; i < column; i++)
+        std::map<Orb, int> orbLeftInfo;
+        for (const auto &r: board)
         {
-            for (int j = 0; j < row; j++)
+            for (const auto &orb : r)
             {
-                auto curr = board[i][j];
-                if (curr == pad::empty)
+                if (orb == pad::empty)
                 {
                     orbErased++;
                 }
                 else
                 {
-                    allOrbs[curr]++;
+                    orbLeftInfo[orb]++;
                     orbLeft++;
-                    // Also save the location
-                    distanceInfo[curr].push_back(LOCATION(i, j));
                 }
             }
         }
 
-        // For every orbs, we need to get the distance of it from other orbs
-        for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
-        {
-            // track the total distance
-            int distance = 0;
-            auto orbs = curr->second;
-            int size = orbs.size();
-            for (int i = 0; i < size; i++)
-            {
-                auto loc = orbs[i];
-                for (int j = i; j < size; j++)
-                {
-                    auto other = orbs[j];
-                    distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
-                }
-            }
-            
-            // Less points if far away
-            score -= pad::TIER_EIGHT_SCORE * distance;
-        }
-
-        std::map<Orb, int> comboOrbs;
+        // Encourage to connect more orbs in a combo
         for (const auto &c : list)
         {
-            comboOrbs[c[0].orb]++;
-            int size = c.size() - minEraseCondition;
-            score += size * pad::TIER_SEVEN_SCORE;
+            int size = c.size();
+            score += (size - minEraseCondition) * pad::TIER_FIVE_SCORE;
         }
 
-        // See what's left but it needs to be based on comboOrbs as well
-        for (auto curr = allOrbs.begin(); curr != allOrbs.end(); curr++)
+        // Punish for having some orbs left
+        for (auto curr = orbLeftInfo.begin(); curr != orbLeftInfo.end(); curr++)
         {
-            int count = curr->second;
-            // We could connect it to make a combo but we didn't
-            if (count > minEraseCondition)
-            {
-                score -= count * pad::TIER_EIGHT_SCORE;
-            }
-
-            auto orb = curr->first;
-            if (comboOrbs[orb] > 0 && count <= minEraseCondition)
-            {
-                // While connecting this orb, we didn't connect it
-                score -= minEraseCondition * pad::TIER_NINE_SCORE;
-            }
+            score -= curr->second * pad::TIER_EIGHT_SCORE;
         }
 
+        // More points for erasing more orbs
+        score += pad::TIER_EIGHT_SCORE * orbErased;
         if (orbLeft <= targetNumber)
         {
-            score += pad::TIER_EIGHT_SCORE;
+            score += pad::TIER_NINE_SCORE;
         }
+
         return score;
     }
 };
