@@ -617,12 +617,12 @@ public:
                 for (int j = i; j < size; j++)
                 {
                     auto other = orbs[j];
-                    distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
+                    distance += abs(loc.first - other.first) + abs(loc.second - other.second);
                 }
             }
             
             // Less points if far away
-            score -= pad::TIER_TEN_SCORE * distance;
+            score -= pad::TIER_EIGHT_SCORE * distance;
         }
 
         std::map<Orb, int> comboOrbs;
@@ -647,7 +647,7 @@ public:
             if (comboOrbs[orb] > 0 && count <= minEraseCondition)
             {
                 // While connecting this orb, we didn't connect it
-                score -= count * pad::TIER_EIGHT_SCORE;
+                score -= minEraseCondition * pad::TIER_EIGHT_SCORE;
             }
         }
 
