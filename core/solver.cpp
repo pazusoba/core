@@ -74,7 +74,7 @@ std::vector<Route> PSolver::solve()
     // Amen
     std::vector<Profile *> profiles{
         new ComboProfile(7),
-        new OrbProfile(3)};
+        new OrbProfile(0)};
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou

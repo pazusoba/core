@@ -74,17 +74,17 @@ PState::PStateList PState::getChildren()
     {
         for (int j = -1; j <= 1; j++)
         {
-            if (
-                (i == -1 && j == -1) ||
-                (i == 1 && j == 1) ||
-                (i == -1 && j == 1) ||
-                (i == 1 && j == -1))
-            {
-                // Only allow diagonal when it is close to the end
-                double percent = double(step) / double(maxStep);
-                if (percent < 0.7)
-                    continue;
-            }
+            // if (
+            //     (i == -1 && j == -1) ||
+            //     (i == 1 && j == 1) ||
+            //     (i == -1 && j == 1) ||
+            //     (i == 1 && j == -1))
+            // {
+            //     // Only allow diagonal when it is close to the end
+            //     double percent = double(step) / double(maxStep);
+            //     if (percent < 0.7)
+            //         continue;
+            // }
 
             auto next = LOCATION(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations

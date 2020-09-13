@@ -167,7 +167,7 @@ public:
                 if (distance > 0)
                 {
                     // Sometimes, it is ok to do more combo temporarily
-                    combo -= distance * 3;
+                    combo -= distance * 4;
                 }
                 else if (distance == 0)
                 {
@@ -622,7 +622,7 @@ public:
             }
             
             // Less points if far away
-            score -= pad::TIER_FOUR_SCORE * distance;
+            score -= pad::TIER_SEVEN_SCORE * distance;
         }
 
         std::map<Orb, int> comboOrbs;
@@ -638,10 +638,7 @@ public:
         {
             int count = curr->second;
             // We could connect it to make a combo but we didn't
-            if (count >= minEraseCondition)
-            {
-                score -= count * pad::TIER_SEVEN_SCORE;
-            }
+            score -= count * pad::TIER_SEVEN_SCORE;
 
             auto orb = curr->first;
             if (comboOrbs[orb] > 0 && count < minEraseCondition)
@@ -656,8 +653,6 @@ public:
         {
             score += pad::TIER_NINE_SCORE;
         }
-
-        score += orbErased * pad::TIER_SEVEN_SCORE;
         return score;
     }
 };
