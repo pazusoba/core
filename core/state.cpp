@@ -81,9 +81,9 @@ PState::PStateList PState::getChildren()
                 (i == 1 && j == -1))
             {
                 // Only allow diagonal when it is close to the end
-                // double percent = double(step) / double(maxStep);
-                // if (percent < 0.9)
-                //     continue;
+                double percent = double(step) / double(maxStep);
+                if (percent < 0.7)
+                    continue;
             }
 
             auto next = LOCATION(current.first + i, current.second + j);

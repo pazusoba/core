@@ -11,6 +11,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include "board.h"
@@ -576,22 +577,52 @@ public:
         // Only if there is at least one combo
         int orbErased = 0;
         int orbLeft = 0;
+        // Get column and row based on board size
+        int column = board.size();
+        int row = board[0].size();
+
         // Score how many orbs are left for each type
         std::map<Orb, int> allOrbs;
-        for (const auto &c : board)
+        // Collect all orbs with current location
+        std::map<Orb, std::vector<OrbLocation>> distanceInfo;
+        for (int i = 0; i < column; i++)
         {
-            for (const auto &r : c)
+            for (int j = 0; j < row; j++)
             {
-                if (r == pad::empty)
+                auto curr = board[i][j];
+                if (curr == pad::empty)
                 {
                     orbErased++;
                 }
                 else
                 {
-                    allOrbs[r]++;
+                    allOrbs[curr]++;
                     orbLeft++;
+                    // Also save the location
+                    distanceInfo[curr].push_back(LOCATION(i, j));
                 }
             }
+        }
+
+        // For every orbs, we need to get the distance of it from other orbs
+        for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
+        {
+            // track the total distance
+            int distance = 0;
+            auto orbs = curr->second;
+            int size = orbs.size();
+            for (int i = 0; i < size; i++)
+            {
+                auto loc = orbs[i];
+                for (int j = i; j < size; j++)
+                {
+                    auto other = orbs[j];
+                    distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
+                }
+            }
+            
+            // Less points if far away
+            score -= pad::TIER_FOUR_SCORE * distance;
         }
 
         std::map<Orb, int> comboOrbs;
@@ -599,7 +630,7 @@ public:
         {
             comboOrbs[c[0].orb]++;
             int size = c.size() - minEraseCondition;
-            score += size * pad::TIER_SIX_SCORE;
+            score += size * pad::TIER_SEVEN_SCORE;
         }
 
         // See what's left but it needs to be based on comboOrbs as well
@@ -609,14 +640,14 @@ public:
             // We could connect it to make a combo but we didn't
             if (count >= minEraseCondition)
             {
-                score -= count * pad::TIER_SIX_SCORE;
+                score -= count * pad::TIER_SEVEN_SCORE;
             }
 
             auto orb = curr->first;
             if (comboOrbs[orb] > 0 && count < minEraseCondition)
             {
                 // While connecting this orb, we didn't connect it
-                score -= count * pad::TIER_SIX_SCORE;
+                score -= count * pad::TIER_SEVEN_SCORE;
             }
 
         }
