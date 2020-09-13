@@ -75,7 +75,7 @@ std::vector<Route> PSolver::solve()
     std::vector<Profile *> profiles{
         new ComboProfile(7),
         new OrbProfile(3),
-        new ColourProfile};
+        new LProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
