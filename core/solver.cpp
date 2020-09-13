@@ -73,10 +73,8 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile({pad::light, pad::dark})};
     // Amen
     std::vector<Profile *> profiles{
-        new ComboProfile(10),
-        // new OrbProfile(3),
-        new ColourProfile
-    };
+        new ComboProfile(7),
+        new OrbProfile(3)};
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
@@ -139,7 +137,7 @@ std::vector<Route> PSolver::solve()
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
-        int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 300;
+        int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         threadSize = currSize / processor_count;
         Timer::shared().start(i);
         // Use multi threading

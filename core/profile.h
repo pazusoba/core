@@ -176,6 +176,7 @@ public:
             }
             else
             {
+                // Encourage cascading
                 score += pad::TIER_FIVE_SCORE * moveCount;
             }
 
