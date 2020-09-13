@@ -175,7 +175,7 @@ public:
             }
             
             // Less points if far away
-            score -= pad::TIER_SEVEN_SCORE * distance;
+            score -= pad::TIER_THREE_SCORE * distance;
         }
 
         if (targetCombo == 0)
@@ -509,7 +509,7 @@ public:
                         if (count < 6)
                             score += count * pad::TIER_EIGHT_PLUS_SCORE;
                         if (count == 6)
-                            score += count * pad::TIER_NINE_SCORE;
+                            score += count * pad::TIER_TEN_SCORE;
                     }
                 }
                 else
@@ -542,7 +542,7 @@ public:
             int size = c.size();
             if (size >= 10 && size <= 12 && isTheOrb(c[0].orb))
             {
-                score += pad::TIER_TEN_SCORE;
+                score += pad::TIER_NINE_SCORE;
             }
         }
         return score;
@@ -627,7 +627,7 @@ public:
                 {
                     if (curr->second == column)
                     {
-                        score += pad::TIER_NINE_SCORE;
+                        score += pad::TIER_EIGHT_PLUS_SCORE;
                         break;
                     }
                 }
