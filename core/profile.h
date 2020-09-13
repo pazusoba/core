@@ -604,6 +604,18 @@ public:
             }
         }
 
+        std::map<Orb, int> comboOrbs;
+        for (const auto &c : list)
+        {
+            comboOrbs[c[0].orb]++;
+            int size = c.size() - minEraseCondition;
+            score += size * pad::TIER_SEVEN_SCORE;
+
+            // Add combo location in distance info as well
+            for (const auto &o : c)
+                distanceInfo[o.orb].push_back(LOCATION(o.first, o.second));
+        }
+
         // For every orbs, we need to get the distance of it from other orbs
         for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
         {
@@ -623,14 +635,6 @@ public:
             
             // Less points if far away
             score -= pad::TIER_TEN_SCORE * distance;
-        }
-
-        std::map<Orb, int> comboOrbs;
-        for (const auto &c : list)
-        {
-            comboOrbs[c[0].orb]++;
-            int size = c.size() - minEraseCondition;
-            score += size * pad::TIER_SEVEN_SCORE;
         }
 
         // See what's left but it needs to be based on comboOrbs as well
