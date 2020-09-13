@@ -6,6 +6,7 @@
 **/*.exe
 **/*.gch
 **/*_wrap.cxx
+**/.ipynb_checkpoints
 
 # generated boards
 **/board_*.txt
