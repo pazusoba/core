@@ -647,7 +647,7 @@ public:
             if (comboOrbs[orb] > 0 && count <= minEraseCondition)
             {
                 // While connecting this orb, we didn't connect it
-                score -= count * pad::TIER_NINE_SCORE;
+                score -= minEraseCondition * pad::TIER_NINE_SCORE;
             }
         }
 

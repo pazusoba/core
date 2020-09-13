@@ -266,7 +266,8 @@ int PBoard::eraseOrbs()
             auto vhOrbs = findSameOrbsAround(i, j);
             // Here we need to loop throufh vhOrbs and check all orbs to see if there are orbs that can be erased
             auto it = vhOrbs.begin();
-            while (it != vhOrbs.end())
+            // If it only has one, this loop is being ignored
+            do
             {
                 // nextOrb is a pointer to the next pair
                 auto nextOrb = nextSameOrbAround(&vhOrbs, *it);
@@ -285,7 +286,7 @@ int PBoard::eraseOrbs()
                     }
                 }
                 it++;
-            }
+            } while (it != vhOrbs.end());
 
             // There should be orbs inside, check if the size is more than minEraseCondition (it was causing some issues)
             if ((int)vhOrbs.size() >= minEraseCondition)
