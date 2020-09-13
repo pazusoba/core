@@ -622,7 +622,7 @@ public:
             }
             
             // Less points if far away
-            score -= pad::TIER_SEVEN_SCORE * distance;
+            score -= pad::TIER_TEN_SCORE * distance;
         }
 
         std::map<Orb, int> comboOrbs;
@@ -638,20 +638,22 @@ public:
         {
             int count = curr->second;
             // We could connect it to make a combo but we didn't
-            score -= count * pad::TIER_SEVEN_SCORE;
-
-            auto orb = curr->first;
-            if (comboOrbs[orb] > 0 && count < minEraseCondition)
+            if (count > minEraseCondition)
             {
-                // While connecting this orb, we didn't connect it
-                score -= count * pad::TIER_EIGHT_SCORE;
+                score -= count * pad::TIER_NINE_SCORE;
             }
 
+            auto orb = curr->first;
+            if (comboOrbs[orb] > 0 && count <= minEraseCondition)
+            {
+                // While connecting this orb, we didn't connect it
+                score -= pad::TIER_EIGHT_SCORE * count;
+            }
         }
 
         if (orbLeft <= targetNumber)
         {
-            score += pad::TIER_NINE_SCORE;
+            score += pad::TIER_EIGHT_SCORE;
         }
         return score;
     }
