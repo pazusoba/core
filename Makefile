@@ -1,8 +1,8 @@
-# set it to `mac` to use mac/linux command and use `win` for windows
-PLATFORM=win
+# set it to `linux` to use linux based command and use `win` for windows
+PLATFORM=linux
 
 # assign different commands
-ifeq ($(PLATFORM), mac)
+ifeq ($(PLATFORM), linux)
 	MAKE=make
 	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll **/*.pazusoba
 	OUTPUT=./a.out
