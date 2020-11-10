@@ -1,10 +1,10 @@
-# set it to `linux` to use linux based command and use `win` for windows
-PLATFORM=linux
+# set it to `mac` or `win`
+PLATFORM=mac
 
 # assign different commands
-ifeq ($(PLATFORM), linux)
+ifeq ($(PLATFORM), mac)
 	MAKE=make
-	CLEAN=rm -rf **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll **/*.pazusoba
+	CLEAN=rm -r *.out *.dSYM .DS_Store *.o *.so *.dll *.pazusoba
 	OUTPUT=./a.out
 	MOVE=mv board_*.txt assets/
 	OUTPUT_PYTHON=pazusoba.out
@@ -22,7 +22,10 @@ endif
 OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
-CPP_FILES=core/*.cpp
+
+# v1 or v2
+VERSION=v1
+CPP_FILES=core/$(VERSION)/*.cpp
 
 # build
 build:

@@ -1,6 +1,11 @@
 # Automation
 This is the ultimate goal for pazusoba, solving the puzzle and performing the solution. `scrcpy` is used to mirror and control my Android devices. For iOS devices, `Dell Mobile Connect` can be used. `Wormhole` is another alternative and is quite good but it is paid.
 
+## Supported system
+- Windows
+- Mac OS
+- Linux, maybe (manual adjustment)
+
 #### Scrcpy
 It might be a good idea to reduce the bit rate and resolution so that it won't affect the performance of your device. The solver only needs to take a screenshot of it so it doesn't need to be too high resolution. The board is recognised by colour so it should work for all games.
 ~~~shell
