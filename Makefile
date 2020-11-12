@@ -4,7 +4,7 @@ PLATFORM=mac
 # assign different commands
 ifeq ($(PLATFORM), mac)
 	MAKE=make
-	CLEAN=rm -r **/*.out **/*.dSYM **/.DS_Store **/*.o **/*.so **/*.dll **/*.pazusoba
+	CLEAN=rm -rf ../**/*.out ../**/*.dSYM ../**/.DS_Store ../**/*.o ../**/*.so ../**/*.dll ../**/*.pazusoba
 	OUTPUT=./a.out
 	MOVE_BOARDS=mv board_*.txt assets/
 	OUTPUT_PYTHON=pazusoba.out
@@ -23,21 +23,24 @@ endif
 # flto - linking
 OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
-GCC=g++ -Wall -Werror -std=c++11 $(OPTIMISATION)
+GCC=g++ -Wall -Werror -std=c++11
 
 # v1 or v2, decides the source to compile
-VERSION=v1
+VERSION=v2
 CPP_FILES=core/$(VERSION)/*.cpp
 
 build:
-	$(GCC) main.cpp $(CPP_FILES)
+	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES)
+
+debug:
+	$(GCC) -g main_$(VERSION).cpp $(CPP_FILES)
 
 clean:
 	$(CLEAN)
 
 # compile for automation
 python:
-	$(GCC) main.cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
+	$(GCC) $(OPTIMISATION) main.cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
 	$(MOVE_PYTHON)
 
 # get 20 boards of all sizes (76, 65, 54)
