@@ -5,45 +5,39 @@
 // Created by Yiheng Quan on 11/11/2020
 //
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef _TIMER_H_
+#define _TIMER_H_
 
 #include <iostream>
 #include <chrono>
-#include <map>
+#include <string>
 
 namespace pazusoba
 {
+    using namespace std;
     using namespace std::chrono;
 
-    // TODO: improve this maybe?
     class Timer
     {
     private:
-        // This tracks all starting time
-        std::map<int, system_clock::time_point> timers;
-        Timer() {}
+        /// Track the starting time
+        time_point<high_resolution_clock> start;
+        /// Used for know which timer only
+        string name;
 
     public:
-        // A shared instance
-        static Timer &shared()
+        Timer(string name) : name(name)
         {
-            static Timer instance;
-            return instance;
+            start = high_resolution_clock::now();
         }
 
-        // Use int as a key
-        void start(int key)
+        /// When the timer is out of the scope, this function will be called
+        ~Timer()
         {
-            timers[key] = system_clock::now();
-        }
-
-        // Check how long it has passed
-        void end(int key)
-        {
-            auto end = system_clock::now();
-            duration<double> t = end - timers[key];
-            std::cout << "Key " << key << " - time: " << t.count() << "s\n";
+            duration<double> duration = high_resolution_clock::now() - start;
+            auto second = duration.count();
+            auto ms = second * 1000;
+            cout << name << " | " << second << "s (" << ms << "ms)" << endl;
         }
     };
 } // namespace pazusoba
