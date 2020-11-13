@@ -198,7 +198,7 @@ std::vector<Route> PSolver::solve()
                     }
                     mtx.unlock();
 
-                    if (shouldAdd)
+                    if (shouldAdd && currentState != nullptr)
                     {
                         // All all possible children
                         for (auto &s : currentState->getChildren())

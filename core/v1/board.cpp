@@ -73,11 +73,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
-    auto orb = board[ox][oy];
-    // return if it is empty
-    if (orb == pad::empty)
-        return false;
-        
+    auto orb = board[ox][oy];        
     // only check if there is at least one same orb around
     if (hasSameOrb(orb, ox - 1, oy ) ||
         hasSameOrb(orb, ox + 1, oy) ||
