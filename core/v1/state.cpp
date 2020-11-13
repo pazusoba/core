@@ -63,7 +63,7 @@ bool PState::operator==(const PState &a) const
 
 /// Functions
 
-PState::PStateList PState::getChildren()
+PState::PStateList PState::getChildren(int level)
 {
     // Stop when max step has been reached or children has been collected before
     if (step > maxStep)
@@ -81,9 +81,10 @@ PState::PStateList PState::getChildren()
                 (i == 1 && j == -1))
             {
                 // Only allow diagonal when it is close to the end
-                double percent = double(step) / double(maxStep);
-                if (percent < 0.9)
-                    continue;
+//                double percent = double(step) / double(maxStep);
+//                if (percent < 0.9)
+//                    continue;
+                continue;
             }
 
             auto next = LOCATION(current.first + i, current.second + j);
@@ -98,6 +99,15 @@ PState::PStateList PState::getChildren()
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
                 nextState->parent = this;
                 children.push_back(nextState);
+                
+                // Based on level, go deeper and append more potential children state
+                for (int i = 1; i < level; i++)
+                {
+                    for (const auto &state : nextState->getChildren(level - 1))
+                    {
+                        deeperChildren.push_back(state);
+                    }
+                }
             }
         }
     }

@@ -201,7 +201,7 @@ std::vector<Route> PSolver::solve()
                     if (shouldAdd && currentState != nullptr)
                     {
                         // All all possible children
-                        for (auto &s : currentState->getChildren())
+                        for (auto &s : currentState->getChildren(1))
                         {
                             // Simply insert because states compete with each other
                             mtx.lock();

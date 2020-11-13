@@ -19,6 +19,7 @@ class PState
     int maxStep;
     // ALl possible moves from this state
     PStateList children;
+    PStateList deeperChildren;
 
     // This is a recursive function to print from the beginning
     void printStateFromRoot(PState *parent);
@@ -51,7 +52,12 @@ public:
     bool operator==(const PState &a) const;
 
     // This returns a list of all possible children states
-    PStateList getChildren();
+    PStateList getChildren(int level);
+    
+    inline PStateList getDeeperChildren()
+    {
+        return deeperChildren;
+    }
 
     // Print out current state, its board, score and more
     void printState();
