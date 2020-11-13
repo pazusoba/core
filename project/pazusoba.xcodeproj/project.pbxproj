@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		92262344255E7B6200971027 /* main_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262342255E7B6200971027 /* main_v1.cpp */; };
+		9226237A255E7E4900971027 /* route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9226236D255E7E4900971027 /* route.cpp */; };
+		9226237B255E7E4900971027 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262372255E7E4900971027 /* state.cpp */; };
+		9226237C255E7E4900971027 /* solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262373255E7E4900971027 /* solver.cpp */; };
+		9226237D255E7E4900971027 /* queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262377255E7E4900971027 /* queue.cpp */; };
+		9226237E255E7E4900971027 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262378255E7E4900971027 /* board.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,9 +29,20 @@
 
 /* Begin PBXFileReference section */
 		92262335255E792D00971027 /* pazusoba */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pazusoba; sourceTree = BUILT_PRODUCTS_DIR; };
-		92262341255E7B5700971027 /* core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = core; path = ../core; sourceTree = "<group>"; };
 		92262342255E7B6200971027 /* main_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_v1.cpp; path = ../main_v1.cpp; sourceTree = "<group>"; };
-		92262343255E7B6200971027 /* main_v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_v2.cpp; path = ../main_v2.cpp; sourceTree = "<group>"; };
+		9226236D255E7E4900971027 /* route.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = route.cpp; path = ../core/v1/route.cpp; sourceTree = "<group>"; };
+		9226236E255E7E4900971027 /* pad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pad.h; path = ../core/v1/pad.h; sourceTree = "<group>"; };
+		9226236F255E7E4900971027 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = state.h; path = ../core/v1/state.h; sourceTree = "<group>"; };
+		92262370255E7E4900971027 /* profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profile.h; path = ../core/v1/profile.h; sourceTree = "<group>"; };
+		92262371255E7E4900971027 /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = queue.h; path = ../core/v1/queue.h; sourceTree = "<group>"; };
+		92262372255E7E4900971027 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = state.cpp; path = ../core/v1/state.cpp; sourceTree = "<group>"; };
+		92262373255E7E4900971027 /* solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = solver.cpp; path = ../core/v1/solver.cpp; sourceTree = "<group>"; };
+		92262374255E7E4900971027 /* solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solver.h; path = ../core/v1/solver.h; sourceTree = "<group>"; };
+		92262375255E7E4900971027 /* board.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = board.h; path = ../core/v1/board.h; sourceTree = "<group>"; };
+		92262376255E7E4900971027 /* route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = route.h; path = ../core/v1/route.h; sourceTree = "<group>"; };
+		92262377255E7E4900971027 /* queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = queue.cpp; path = ../core/v1/queue.cpp; sourceTree = "<group>"; };
+		92262378255E7E4900971027 /* board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = board.cpp; path = ../core/v1/board.cpp; sourceTree = "<group>"; };
+		92262379255E7E4900971027 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../core/v1/timer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,8 +60,19 @@
 			isa = PBXGroup;
 			children = (
 				92262342255E7B6200971027 /* main_v1.cpp */,
-				92262343255E7B6200971027 /* main_v2.cpp */,
-				92262341255E7B5700971027 /* core */,
+				92262378255E7E4900971027 /* board.cpp */,
+				92262375255E7E4900971027 /* board.h */,
+				9226236E255E7E4900971027 /* pad.h */,
+				92262370255E7E4900971027 /* profile.h */,
+				92262377255E7E4900971027 /* queue.cpp */,
+				92262371255E7E4900971027 /* queue.h */,
+				9226236D255E7E4900971027 /* route.cpp */,
+				92262376255E7E4900971027 /* route.h */,
+				92262373255E7E4900971027 /* solver.cpp */,
+				92262374255E7E4900971027 /* solver.h */,
+				92262372255E7E4900971027 /* state.cpp */,
+				9226236F255E7E4900971027 /* state.h */,
+				92262379255E7E4900971027 /* timer.h */,
 				92262336255E792D00971027 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -115,6 +142,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				92262344255E7B6200971027 /* main_v1.cpp in Sources */,
+				9226237D255E7E4900971027 /* queue.cpp in Sources */,
+				9226237E255E7E4900971027 /* board.cpp in Sources */,
+				9226237B255E7E4900971027 /* state.cpp in Sources */,
+				9226237C255E7E4900971027 /* solver.cpp in Sources */,
+				9226237A255E7E4900971027 /* route.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
