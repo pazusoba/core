@@ -8,6 +8,9 @@
 #include <queue>
 #include <map>
 #include <unordered_map>
+#include <boost/unordered_map.hpp>
+#include <boost/container/deque.hpp>
+#include <boost/unordered_set.hpp>
 #include <set>
 #include "board.h"
 #include "profile.h"
@@ -74,14 +77,14 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
-    using namespace std;
+    using namespace boost;
     // TODO: the queue here slows down quite a lot
-    queue<OrbLocation> toVisit;
-    set<OrbLocation> inserted;
+    std::queue<OrbLocation> toVisit;
+    unordered_set<OrbLocation> inserted;
     toVisit.emplace(LOCATION(ox, oy));
     // TODO: use unordered_map instead
     // vertical 10, horizontal 1
-    map<OrbLocation, int> visited;
+    unordered_map<OrbLocation, int> visited;
 
     // Keep searching until all locations are visited
     while (toVisit.size() > 0)
