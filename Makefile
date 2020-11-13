@@ -26,7 +26,7 @@ OPTIMISATION=-Ofast -flto -lpthread
 GCC=g++ -Wall -Werror -std=c++11
 
 # v1 or v2, decides the source to compile
-VERSION=v2
+VERSION=v1
 CPP_FILES=core/$(VERSION)/*.cpp
 
 build:
@@ -40,7 +40,7 @@ clean:
 
 # compile for automation
 python:
-	$(GCC) $(OPTIMISATION) main.cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
+	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
 	$(MOVE_PYTHON)
 
 # get 20 boards of all sizes (76, 65, 54)
