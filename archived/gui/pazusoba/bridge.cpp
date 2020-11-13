@@ -12,7 +12,6 @@ QBridge::QBridge(QObject *parent) : QObject(parent)
 void QBridge::solve()
 {
     // Don't call it multiple times
-    // TODO: add async to this so that UI will not freeze
     if (shouldSolve)
     {
         // Clear all old routes

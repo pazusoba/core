@@ -221,6 +221,10 @@ public:
 
           return false;
      }
+
+     inline int orbLocationKey(const OrbLocation &loc) {
+          return loc.first * 10000 + loc.second;
+     }
 };
 
 #endif
