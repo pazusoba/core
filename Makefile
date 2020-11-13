@@ -5,6 +5,7 @@ PLATFORM=mac
 ifeq ($(PLATFORM), mac)
 	MAKE=make
 	CLEAN=rm -rf ../**/*.out ../**/*.dSYM ../**/.DS_Store ../**/*.o ../**/*.so ../**/*.dll ../**/*.pazusoba
+	CLEAN_AUTOMATION=rm -rf automation/*.png automation/*.out automation/*.pazusoba automation/.ipynb*/
 	OUTPUT=./a.out
 	MOVE_BOARDS=mv board_*.txt assets/
 	OUTPUT_PYTHON=pazusoba.out
@@ -12,6 +13,7 @@ ifeq ($(PLATFORM), mac)
 else ifeq ($(PLATFORM), win)
 	MAKE=mingw32-make.exe
 	CLEAN=del /s *.exe *.o *.so *.dll *.pazusoba
+	CLEAN_AUTOMATION=del /s automation/*.png automation/*.out automation/*.pazusoba automation/.ipynb*/
 	OUTPUT=./a.exe
 	MOVE_BOARDS=move /y board_*.txt assets/
 	OUTPUT_PYTHON=pazusoba.exe
@@ -36,6 +38,7 @@ debug:
 	$(GCC) -g main_$(VERSION).cpp $(CPP_FILES)
 
 clean:
+	$(CLEAN_AUTOMATION)
 	$(CLEAN)
 
 # compile for automation

@@ -71,6 +71,11 @@ std::vector<Route> PSolver::solve()
     //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
+    // paimon
+    std::vector<Profile *> profiles{
+        new ComboProfile,
+        new PlusProfile({pad::light, pad::dark}),
+        new ColourProfile({pad::light, pad::dark})};
     // Amen
     // std::vector<Profile *> profiles{
     //     new ComboProfile(7),
@@ -79,11 +84,12 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile,
     //     new OneColumnProfile};
     // Amen & +
-    std::vector<Profile *> profiles{
-        new ComboProfile(7),
-        new OrbProfile(3),
-        new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-        new OneColumnProfile};
+    // std::vector<Profile *>
+    //     profiles{
+    //         new ComboProfile(7),
+    //         new OrbProfile(3),
+    //         new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+    //         new OneColumnProfile};
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
@@ -176,7 +182,7 @@ std::vector<Route> PSolver::solve()
                     // Save current score for printing out later
                     int currentScore = currentState->score;
                     int currentStep = currentState->step;
-                    
+
                     // Save best scores
                     bool shouldAdd = false;
                     mtx.lock();
@@ -254,7 +260,7 @@ std::vector<Route> PSolver::solve()
             bestState = it->second;
         routes.emplace_back(it->second);
     }
-    
+
     if (bestState != nullptr)
         bestState->saveToDisk();
 
