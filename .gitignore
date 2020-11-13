@@ -17,4 +17,7 @@
 
 # debug
 **/*.dSYM
+
+# xcode
 **/*.xcuserstate
+**/*.xcbkptlist

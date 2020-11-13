@@ -7,10 +7,6 @@
 #include <sstream>
 #include <queue>
 #include <map>
-#include <unordered_map>
-#include <boost/unordered_map.hpp>
-#include <boost/container/deque.hpp>
-#include <boost/unordered_set.hpp>
 #include <set>
 #include "board.h"
 #include "profile.h"
@@ -77,120 +73,134 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
-    using namespace boost;
-    // TODO: the queue here slows down quite a lot
-    std::queue<OrbLocation> toVisit;
-    unordered_set<OrbLocation> inserted;
-    toVisit.emplace(LOCATION(ox, oy));
-    // TODO: use unordered_map instead
-    // vertical 10, horizontal 1
-    unordered_map<OrbLocation, int> visited;
-
-    // Keep searching until all locations are visited
-    while (toVisit.size() > 0)
+    auto orb = board[ox][oy];
+    // return if it is empty
+    if (orb == pad::empty)
+        return false;
+        
+    // only check if there is at least one same orb around
+    if (hasSameOrb(orb, ox - 1, oy ) ||
+        hasSameOrb(orb, ox + 1, oy) ||
+        hasSameOrb(orb, ox, oy + 1) ||
+        hasSameOrb(orb, ox, oy - 1))
     {
-        auto currentLocation = toVisit.front();
-        toVisit.pop();
+        using namespace std;
+        // TODO: the queue here slows down quite a lot
+        queue<OrbLocation> toVisit;
+        set<OrbLocation> inserted;
+        toVisit.emplace(LOCATION(ox, oy));
+        // TODO: use unordered_map instead
+        // vertical 10, horizontal 1
+        map<OrbLocation, int> visited;
 
-        // No need to check anymore
-        auto currentMode = visited[currentLocation];
-        if (currentMode == 0b11)
-            continue;
-
-        int x = currentLocation.first;
-        int y = currentLocation.second;
-        auto orb = board[x][y];
-
-        // haven't check vertically
-        if ((currentMode & 0b10) != 0b10)
+        // Keep searching until all locations are visited
+        while (toVisit.size() > 0)
         {
-            // Look vertically
-            int up = x, down = x;
-            int upOrb = 0, downOrb = 0;
-            while (--up >= 0)
+            auto currentLocation = toVisit.front();
+            toVisit.pop();
+
+            // No need to check anymore
+            auto currentMode = visited[currentLocation];
+            if (currentMode == 0b11)
+                continue;
+
+            int x = currentLocation.first;
+            int y = currentLocation.second;
+            auto orb = board[x][y];
+
+            // haven't check vertically
+            if ((currentMode & 0b10) != 0b10)
             {
-                // Break immediately if nothing matches, a deadend
-                if (hasSameOrb(orb, up, y))
-                    upOrb++;
-                else
-                    break;
-            }
-            while (++down < column)
-            {
-                if (hasSameOrb(orb, down, y))
-                    downOrb++;
-                else
-                    break;
-            }
-            // We need to have at least 3 (eraseCondition) connected
-            if (upOrb + downOrb + 1 >= minEraseCondition)
-            {
-                // Add them in connected orbs
-                for (int i = x - upOrb; i <= x + downOrb; i++)
+                // Look vertically
+                int up = x, down = x;
+                int upOrb = 0, downOrb = 0;
+                while (--up >= 0)
                 {
-                    auto l = LOCATION(i, y);
-                    inserted.insert(l);
-                    toVisit.push(l);
-                    visited[l] |= 0b10;
+                    // Break immediately if nothing matches, a deadend
+                    if (hasSameOrb(orb, up, y))
+                        upOrb++;
+                    else
+                        break;
+                }
+                while (++down < column)
+                {
+                    if (hasSameOrb(orb, down, y))
+                        downOrb++;
+                    else
+                        break;
+                }
+                // We need to have at least 3 (eraseCondition) connected
+                if (upOrb + downOrb + 1 >= minEraseCondition)
+                {
+                    // Add them in connected orbs
+                    for (int i = x - upOrb; i <= x + downOrb; i++)
+                    {
+                        auto l = LOCATION(i, y);
+                        inserted.insert(l);
+                        toVisit.push(l);
+                        visited[l] |= 0b10;
+                    }
                 }
             }
-        }
 
-        // haven't check horizontally
-        if ((currentMode & 0b1) != 0b1)
-        {
-            // Look horizontally
-            int left = y, right = y;
-            int leftOrb = 0, rightOrb = 0;
-            while (--left >= 0)
+            // haven't check horizontally
+            if ((currentMode & 0b1) != 0b1)
             {
-                if (hasSameOrb(orb, x, left))
-                    leftOrb++;
-                else
-                    break;
-            }
-            while (++right < row)
-            {
-                if (hasSameOrb(orb, x, right))
-                    rightOrb++;
-                else
-                    break;
-            }
-            // Same as above
-            if (leftOrb + rightOrb + 1 >= minEraseCondition)
-            {
-                // Add them in connected orbs
-                for (int i = y - leftOrb; i <= y + rightOrb; i++)
+                // Look horizontally
+                int left = y, right = y;
+                int leftOrb = 0, rightOrb = 0;
+                while (--left >= 0)
                 {
-                    auto l = LOCATION(x, i);
-                    inserted.insert(l);
-                    toVisit.push(l);
-                    visited[l] |= 0b1;
+                    if (hasSameOrb(orb, x, left))
+                        leftOrb++;
+                    else
+                        break;
+                }
+                while (++right < row)
+                {
+                    if (hasSameOrb(orb, x, right))
+                        rightOrb++;
+                    else
+                        break;
+                }
+                // Same as above
+                if (leftOrb + rightOrb + 1 >= minEraseCondition)
+                {
+                    // Add them in connected orbs
+                    for (int i = y - leftOrb; i <= y + rightOrb; i++)
+                    {
+                        auto l = LOCATION(x, i);
+                        inserted.insert(l);
+                        toVisit.push(l);
+                        visited[l] |= 0b1;
+                    }
                 }
             }
+
+            // Have checked both way for this location
+            visited[currentLocation] = 0b11;
         }
 
-        // Have checked both way for this location
-        visited[currentLocation] = 0b11;
-    }
-
-    // Erase all connected orbs
-    int comboSize = inserted.size();
-    bool hasCombo = comboSize >= minEraseCondition;
-    if (hasCombo)
-    {
-        Combo combo;
-        combo.reserve(comboSize);
-        for (const auto &l : inserted)
+        // Erase all connected orbs
+        int comboSize = inserted.size();
+        bool hasCombo = comboSize >= minEraseCondition;
+        if (hasCombo)
         {
-            auto orb = board[l.first][l.second];
-            board[l.first][l.second] = pad::empty;
-            combo.emplace_back(l.first, l.second, orb);
-        }
+            Combo combo;
+            combo.reserve(comboSize);
+            for (const auto &l : inserted)
+            {
+                auto orb = board[l.first][l.second];
+                board[l.first][l.second] = pad::empty;
+                combo.emplace_back(l.first, l.second, orb);
+            }
 
-        list->push_back(combo);
+            list->push_back(combo);
+        }
+        return hasCombo;
     }
-    return hasCombo;
+
+    return false;
 }
 
 int PBoard::rateBoard()
