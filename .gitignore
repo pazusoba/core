@@ -17,3 +17,4 @@
 
 # debug
 **/*.dSYM
+**/*.xcuserstate
