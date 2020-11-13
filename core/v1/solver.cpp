@@ -239,7 +239,7 @@ std::vector<Route> PSolver::solve()
     routes.reserve(routeSize);
     // This gets routes for best 100
     int i = 0;
-    PState *bestState;
+    PState *bestState = nullptr;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)
     {
         if (i > routeSize)
@@ -254,7 +254,9 @@ std::vector<Route> PSolver::solve()
             bestState = it->second;
         routes.emplace_back(it->second);
     }
-    bestState->saveToDisk();
+    
+    if (bestState != nullptr)
+        bestState->saveToDisk();
 
     // Print saved routes
     for (auto &r : routes)

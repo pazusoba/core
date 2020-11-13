@@ -73,19 +73,17 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
-    auto orb = board[ox][oy];        
+    auto orb = board[ox][oy];
     // only check if there is at least one same orb around
-    if (hasSameOrb(orb, ox - 1, oy ) ||
+    if (hasSameOrb(orb, ox - 1, oy) ||
         hasSameOrb(orb, ox + 1, oy) ||
         hasSameOrb(orb, ox, oy + 1) ||
         hasSameOrb(orb, ox, oy - 1))
     {
         using namespace std;
-        // TODO: the queue here slows down quite a lot
         queue<OrbLocation> toVisit;
         set<OrbLocation> inserted;
         toVisit.emplace(LOCATION(ox, oy));
-        // TODO: use unordered_map instead
         // vertical 10, horizontal 1
         map<OrbLocation, int> visited;
 
