@@ -7,6 +7,7 @@
 #include <sstream>
 #include <queue>
 #include <map>
+#include <array>
 #include <set>
 #include "board.h"
 #include "profile.h"
@@ -72,35 +73,59 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
-    auto orb = board[ox][oy];
-    // only check if there is at least one same orb around
-    eraseCombo(list, ox - 1, oy);
-    eraseCombo(list, ox + 1, oy);
-    eraseCombo(list, ox, oy + 1);
-    eraseCombo(list, ox, oy - 1);
-    {
-        using namespace std;
-        
-        // Erase all connected orbs
-        int comboSize = inserted.size();
-        bool hasCombo = comboSize >= minEraseCondition;
-        if (hasCombo)
-        {
-            Combo combo;
-            combo.reserve(comboSize);
-            for (const auto &l : inserted)
-            {
-                auto orb = board[l.first][l.second];
-                board[l.first][l.second] = pad::empty;
-                combo.emplace_back(l.first, l.second, orb);
-            }
-            
-            list->push_back(combo);
-        }
-        return hasCombo;
-    }
+    Combo combo;
+    // flood fill all directions
+    floodfill(&combo, ox, oy, ox - 1, oy);
+    floodfill(&combo, ox, oy, ox + 1, oy);
+    floodfill(&combo, ox, oy, ox, oy + 1);
+    floodfill(&combo, ox, oy, ox, oy - 1);
     
     return false;
+}
+
+void PBoard::floodfill(Combo *list, int ox, int oy, int x, int y)
+{
+    if (!validLocation(ox, oy))
+        return;
+    if (!validLocation(x, y))
+        return;
+    
+    auto prev = board[ox][oy];
+    auto curr = board[x][y];
+    if (prev != pad::empty && prev == curr)
+    {
+        // add this to the list
+        list->emplace_back(x, y, curr);
+        board[ox][oy] = pad::empty;
+        
+        // Continue flood fill
+        if (ox == x)
+        {
+            floodfill(list, x, y, x + 1, y);
+            floodfill(list, x, y, x - 1, y);
+            if (oy < y)
+            {
+                floodfill(list, x, y, x, y + 1);
+            }
+            else
+            {
+                floodfill(list, x, y, x, y - 1);
+            }
+        }
+        if (oy == y)
+        {
+            floodfill(list, x, y, x, y + 1);
+            floodfill(list, x, y, x, y - 1);
+            if (ox < x)
+            {
+                floodfill(list, x, y, x + 1, y);
+            }
+            else
+            {
+                floodfill(list, x, y, x - 1, y);
+            }
+        }
+    }
 }
 
 int PBoard::rateBoard()
