@@ -74,71 +74,10 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
     Combo combo;
-    combo.emplace_back(ox, oy, board[ox][oy]);
     
-    // flood fill all directions
-    floodfill(&combo, ox, oy, ox - 1, oy);
-    floodfill(&combo, ox, oy, ox + 1, oy);
-    floodfill(&combo, ox, oy, ox, oy + 1);
-    floodfill(&combo, ox, oy, ox, oy - 1);
-    
-    if (combo.size() >= minEraseCondition)
-    {
-        // check whether this is a combo
-        
-        // fill the colour back
-//        for (const auto &c : combo)
-//        {
-//            board[c.first][c.second] = c.orb;
-//        }
-    }
+    auto orb = board[ox][oy];
     
     return false;
-}
-
-void PBoard::floodfill(Combo *list, int ox, int oy, int x, int y)
-{
-    if (!validLocation(ox, oy))
-        return;
-    if (!validLocation(x, y))
-        return;
-    
-    auto prev = board[ox][oy];
-    auto curr = board[x][y];
-    if (prev != pad::empty && prev == curr)
-    {
-        // add this to the list
-        list->emplace_back(x, y, curr);
-        board[ox][oy] = pad::empty;
-        
-        // Continue flood fill
-        if (ox == x)
-        {
-            floodfill(list, x, y, x + 1, y);
-            floodfill(list, x, y, x - 1, y);
-            if (oy < y)
-            {
-                floodfill(list, x, y, x, y + 1);
-            }
-            else
-            {
-                floodfill(list, x, y, x, y - 1);
-            }
-        }
-        if (oy == y)
-        {
-            floodfill(list, x, y, x, y + 1);
-            floodfill(list, x, y, x, y - 1);
-            if (ox < x)
-            {
-                floodfill(list, x, y, x + 1, y);
-            }
-            else
-            {
-                floodfill(list, x, y, x - 1, y);
-            }
-        }
-    }
 }
 
 int PBoard::rateBoard()
