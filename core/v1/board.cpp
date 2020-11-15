@@ -74,11 +74,24 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
     Combo combo;
+    combo.emplace_back(ox, oy, board[ox][oy]);
+    
     // flood fill all directions
     floodfill(&combo, ox, oy, ox - 1, oy);
     floodfill(&combo, ox, oy, ox + 1, oy);
     floodfill(&combo, ox, oy, ox, oy + 1);
     floodfill(&combo, ox, oy, ox, oy - 1);
+    
+    if (combo.size() >= minEraseCondition)
+    {
+        // check whether this is a combo
+        
+        // fill the colour back
+//        for (const auto &c : combo)
+//        {
+//            board[c.first][c.second] = c.orb;
+//        }
+    }
     
     return false;
 }
