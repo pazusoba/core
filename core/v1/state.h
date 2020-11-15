@@ -6,7 +6,6 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <map>
 #include <fstream>
 #include "board.h"
 

@@ -5,8 +5,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <queue>
-#include <map>
 #include <array>
 #include <set>
 #include "board.h"
