@@ -34,7 +34,7 @@ PBoard::~PBoard()
 ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     ComboList combo;
-
+    
     bool moreCombo;
     do
     {
@@ -47,7 +47,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 // Ignore empty orbs
                 if (board[i][j] == pad::empty)
                     continue;
-
+                
                 // Start finding combos
                 auto erased = eraseCombo(&combo, i, j);
                 if (erased)
@@ -57,7 +57,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 }
             }
         }
-
+        
         // Only move orbs down if there is at least one combo
         if (moreCombo)
         {
@@ -66,7 +66,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
             *moveCount += 1;
         }
     } while (moreCombo);
-
+    
     return combo;
 }
 
@@ -74,106 +74,13 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
     auto orb = board[ox][oy];
     // only check if there is at least one same orb around
-    if (hasSameOrb(orb, ox - 1, oy) ||
-        hasSameOrb(orb, ox + 1, oy) ||
-        hasSameOrb(orb, ox, oy + 1) ||
-        hasSameOrb(orb, ox, oy - 1))
+    eraseCombo(list, ox - 1, oy);
+    eraseCombo(list, ox + 1, oy);
+    eraseCombo(list, ox, oy + 1);
+    eraseCombo(list, ox, oy - 1);
     {
         using namespace std;
-        queue<OrbLocation> toVisit;
-        set<OrbLocation> inserted;
-        toVisit.emplace(LOCATION(ox, oy));
-        // vertical 10, horizontal 1
-        map<OrbLocation, int> visited;
-
-        // Keep searching until all locations are visited
-        while (toVisit.size() > 0)
-        {
-            auto currentLocation = toVisit.front();
-            toVisit.pop();
-
-            // No need to check anymore
-            auto currentMode = visited[currentLocation];
-            if (currentMode == 0b11)
-                continue;
-
-            int x = currentLocation.first;
-            int y = currentLocation.second;
-            auto orb = board[x][y];
-
-            // haven't check vertically
-            if ((currentMode & 0b10) != 0b10)
-            {
-                // Look vertically
-                int up = x, down = x;
-                int upOrb = 0, downOrb = 0;
-                while (--up >= 0)
-                {
-                    // Break immediately if nothing matches, a deadend
-                    if (hasSameOrb(orb, up, y))
-                        upOrb++;
-                    else
-                        break;
-                }
-                while (++down < column)
-                {
-                    if (hasSameOrb(orb, down, y))
-                        downOrb++;
-                    else
-                        break;
-                }
-                // We need to have at least 3 (eraseCondition) connected
-                if (upOrb + downOrb + 1 >= minEraseCondition)
-                {
-                    // Add them in connected orbs
-                    for (int i = x - upOrb; i <= x + downOrb; i++)
-                    {
-                        auto l = LOCATION(i, y);
-                        inserted.insert(l);
-                        toVisit.push(l);
-                        visited[l] |= 0b10;
-                    }
-                }
-            }
-
-            // haven't check horizontally
-            if ((currentMode & 0b1) != 0b1)
-            {
-                // Look horizontally
-                int left = y, right = y;
-                int leftOrb = 0, rightOrb = 0;
-                while (--left >= 0)
-                {
-                    if (hasSameOrb(orb, x, left))
-                        leftOrb++;
-                    else
-                        break;
-                }
-                while (++right < row)
-                {
-                    if (hasSameOrb(orb, x, right))
-                        rightOrb++;
-                    else
-                        break;
-                }
-                // Same as above
-                if (leftOrb + rightOrb + 1 >= minEraseCondition)
-                {
-                    // Add them in connected orbs
-                    for (int i = y - leftOrb; i <= y + rightOrb; i++)
-                    {
-                        auto l = LOCATION(x, i);
-                        inserted.insert(l);
-                        toVisit.push(l);
-                        visited[l] |= 0b1;
-                    }
-                }
-            }
-
-            // Have checked both way for this location
-            visited[currentLocation] = 0b11;
-        }
-
+        
         // Erase all connected orbs
         int comboSize = inserted.size();
         bool hasCombo = comboSize >= minEraseCondition;
@@ -187,12 +94,12 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
                 board[l.first][l.second] = pad::empty;
                 combo.emplace_back(l.first, l.second, orb);
             }
-
+            
             list->push_back(combo);
         }
         return hasCombo;
     }
-
+    
     return false;
 }
 
@@ -201,7 +108,7 @@ int PBoard::rateBoard()
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
     int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition);
-
+    
     return score;
 }
 
@@ -226,7 +133,7 @@ bool PBoard::moveOrbsDown()
                 emptyCount++;
             }
         }
-
+        
         // Must be less than column (it means that this column is all empty)
         if (emptyCount > 0 && emptyCount < column)
         {
@@ -244,7 +151,7 @@ bool PBoard::moveOrbsDown()
                     auto orb = orbs[k];
                     auto currOrb = board[i][j];
                     board[i][j] = orb;
-
+                    
                     // Board is changed if currOrb is not actually orb
                     if (currOrb != orb)
                         changed = true;
@@ -258,10 +165,10 @@ bool PBoard::moveOrbsDown()
 int PBoard::eraseOrbs()
 {
     int combo = 0;
-
+    
     // Collect all orbs that can be erased
     OrbSet orbs;
-
+    
     for (int i = column - 1; i >= 0; i--)
     {
         for (int j = 0; j < row; j++)
@@ -270,7 +177,7 @@ int PBoard::eraseOrbs()
             // Ignore empty orbs
             if (curr == pad::empty)
                 continue;
-
+            
             // vertical and horizontal orbs
             auto vhOrbs = findSameOrbsAround(i, j);
             // Here we need to loop throufh vhOrbs and check all orbs to see if there are orbs that can be erased
@@ -296,7 +203,7 @@ int PBoard::eraseOrbs()
                 }
                 it++;
             } while (it != vhOrbs.end());
-
+            
             // There should be orbs inside, check if the size is more than minEraseCondition (it was causing some issues)
             if ((int)vhOrbs.size() >= minEraseCondition)
             {
@@ -308,14 +215,14 @@ int PBoard::eraseOrbs()
             }
         }
     }
-
+    
     return combo;
 }
 
 OrbSet PBoard::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
-
+    
     // Check vertically
     OrbSet vOrbs;
     // Add this orb first or another infinite loop
@@ -351,7 +258,7 @@ OrbSet PBoard::findSameOrbsAround(int x, int y)
     // Less than the condition, -1 to remove the duplicate (which is the current orb)
     if (upOrb + downOrb - 1 < minEraseCondition)
         vOrbs.clear();
-
+    
     // Check horizontally
     OrbSet hOrbs;
     // Add it again just in case it was cleared
@@ -385,7 +292,7 @@ OrbSet PBoard::findSameOrbsAround(int x, int y)
     // Same as above
     if (leftOrb + rightOrb - 1 < minEraseCondition)
         hOrbs.clear();
-
+    
     // Merge vertical and horizontal all to vertical
     vOrbs.insert(hOrbs.begin(), hOrbs.end());
     return vOrbs;
@@ -394,7 +301,7 @@ OrbSet PBoard::findSameOrbsAround(int x, int y)
 OrbLocation PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
 {
     auto orb = board[x][y];
-
+    
     // Find up, down, left and right
     if (hasSameOrb(orb, x - 1, y))
     {
@@ -420,7 +327,7 @@ OrbLocation PBoard::nextSameOrbAround(OrbSet *vhOrbs, int x, int y)
         if (vhOrbs->count(pair) == 0)
             return pair;
     }
-
+    
     // Return a default value
     return LOCATION(-1, -1);
 }
@@ -432,7 +339,7 @@ void PBoard::printBoard()
         std::cout << "- empty -\n";
         return;
     }
-
+    
     // Print everything out nicely
     std::cout << std::endl;
     std::cout << row << " x " << column << std::endl;
@@ -469,10 +376,10 @@ void PBoard::printBoardInfo()
         std::cout << "no info\n";
         return;
     }
-
+    
     // Collect orb info
     int *counter = collectOrbCount();
-
+    
     // Print out some board info
     for (int i = 1; i < pad::ORB_COUNT; i++)
     {
@@ -485,10 +392,10 @@ void PBoard::printBoardInfo()
             std::cout << " | ";
     }
     std::cout << std::endl;
-
+    
     std::cout << "Board max combo: " << getBoardMaxCombo() << std::endl;
     std::cout << "Current max combo: " << getMaxCombo(counter) << std::endl;
-
+    
     delete[] counter;
 }
 
@@ -497,9 +404,9 @@ int PBoard::getMaxCombo(int *counter)
 {
     if (isEmptyFile())
         return 0;
-
+    
     int comboCounter = 0;
-
+    
     int moreComboCount;
     do
     {
@@ -508,7 +415,7 @@ int PBoard::getMaxCombo(int *counter)
         // This tracks how many orbs are left
         int orbLeft = 0;
         int maxOrbCounter = 0;
-
+        
         for (int i = 1; i < pad::ORB_COUNT; i++)
         {
             // Keep -3 or other minEraseCondition (4, 5) until all orbs are less than 2
@@ -526,7 +433,7 @@ int PBoard::getMaxCombo(int *counter)
                 orbLeft += curr;
             }
         }
-
+        
         // Only one colour can do combo now
         if (moreComboCount == 1)
         {
@@ -535,13 +442,13 @@ int PBoard::getMaxCombo(int *counter)
             int maxCombo = maxOrbCounter / minEraseCondition;
             // Make sure there are enough orbs
             comboCounter += maxCombo > maxComboPossible ? maxComboPossible : maxCombo;
-
+            
             // No orbs left means one colour, -1 here because we count one more but doesn't apply to a single colour board
             if (orbLeft > 0)
                 comboCounter--;
             break;
         }
     } while (moreComboCount > 0);
-
+    
     return comboCounter;
 }
