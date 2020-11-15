@@ -29,7 +29,7 @@ public:
     }
 };
 
-/// Constrcutors
+// MARK: - Constrcutors
 
 PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
 {
@@ -58,7 +58,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
     }
 }
 
-/// Solve the board
+// MARK: - Solve the board
 
 std::vector<Route> PSolver::solve()
 {
@@ -72,10 +72,10 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // paimon
-    std::vector<Profile *> profiles{
-        new ComboProfile,
-        new PlusProfile({pad::light, pad::dark}),
-        new ColourProfile({pad::light, pad::dark})};
+//    std::vector<Profile *> profiles{
+//        new ComboProfile,
+//        new PlusProfile({pad::light, pad::dark}),
+//        new ColourProfile({pad::light, pad::dark})};
     // Amen
     // std::vector<Profile *> profiles{
     //     new ComboProfile(7),
@@ -84,12 +84,12 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile,
     //     new OneColumnProfile};
     // Amen & +
-    // std::vector<Profile *>
-    //     profiles{
-    //         new ComboProfile(7),
-    //         new OrbProfile(3),
-    //         new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //         new OneColumnProfile};
+     std::vector<Profile *>
+         profiles{
+             new ComboProfile(7),
+             new OrbProfile(3),
+             new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+             new OneColumnProfile};
     // Combo only
     // std::vector<Profile *> profiles{new ComboProfile};
     // Laou
@@ -279,7 +279,7 @@ std::vector<Route> PSolver::solve()
     return routes;
 }
 
-/// Read the board from filePath or a string
+// MARK: - Read the board from filePath or a string
 
 Board PSolver::readBoard(std::string &filePath)
 {
@@ -378,7 +378,7 @@ void PSolver::setBoardFrom(std::string &board)
     this->board = PBoard(currBoard, row, column, minEraseCondition);
 }
 
-/// Setters, mainly for Qt
+// MARK: - Setters, mainly for Qt
 
 void PSolver::setRandomBoard(int row, int column)
 {

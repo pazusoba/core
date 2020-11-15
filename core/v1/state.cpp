@@ -7,7 +7,7 @@
 #include <cmath>
 #include "state.h"
 
-/// Constrctor
+// MARK: - Constrctor
 
 PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep)
 {
@@ -61,7 +61,7 @@ bool PState::operator==(const PState &a) const
     return false;
 }
 
-/// Functions
+// MARK: - Functions
 
 PState::PStateList PState::getChildren(int level)
 {
@@ -115,7 +115,7 @@ PState::PStateList PState::getChildren(int level)
     return children;
 }
 
-/// Utils
+// MARK: - Utils
 
 void PState::saveStateFromRoot(PState *parent, std::ofstream* file)
 {

@@ -11,7 +11,7 @@
 #include "board.h"
 #include "profile.h"
 
-/// Constructors
+// MARK: - Constructors
 PBoard::PBoard() {}
 PBoard::PBoard(const Board &board, int row, int column, int minEraseCondition)
 {
@@ -30,8 +30,7 @@ PBoard::~PBoard()
     board.clear();
 }
 
-/// Board related
-
+// MARK: - Board related
 ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     ComboList combo;
@@ -493,8 +492,7 @@ void PBoard::printBoardInfo()
     delete[] counter;
 }
 
-/// Utils
-
+// MARK: - Utils
 int PBoard::getMaxCombo(int *counter)
 {
     if (isEmptyFile())
