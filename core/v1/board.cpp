@@ -74,6 +74,8 @@ bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
     Combo combo;
     
     auto orb = board[ox][oy];
+    // Use a map to record visited orbs?
+    // How to stop flood fill?
     
     return false;
 }
