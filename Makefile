@@ -1,5 +1,5 @@
 # set it to `mac` or `win`
-PLATFORM=mac
+PLATFORM=win
 
 # assign different commands
 ifeq ($(PLATFORM), mac)
@@ -38,8 +38,8 @@ debug:
 	$(GCC) -g main_$(VERSION).cpp $(CPP_FILES)
 
 clean:
-	$(CLEAN_AUTOMATION)
 	$(CLEAN)
+	$(CLEAN_AUTOMATION)
 
 # compile for automation
 python:

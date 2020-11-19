@@ -54,7 +54,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 
                 // Start finding combos
                 floodfill(&combo, i, j, orb);
-                if (combo.size() >= minEraseCondition)
+                if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
                     comboList.push_back(combo);
