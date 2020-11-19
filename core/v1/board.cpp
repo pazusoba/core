@@ -32,7 +32,11 @@ PBoard::~PBoard()
 // MARK: - Board related
 ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
-    ComboList combo;
+    // Reverse to prevent slow pushing back
+    ComboList comboList;
+    comboList.reserve(row * column / minEraseCondition);
+    Combo combo;
+    combo.reserve(row * column);
     
     bool moreCombo;
     do
@@ -43,16 +47,18 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         {
             for (int j = 0; j < row; j++)
             {
+                auto orb = board[i][j];
                 // Ignore empty orbs
-                if (board[i][j] == pad::empty)
+                if (orb == pad::empty)
                     continue;
                 
                 // Start finding combos
-                auto erased = eraseCombo(&combo, i, j);
-                if (erased)
+                floodfill(&combo, i, j, orb);
+                if (combo.size() >= minEraseCondition)
                 {
-                    // Just to prevent setting it to false again
                     moreCombo = true;
+                    comboList.push_back(combo);
+                    combo.clear();
                 }
             }
         }
@@ -66,7 +72,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         }
     } while (moreCombo);
     
-    return combo;
+    return comboList;
 }
 
 void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
@@ -152,22 +158,6 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
             }
         }
     }
-}
-
-bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
-{
-    Combo combo;
-    
-    auto orb = board[ox][oy];
-    floodfill(&combo, ox, oy, orb);
-    
-    if (combo.size() >= minEraseCondition)
-    {
-        list -> push_back(combo);
-        return true;
-    }
-    
-    return false;
 }
 
 int PBoard::rateBoard()
