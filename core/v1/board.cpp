@@ -69,13 +69,103 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return combo;
 }
 
+void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
+{
+    if (!validLocation(x, y))
+        return;
+    
+    auto currOrb = board[x][y];
+    // must be the same orb
+    if (currOrb != orb)
+        return;
+    
+    int count = 0;
+    // all 4 directions
+    for (int d = 0; d < 4; d++)
+    {
+        // 1 -> left
+        // 2 -> right
+        // 3 -> up
+        // 4 -> down
+        count = 0;
+        
+        int loop = row;
+        if (d > 1)
+            loop = column;
+        
+        for (int i = 0; i < loop; i++) {
+            int cx = x;
+            int cy = y;
+            if (d == 0)
+                cy += i;
+            else if (d == 1)
+                cy -= i;
+            else if (d == 2)
+                cx += i;
+            else if (d == 3)
+                cx -= i;
+            
+            if (!validLocation(cx, cy))
+                break;
+            
+            // stop if it doesn't match
+            if (board[cx][cy] != orb)
+                break;
+            count++;
+        }
+        
+        if (count >= minEraseCondition)
+        {
+            for (int i = 0; i < count; i++) {
+                int cx = x;
+                int cy = y;
+                if (d == 0)
+                    cy += i;
+                else if (d == 1)
+                    cy -= i;
+                else if (d == 2)
+                    cx += i;
+                else if (d == 3)
+                    cx -= i;
+                
+                board[cx][cy] = pad::empty;
+                list->emplace_back(cx, cy, board[cx][cy]);
+            }
+            
+            for (int i = 0; i < count; i++) {
+                int cx = x;
+                int cy = y;
+                if (d == 0)
+                    cy += i;
+                else if (d == 1)
+                    cy -= i;
+                else if (d == 2)
+                    cx += i;
+                else if (d == 3)
+                    cx -= i;
+
+                // fill all directions here
+                floodfill(list, cx + 1, cy, orb);
+                floodfill(list, cx - 1, cy, orb);
+                floodfill(list, cx, cy + 1, orb);
+                floodfill(list, cx, cy - 1, orb);
+            }
+        }
+    }
+}
+
 bool PBoard::eraseCombo(ComboList *list, int ox, int oy)
 {
     Combo combo;
     
     auto orb = board[ox][oy];
-    // Use a map to record visited orbs?
-    // How to stop flood fill?
+    floodfill(&combo, ox, oy, orb);
+    
+    if (combo.size() >= minEraseCondition)
+    {
+        list -> push_back(combo);
+        return true;
+    }
     
     return false;
 }

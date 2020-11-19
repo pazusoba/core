@@ -51,7 +51,7 @@ public:
     bool operator==(const PState &a) const;
 
     // This returns a list of all possible children states
-    PStateList getChildren(int level);
+    PStateList getChildren();
     
     inline PStateList getDeeperChildren()
     {

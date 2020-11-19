@@ -63,7 +63,7 @@ bool PState::operator==(const PState &a) const
 
 // MARK: - Functions
 
-PState::PStateList PState::getChildren(int level)
+PState::PStateList PState::getChildren()
 {
     // Stop when max step has been reached or children has been collected before
     if (step > maxStep)
@@ -97,16 +97,10 @@ PState::PStateList PState::getChildren(int level)
             {
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
-                nextState->parent = this;
-                children.push_back(nextState);
-                
-                // Based on level, go deeper and append more potential children state
-                for (int i = 1; i < level; i++)
+                if (nextState != nullptr)
                 {
-                    for (const auto &state : nextState->getChildren(level - 1))
-                    {
-                        deeperChildren.push_back(state);
-                    }
+                    nextState->parent = this;
+                    children.push_back(nextState);
                 }
             }
         }

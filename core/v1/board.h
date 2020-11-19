@@ -58,6 +58,7 @@ class PBoard
      */
     int eraseOrbs();
     
+    void floodfill(Combo *list, int x, int y, Orb orb);
     // Erase a combo and put it inside the list, return whether a combo is erased
     bool eraseCombo(ComboList *list, int x, int y);
     
