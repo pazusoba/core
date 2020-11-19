@@ -42,9 +42,6 @@ PSolver *handleInput(int argc, char *argv[])
     if (argc > 4)
     {
         maxSize = atoi(argv[4]);
-        // Cannot be more than 20000 or the threads might still crash
-        if (maxSize > 50000)
-            maxSize = 50000;
     }
 
     return new PSolver(filePath, minEraseCondition, maxStep, maxSize);
