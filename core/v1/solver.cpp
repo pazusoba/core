@@ -244,7 +244,7 @@ std::vector<Route> PSolver::solve()
     if (DEBUG)
         std::cout << "Search has been completed\n\n";
 
-    int routeSize = 3;
+    int routeSize = 0;
     if (DEBUG)
         routeSize = 10;
     
