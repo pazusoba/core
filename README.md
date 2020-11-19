@@ -66,8 +66,8 @@ This is written on Windows 10 and Mac OS. On Windows, `mingw` is used to compile
 The program accepts 4 arguments
 - Path to the board
 - Minimum erase condition (by default 3)
-- Max step (by default 25)
-- Max beam size (by default 1000)
+- Max step (by default 50)
+- Max beam size (by default 5000)
 
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
