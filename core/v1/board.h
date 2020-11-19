@@ -51,16 +51,7 @@ class PBoard
      * Move orbs down if there is an empty orb below, return whether board has been changed
      */
     bool moveOrbsDown();
-    
-    /**
-     * Erase orbs that are connected in a line.
-     * return - the number of combos
-     */
-    int eraseOrbs();
-    
     void floodfill(Combo *list, int x, int y, Orb orb);
-    // Erase a combo and put it inside the list, return whether a combo is erased
-    bool eraseCombo(ComboList *list, int x, int y);
     
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);

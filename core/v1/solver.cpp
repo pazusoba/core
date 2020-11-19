@@ -62,6 +62,7 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
+    Timer::shared().start(999);
     // Remove previous output file
     remove("path.pazusoba");
 
@@ -107,9 +108,11 @@ std::vector<Route> PSolver::solve()
 
     ProfileManager::shared().updateProfile(profiles);
 
-    Timer::shared().start(999);
-    std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
-    board.printBoardForSimulation();
+    if (DEBUG)
+    {
+        std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
+        board.printBoardForSimulation();
+    }
 
     // A queue that only saves top 100, 1000 based on the size
     // PPriorityQueue *toVisit = new PPriorityQueue(size);
@@ -154,7 +157,9 @@ std::vector<Route> PSolver::solve()
     {
         // int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         // threadSize = currSize / processor_count;
-        Timer::shared().start(i);
+        if (DEBUG)
+            Timer::shared().start(i);
+        
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
@@ -222,8 +227,7 @@ std::vector<Route> PSolver::solve()
         // Make sure all threads are completed
         for (auto &t : boardThreads)
         {
-            if (t.joinable())
-                t.join();
+            t.join();
         }
         // Clear for next round
         boardThreads.clear();
@@ -234,13 +238,18 @@ std::vector<Route> PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
-        Timer::shared().end(i);
+        
+        if (DEBUG)
+            Timer::shared().end(i);
     }
-    Timer::shared().end(999);
 
-    std::cout << "Search has been completed\n\n";
+    if (DEBUG)
+        std::cout << "Search has been completed\n\n";
 
-    int routeSize = 10;
+    int routeSize = 3;
+    if (DEBUG)
+        routeSize = 10;
+    
     std::vector<Route> routes;
     routes.reserve(routeSize);
     // This gets routes for best 100
@@ -263,6 +272,7 @@ std::vector<Route> PSolver::solve()
 
     if (bestState != nullptr)
         bestState->saveToDisk();
+    Timer::shared().end(999);
 
     // Print saved routes
     for (auto &r : routes)

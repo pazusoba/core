@@ -219,63 +219,6 @@ bool PBoard::moveOrbsDown()
     return changed;
 }
 
-int PBoard::eraseOrbs()
-{
-    int combo = 0;
-    
-    // Collect all orbs that can be erased
-    OrbSet orbs;
-    
-    for (int i = column - 1; i >= 0; i--)
-    {
-        for (int j = 0; j < row; j++)
-        {
-            auto curr = board[i][j];
-            // Ignore empty orbs
-            if (curr == pad::empty)
-                continue;
-            
-            // vertical and horizontal orbs
-            auto vhOrbs = findSameOrbsAround(i, j);
-            // Here we need to loop throufh vhOrbs and check all orbs to see if there are orbs that can be erased
-            auto it = vhOrbs.begin();
-            // If it only has one, this loop is being ignored
-            do
-            {
-                // nextOrb is a pointer to the next pair
-                auto nextOrb = nextSameOrbAround(&vhOrbs, *it);
-                // Only search if there are new orbs, if nothing has been found (-1, -1) is returned
-                if (nextOrb.first > -1)
-                {
-                    auto newOrbs = findSameOrbsAround(nextOrb);
-                    vhOrbs.insert(newOrbs.begin(), newOrbs.end());
-                    // Must check if there are new orbs or it will be an infinite loop
-                    if (newOrbs.size() > 0)
-                    {
-                        // There are at least some orbs around it reset and continue
-                        // TODO: ideally you want to start from new orbs but how to achieve it?
-                        it = vhOrbs.begin();
-                        continue;
-                    }
-                }
-                it++;
-            } while (it != vhOrbs.end());
-            
-            // There should be orbs inside, check if the size is more than minEraseCondition (it was causing some issues)
-            if ((int)vhOrbs.size() >= minEraseCondition)
-            {
-                for (auto const &xy : vhOrbs)
-                {
-                    ORB(board, xy) = pad::empty;
-                }
-                combo++;
-            }
-        }
-    }
-    
-    return combo;
-}
-
 OrbSet PBoard::findSameOrbsAround(int x, int y)
 {
     auto curr = board[x][y];
