@@ -182,7 +182,6 @@ std::vector<Route> PSolver::solve()
                     mtx.lock();
                     auto currentState = toVisit.top();
                     toVisit.pop();
-                    mtx.unlock();
 
                     // Save current score for printing out later
                     int currentScore = currentState->score;
@@ -190,7 +189,6 @@ std::vector<Route> PSolver::solve()
 
                     // Save best scores
                     bool shouldAdd = false;
-                    mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
