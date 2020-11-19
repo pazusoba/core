@@ -252,7 +252,7 @@ std::vector<Route> PSolver::solve()
     
     std::vector<Route> routes;
     routes.reserve(routeSize);
-    // This gets routes for best 100
+    // This gets routes for best 10
     int i = 0;
     PState *bestState = nullptr;
     for (auto it = bestScore.end(); it != bestScore.begin(); it--)

@@ -25,7 +25,7 @@ endif
 # flto - linking
 OPTIMISATION=-Ofast -flto -lpthread
 # shared arguments
-GCC=g++ -Wall -Werror -std=c++11
+GCC=g++ -Wall -Werror -std=gnu++17
 
 # v1 or v2, decides the source to compile
 VERSION=v1
