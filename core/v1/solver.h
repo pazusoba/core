@@ -19,7 +19,7 @@ class PSolver
     int minEraseCondition = 3;
     int steps = 25;
     int size = 1000;
-    bool DEBUG = false;
+    bool DEBUG = true;
 
     // Read board from filePath, return the board
     Board readBoard(std::string &filePath);

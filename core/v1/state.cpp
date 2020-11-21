@@ -33,7 +33,9 @@ PState::~PState()
     {
         for (auto const &c : children)
         {
+            mtx.lock();
             delete c;
+            mtx.unlock();
         }
         children.clear();
     }
@@ -100,7 +102,9 @@ PState::PStateList PState::getChildren()
                 if (nextState != nullptr)
                 {
                     nextState->parent = this;
+                    mtx.lock();
                     children.push_back(nextState);
+                    mtx.unlock();
                 }
             }
         }

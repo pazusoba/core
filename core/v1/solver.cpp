@@ -62,7 +62,6 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
-    Timer::shared().start(999);
     // Remove previous output file
     remove("path.pazusoba");
 
@@ -73,10 +72,10 @@ std::vector<Route> PSolver::solve()
     //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // paimon
-//    std::vector<Profile *> profiles{
-//        new ComboProfile,
-//        new PlusProfile({pad::light, pad::dark}),
-//        new ColourProfile({pad::light, pad::dark})};
+    //    std::vector<Profile *> profiles{
+    //        new ComboProfile,
+    //        new PlusProfile({pad::light, pad::dark}),
+    //        new ColourProfile({pad::light, pad::dark})};
     // Amen
     // std::vector<Profile *> profiles{
     //     new ComboProfile(7),
@@ -116,6 +115,7 @@ std::vector<Route> PSolver::solve()
     childrenStates.reserve(size * 4);
     // This saves the best score
     std::map<int, PState *> bestScore;
+    Timer::shared().start(999);
 
     // This is the root state, 30 of them in a list to be deleted later
     std::vector<PState *> rootStates;
@@ -154,7 +154,7 @@ std::vector<Route> PSolver::solve()
         // threadSize = currSize / processor_count;
         if (DEBUG)
             Timer::shared().start(i);
-        
+
         // Use multi threading
         for (int j = 0; j < processor_count; j++)
         {
@@ -231,7 +231,7 @@ std::vector<Route> PSolver::solve()
             toVisit.push(s);
         }
         childrenStates.clear();
-        
+
         if (DEBUG)
             Timer::shared().end(i);
     }
@@ -239,10 +239,13 @@ std::vector<Route> PSolver::solve()
     if (DEBUG)
         std::cout << "Search has been completed\n\n";
 
+    // free all profiles once the search is completed
+    ProfileManager::shared().clear();
+
     int routeSize = 3;
     if (DEBUG)
         routeSize = 10;
-    
+
     std::vector<Route> routes;
     routes.reserve(routeSize);
     // This gets routes for best 10

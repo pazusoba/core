@@ -7,6 +7,7 @@
 #define STATE_H
 
 #include <fstream>
+#include <mutex>
 #include "board.h"
 
 class PState
@@ -18,7 +19,7 @@ class PState
     int maxStep;
     // ALl possible moves from this state
     PStateList children;
-    PStateList deeperChildren;
+    std::mutex mtx;
 
     // This is a recursive function to print from the beginning
     void printStateFromRoot(PState *parent);
@@ -52,11 +53,6 @@ public:
 
     // This returns a list of all possible children states
     PStateList getChildren();
-    
-    inline PStateList getDeeperChildren()
-    {
-        return deeperChildren;
-    }
 
     // Print out current state, its board, score and more
     void printState();
