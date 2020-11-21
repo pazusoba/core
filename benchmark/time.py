@@ -14,20 +14,25 @@ else:
 # update boards here
 board = "RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL"
 
-print("Benchmark")
 overall = time.time()
 time_taken = 0
-count = 10
+count = 20
+divider = count
+crash_count = 0
 
 while count > 0:
-    start = time.time()
     # run the program
-    pazusoba = subprocess.Popen([program, board, '3', '50', '10000'])
+    pazusoba = subprocess.Popen([program, board, '3', '50', '5000'], stdout=subprocess.DEVNULL)
+    start = time.time()
     pazusoba.wait()
 
     output_file = "path.pazusoba"
     if os.path.exists(output_file):
         count -= 1
-        time_taken += time.time() - overall
+        curr_time = time.time() - start
+        print("{}s".format(curr_time))
+        time_taken += curr_time
+    else:
+        crash_count += 1
 
-print("It took %.2fs, on average %.2fs" % (time.time() - overall) % time_taken / count)
+print("It took {}s, on average {}s. crashed {} times".format(time.time() - overall, time_taken / divider, crash_count))
