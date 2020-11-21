@@ -55,7 +55,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, i, j, orb, false);
+                floodfill(&combo, i, j, orb, -1);
                 if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
@@ -77,7 +77,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, int x, int y, Orb orb, bool erased)
+void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
 {
     if (!validLocation(x, y))
         return;
@@ -92,10 +92,10 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, bool erased)
     // all 4 directions
     for (int d = 0; d < 4; d++)
     {
-        // 1 -> right
-        // 2 -> left
-        // 3 -> down
-        // 4 -> up
+        // 0 -> right
+        // 1 -> left
+        // 2 -> down
+        // 3 -> up
         count = 0;
 
         int loop = row;
@@ -124,8 +124,9 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, bool erased)
             count++;
         }
 
-        // since the orb we are coming from is erased, only min erase - 1 is needed to be a valid combo
-        if (count >= (erased ? minEraseCondition - 1 : minEraseCondition))
+        // count shouldn't be changed but the condition
+        int condition = (direction == d) ? minEraseCondition - 1 : minEraseCondition;
+        if (count >= condition)
         {
             for (int i = 0; i < count; i++)
             {
@@ -158,10 +159,10 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, bool erased)
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, cx + 1, cy, orb, true);
-                floodfill(list, cx - 1, cy, orb, true);
-                floodfill(list, cx, cy + 1, orb, true);
-                floodfill(list, cx, cy - 1, orb, true);
+                floodfill(list, cx, cy + 1, orb, 0);
+                floodfill(list, cx, cy - 1, orb, 1);
+                floodfill(list, cx + 1, cy, orb, 2);
+                floodfill(list, cx - 1, cy, orb, 3);
             }
         }
     }
