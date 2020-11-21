@@ -138,6 +138,7 @@ std::vector<Route> PSolver::solve()
     {
         processor_count = 1;
     }
+    std::cout << "Using " << processor_count << " threads.\n";
     boardThreads.reserve(processor_count);
     // Cut into equal sizes
     int threadSize = size / processor_count;
