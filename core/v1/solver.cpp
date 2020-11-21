@@ -88,7 +88,9 @@ std::vector<Route> PSolver::solve()
     //          new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     //          new OneColumnProfile};
     // Combo only
-    std::vector<Profile *> profiles{new ComboProfile};
+    std::vector<Profile *> profiles{
+        new ComboProfile,
+        new TwoWayProfile};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
