@@ -43,7 +43,9 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     {
         // Remember to reset
         moreCombo = false;
-        for (int i = 0; i < column; i++)
+
+        // from bottom to top
+        for (int i = column - 1; i >= 0; i--)
         {
             for (int j = 0; j < row; j++)
             {
@@ -53,7 +55,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     continue;
                 
                 // Start finding combos
-                floodfill(&combo, i, j, orb);
+                floodfill(&combo, i, j, orb, false);
                 if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
@@ -75,7 +77,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
+void PBoard::floodfill(Combo *list, int x, int y, Orb orb, bool erased)
 {
     if (!validLocation(x, y))
         return;
@@ -86,13 +88,14 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
         return;
     
     int count = 0;
+
     // all 4 directions
     for (int d = 0; d < 4; d++)
     {
-        // 1 -> left
-        // 2 -> right
-        // 3 -> up
-        // 4 -> down
+        // 1 -> right
+        // 2 -> left
+        // 3 -> down
+        // 4 -> up
         count = 0;
         
         int loop = row;
@@ -120,7 +123,8 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
             count++;
         }
         
-        if (count >= minEraseCondition)
+        // since the orb we are coming from is erased, only min erase - 1 is needed to be a valid combo
+        if (count >= (erased ? minEraseCondition - 1 : minEraseCondition))
         {
             for (int i = 0; i < count; i++) {
                 int cx = x;
@@ -135,7 +139,7 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
                     cx -= i;
                 
                 board[cx][cy] = pad::empty;
-                list->emplace_back(cx, cy, board[cx][cy]);
+                list->emplace_back(cx, cy, orb);
             }
             
             for (int i = 0; i < count; i++) {
@@ -151,10 +155,10 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb)
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, cx + 1, cy, orb);
-                floodfill(list, cx - 1, cy, orb);
-                floodfill(list, cx, cy + 1, orb);
-                floodfill(list, cx, cy - 1, orb);
+                floodfill(list, cx + 1, cy, orb, true);
+                floodfill(list, cx - 1, cy, orb, true);
+                floodfill(list, cx, cy + 1, orb, true);
+                floodfill(list, cx, cy - 1, orb, true);
             }
         }
     }

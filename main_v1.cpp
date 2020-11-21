@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
 
 PSolver *handleInput(int argc, char *argv[])
 {
-    std::string filePath = "assets/sample_board_65.txt";
-    // std::string filePath = "RRRDGGRRRLLRRRRDLLHHHGBBLGGHHH";
+    std::string filePath = "assets/sample_board_floodfill_bug.txt";
+    // std::string filePath = "GGGGLGDDDGDGGGGDGGLGDDDLGGGGDG";
     // std::string filePath = "DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH";
     int minEraseCondition = 3;
     int maxStep = 50;
