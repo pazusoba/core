@@ -105,11 +105,8 @@ std::vector<Route> PSolver::solve()
 
     ProfileManager::shared().updateProfile(profiles);
 
-    if (DEBUG)
-    {
-        std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
-        board.printBoardForSimulation();
-    }
+    std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
+    board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
     // PPriorityQueue *toVisit = new PPriorityQueue(size);

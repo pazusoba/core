@@ -12,8 +12,8 @@ ifeq ($(PLATFORM), mac)
 	MOVE_PYTHON=mv $(OUTPUT_PYTHON) automation/
 else ifeq ($(PLATFORM), win)
 	MAKE=mingw32-make.exe
-	CLEAN=del /s *.exe *.o *.so *.dll *.pazusoba
-	CLEAN_AUTOMATION=del /s automation/*.png automation/*.out automation/*.pazusoba automation/.ipynb*/
+	CLEAN=del /s /q *.exe *.o *.so *.dll *.pazusoba
+	CLEAN_AUTOMATION=del /s /q automation\*.out automation\*.pazusoba automation\.ipynb* automation\__py*
 	OUTPUT=./a.exe
 	MOVE_BOARDS=move /y board_*.txt assets/
 	OUTPUT_PYTHON=pazusoba.exe
