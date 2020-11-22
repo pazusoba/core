@@ -102,7 +102,9 @@ std::vector<Route> PSolver::solve()
     // };
     // 7x6, combo, 4 min erase
     std::vector<Profile *> profiles{
-        new ComboProfile};
+        new ComboProfile,
+        new TwoWayProfile({pad::light, pad::dark}),
+        new ColourProfile({pad::light, pad::dark})};
     // 7x6 Plus
     // std::vector<Profile *> profiles{
     //     new ComboProfile,

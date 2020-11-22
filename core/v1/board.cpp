@@ -98,6 +98,13 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
         // 3 -> up
         count = 0;
 
+        int connectedCondition = minEraseCondition >= 3 ? 3 : minEraseCondition;
+        if (direction == d)
+            connectedCondition -= 1;
+
+        // count shouldn't be changed but the min erase condition
+        int condition = (direction == d) ? minEraseCondition - 1 : minEraseCondition;
+
         int loop = row;
         if (d > 1)
             loop = column;
@@ -124,10 +131,9 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
             count++;
         }
 
-        // count shouldn't be changed but the condition
-        int condition = (direction == d) ? minEraseCondition - 1 : minEraseCondition;
-        // consider previously connected count
-        if (count + connected >= condition)
+        // more than erase condition or consider previously connected count
+        if (count >= condition ||
+            (connected >= connectedCondition && count + connected >= condition))
         {
             for (int i = 0; i < count; i++)
             {
@@ -160,21 +166,16 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, cx, cy + 1, orb, 0, 0);
-                floodfill(list, cx, cy - 1, orb, 1, 0);
-                floodfill(list, cx + 1, cy, orb, 2, 0);
-                floodfill(list, cx - 1, cy, orb, 3, 0);
+                floodfill(list, cx, cy + 1, orb, 0, count);
+                floodfill(list, cx, cy - 1, orb, 1, count);
+                floodfill(list, cx + 1, cy, orb, 2, count);
+                floodfill(list, cx - 1, cy, orb, 3, count);
             }
 
             return true;
         }
 
-        // at least one orb should be connected before to check further
-        if (connected == 0)
-            return false;
-
         // for 4/5 as min erase, so you cannot erase the combo unless 4/5 orbs are connected
-        condition = (direction == d) ? 2 : 3;
         if (minEraseCondition > 3 && count >= condition)
         {
             int cx = x;

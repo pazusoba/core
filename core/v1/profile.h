@@ -308,6 +308,10 @@ public:
         int score = 0;
         for (const auto &c : list)
         {
+            // recovery is not two way
+            if (c[0].orb == pad::recovery)
+                continue;
+
             // 2U needs 4 orbs connected
             if (c.size() == 4 && isTheOrb(c[0].orb))
             {
