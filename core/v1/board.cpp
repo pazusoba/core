@@ -83,6 +83,9 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
         return false;
 
     auto currOrb = board[x][y];
+    if (currOrb == pad::empty)
+        return false;
+        
     // must be the same orb
     if (currOrb != orb)
         return false;
@@ -176,7 +179,7 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
         }
 
         // for 4/5 as min erase, so you cannot erase the combo unless 4/5 orbs are connected
-        if (minEraseCondition > 3 && count >= condition)
+        if (minEraseCondition > 3 && count == 3)
         {
             int cx = x;
             int cy = y;
@@ -205,9 +208,9 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
                     board[cx][cy] = pad::empty;
                     list->emplace_back(cx, cy, orb);
                 }
-            }
 
-            return true;
+                return true;
+            }
         }
     }
 
