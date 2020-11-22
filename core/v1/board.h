@@ -46,16 +46,16 @@ class PBoard
     int minEraseCondition = 3;
     // This saves all orbs in a 2D array, support all orb types
     Board board;
-    
+
     /**
      * Move orbs down if there is an empty orb below, return whether board has been changed
      */
     bool moveOrbsDown();
-    void floodfill(Combo *list, int x, int y, Orb orb, int direction);
-    
+    bool floodfill(Combo *list, int x, int y, Orb orb, int direction, int connected);
+
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
-    
+
     /**
      * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
      * return - a set of xy that can be erased
@@ -65,7 +65,7 @@ class PBoard
     {
         return findSameOrbsAround(loc.first, loc.second);
     }
-    
+
     /**
      * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
      * return - a pair pointer that should be checked next
@@ -75,7 +75,7 @@ class PBoard
     {
         return nextSameOrbAround(vhOrbs, loc.first, loc.second);
     }
-    
+
     /**
      * Check if orb at (x, y) has the same orb
      */
@@ -83,24 +83,24 @@ class PBoard
     {
         return hasSameOrb(orb, loc.first, loc.second);
     }
-    
+
     inline bool hasSameOrb(Orb orb, int x, int y)
     {
         if (validLocation(x, y))
         {
             return board[x][y] == orb;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Calculate max combo from a list of orbs.
      * NOTE that this is not the true MAX COMBO possible,
      * but it represents the max combo an averge player can do.
      */
     int getMaxCombo(int *counter);
-    
+
     /**
      * Max combo is simply row x column / 3
      */
@@ -108,7 +108,7 @@ class PBoard
     {
         return row * column / minEraseCondition;
     }
-    
+
     /**
      * Check if the file is empty or doesn't exists
      */
@@ -116,7 +116,7 @@ class PBoard
     {
         return column == 0 && row == 0;
     }
-    
+
     /**
      * Loop through the vector and count the number of each orbs
      */
@@ -132,12 +132,12 @@ class PBoard
         }
         return counter;
     }
-    
+
 public:
     PBoard();
     PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
     ~PBoard();
-    
+
     /**
      * Rate current board. This is the heuristic
      * - three in a line (1000pt), based on 10^orb
@@ -145,22 +145,22 @@ public:
      * - more coming soon
      */
     int rateBoard();
-    
+
     /**
      * Print out a board nicely formatted
      */
     void printBoard();
-    
+
     /**
      * Print out all orbs in a line and it can be used for simulation
      */
     void printBoardForSimulation();
-    
+
     /**
      * Print out some info about the board we have
      */
     void printBoardInfo();
-    
+
     // This is for displaying the board in QT
     inline std::vector<int> getBoardOrbs()
     {
@@ -176,12 +176,12 @@ public:
         }
         return orbs;
     }
-    
+
     inline bool hasSameBoard(const PBoard *b) const
     {
         return board == b->board;
     }
-    
+
     /**
      * Swap the value of two orbs
      */
@@ -190,18 +190,18 @@ public:
         // TODO: all points should be valid why?
         if (!validLocation(one) || !validLocation(two))
             return;
-        
+
         auto temp = ORB(board, one);
         ORB(board, one) = ORB(board, two);
         ORB(board, two) = temp;
     }
-    
+
     // Check if this loc is valid (not out of index)
     inline bool validLocation(OrbLocation loc)
     {
         return validLocation(loc.first, loc.second);
     }
-    
+
     inline bool validLocation(int x, int y)
     {
         if (x >= 0 && x < column && y >= 0 && y < row)
@@ -210,11 +210,12 @@ public:
             // return board[x][y] != pad::seal;
             return true;
         }
-        
+
         return false;
     }
-    
-    inline int orbLocationKey(const OrbLocation &loc) {
+
+    inline int orbLocationKey(const OrbLocation &loc)
+    {
         return loc.first * 10000 + loc.second;
     }
 };
