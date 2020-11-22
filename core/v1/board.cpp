@@ -55,7 +55,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, i, j, orb, -1, 0);
+                floodfill(&combo, i, j, orb, -1);
                 if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
@@ -77,37 +77,27 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int connected)
+void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
 {
     if (!validLocation(x, y))
-        return false;
+        return;
 
     auto currOrb = board[x][y];
-    if (currOrb == pad::empty)
-        return false;
-        
     // must be the same orb
     if (currOrb != orb)
-        return false;
+        return;
 
     int count = 0;
+    // track all directions
+    int dList[4] = {0, 0, 0, 0};
 
     // all 4 directions
+    // 0 -> right
+    // 1 -> left
+    // 2 -> down
+    // 3 -> up
     for (int d = 0; d < 4; d++)
     {
-        // 0 -> right
-        // 1 -> left
-        // 2 -> down
-        // 3 -> up
-        count = 0;
-
-        int connectedCondition = minEraseCondition >= 3 ? 3 : minEraseCondition;
-        if (direction == d)
-            connectedCondition -= 1;
-
-        // count shouldn't be changed but the min erase condition
-        int condition = (direction == d) ? minEraseCondition - 1 : minEraseCondition;
-
         int loop = row;
         if (d > 1)
             loop = column;
@@ -131,14 +121,30 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
             // stop if it doesn't match
             if (board[cx][cy] != orb)
                 break;
+
+            dList[d]++;
             count++;
         }
+    }
 
-        // more than erase condition or consider previously connected count
-        if (count >= condition ||
-            (connected >= connectedCondition && count + connected >= condition))
+    // added the same orb 4 times so need to -3
+    count -= 3;
+
+    // more than erase condition
+    if (count >= minEraseCondition)
+    {
+        // the min number of connected orbs to consider it as a combo
+        int minConnection = minEraseCondition >= 3 ? 3 : minEraseCondition;
+
+        // erase and do flood fill
+        for (int d = 0; d < 4; d++)
         {
-            for (int i = 0; i < count; i++)
+            int currCount = dList[d];
+            // must be more than min erase
+            if (currCount < minConnection)
+                continue;
+
+            for (int i = 0; i < currCount; i++)
             {
                 int cx = x;
                 int cy = y;
@@ -155,7 +161,7 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
                 list->emplace_back(cx, cy, orb);
             }
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < currCount; i++)
             {
                 int cx = x;
                 int cy = y;
@@ -169,52 +175,13 @@ bool PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction, int co
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, cx, cy + 1, orb, 0, count);
-                floodfill(list, cx, cy - 1, orb, 1, count);
-                floodfill(list, cx + 1, cy, orb, 2, count);
-                floodfill(list, cx - 1, cy, orb, 3, count);
-            }
-
-            return true;
-        }
-
-        // for 4/5 as min erase, so you cannot erase the combo unless 4/5 orbs are connected
-        if (minEraseCondition > 3 && count == 3)
-        {
-            int cx = x;
-            int cy = y;
-            auto right = floodfill(list, cx, cy + 1, orb, 0, count);
-            auto left = floodfill(list, cx, cy - 1, orb, 1, count);
-            auto down = floodfill(list, cx + 1, cy, orb, 2, count);
-            auto up = floodfill(list, cx - 1, cy, orb, 3, count);
-
-            // if one direction erased the orb
-            if (right || left || down || up)
-            {
-                // we need to erase current
-                for (int i = 0; i < count; i++)
-                {
-                    cx = x;
-                    cy = y;
-                    if (d == 0)
-                        cy += i;
-                    else if (d == 1)
-                        cy -= i;
-                    else if (d == 2)
-                        cx += i;
-                    else if (d == 3)
-                        cx -= i;
-
-                    board[cx][cy] = pad::empty;
-                    list->emplace_back(cx, cy, orb);
-                }
-
-                return true;
+                floodfill(list, cx, cy + 1, orb, 0);
+                floodfill(list, cx, cy - 1, orb, 1);
+                floodfill(list, cx + 1, cy, orb, 2);
+                floodfill(list, cx - 1, cy, orb, 3);
             }
         }
     }
-
-    return false;
 }
 
 int PBoard::rateBoard()
