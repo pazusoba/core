@@ -83,9 +83,9 @@ PState::PStateList PState::getChildren()
                 (i == 1 && j == -1))
             {
                 // Only allow diagonal when it is close to the end
-//                double percent = double(step) / double(maxStep);
-//                if (percent < 0.9)
-//                    continue;
+                //                double percent = double(step) / double(maxStep);
+                //                if (percent < 0.9)
+                //                    continue;
                 continue;
             }
 
@@ -115,7 +115,7 @@ PState::PStateList PState::getChildren()
 
 // MARK: - Utils
 
-void PState::saveStateFromRoot(PState *parent, std::ofstream* file)
+void PState::saveStateFromRoot(PState *parent, std::ofstream *file)
 {
     if (parent != nullptr)
     {
@@ -125,7 +125,7 @@ void PState::saveStateFromRoot(PState *parent, std::ofstream* file)
     }
 }
 
-void PState::saveToDisk() 
+void PState::saveToDisk()
 {
     std::ofstream f;
     f.open("path.pazusoba");

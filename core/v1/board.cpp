@@ -157,8 +157,25 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
                 else if (d == 3)
                     cx -= i;
 
-                board[cx][cy] = pad::empty;
-                list->emplace_back(cx, cy, orb);
+                // only need to check two orbs because by default, it needs to have at least 3 connected orbs to be considered as a combo
+                bool hasOrbAround = false;
+                if (d < 2)
+                {
+                    // check up down
+                    hasOrbAround = hasSameOrb(orb, cx + 1, cy) && hasSameOrb(orb, cx - 1, cy);
+                }
+                else
+                {
+                    // check left right
+                    hasOrbAround = hasSameOrb(orb, cx, cy + 1) && hasSameOrb(orb, cx, cy - 1);
+                }
+
+                // only remove if there are no same orbs in a different direction
+                if (!hasOrbAround)
+                {
+                    board[cx][cy] = pad::empty;
+                    list->emplace_back(cx, cy, orb);
+                }
             }
 
             for (int i = 0; i < currCount; i++)
