@@ -71,6 +71,18 @@ The program accepts 4 arguments
 
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
+## Benchmark
+The binary is compiled locally and overall time are used. 
+| Version | A12Z Bionic | i5-9400 |         Note          |
+| :-----: | :---------: | :-----: | :-------------------: |
+|  0.1α   |   213.54s   |         |   Proof of concept    |
+|  0.2α   |   92.46s    |         |  General improvement  |
+|  0.3α   |   12.06s    |         | Compiler optimisation |
+|  0.4α   |    2.79s    |         |    Multi-threading    |
+|  0.5α   |    3.06s    |         |   Profile & OpenCV    |
+|  0.6β   |    3.35s    |         |      Automation       |
+| 0.7.1β  |    1.71s    |         |  General improvement  |
+
 ### QT (Deprecated)
 This is now replaced with `automation`. 
 
