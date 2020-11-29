@@ -2,14 +2,9 @@
 The time taken to read in a board from command line or a board file
 """
 import time
-import os, subprocess
+import os, subprocess, sys
 
-# mac or win
-platform="win"
-if platform == "mac":
-    program = "../automation/pazusoba.out"
-else:
-    program = "../automation/pazusoba.exe"
+program = sys.argv[1]
 
 # update boards here
 board = "RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL"
@@ -34,5 +29,6 @@ while count > 0:
         time_taken += curr_time
     else:
         crash_count += 1
+    time.sleep(0.2)
 
 print("It took {}s, on average {}s. crashed {} times".format(time.time() - overall, time_taken / divider, crash_count))
