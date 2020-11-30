@@ -62,9 +62,6 @@ PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int si
 
 std::vector<Route> PSolver::solve()
 {
-    // Remove previous output file
-    remove("path.pazusoba");
-
     // +
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
