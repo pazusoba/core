@@ -69,10 +69,15 @@ The program accepts 4 arguments
 - Max step (by default 50)
 - Max beam size (by default 5000)
 
+~~~shell
+$ ./a.out GLHLGGLBDHDDDHGHHRDRLDDLGLDDRG 3 25 1000
+$ ./a.out assets/sample_board_65.txt 3
+~~~
+
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
 ## Benchmark
-The binary is compiled locally and overall time are used. 
+Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000.
 | Version | A12Z Bionic | i5-9400 |         Note          |
 | :-----: | :---------: | :-----: | :-------------------: |
 |  0.1α   |   213.54s   |         |   Proof of concept    |
