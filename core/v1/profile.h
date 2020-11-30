@@ -111,8 +111,6 @@ public:
         // Check if there are orbs next to each other
         int orbAround = 0;
         int orbNext2 = 0;
-        // Collect all orbs with current location
-        // std::map<Orb, std::vector<OrbLocation>> distanceInfo;
 
         for (int i = 0; i < column; i++)
         {
@@ -121,10 +119,6 @@ public:
                 auto curr = board[i][j];
                 if (curr == pad::empty)
                     continue;
-
-                // TODO: improve this??
-                // save this location
-                // distanceInfo[curr].push_back(LOCATION(i, j));
 
                 // Check if there are same orbs around
                 for (int a = -1; a <= 1; a++)
@@ -158,27 +152,6 @@ public:
             }
         }
 
-        // For every orbs, we need to get the distance of it from other orbs
-        // for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
-        // {
-        //     // track the total distance
-        //     int distance = 0;
-        //     auto orbs = curr->second;
-        //     int size = orbs.size();
-        //     for (int i = 0; i < size; i++)
-        //     {
-        //         auto loc = orbs[i];
-        //         for (int j = i; j < size; j++)
-        //         {
-        //             auto other = orbs[j];
-        //             distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
-        //         }
-        //     }
-            
-        //     // Less points if far away
-        //     score -= pad::TIER_THREE_SCORE * distance;
-        // }
-
         if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
@@ -206,12 +179,12 @@ public:
             else
             {
                 // Encourage cascading
-                score += pad::TIER_FIVE_SCORE * moveCount;
+                // score += pad::TIER_THREE_SCORE * moveCount;
             }
 
             // Always aim for max combo by default
-            score += pad::TIER_TWO_SCORE * orbAround;
-            score += pad::TIER_THREE_SCORE * orbNext2;
+            score += pad::TIER_ONE_SCORE * orbAround;
+            score += pad::TIER_ONE_SCORE * orbNext2;
             score += pad::TIER_EIGHT_SCORE * combo;
         }
 

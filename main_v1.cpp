@@ -19,12 +19,12 @@ int main(int argc, char *argv[])
 
 PSolver *handleInput(int argc, char *argv[])
 {
-    std::string filePath = "assets/sample_board_4erase.txt";
-    // std::string filePath = "GGGGLGDDDGDGGGGDGGLGDDDLGGGGDG";
+    // std::string filePath = "assets/sample_board_4erase.txt";
+    std::string filePath = "GLHLGGLBDHDDDHGHHRDRLDDLGLDDRG";
     // this one had some problems
     // std::string filePath = "LHHLHDLDDLHLDDLDHDDDLLHDLHDHHDHHLDLDLHDHDH";
     int minEraseCondition = 3;
-    int maxStep = 50;
+    int maxStep = 60;
     int maxSize = 5000;
 
     // Read from command line
