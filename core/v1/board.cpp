@@ -204,8 +204,10 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
 int PBoard::rateBoard()
 {
     int moveCount = 0;
+    auto backup = board;
     auto list = eraseComboAndMoveOrbs(&moveCount);
-    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition);
+
+    int score = ProfileManager::shared().getScore(list, backup, moveCount, minEraseCondition);
 
     return score;
 }

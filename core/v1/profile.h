@@ -112,6 +112,9 @@ public:
         int orbAround = 0;
         int orbNext2 = 0;
 
+        // Collect all orbs with current location
+        std::map<Orb, std::vector<OrbLocation>> distanceInfo;
+
         for (int i = 0; i < column; i++)
         {
             for (int j = 0; j < row; j++)
@@ -119,6 +122,10 @@ public:
                 auto curr = board[i][j];
                 if (curr == pad::empty)
                     continue;
+
+                // TODO: improve this??
+                // save this location
+                distanceInfo[curr].push_back(LOCATION(i, j));
 
                 // Check if there are same orbs around
                 for (int a = -1; a <= 1; a++)
@@ -152,6 +159,28 @@ public:
             }
         }
 
+        // For every orbs, we need to get the distance of it from other orbs
+        for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
+        {
+            // track the total distance
+            int distance = 0;
+            auto orbs = curr->second;
+            int size = orbs.size();
+            for (int i = 0; i < size; i++)
+            {
+                auto loc = orbs[i];
+                for (int j = i; j < size; j++)
+                {
+                    auto other = orbs[j];
+                    distance += abs(loc.first - other.first) + abs(loc.second - other.second);
+                    // distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
+                }
+            }
+
+            // Less points if far away
+            score -= pad::TIER_THREE_SCORE * distance;
+        }
+
         if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
@@ -170,16 +199,11 @@ public:
                     // Sometimes, it is ok to do more combo temporarily
                     combo *= -1;
                 }
-                else if (distance == 0)
-                {
-                    // More points for doing exactly target combo
-                    score += pad::TIER_NINE_SCORE;
-                }
             }
             else
             {
                 // Encourage cascading
-                // score += pad::TIER_THREE_SCORE * moveCount;
+                score += pad::TIER_FIVE_SCORE * moveCount;
             }
 
             // Always aim for max combo by default
@@ -268,7 +292,7 @@ public:
 class TwoWayProfile : public ShapeProfile
 {
 public:
-    TwoWayProfile(): ShapeProfile() {}
+    TwoWayProfile() : ShapeProfile() {}
     TwoWayProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -298,7 +322,7 @@ public:
 class LProfile : public ShapeProfile
 {
 public:
-    LProfile(): ShapeProfile() {}
+    LProfile() : ShapeProfile() {}
     LProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -357,7 +381,7 @@ public:
 class PlusProfile : public ShapeProfile
 {
 public:
-    PlusProfile(): ShapeProfile() {}
+    PlusProfile() : ShapeProfile() {}
     PlusProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -416,7 +440,7 @@ public:
 class VoidPenProfile : public ShapeProfile
 {
 public:
-    VoidPenProfile(): ShapeProfile() {}
+    VoidPenProfile() : ShapeProfile() {}
     VoidPenProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -483,7 +507,6 @@ public:
                                 count++;
                         }
 
-
                         if (count < 6)
                             score += count * pad::TIER_EIGHT_PLUS_SCORE;
                         if (count == 6)
@@ -504,7 +527,7 @@ public:
 class SoybeanProfile : public ShapeProfile
 {
 public:
-    SoybeanProfile(): ShapeProfile() {}
+    SoybeanProfile() : ShapeProfile() {}
     SoybeanProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -530,7 +553,7 @@ public:
 class OneRowProfile : public ShapeProfile
 {
 public:
-    OneRowProfile(): ShapeProfile() {}
+    OneRowProfile() : ShapeProfile() {}
     OneRowProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -574,7 +597,7 @@ public:
 class OneColumnProfile : public ShapeProfile
 {
 public:
-    OneColumnProfile(): ShapeProfile() {}
+    OneColumnProfile() : ShapeProfile() {}
     OneColumnProfile(std::vector<Orb> orbs) : ShapeProfile(orbs) {}
 
     std::string getProfileName() const override
@@ -633,42 +656,26 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition) const override
     {
         int score = 0;
+        if (list.size() == 0)
+            return score;
+
+        int orbCount = board.size() * board[0].size();
 
         // Track how many orbs are erased and left
         int orbErased = 0;
         int orbLeft = 0;
-        std::map<Orb, int> orbLeftInfo;
-        for (const auto &r: board)
-        {
-            for (const auto &orb : r)
-            {
-                if (orb == pad::empty)
-                {
-                    orbErased++;
-                }
-                else
-                {
-                    orbLeftInfo[orb]++;
-                    orbLeft++;
-                }
-            }
-        }
 
         // Encourage to connect more orbs in a combo
         for (const auto &c : list)
         {
             int size = c.size();
             score += (size - minEraseCondition) * pad::TIER_FIVE_SCORE;
+            orbErased += size;
         }
 
-        // Punish for having some orbs left
-        for (auto curr = orbLeftInfo.begin(); curr != orbLeftInfo.end(); curr++)
-        {
-            score -= curr->second * pad::TIER_EIGHT_SCORE;
-        }
-
+        orbLeft = orbCount - orbErased;
         // More points for erasing more orbs
-        score += pad::TIER_EIGHT_SCORE * orbErased;
+        score -= pad::TIER_SIX_SCORE * orbLeft;
         if (orbLeft <= targetNumber)
         {
             score += pad::TIER_NINE_SCORE;
