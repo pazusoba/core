@@ -11,7 +11,7 @@ board = "RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL"
 
 overall = time.time()
 time_taken = 0
-count = 20
+count = 10
 divider = count
 crash_count = 0
 
@@ -32,3 +32,6 @@ while count > 0:
     time.sleep(0.2)
 
 print("It took {}s, on average {}s. crashed {} times".format(time.time() - overall, time_taken / divider, crash_count))
+
+# use this on windows with powershell
+# Measure-Command { .\2.exe .\assets\sample_board_65.txt 3 50 5000 | Out-Default }

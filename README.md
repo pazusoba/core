@@ -77,16 +77,16 @@ $ ./a.out assets/sample_board_65.txt 3
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
 ## Benchmark
-Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000.
+Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000. This might not be accurate. Use it as a reference.
 | Version | A12Z Bionic | i5-9400 |         Note          |
 | :-----: | :---------: | :-----: | :-------------------: |
-|  0.1α   |   213.54s   |         |   Proof of concept    |
-|  0.2α   |   92.46s    |         |  General improvement  |
-|  0.3α   |   12.06s    |         | Compiler optimisation |
-|  0.4α   |    2.79s    |         |    Multi-threading    |
-|  0.5α   |    3.06s    |         |   Profile & OpenCV    |
-|  0.6β   |    3.35s    |         |      Automation       |
-| 0.7.1β  |    1.71s    |         |  General improvement  |
+|  0.1α   |   213.54s   | 110.34s |   Proof of Concept    |
+|  0.2α   |   92.46s    | 39.97s  |  General Improvement  |
+|  0.3α   |   12.06s    | 10.51s  | Compiler Optimisation |
+|  0.4α   |    2.79s    |  2.15s  |    Multi-Threading    |
+|  0.5α   |    3.06s    |  1.79s  |   Profile & OpenCV    |
+|  0.6β   |    3.35s    |  2.04s  |      Automation       |
+| 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
 
 ### QT (Deprecated)
 This is now replaced with `automation`. 
@@ -122,6 +122,6 @@ Things that were helpful during my experiments.
 
 # Miscellaneous
 ## 2000 days
-I have been playing this game (the Japanese version) for more than 2000 days (until 2/7/2020). I started playing in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. C++ reminds me of my good old days with C programming. You feel like you can anything with it. C is special because it was my first programming language but it was a tough way to start programming, lol. Lately, I have been using JS, Python, Dart, Swift and Kotlin. They are modern, nice and easier to write but it is nice to stop and go back to the origin once a while. 
+I have been playing this game (the Japanese version) for more than 2000 days (until 2/7/2020). I started playing in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. C++ reminds me of my good old days with C programming. You feel like you can do anything with it. C is special because it was my first programming language but it was a tough way to start programming, lol. Lately, I have been using JS, Python, Dart, Swift and Kotlin. They are modern, nice and easier to write but it is nice to stop and go back to the origin once a while. 
 ![2000日たまドラ](https://raw.githubusercontent.com/HenryQuan/pazusoba/master/assets/2000.jpg?token=ABTRDFH6WOWXATCBOZXXCGK7BAJ5G)
 たま~ たま~
