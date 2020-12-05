@@ -108,6 +108,7 @@ Things that were helpful during my experiments.
 - https://github.com/ethanlu/pazudora-solver
 - https://puzzleanddragonsforum.com/threads/genetic-algorithm-for-pad.95084/, a great discussion
 - https://cory.li/puzzle-and-dragons/, a great post
+- https://github.com/koduma/puzzdra_solver by kodumaさん
 - flood fill & union find
 - beam search
 
