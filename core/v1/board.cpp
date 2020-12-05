@@ -207,9 +207,10 @@ int PBoard::rateBoard()
     auto backup = board;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
-    int score = ProfileManager::shared().getScore(list, backup, moveCount, minEraseCondition);
+    int scoreAfter = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition);
+    int scoreBefore = ProfileManager::shared().getScore(list, backup, moveCount, minEraseCondition);
 
-    return score;
+    return scoreAfter + scoreBefore;
 }
 
 bool PBoard::moveOrbsDown()
