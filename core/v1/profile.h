@@ -113,7 +113,7 @@ public:
         int orbNext2 = 0;
 
         // Collect all orbs with current location
-        std::map<Orb, std::vector<OrbLocation>> distanceInfo;
+        // std::map<Orb, std::vector<OrbLocation>> distanceInfo;
 
         for (int i = 0; i < column; i++)
         {
@@ -125,7 +125,7 @@ public:
 
                 // TODO: improve this??
                 // save this location
-                distanceInfo[curr].push_back(LOCATION(i, j));
+                // distanceInfo[curr].push_back(LOCATION(i, j));
 
                 // Check if there are same orbs around
                 for (int a = -1; a <= 1; a++)
@@ -160,26 +160,26 @@ public:
         }
 
         // For every orbs, we need to get the distance of it from other orbs
-        for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
-        {
-            // track the total distance
-            int distance = 0;
-            auto orbs = curr->second;
-            int size = orbs.size();
-            for (int i = 0; i < size; i++)
-            {
-                auto loc = orbs[i];
-                for (int j = i; j < size; j++)
-                {
-                    auto other = orbs[j];
-                    distance += abs(loc.first - other.first) + abs(loc.second - other.second);
-                    // distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
-                }
-            }
+        // for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
+        // {
+        //     // track the total distance
+        //     int distance = 0;
+        //     auto orbs = curr->second;
+        //     int size = orbs.size();
+        //     for (int i = 0; i < size; i++)
+        //     {
+        //         auto loc = orbs[i];
+        //         for (int j = i; j < size; j++)
+        //         {
+        //             auto other = orbs[j];
+        //             distance += abs(loc.first - other.first) + abs(loc.second - other.second);
+        //             // distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
+        //         }
+        //     }
 
-            // Less points if far away
-            score -= pad::TIER_THREE_SCORE * distance;
-        }
+        //     // Less points if far away
+        //     score -= pad::TIER_THREE_SCORE * distance;
+        // }
 
         if (targetCombo == 0)
         {

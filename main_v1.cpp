@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 PSolver *handleInput(int argc, char *argv[])
 {
     // std::string filePath = "assets/sample_board_4erase.txt";
-    std::string filePath = "GLHLGGLBDHDDDHGHHRDRLDDLGLDDRG";
+    std::string filePath = "RHGHDRGLBLHGDBLLHBBBHRLHGHDGLB";
     // this one had some problems
     // std::string filePath = "LHHLHDLDDLHLDDLDHDDDLLHDLHDHHDHHLDLDLHDHDH";
     int minEraseCondition = 3;

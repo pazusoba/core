@@ -43,13 +43,11 @@ PState::~PState()
 
 bool PState::operator<(const PState &a) const
 {
+    // 0 - 99
+    // int num = rand() % 100;
+    // if (num < 50)
+    //     return true;
     return score < a.score;
-}
-
-bool PState::operator>(const PState &a) const
-{
-    // Here, you need to have more score per step
-    return score > a.score;
 }
 
 bool PState::operator==(const PState &a) const
