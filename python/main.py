@@ -34,4 +34,4 @@ if arg_len > 4:
     # for now, max width is 5000
     width = min(args[4], 5000)
 
-print(board_str, min_erase, depth, width)
+# read the board
