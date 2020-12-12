@@ -25,6 +25,16 @@ NUM_ORBS = 14
 ORB_NAMES = ["Empty", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-", "???"]
 ORB_SIMULATION_NAMES = ["", "R", "B", "G", "L", "D", "H", "J", "", "P", "", "", "", ""]
 
+class Direction(Enum):
+    UP_LEFT = 0
+    UP = 1
+    UP_RIGHT = 2
+    LEFT = 3
+    RIGHT = 4
+    DOWN_LEFT = 5
+    DOWN = 6
+    DOWN_RIGHT = 7
+
 # 8 directions in total
 DIRECTION_NAMES = ["UL", "U", "UR", "L", "R", "DL", "D", "DR"]
 

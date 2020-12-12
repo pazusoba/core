@@ -1,4 +1,5 @@
 import sys
+from constants import Orb, ORB_SIMULATION_NAMES
 
 """
 python3 main.py GLHLGGLBDHDDDHGHHRDRLDDLGLDDRG 3 25 1000
@@ -35,3 +36,6 @@ if arg_len > 4:
     width = min(args[4], 5000)
 
 # read the board
+for letter in board_str:
+    orb = Orb(ORB_SIMULATION_NAMES.index(letter))
+    print(orb.name)

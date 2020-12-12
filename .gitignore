@@ -7,6 +7,7 @@
 **/*.gch
 **/*_wrap.cxx
 **/.ipynb_checkpoints
+**/__pycache**
 
 # generated boards
 **/board_*.txt
