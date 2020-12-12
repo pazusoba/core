@@ -1,7 +1,6 @@
 import sys
 from constant import Orb, ORB_SIMULATION_NAMES
 from board import Board
-import copy
 
 """
 python3 main.py GLHLGGLBDHDDDHGHHRDRLDDLGLDDRG 3 25 1000
@@ -32,5 +31,15 @@ if arg_len > 4:
     width = min(args[4], 5000)
 
 
-board = Board(board_str)
+board: Board = Board(board_str)
 board.info()
+
+for column in range(board.column):
+    for row in range(board.row):
+        pos = board.duplicate()
+        pos.loc = (column, row)
+        pos.get_children()
+
+count = 0
+board.children[0].get_children()
+board.children[0].info()

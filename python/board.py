@@ -15,6 +15,12 @@ class Board:
 
     step = 0
     score = 0
+    children = []
+    loc: tuple = None
+
+    parent = None
+    prev_score = 0
+    prev_loc = None
 
     def __init__(self, board_str):
         length = len(board_str)
@@ -44,14 +50,47 @@ class Board:
 
         board_copy = copy(self)
         new_board = board_copy.board
+        board_copy.children = []
 
+        # swap two values, so simple in python
         x, y = from_loc
         nx, ny = to_loc
         new_board[x][y], new_board[nx][ny] = new_board[nx][ny], new_board[x][y]
 
         board_copy.step += 1
+        board_copy.loc = to_loc
+
+        board_copy.parent = self
+        board_copy.prev_score = self.score
+        board_copy.prev_loc = self.loc
+
         board_copy.calc_board_hash(force=True)
+        board_copy.calc_score()
+
         return board_copy
+
+    def get_children(self, diagonal=False):
+        for x in range(-1, 2):
+            for y in range(-1, 2):
+                if x == y == 0:
+                    continue
+
+                is_diagonal = abs(x) * abs(y) > 0
+                # continue if it is diagonal but not in diagonal mode
+                if not diagonal and is_diagonal:
+                    continue
+
+                nx, ny = self.loc
+                nx += x
+                ny += y
+                if self.is_valid_loc((nx, ny)):
+                    new_board = self.swap(self.loc, (nx, ny))
+                    self.children.append(new_board)
+
+    def is_valid_loc(self, loc):
+        # check x and y are in bound
+        x, y = loc
+        return 0 <= x <= self.column - 1 and 0 <= y <= self.row - 1
 
     def calc_board_hash(self, force=False):
         # only calculate if current hash is empty
@@ -61,10 +100,16 @@ class Board:
                 for y in x:
                     self.board_hash += ORB_SIMULATION_NAMES[y.value]
 
+    def calc_score(self):
+        self.score = 0
+
     def info(self):
         self.print_board()
-        print("{} x {} | Step - {} | Score - {}".format(self.row,
-                                                        self.column, self.step, self.score))
+        print("{} x {} | Step - {} | Score - {} | Children - {}"
+              .format(self.row, self.column, self.step, self.score, len(self.children)))
+
+    def duplicate(self):
+        return copy(self)
 
     def print_board(self, number=False, offset=1):
         if not number:
