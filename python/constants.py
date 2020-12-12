@@ -3,6 +3,24 @@ constant.py
 - store all constants used by the program
 """
 
+from enum import Enum
+
+class Orb(Enum):
+    EMPTY = 0
+    FIRE = 1
+    WATER = 2
+    WOOD = 3
+    LIGHT = 4
+    DARK = 5
+    HEAL = 6
+    JAMMER = 7
+    BOMB = 8
+    POISON = 9
+    POISON_PLUS = 10
+    SEAL = 11
+    DISABLED = 12
+    UNKNOWN = 13
+
 NUM_ORBS = 14
 ORB_NAMES = ["Empty", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-", "???"]
 ORB_SIMULATION_NAMES = ["", "R", "B", "G", "L", "D", "H", "J", "", "P", "", "", "", ""]
