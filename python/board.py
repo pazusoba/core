@@ -5,6 +5,16 @@ board.py
 
 from constant import ORB_SIMULATION_NAMES, Orb
 from copy import copy, deepcopy
+from random import randint
+
+
+class Combo:
+    loc = None
+    orb = None
+
+    def __init__(self, loc: tuple, orb: Orb):
+        self.loc = loc
+        self.orb = orb
 
 
 class Board:
@@ -50,6 +60,11 @@ class Board:
         self.depth = depth
         self.width = width
 
+    def __lt__(self, other):
+        if self.score == other.score:
+            return self.step > other.step
+        return self.score < other.score
+
     def swap(self, from_loc, to_loc):
         """
         copy current board and swap 2 orb locations
@@ -62,7 +77,6 @@ class Board:
         # swap two values, so simple in python
         x, y = from_loc
         nx, ny = to_loc
-        print(from_loc, to_loc)
         new_board[x][y], new_board[nx][ny] = new_board[nx][ny], new_board[x][y]
 
         board_copy.step += 1
@@ -118,6 +132,7 @@ class Board:
         temp = deepcopy(self.board)
         combo_list = []
         combo = []
+        move_count = 0
 
         more_combo = True
         while more_combo:
@@ -136,8 +151,9 @@ class Board:
                         combo = []
 
             if more_combo:
+                move_count += 1
                 more_combo = self._move_orbs_down(temp)
-        self.score = len(combo_list) * 1000
+        self.score = len(combo_list) * 1000 + move_count * 50
 
     def _flood_fill(self, board, combo, x, y, orb, direction):
         if not self.is_valid_loc((x, y)):
@@ -205,7 +221,7 @@ class Board:
 
                     if not has_orb_around:
                         board[cx][cy] = Orb.EMPTY
-                        combo.append(orb)
+                        combo.append(Combo((cx, cy), orb))
 
                 for i in range(curr_count):
                     cx, cy = x, y
@@ -261,7 +277,7 @@ class Board:
               .format(self.row, self.column, self.step, self.prev_loc, self.loc, self.score, self.prev_score, len(self.children)))
 
     def duplicate(self):
-        new_copy = deepcopy(self)
+        new_copy = copy(self)
         new_copy.board = deepcopy(self.board)
         return new_copy
 
