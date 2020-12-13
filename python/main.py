@@ -31,8 +31,7 @@ if arg_len > 4:
     width = min(args[4], 5000)
 
 
-board: Board = Board(board_str)
-board.info()
+board = Board(board_str, min_erase, depth, width)
 
 for column in range(board.column):
     for row in range(board.row):
@@ -40,6 +39,6 @@ for column in range(board.column):
         pos.loc = (column, row)
         pos.get_children()
 
-count = 0
+board.info()
 board.children[0].get_children()
 board.children[0].info()

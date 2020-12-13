@@ -4,7 +4,7 @@ board.py
 """
 
 from constant import ORB_SIMULATION_NAMES, Orb
-from copy import copy
+from copy import copy, deepcopy
 
 
 class Board:
@@ -13,16 +13,20 @@ class Board:
     board = []
     board_hash = ""
 
+    min_erase = 3
+    depth = 30
+    width = 1000
+
     step = 0
     score = 0
     children = []
-    loc: tuple = None
+    loc = None
 
     parent = None
     prev_score = 0
     prev_loc = None
 
-    def __init__(self, board_str):
+    def __init__(self, board_str, min_erase, depth, width):
         length = len(board_str)
         if length == 20:
             self.column, self.row = 4, 5
@@ -42,13 +46,16 @@ class Board:
             self.board.append(new_row)
 
         self.board_hash = board_str
+        self.min_erase = min_erase
+        self.depth = depth
+        self.width = width
 
     def swap(self, from_loc, to_loc):
         """
         copy current board and swap 2 orb locations
         """
 
-        board_copy = copy(self)
+        board_copy = deepcopy(self)
         new_board = board_copy.board
         board_copy.children = []
 
@@ -66,6 +73,7 @@ class Board:
 
         board_copy.calc_board_hash(force=True)
         board_copy.calc_score()
+        board_copy.info()
 
         return board_copy
 
@@ -101,7 +109,146 @@ class Board:
                     self.board_hash += ORB_SIMULATION_NAMES[y.value]
 
     def calc_score(self):
-        self.score = 0
+        # copy the board to erase combo
+        temp = deepcopy(self.board)
+        combo_list = []
+        combo = []
+
+        more_combo = True
+        while more_combo:
+            more_combo = False
+
+            for x in range(self.column - 1, -1, -1):
+                for y in range(self.row):
+                    curr_orb = temp[x][y]
+                    if curr_orb == Orb.EMPTY:
+                        continue
+
+                    self._flood_fill(temp, combo, x, y, curr_orb, -1)
+                    if len(combo) >= self.min_erase:
+                        more_combo = True
+                        combo_list.append(combo)
+                        combo = []
+
+            if more_combo:
+                more_combo = self._move_orbs_down(temp)
+        self.score = len(combo_list) * 1000
+
+    def _flood_fill(self, board, combo, x, y, orb, direction):
+        if not self.is_valid_loc((x, y)):
+            return
+
+        curr_orb = board[x][y]
+        if curr_orb != orb:
+            return
+
+        count = 0
+        direction_list = [0, 0, 0, 0]
+
+        for d in range(4):
+            loop = self.row
+            if d > 1:
+                loop = self.column
+
+            for i in range(loop):
+                cx, cy = x, y
+                if d == 0:
+                    cy += i
+                elif d == 1:
+                    cy -= i
+                elif d == 2:
+                    cx += i
+                elif d == 3:
+                    cx -= i
+
+                if not self.is_valid_loc((cx, cy)):
+                    break
+                if board[cx][cy] != orb:
+                    break
+
+                direction_list[d] += 1
+                count += 1
+
+        # added the same orb 4 times so need to -3
+        count -= 3
+        if count >= self.min_erase:
+            min_connection = 3 if self.min_erase >= 3 else self.min_erase
+
+            for d in range(4):
+                curr_count = direction_list[d]
+                if curr_count < min_connection:
+                    continue
+
+                for i in range(curr_count):
+                    cx, cy = x, y
+                    if d == 0:
+                        cy += i
+                    elif d == 1:
+                        cy -= i
+                    elif d == 2:
+                        cx += i
+                    elif d == 3:
+                        cx -= i
+
+                    has_orb_around = False
+                    if d < 2:
+                        has_orb_around = self.has_same_orb(
+                            board, orb, cx + 1, cy) and self.has_same_orb(board, orb, cx - 1, cy)
+                    else:
+                        has_orb_around = self.has_same_orb(
+                            board, orb, cx, cy + 1) and self.has_same_orb(board, orb, cx, cy - 1)
+
+                    if not has_orb_around:
+                        board[cx][cy] = Orb.EMPTY
+                        combo.append(orb)
+
+                for i in range(curr_count):
+                    cx, cy = x, y
+                    if d == 0:
+                        cy += i
+                    elif d == 1:
+                        cy -= i
+                    elif d == 2:
+                        cx += i
+                    elif d == 3:
+                        cx -= i
+
+                    self._flood_fill(board, combo, cx, cy + 1, orb, 0)
+                    self._flood_fill(board, combo, cx, cy - 1, orb, 1)
+                    self._flood_fill(board, combo, cx + 1, cy, orb, 2)
+                    self._flood_fill(board, combo, cx - 1, cy, orb, 3)
+
+    def has_same_orb(self, board, orb, x, y):
+        if self.is_valid_loc((x, y)):
+            return board[x][y] == orb
+        return False
+
+    def _move_orbs_down(self, board):
+        changed = False
+        for y in range(self.row):
+            orbs = []
+            empty = 0
+
+            # from bottom up
+            for x in range(self.column - 1, -1, -1):
+                curr_orb = board[x][y]
+                if curr_orb == Orb.EMPTY:
+                    empty += 1
+                else:
+                    orbs.append(curr_orb)
+
+            # at least one orb is removed but do nothing if all are removed
+            if 0 < empty < self.column:
+                changed = True
+                s = len(orbs)
+                k = 0
+                for x in range(self.column - 1, -1, -1):
+                    if k >= s:
+                        board[x][y] = Orb.EMPTY
+                    else:
+                        board[x][y] = orbs[k]
+                    k += 1
+        return changed
 
     def info(self):
         self.print_board()
@@ -109,7 +256,11 @@ class Board:
               .format(self.row, self.column, self.step, self.score, len(self.children)))
 
     def duplicate(self):
-        return copy(self)
+        return deepcopy(self)
+
+    def get_target_score(self):
+        # an estimation of the score we want to reach
+        return 8000  # 8 combo
 
     def print_board(self, number=False, offset=1):
         if not number:
