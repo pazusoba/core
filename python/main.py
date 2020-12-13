@@ -38,7 +38,3 @@ for column in range(board.column):
         pos = board.duplicate()
         pos.loc = (column, row)
         pos.get_children()
-
-board.info()
-board.children[0].get_children()
-board.children[0].info()

@@ -55,13 +55,14 @@ class Board:
         copy current board and swap 2 orb locations
         """
 
-        board_copy = deepcopy(self)
+        board_copy = self.duplicate()
         new_board = board_copy.board
         board_copy.children = []
 
         # swap two values, so simple in python
         x, y = from_loc
         nx, ny = to_loc
+        print(from_loc, to_loc)
         new_board[x][y], new_board[nx][ny] = new_board[nx][ny], new_board[x][y]
 
         board_copy.step += 1
@@ -73,11 +74,13 @@ class Board:
 
         board_copy.calc_board_hash(force=True)
         board_copy.calc_score()
-        board_copy.info()
 
         return board_copy
 
     def get_children(self, diagonal=False):
+        if self.step == self.depth:
+            return
+
         for x in range(-1, 2):
             for y in range(-1, 2):
                 if x == y == 0:
@@ -91,6 +94,8 @@ class Board:
                 nx, ny = self.loc
                 nx += x
                 ny += y
+                if (nx, ny) == self.prev_loc:
+                    continue
                 if self.is_valid_loc((nx, ny)):
                     new_board = self.swap(self.loc, (nx, ny))
                     self.children.append(new_board)
@@ -252,11 +257,13 @@ class Board:
 
     def info(self):
         self.print_board()
-        print("{} x {} | Step - {} | Score - {} | Children - {}"
-              .format(self.row, self.column, self.step, self.score, len(self.children)))
+        print("{} x {} | Step - {} | {} -> {} | Score - {} ({}) | Children - {}"
+              .format(self.row, self.column, self.step, self.prev_loc, self.loc, self.score, self.prev_score, len(self.children)))
 
     def duplicate(self):
-        return deepcopy(self)
+        new_copy = deepcopy(self)
+        new_copy.board = deepcopy(self.board)
+        return new_copy
 
     def get_target_score(self):
         # an estimation of the score we want to reach
