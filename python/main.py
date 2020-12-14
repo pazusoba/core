@@ -19,8 +19,8 @@ args = argv
 
 board_str = "RHGHDRGLBLHGDBLLHBBBHRLHGHDGLB"
 min_erase = 3
-depth = 30
-width = 5000
+depth = 20
+width = 1000
 
 if arg_len > 1:
     board_str = args[1]
@@ -39,10 +39,8 @@ board = Board(board_str, min_erase, depth, width)
 print("{} cores".format(cpu_count()))
 print(board_str)
 
-q = PriorityQueue()
-children_boards = []
-best_board = None
-best_score = 0
+to_visit = PriorityQueue()
+best_score = {}
 
 start_time = time()
 for column in range(board.column):
@@ -53,28 +51,26 @@ for column in range(board.column):
 
 # step 1
 for c in board.children:
-    q.put(c)
+    to_visit.put(c)
 
 # from step 2
 for step in range(0, depth):
     step_time = time()
     print("Step {} - ".format(step + 1), end="")
     for i in range(width):
-        if q.empty():
+        if to_visit.empty():
             break
 
-        curr_board = q.get()
-        if curr_board.score > best_score:
-            best_score = curr_board.score
-            best_board = curr_board
+        curr_board = to_visit.get()
         curr_board.get_children()
         for c in curr_board.children:
-            children_boards.append(c)
+            best_score[c.score] = c.board_hash
+            to_visit.put(c)
+            # c.info()
 
-    for b in children_boards:
-        q.put(b)
-    children_boards = []
     print("{}s".format(time() - step_time))
 
 print("Total time - {}s".format(time() - start_time))
-best_board.info()
+
+for key in best_score:
+    print("{} - {}".format(key, best_score[key]))
