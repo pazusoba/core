@@ -145,7 +145,8 @@ std::vector<Route> PSolver::solve()
 
     std::vector<std::thread> boardThreads;
     // This uses all your cores, make sure you don't make the size too large
-    int processor_count = std::thread::hardware_concurrency();
+    // int processor_count = std::thread::hardware_concurrency();
+    int processor_count = 0;
     if (processor_count == 0)
     {
         processor_count = 1;
@@ -159,6 +160,7 @@ std::vector<Route> PSolver::solve()
     std::mutex mtx;
     // std::recursive_mutex mtx;
 
+    srand(time(0));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
@@ -240,7 +242,12 @@ std::vector<Route> PSolver::solve()
         toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
         for (const auto &s : childrenStates)
         {
-            toVisit.push(s);
+            // push randomly
+            int num = rand() % 30;
+            if (i < 10 && num < 25)
+                toVisit.push(s);
+            else if (num < 15)
+                toVisit.push(s);
         }
         childrenStates.clear();
 
