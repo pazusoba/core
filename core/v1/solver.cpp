@@ -145,8 +145,8 @@ std::vector<Route> PSolver::solve()
 
     std::vector<std::thread> boardThreads;
     // This uses all your cores, make sure you don't make the size too large
-    // int processor_count = std::thread::hardware_concurrency();
-    int processor_count = 0;
+    int processor_count = std::thread::hardware_concurrency() - 1;
+    // int processor_count = 0;
     if (processor_count == 0)
     {
         processor_count = 1;
