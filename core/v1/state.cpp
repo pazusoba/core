@@ -41,6 +41,14 @@ PState::~PState()
     }
 }
 
+// MARK: - Operator
+
+bool PState::operator>(const PState &a) const
+{
+    return score > a.score;
+}
+
+
 bool PState::operator<(const PState &a) const
 {
     // 0 - 99

@@ -166,7 +166,7 @@ std::vector<Route> PSolver::solve()
     {
         // int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         // threadSize = currSize / processor_count;
-        if (DEBUG)
+        if (debug)
             Timer::shared().start(i);
 
         // Use multi threading
@@ -251,18 +251,18 @@ std::vector<Route> PSolver::solve()
         }
         childrenStates.clear();
 
-        if (DEBUG)
+        if (debug)
             Timer::shared().end(i);
     }
 
-    if (DEBUG)
+    if (debug)
         std::cout << "Search has been completed\n\n";
 
     // free all profiles once the search is completed
     ProfileManager::shared().clear();
 
     int routeSize = 3;
-    if (DEBUG)
+    if (debug)
         routeSize = 5;
 
     std::vector<Route> routes;
