@@ -196,6 +196,7 @@ std::vector<Route> PSolver::solve()
 
                     // Save best scores
                     bool shouldAdd = false;
+                    mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
@@ -212,6 +213,7 @@ std::vector<Route> PSolver::solve()
                             bestScore[currentScore] = currentState;
                         }
                     }
+                    mtx.unlock();
 
                     if (shouldAdd && currentState != nullptr)
                     {
@@ -240,11 +242,11 @@ std::vector<Route> PSolver::solve()
         for (const auto &s : childrenStates)
         {
             // push randomly
-            // int num = rand() % 30;
-            // if (i < 10 && num < 25)
-            //     toVisit.push(s);
-            // else if (num < 15)
-            toVisit.push(s);
+            int num = rand() % 30;
+            if (i < 10 && num < 25)
+                toVisit.push(s);
+            else if (num < 15)
+                toVisit.push(s);
         }
         childrenStates.clear();
 
