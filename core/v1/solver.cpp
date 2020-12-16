@@ -179,18 +179,16 @@ std::vector<Route> PSolver::solve()
             boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
-                    mtx.lock();
-                    bool isEmpty = toVisit.empty();
-                    mtx.unlock();
-
-                    // Early steps might not have enough size
-                    if (isEmpty)
-                        break;
-
                     // Get the best state
                     mtx.lock();
+                    if (toVisit.empty())
+                    {
+                        mtx.unlock();
+                        break;
+                    }
                     auto currentState = toVisit.top();
                     toVisit.pop();
+                    mtx.unlock();
 
                     // Save current score for printing out later
                     int currentScore = currentState->score;
@@ -214,7 +212,6 @@ std::vector<Route> PSolver::solve()
                             bestScore[currentScore] = currentState;
                         }
                     }
-                    mtx.unlock();
 
                     if (shouldAdd && currentState != nullptr)
                     {
@@ -247,7 +244,7 @@ std::vector<Route> PSolver::solve()
             // if (i < 10 && num < 25)
             //     toVisit.push(s);
             // else if (num < 15)
-                toVisit.push(s);
+            toVisit.push(s);
         }
         childrenStates.clear();
 
