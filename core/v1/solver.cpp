@@ -242,10 +242,10 @@ std::vector<Route> PSolver::solve()
         for (const auto &s : childrenStates)
         {
             // push randomly
-            int num = rand() % 30;
-            if (i < 10 && num < 25)
-                toVisit.push(s);
-            else if (num < 15)
+            // int num = rand() % 30;
+            // if (i < 10 && num < 25)
+            //     toVisit.push(s);
+            // else if (num < 15)
                 toVisit.push(s);
         }
         childrenStates.clear();
