@@ -11,20 +11,13 @@
 #include <set>
 #include "pad.h"
 
-// shorten the code to make a pair
-#define LOCATION(x, y) (std::make_pair(x, y))
-// shotern the code to get/set an orb from the board
-#define ORB(board, location) (board[location.first][location.second])
-
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
 // Board is an array of Orb, for now max 7x6 so 42
 typedef std::array<Orb, 42> Board;
-// This indicates current orb's location
-typedef std::pair<int, int> OrbLocation;
-// This is used to get all connected orbs that can be erased
-typedef std::set<OrbLocation> OrbSet;
-// Combo needs to save orb locations
+
+// Convert location to index
+#define index(x, y) (x * row + y)
 
 // A special structure for ComboInfo
 struct ComboInfo
@@ -55,39 +48,11 @@ class PBoard
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
 
-    /**
-     * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
-     * return - a set of xy that can be erased
-     */
-    OrbSet findSameOrbsAround(int x, int y);
-    inline OrbSet findSameOrbsAround(OrbLocation loc)
-    {
-        return findSameOrbsAround(loc.first, loc.second);
-    }
-
-    /**
-     * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
-     * return - a pair pointer that should be checked next
-     */
-    OrbLocation nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
-    inline OrbLocation nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
-    {
-        return nextSameOrbAround(vhOrbs, loc.first, loc.second);
-    }
-
-    /**
-     * Check if orb at (x, y) has the same orb
-     */
-    inline bool hasSameOrb(Orb orb, OrbLocation loc)
-    {
-        return hasSameOrb(orb, loc.first, loc.second);
-    }
-
     inline bool hasSameOrb(Orb orb, int x, int y)
     {
         if (validLocation(x, y))
         {
-            return board[x][y] == orb;
+            return board[index(x, y)] == orb;
         }
 
         return false;
@@ -122,13 +87,10 @@ class PBoard
     inline int *collectOrbCount()
     {
         int *counter = new int[pad::ORB_COUNT]{0};
-        for (auto const &row : board)
-        {
-            for (auto const &orb : row)
-            {
-                counter[orb]++;
-            }
-        }
+        traverse([&](int i, int j) {
+            auto orb = board[index(i, j)];
+            counter[orb]++;
+        });
         return counter;
     }
 
@@ -160,20 +122,16 @@ public:
      */
     void printBoardInfo();
 
-    // This is for displaying the board in QT
-    inline std::vector<int> getBoardOrbs()
+    /// Traverse through the board
+    inline void traverse(void action(int, int))
     {
-        std::vector<int> orbs;
-        orbs.reserve(row * column);
-        for (auto const &row : board)
+        for (int i = 0; i < row; i++)
         {
-            for (auto const &orb : row)
+            for (int j = 0; j < column; j++)
             {
-                // , is important because you have 10 which can be 1 0 or just 10
-                orbs.push_back(orb);
+                action(i, j);
             }
         }
-        return orbs;
     }
 
     inline bool hasSameBoard(const PBoard *b) const
@@ -211,11 +169,6 @@ public:
         }
 
         return false;
-    }
-
-    inline int orbLocationKey(const OrbLocation &loc)
-    {
-        return loc.first * 10000 + loc.second;
     }
 };
 
