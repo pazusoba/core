@@ -17,5 +17,3 @@ jobs:
       run: make test
     - name: check output
       run: cat path.pazusoba
-    - name: clean up
-      run: make clean
