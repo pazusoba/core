@@ -38,33 +38,6 @@ public:
     Route(const PState *state);
 
     void printRoute();
-
-    /// All Qt realated functions
-
-    inline std::vector<int> getBoardOrbs()
-    {
-        return finalBoard.getBoardOrbs();
-    }
-
-    inline OrbLocation getStartLocation()
-    {
-        return start;
-    }
-
-    inline Directions getDirections()
-    {
-        return directions;
-    }
-
-    inline int getScore()
-    {
-        return score;
-    }
-
-    inline int getStep()
-    {
-        return step;
-    }
 };
 
 #endif
