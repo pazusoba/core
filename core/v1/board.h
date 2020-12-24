@@ -7,6 +7,7 @@
 #define BOARD_H
 
 #include <vector>
+#include <array>
 #include <set>
 #include "pad.h"
 
@@ -17,10 +18,8 @@
 
 // Another name for orb enum from pad.h
 typedef pad::orbs Orb;
-// Row is a list of Orbs
-typedef std::vector<Orb> Row;
-// Board is just a 2D vector
-typedef std::vector<Row> Board;
+// Board is an array of Orb, for now max 7x6 so 42
+typedef std::array<Orb, 42> Board;
 // This indicates current orb's location
 typedef std::pair<int, int> OrbLocation;
 // This is used to get all connected orbs that can be erased
