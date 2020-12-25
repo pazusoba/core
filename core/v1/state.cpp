@@ -9,7 +9,7 @@
 
 // MARK: - Constrctor
 
-PState::PState(const PBoard &board, const OrbIndex &from, const OrbIndex &to, int step, int maxStep)
+PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep)
 {
     // Update the board by swapping orbs
     this->board = board;
@@ -47,7 +47,6 @@ bool PState::operator>(const PState &a) const
 {
     return score > a.score;
 }
-
 
 bool PState::operator<(const PState &a) const
 {
@@ -95,7 +94,7 @@ PState::PStateList PState::getChildren()
                 continue;
             }
 
-            auto next = LOCATION(current.first + i, current.second + j);
+            auto next = OrbLocation(current.first + i, current.second + j, 0);
             // Ignore current and previous location so only 7 possible locations
             if (next == current || next == previous)
                 continue;
@@ -121,7 +120,7 @@ PState::PStateList PState::getChildren()
 
 // MARK: - Utils
 
-void PState::saveStateFromRoot(PState *parent, std::ofstream *file)
+void PState::saveStateFromRoot(const PState *parent, std::ofstream *file)
 {
     if (parent != nullptr)
     {
@@ -139,7 +138,7 @@ void PState::saveToDisk()
     f.close();
 }
 
-void PState::printStateFromRoot(PState *parent)
+void PState::printStateFromRoot(const PState *parent)
 {
     if (parent != nullptr)
     {

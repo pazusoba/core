@@ -40,14 +40,14 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         {
             for (int j = 0; j < row; j++)
             {
-                int index = index(i, j);
-                auto orb = board[index];
+                auto loc = OrbLocation(i, j, column);
+                auto orb = board[loc.index];
                 // Ignore empty orbs
                 if (orb == pad::empty)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, index, orb, -1);
+                floodfill(&combo, loc, orb, -1);
                 if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
@@ -69,12 +69,12 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
+void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int direction)
 {
-    if (!validLocation(index))
+    if (!validLocation(loc))
         return;
 
-    auto currOrb = board[index];
+    auto currOrb = board[loc.index];
     // must be the same orb
     if (currOrb != orb)
         return;
@@ -82,6 +82,8 @@ void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
     int count = 0;
     // track all directions
     int dList[4] = {0, 0, 0, 0};
+    int x = loc.first;
+    int y = loc.second;
 
     // all 4 directions
     // 0 -> right
@@ -107,11 +109,12 @@ void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
             else if (d == 3)
                 cx -= i;
 
-            if (!validLocation(cx, cy))
+            auto loc = OrbLocation(cx, cy, column);
+            if (!validLocation(loc))
                 break;
 
             // stop if it doesn't match
-            if (board[cx][cy] != orb)
+            if (board[loc.index] != orb)
                 break;
 
             dList[d]++;
@@ -154,18 +157,18 @@ void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
                 if (d < 2)
                 {
                     // check up down
-                    hasOrbAround = hasSameOrb(orb, cx + 1, cy) && hasSameOrb(orb, cx - 1, cy);
+                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx + 1, cy, column)) && hasSameOrb(orb, OrbLocation(cx - 1, cy, column));
                 }
                 else
                 {
                     // check left right
-                    hasOrbAround = hasSameOrb(orb, cx, cy + 1) && hasSameOrb(orb, cx, cy - 1);
+                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx, cy + 1, column)) && hasSameOrb(orb, OrbLocation(cx, cy - 1, column));
                 }
 
                 // only remove if there are no same orbs in a different direction
                 if (!hasOrbAround)
                 {
-                    board[index] = pad::empty;
+                    board[INDEX_OF(cx, cy)] = pad::empty;
                     list->emplace_back(cx, cy, orb);
                 }
             }
@@ -184,10 +187,10 @@ void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, cx, cy + 1, orb, 0);
-                floodfill(list, cx, cy - 1, orb, 1);
-                floodfill(list, cx + 1, cy, orb, 2);
-                floodfill(list, cx - 1, cy, orb, 3);
+                floodfill(list, OrbLocation(cx, cy + 1, column), orb, 0);
+                floodfill(list, OrbLocation(cx, cy - 1, column), orb, 1);
+                floodfill(list, OrbLocation(cx + 1, cy, column), orb, 2);
+                floodfill(list, OrbLocation(cx - 1, cy, column), orb, 3);
             }
         }
     }
@@ -198,7 +201,7 @@ int PBoard::rateBoard()
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
-    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition);
+    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition, row);
 
     return score;
 }
@@ -214,7 +217,7 @@ bool PBoard::moveOrbsDown()
         // Start checking from the bottom most column
         for (int i = column - 1; i >= 0; i--)
         {
-            auto orb = board[i][j];
+            auto orb = board[INDEX_OF(i, j)];
             if (orb != pad::empty)
             {
                 orbs.push_back(orb);
@@ -232,16 +235,17 @@ bool PBoard::moveOrbsDown()
             int k = 0, s = (int)orbs.size();
             for (int i = column - 1; i >= 0; i--, k++)
             {
+                int index = INDEX_OF(i, j);
                 if (k >= s)
                 {
-                    board[i][j] = pad::empty;
+                    board[index] = pad::empty;
                 }
                 else
                 {
                     // If column is 5, i starts from 4 so the index of orb is 5 - 1 - 4 = 0
                     auto orb = orbs[k];
-                    auto currOrb = board[i][j];
-                    board[i][j] = orb;
+                    auto currOrb = board[index];
+                    board[index] = orb;
 
                     // Board is changed if currOrb is not actually orb
                     if (currOrb != orb)
@@ -264,10 +268,11 @@ void PBoard::printBoard()
     // Print everything out nicely
     std::cout << std::endl;
     std::cout << row << " x " << column << std::endl;
-    for (auto const &row : board)
+    for (int i = 0; i < row; i++)
     {
-        for (auto const &orb : row)
+        for (int j = 0; j < column; j++)
         {
+            auto orb = board[INDEX_OF(i, j)];
             std::cout << pad::ORB_NAMES[orb] << "\t";
         }
         std::cout << std::endl;
@@ -278,13 +283,10 @@ void PBoard::printBoard()
 void PBoard::printBoardForSimulation()
 {
     std::stringstream ss;
-    for (auto const &row : board)
+    for (auto const &orb : board)
     {
-        for (auto const &orb : row)
-        {
-            std::cout << pad::ORB_SIMULATION_NAMES[orb];
-            ss << (int)(orb - 1);
-        }
+        std::cout << pad::ORB_SIMULATION_NAMES[orb];
+        ss << (int)(orb - 1);
     }
     std::cout << std::endl;
     std::cout << ss.str() << std::endl;

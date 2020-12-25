@@ -22,7 +22,7 @@ class PSolver
     bool debug = true;
 
     // Read board from filePath, return the board
-    Board readBoard(std::string &filePath);
+    Board readBoard(const std::string &filePath);
 
 public:
     // Row and column are used to count board size
@@ -32,13 +32,13 @@ public:
     PBoard board;
 
     PSolver(int minEraseCondition, int maxStep, int maxSize);
-    PSolver(std::string &filePath, int minEraseCondition, int maxStep, int maxSize);
+    PSolver(const std::string &filePath, int minEraseCondition, int maxStep, int maxSize);
 
     // Solve the current board
     std::vector<Route> solve();
 
     // Read a board from a string
-    void setBoardFrom(std::string &board);
+    void setBoardFrom(const std::string &board);
 
     // A random board that is row x column
     void setRandomBoard(int row, int column);

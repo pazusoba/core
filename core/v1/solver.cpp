@@ -41,7 +41,7 @@ PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
     setRandomBoard(6, 5);
 }
 
-PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int size)
+PSolver::PSolver(const std::string &filePath, int minEraseCondition, int steps, int size)
 {
     this->minEraseCondition = minEraseCondition;
     this->steps = steps;
@@ -132,11 +132,11 @@ std::vector<Route> PSolver::solve()
     // This is the root state, 30 of them in a list to be deleted later
     std::vector<PState *> rootStates;
     rootStates.reserve(row * column);
-    for (int i = 0; i < column; ++i)
+    for (int i = 0; i < row; ++i)
     {
-        for (int j = 0; j < row; ++j)
+        for (int j = 0; j < column; ++j)
         {
-            auto loc = OrbIndex(i, j);
+            auto loc = OrbLocation(i, j, column);
             auto root = new PState(board, loc, loc, 0, steps);
             rootStates.emplace_back(root);
             toVisit.emplace(root);
@@ -305,12 +305,12 @@ std::vector<Route> PSolver::solve()
 
 // MARK: - Read the board from filePath or a string
 
-Board PSolver::readBoard(std::string &filePath)
+Board PSolver::readBoard(const std::string &filePath)
 {
     Board board;
     std::string lines;
 
-    int index = 0;
+    int currIndex = 0;
     std::ifstream boardFile(filePath);
     while (getline(boardFile, lines))
     {
@@ -335,8 +335,8 @@ Board PSolver::readBoard(std::string &filePath)
             ss >> a;
 
             // Convert int into orbs
-            board[index] = Orb(a);
-            index++;
+            board[currIndex] = Orb(a);
+            currIndex++;
         }
         column++;
     }
@@ -345,7 +345,7 @@ Board PSolver::readBoard(std::string &filePath)
     return board;
 }
 
-void PSolver::setBoardFrom(std::string &board)
+void PSolver::setBoardFrom(const std::string &board)
 {
     // This is just a string with the board
     int size = board.length();

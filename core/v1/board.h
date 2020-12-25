@@ -11,17 +11,38 @@
 #include <set>
 #include "pad.h"
 
+/// Convert location to index
+#define INDEX_OF(x, y) (x * column + y)
+
 /// Another name for orb enum from pad.h
 typedef pad::orbs Orb;
 /// Board is an array of Orb, for now max 7x6 so 42
 typedef std::array<Orb, 42> Board;
-/// OrbIndex is now just an index
-typedef int OrbIndex;
-typedef std::vector<ComboInfo> Combo;
-typedef std::vector<Combo> ComboList;
 
-/// Convert location to index
-#define index(x, y) (x * row + y)
+/// Convert index to include first (x) and second (y)
+struct OrbLocation
+{
+    int index;
+    int first;
+    int second;
+
+    bool operator==(const OrbLocation &loc) const
+    {
+        return first == loc.first && second == loc.second;
+    }
+
+    OrbLocation() {}
+    OrbLocation(int index, int column) : index(index)
+    {
+        first = index / column;
+        second = index % column;
+    }
+    // column can be ignored sometimes
+    OrbLocation(int first, int second, int column) : first(first), second(second)
+    {
+        index = first * column + second;
+    }
+};
 
 /// Struct for storing combo info
 struct ComboInfo
@@ -29,8 +50,10 @@ struct ComboInfo
     int first;
     int second;
     Orb orb;
-    ComboInfo(int f, int s, Orb o) : first(f), second(s), orb(o) {}
+    ComboInfo(int f, int s, const Orb &o) : first(f), second(s), orb(o) {}
 };
+typedef std::vector<ComboInfo> Combo;
+typedef std::vector<Combo> ComboList;
 
 class PBoard
 {
@@ -45,16 +68,16 @@ class PBoard
     bool moveOrbsDown();
 
     /// Search for a combo and erase orbs
-    void floodfill(Combo *list, OrbIndex index, Orb orb, int direction);
+    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int direction);
 
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
 
-    inline bool hasSameOrb(Orb orb, OrbIndex index)
+    inline bool hasSameOrb(const Orb &orb, const OrbLocation &loc)
     {
-        if (validLocation(index))
+        if (validLocation(loc))
         {
-            return board[index] == orb;
+            return board[loc.index] == orb;
         }
 
         return false;
@@ -88,10 +111,14 @@ class PBoard
     inline int *collectOrbCount()
     {
         int *counter = new int[pad::ORB_COUNT]{0};
-        traverse([&](int i, int j) {
-            auto orb = board[index(i, j)];
-            counter[orb]++;
-        });
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < column; j++)
+            {
+                auto orb = board[INDEX_OF(i, j)];
+                counter[orb]++;
+            }
+        }
         return counter;
     }
 
@@ -129,20 +156,20 @@ public:
     }
 
     /// Swap the value of two orbs
-    inline void swapLocation(OrbIndex one, OrbIndex two)
+    inline void swapLocation(const OrbLocation &one, const OrbLocation &two)
     {
         if (!validLocation(one) || !validLocation(two))
             return;
 
-        auto temp = board[one];
-        board[one] = board[two];
-        board[two] = temp;
+        auto temp = board[one.index];
+        board[one.index] = board[two.index];
+        board[two.index] = temp;
     }
 
-    inline bool validLocation(OrbIndex index)
+    inline bool validLocation(const OrbLocation &loc)
     {
-        int x = index / column;
-        int y = index % column;
+        int x = loc.first;
+        int y = loc.second;
         if (x >= 0 && x < column && y >= 0 && y < row)
         {
             // You cannot move a sealed orb
