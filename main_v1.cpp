@@ -1,11 +1,7 @@
 #include <iostream>
 #include "core/v1/solver.h"
 
-/**
- * Return a solver pointer.
- * 
- * It handles user input from the console, mainly board file and min erase condition
- */
+/// This handles user input from the console, mainly board file and min erase condition
 PSolver *handleInput(int, char **);
 
 int main(int argc, char *argv[])
@@ -35,9 +31,11 @@ PSolver *handleInput(int argc, char *argv[])
     if (argc > 2)
     {
         minEraseCondition = atoi(argv[2]);
-        // minimum 3
+        // min 3, max 5 for now
         if (minEraseCondition < 3)
             minEraseCondition = 3;
+        if (minEraseCondition > 5)
+            minEraseCondition = 5;
     }
     if (argc > 3)
     {

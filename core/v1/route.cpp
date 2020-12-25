@@ -46,7 +46,7 @@ void Route::stateBack(const PState *curr, const PState *parent)
     }
 }
 
-pad::direction Route::getDirection(const OrbLocation &curr, const OrbLocation &prev)
+pad::direction Route::getDirection(const OrbIndex &curr, const OrbIndex &prev)
 {
     if (curr.first > prev.first)
     {

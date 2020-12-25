@@ -20,15 +20,6 @@ PBoard::PBoard(const Board &board, int row, int column, int minEraseCondition)
     this->minEraseCondition = minEraseCondition;
 }
 
-PBoard::~PBoard()
-{
-    for (auto &row : board)
-    {
-        row.clear();
-    }
-    board.clear();
-}
-
 // MARK: - Board related
 ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {

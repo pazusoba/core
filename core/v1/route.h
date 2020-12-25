@@ -21,7 +21,7 @@ class Route
     PBoard finalBoard;
     // A list of direction
     Directions directions;
-    OrbLocation start;
+    OrbIndex start;
     int score;
     int step;
 
@@ -32,7 +32,7 @@ class Route
     void stateBack(const PState *curr, const PState *parent);
 
     // Convert orbLocation to a direction
-    pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev);
+    pad::direction getDirection(const OrbIndex &curr, const OrbIndex &prev);
 
 public:
     Route(const PState *state);

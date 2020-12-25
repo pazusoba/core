@@ -31,7 +31,6 @@ public:
     // This is the original board
     PBoard board;
 
-    PSolver() {}
     PSolver(int minEraseCondition, int maxStep, int maxSize);
     PSolver(std::string &filePath, int minEraseCondition, int maxStep, int maxSize);
 
