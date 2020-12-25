@@ -201,7 +201,7 @@ int PBoard::rateBoard()
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
-    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition, row);
+    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition, row, column);
 
     return score;
 }
@@ -283,8 +283,9 @@ void PBoard::printBoard()
 void PBoard::printBoardForSimulation()
 {
     std::stringstream ss;
-    for (auto const &orb : board)
+    for (int i = 0; i < row * column; i++)
     {
+        auto orb = board[i];
         std::cout << pad::ORB_SIMULATION_NAMES[orb];
         ss << (int)(orb - 1);
     }
