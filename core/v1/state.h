@@ -22,9 +22,9 @@ class PState
     std::mutex mtx;
 
     // This is a recursive function to print from the beginning
-    void printStateFromRoot(PState *parent);
+    void printStateFromRoot(const PState *parent);
     // This is a recursive function to save state from the beginning
-    void saveStateFromRoot(PState *parent, std::ofstream* file);
+    void saveStateFromRoot(const PState *parent, std::ofstream* file);
 
 public:
     // The board
@@ -35,15 +35,15 @@ public:
     int step;
     // This is the previous orb and it moved to current orb
     // Current must not move back to parent location
-    OrbIndex previous;
+    OrbLocation previous;
     // This is current orb which is active (the player is holding it)
-    OrbIndex current;
+    OrbLocation current;
     // Save the parent's address to track back
     PState *parent = nullptr;
 
     // This is only for testing
     PState(int s) : score(s) {}
-    PState(const PBoard &board, const OrbIndex &from, const OrbIndex &to, int step, int maxStep);
+    PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep);
     ~PState();
 
     // Override operators

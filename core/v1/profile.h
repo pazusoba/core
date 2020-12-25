@@ -23,7 +23,7 @@ class Profile
 public:
     virtual ~Profile() {}
     virtual std::string getProfileName() const = 0;
-    virtual int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const = 0;
+    virtual int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const = 0;
 };
 
 // This is a singleton class to update profiles at run time
@@ -42,13 +42,13 @@ public:
 
     // Loop through all profiles and add scores based on every profile
     // You need a list of combos, the current board and moveCount
-    int getScore(ComboList &list, Board &board, int moveCount, int minEraseCondition, int row)
+    int getScore(ComboList &list, Board &board, int moveCount, int minEraseCondition, int column)
     {
         int score = 0;
 
         for (auto &p : profiles)
         {
-            score += p->getScore(list, board, moveCount, minEraseCondition, row);
+            score += p->getScore(list, board, moveCount, minEraseCondition, column);
         }
 
         return score;
@@ -100,26 +100,25 @@ public:
         return "combo";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         int combo = list.size();
 
         // Get column and row based on board size and column
-        int column = board.size() % column;
         int row = board.size() / column;
         // Check if there are orbs next to each other
         int orbAround = 0;
         int orbNext2 = 0;
 
         // Collect all orbs with current location
-        // std::map<Orb, std::vector<OrbIndex>> distanceInfo;
+        // std::map<Orb, std::vector<OrbLocation>> distanceInfo;
 
         for (int i = 0; i < column; i++)
         {
             for (int j = 0; j < row; j++)
             {
-                auto curr = board[index(i, j)];
+                auto curr = board[INDEX_OF(i, j)];
                 if (curr == pad::empty)
                     continue;
 
@@ -141,7 +140,7 @@ public:
                         if (x >= 0 && x < column && y >= 0 && y < row)
                         {
                             // Check orbs are the same
-                            auto orb = board[index(i, j)];
+                            auto orb = board[INDEX_OF(i, j)];
                             if (curr == orb)
                             {
                                 orbAround++;
@@ -231,7 +230,7 @@ public:
         return "colour";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         std::set<Orb> colours;
@@ -300,7 +299,7 @@ public:
         return "2U";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -330,7 +329,7 @@ public:
         return "L";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -389,7 +388,7 @@ public:
         return "+";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -448,7 +447,7 @@ public:
         return "void damage penetration";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         // Try this board
         // DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH
@@ -535,7 +534,7 @@ public:
         return "soybean";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -561,9 +560,10 @@ public:
         return "row";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
+        int row = board.size() / column;
         for (const auto &c : list)
         {
             int size = c.size();
@@ -604,10 +604,9 @@ public:
         return "column";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
-        int column = board.size() / row;
         for (const auto &c : list)
         {
             int size = c.size();
@@ -652,7 +651,7 @@ public:
         return "orb remains";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int column) const override
     {
         int score = 0;
         if (list.size() == 0)
