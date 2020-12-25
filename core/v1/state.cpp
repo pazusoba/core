@@ -94,7 +94,7 @@ PState::PStateList PState::getChildren()
                 continue;
             }
 
-            auto next = OrbLocation(current.first + i, current.second + j, 0);
+            auto next = OrbLocation(current.first + i, current.second + j, current.column);
             // Ignore current and previous location so only 7 possible locations
             if (next == current || next == previous)
                 continue;
