@@ -160,7 +160,7 @@ std::vector<Route> PSolver::solve()
     std::mutex mtx;
     // std::recursive_mutex mtx;
 
-    srand(time(0));
+    // srand(time(0));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
@@ -308,6 +308,7 @@ std::vector<Route> PSolver::solve()
 Board PSolver::readBoard(const std::string &filePath)
 {
     Board board;
+    board.fill(pad::unknown);
     std::string lines;
 
     int currIndex = 0;
@@ -368,6 +369,8 @@ void PSolver::setBoardFrom(const std::string &board)
 
     // Read from a string
     Board currBoard;
+    currBoard.fill(pad::unknown);
+
     for (int i = 0; i < size; i++)
     {
         char orb = board[i];
@@ -404,6 +407,7 @@ void PSolver::setRandomBoard(int row, int column)
     // Update seed
     srand(time(NULL));
     Board currBoard;
+    currBoard.fill(pad::unknown);
     for (int i = 0; i < row * column; i++)
     {
         currBoard[i] = pad::orbs(std::rand() % 6 + 1);
