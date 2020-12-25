@@ -112,9 +112,9 @@ public:
         // Collect all orbs with current location
         // std::map<Orb, std::vector<OrbLocation>> distanceInfo;
 
-        for (int i = 0; i < column; i++)
+        for (int i = 0; i < row; i++)
         {
-            for (int j = 0; j < row; j++)
+            for (int j = 0; j < column; j++)
             {
                 auto curr = board[INDEX_OF(i, j)];
                 if (curr == pad::empty)
@@ -135,7 +135,7 @@ public:
 
                         int x = i + a, y = j + b;
                         // check x & y are valid
-                        if (x >= 0 && x < column && y >= 0 && y < row)
+                        if (x >= 0 && x < row && y >= 0 && y < column)
                         {
                             // Check orbs are the same
                             auto orb = board[INDEX_OF(i, j)];
@@ -181,10 +181,10 @@ public:
         if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
-            score -= pad::TIER_TWO_SCORE * orbAround;
-            score -= pad::TIER_THREE_SCORE * orbNext2;
+            score -= pad::TIER_ONE_SCORE * orbAround;
+            score -= pad::TIER_TWO_SCORE * orbNext2;
             score -= pad::TIER_FIVE_SCORE * moveCount;
-            score -= pad::TIER_EIGHT_SCORE * combo;
+            score -= pad::TIER_TEN_SCORE * combo;
         }
         else
         {
@@ -205,8 +205,8 @@ public:
 
             // Always aim for max combo by default
             score += pad::TIER_ONE_SCORE * orbAround;
-            score += pad::TIER_ONE_SCORE * orbNext2;
-            score += pad::TIER_EIGHT_SCORE * combo;
+            score += pad::TIER_TWO_SCORE * orbNext2;
+            score += pad::TIER_TEN_SCORE * combo;
         }
 
         return score;

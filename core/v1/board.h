@@ -25,6 +25,7 @@ struct OrbLocation
     int index;
     int first;
     int second;
+    int column;
 
     bool operator==(const OrbLocation &loc) const
     {
@@ -32,13 +33,13 @@ struct OrbLocation
     }
 
     OrbLocation() {}
-    OrbLocation(int index, int column) : index(index)
+    OrbLocation(int index, int column) : index(index), column(column)
     {
         first = index / column;
         second = index % column;
     }
     // column can be ignored sometimes
-    OrbLocation(int first, int second, int column) : first(first), second(second)
+    OrbLocation(int first, int second, int column) : first(first), second(second), column(column)
     {
         index = first * column + second;
     }
@@ -170,7 +171,7 @@ public:
     {
         int x = loc.first;
         int y = loc.second;
-        if (x >= 0 && x < column && y >= 0 && y < row)
+        if (x >= 0 && x < row && y >= 0 && y < column)
         {
             // You cannot move a sealed orb
             // return board[x][y] != pad::seal;

@@ -209,13 +209,13 @@ int PBoard::rateBoard()
 bool PBoard::moveOrbsDown()
 {
     bool changed = false;
-    for (int j = 0; j < row; j++)
+    for (int j = 0; j < column; j++)
     {
         std::vector<pad::orbs> orbs;
-        orbs.reserve(column);
+        orbs.reserve(row);
         int emptyCount = 0;
         // Start checking from the bottom most column
-        for (int i = column - 1; i >= 0; i--)
+        for (int i = row - 1; i >= 0; i--)
         {
             auto orb = board[INDEX_OF(i, j)];
             if (orb != pad::empty)
@@ -233,7 +233,7 @@ bool PBoard::moveOrbsDown()
         {
             // Fill the saved orbs
             int k = 0, s = (int)orbs.size();
-            for (int i = column - 1; i >= 0; i--, k++)
+            for (int i = row - 1; i >= 0; i--, k++)
             {
                 int index = INDEX_OF(i, j);
                 if (k >= s)
