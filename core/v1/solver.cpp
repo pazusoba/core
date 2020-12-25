@@ -136,7 +136,7 @@ std::vector<Route> PSolver::solve()
     {
         for (int j = 0; j < row; ++j)
         {
-            auto loc = OrbLocation(i, j);
+            auto loc = OrbIndex(i, j);
             auto root = new PState(board, loc, loc, 0, steps);
             rootStates.emplace_back(root);
             toVisit.emplace(root);
@@ -246,7 +246,7 @@ std::vector<Route> PSolver::solve()
             // if (i < 10 && num < 25)
             //     toVisit.push(s);
             // else if (num < 15)
-                toVisit.push(s);
+            toVisit.push(s);
         }
         childrenStates.clear();
 
@@ -310,6 +310,7 @@ Board PSolver::readBoard(std::string &filePath)
     Board board;
     std::string lines;
 
+    int index = 0;
     std::ifstream boardFile(filePath);
     while (getline(boardFile, lines))
     {
@@ -321,8 +322,6 @@ Board PSolver::readBoard(std::string &filePath)
         int index = lines.find_last_not_of(" ") + 1;
         lines = lines.substr(0, index);
 
-        // This is for storing this new row
-        Row boardRow;
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
         while (ss.good())
@@ -336,12 +335,9 @@ Board PSolver::readBoard(std::string &filePath)
             ss >> a;
 
             // Convert int into orbs
-            boardRow.push_back(Orb(a));
+            board[index] = Orb(a);
+            index++;
         }
-
-        // Add this row to the board
-        board.push_back(boardRow);
-
         column++;
     }
 
@@ -356,53 +352,48 @@ void PSolver::setBoardFrom(std::string &board)
     // It is just a string so must be fixed size
     if (size == 20) // 5x4
     {
-        row = 5;
-        column = 4;
+        row = 4;
+        column = 5;
     }
     else if (size == 30) // 6x5
     {
-        row = 6;
-        column = 5;
+        row = 5;
+        column = 6;
     }
     else if (size == 42) // 7x6
     {
-        row = 7;
-        column = 6;
+        row = 6;
+        column = 7;
     }
 
     // Read from a string
     Board currBoard;
-    for (int i = 0; i < column; i++)
+    for (int i = 0; i < size; i++)
     {
-        Row r;
-        for (int j = 0; j < row; j++)
+        char orb = board[i];
+
+        // Check if it is a number between 1 and 9
+        if (orb >= '0' && orb <= '9')
         {
-            int index = j + i * row;
-            char orb = board[index];
+            currBoard[i] = pad::orbs(orb - '0');
+        }
 
-            // Check if it is a number between 1 and 9
-            if (orb >= '0' && orb <= '9')
+        // Check if it is a letter (RBGLDH)
+        for (int k = 0; k < pad::ORB_COUNT; k++)
+        {
+            if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
             {
-                r.push_back(pad::orbs(orb - '0'));
-            }
-
-            // Check if it is a letter (RBGLDH)
-            for (int k = 0; k < pad::ORB_COUNT; k++)
-            {
-                if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
-                {
-                    r.push_back(Orb(k));
-                    break;
-                }
+                currBoard[i] = Orb(k);
+                break;
             }
         }
-        currBoard.push_back(r);
     }
 
     this->board = PBoard(currBoard, row, column, minEraseCondition);
 }
 
-// MARK: - Setters, mainly for Qt
+// MARK: - Setters
+// Are they still used? Maybe remove later
 
 void PSolver::setRandomBoard(int row, int column)
 {
@@ -413,15 +404,9 @@ void PSolver::setRandomBoard(int row, int column)
     // Update seed
     srand(time(NULL));
     Board currBoard;
-    for (int i = 0; i < column; i++)
+    for (int i = 0; i < row * column; i++)
     {
-        Row r;
-        for (int j = 0; j < row; j++)
-        {
-            // From 1 to 6 are normal orbs
-            r.push_back(pad::orbs(std::rand() % 6 + 1));
-        }
-        currBoard.push_back(r);
+        currBoard[i] = pad::orbs(std::rand() % 6 + 1);
     }
 
     this->board = PBoard(currBoard, row, column, minEraseCondition);

@@ -7,6 +7,8 @@
  * by Yiheng Quan
  */
 
+// TODO: this queue needs to be updated in the future
+
 #ifndef MY_QUEUE_H
 #define MY_QUEUE_H
 

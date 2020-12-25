@@ -35,15 +35,15 @@ public:
     int step;
     // This is the previous orb and it moved to current orb
     // Current must not move back to parent location
-    OrbLocation previous;
+    OrbIndex previous;
     // This is current orb which is active (the player is holding it)
-    OrbLocation current;
+    OrbIndex current;
     // Save the parent's address to track back
     PState *parent = nullptr;
 
     // This is only for testing
     PState(int s) : score(s) {}
-    PState(const PBoard &board, const OrbLocation &from, const OrbLocation &to, int step, int maxStep);
+    PState(const PBoard &board, const OrbIndex &from, const OrbIndex &to, int step, int maxStep);
     ~PState();
 
     // Override operators
