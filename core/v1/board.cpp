@@ -40,13 +40,14 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         {
             for (int j = 0; j < row; j++)
             {
-                auto orb = board[i][j];
+                int index = index(i, j);
+                auto orb = board[index];
                 // Ignore empty orbs
                 if (orb == pad::empty)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, i, j, orb, -1);
+                floodfill(&combo, index, orb, -1);
                 if ((int)combo.size() >= minEraseCondition)
                 {
                     moreCombo = true;
@@ -68,12 +69,12 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
+void PBoard::floodfill(Combo *list, int index, Orb orb, int direction)
 {
-    if (!validLocation(x, y))
+    if (!validLocation(index))
         return;
 
-    auto currOrb = board[x][y];
+    auto currOrb = board[index];
     // must be the same orb
     if (currOrb != orb)
         return;
@@ -164,7 +165,7 @@ void PBoard::floodfill(Combo *list, int x, int y, Orb orb, int direction)
                 // only remove if there are no same orbs in a different direction
                 if (!hasOrbAround)
                 {
-                    board[cx][cy] = pad::empty;
+                    board[index] = pad::empty;
                     list->emplace_back(cx, cy, orb);
                 }
             }

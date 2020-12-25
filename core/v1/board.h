@@ -11,17 +11,19 @@
 #include <set>
 #include "pad.h"
 
-// Another name for orb enum from pad.h
+/// Another name for orb enum from pad.h
 typedef pad::orbs Orb;
-// Board is an array of Orb, for now max 7x6 so 42
+/// Board is an array of Orb, for now max 7x6 so 42
 typedef std::array<Orb, 42> Board;
-// OrbIndex is now just an index
+/// OrbIndex is now just an index
 typedef int OrbIndex;
+typedef std::vector<ComboInfo> Combo;
+typedef std::vector<Combo> ComboList;
 
-// Convert location to index
+/// Convert location to index
 #define index(x, y) (x * row + y)
 
-// A special structure for ComboInfo
+/// Struct for storing combo info
 struct ComboInfo
 {
     int first;
@@ -29,8 +31,6 @@ struct ComboInfo
     Orb orb;
     ComboInfo(int f, int s, Orb o) : first(f), second(s), orb(o) {}
 };
-typedef std::vector<ComboInfo> Combo;
-typedef std::vector<Combo> ComboList;
 
 class PBoard
 {
@@ -43,9 +43,9 @@ class PBoard
 
     /// Move orbs down if there is an empty orb below, return whether board has been changed
     bool moveOrbsDown();
-    
+
     /// Search for a combo and erase orbs
-    void floodfill(Combo *list, int x, int y, Orb orb, int direction);
+    void floodfill(Combo *list, OrbIndex index, Orb orb, int direction);
 
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
@@ -77,6 +77,11 @@ class PBoard
     inline bool isEmptyFile()
     {
         return column == 0 && row == 0;
+    }
+
+    inline int getIndex(int x, int y)
+    {
+        return y * column + x;
     }
 
     /// Loop through the vector and count the number of each orbs
