@@ -19,9 +19,9 @@ PSolver *handleInput(int argc, char *argv[])
     std::string filePath = "RHGHDRGLBLHGDBLLHBBBHRLHGHDGLB";
     // this one had some problems
     // std::string filePath = "LHHLHDLDDLHLDDLDHDDDLLHDLHDHHDHHLDLDLHDHDH";
-    int minEraseCondition = 3;
+    int minErase = 3;
     int maxStep = 50;
-    int maxSize = 500;
+    int maxSize = 5000;
 
     // Read from command line
     if (argc > 1)
@@ -30,12 +30,12 @@ PSolver *handleInput(int argc, char *argv[])
     }
     if (argc > 2)
     {
-        minEraseCondition = atoi(argv[2]);
+        minErase = atoi(argv[2]);
         // min 3, max 5 for now
-        if (minEraseCondition < 3)
-            minEraseCondition = 3;
-        if (minEraseCondition > 5)
-            minEraseCondition = 5;
+        if (minErase < 3)
+            minErase = 3;
+        if (minErase > 5)
+            minErase = 5;
     }
     if (argc > 3)
     {
@@ -46,5 +46,5 @@ PSolver *handleInput(int argc, char *argv[])
         maxSize = atoi(argv[4]);
     }
 
-    return new PSolver(filePath, minEraseCondition, maxStep, maxSize);
+    return new PSolver(filePath, minErase, maxStep, maxSize);
 }

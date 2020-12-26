@@ -11,16 +11,32 @@
 
 class Configuration
 {
+    int row = 0;
+    int column = 0;
+    int minErase = 0;
+
     Configuration() {}
 
 public:
-    // Return a shared instance of profile manager
+    /// A shared instance of configuration
     static Configuration &shared()
     {
         static Configuration p;
         return p;
     }
 
+    /// This should only be called once
+    void config(int row, int column, int minErase)
+    {
+        this->row = row;
+        this->column = column;
+        this->minErase = minErase;
+    }
+
+    // MARK: - Getter
+    int &getRow() { return row; }
+    int &getColumn() { return column; }
+    int &getMinErase() { return minErase; }
 };
 
 #endif

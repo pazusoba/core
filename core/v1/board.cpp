@@ -9,15 +9,17 @@
 #include <set>
 #include "board.h"
 #include "profile.h"
+#include "configuration.h"
 
 // MARK: - Constructors
-PBoard::PBoard() {}
-PBoard::PBoard(const Board &board, int row, int column, int minEraseCondition)
+PBoard::PBoard(const Board &board)
 {
     this->board = board;
-    this->row = row;
-    this->column = column;
-    this->minEraseCondition = minEraseCondition;
+
+    auto config = Configuration::shared();
+    this->row = config.getRow();
+    this->column = config.getColumn();
+    this->minErase = config.getMinErase();
 }
 
 // MARK: - Board related
@@ -25,7 +27,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 {
     // Reverse to prevent slow pushing back
     ComboList comboList;
-    comboList.reserve(row * column / minEraseCondition);
+    comboList.reserve(row * column / minErase);
     Combo combo;
     combo.reserve(row * column);
 
@@ -40,7 +42,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         {
             for (int j = 0; j < row; j++)
             {
-                auto loc = OrbLocation(i, j, column);
+                auto loc = OrbLocation(i, j);
                 auto orb = board[loc.index];
                 // Ignore empty orbs
                 if (orb == pad::empty)
@@ -48,7 +50,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
                 // Start finding combos
                 floodfill(&combo, loc, orb, -1);
-                if ((int)combo.size() >= minEraseCondition)
+                if ((int)combo.size() >= minErase)
                 {
                     moreCombo = true;
                     comboList.push_back(combo);
@@ -109,7 +111,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int 
             else if (d == 3)
                 cx -= i;
 
-            auto loc = OrbLocation(cx, cy, column);
+            auto loc = OrbLocation(cx, cy);
             if (!validLocation(loc))
                 break;
 
@@ -126,10 +128,10 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int 
     count -= 3;
 
     // more than erase condition
-    if (count >= minEraseCondition)
+    if (count >= minErase)
     {
         // the min number of connected orbs to consider it as a combo
-        int minConnection = minEraseCondition >= 3 ? 3 : minEraseCondition;
+        int minConnection = minErase >= 3 ? 3 : minErase;
 
         // erase and do flood fill
         for (int d = 0; d < 4; d++)
@@ -157,12 +159,12 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int 
                 if (d < 2)
                 {
                     // check up down
-                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx + 1, cy, column)) && hasSameOrb(orb, OrbLocation(cx - 1, cy, column));
+                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx + 1, cy)) && hasSameOrb(orb, OrbLocation(cx - 1, cy));
                 }
                 else
                 {
                     // check left right
-                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx, cy + 1, column)) && hasSameOrb(orb, OrbLocation(cx, cy - 1, column));
+                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx, cy + 1)) && hasSameOrb(orb, OrbLocation(cx, cy - 1));
                 }
 
                 // only remove if there are no same orbs in a different direction
@@ -187,10 +189,10 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int 
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, OrbLocation(cx, cy + 1, column), orb, 0);
-                floodfill(list, OrbLocation(cx, cy - 1, column), orb, 1);
-                floodfill(list, OrbLocation(cx + 1, cy, column), orb, 2);
-                floodfill(list, OrbLocation(cx - 1, cy, column), orb, 3);
+                floodfill(list, OrbLocation(cx, cy + 1), orb, 0);
+                floodfill(list, OrbLocation(cx, cy - 1), orb, 1);
+                floodfill(list, OrbLocation(cx + 1, cy), orb, 2);
+                floodfill(list, OrbLocation(cx - 1, cy), orb, 3);
             }
         }
     }
@@ -201,8 +203,7 @@ int PBoard::rateBoard()
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
-    int score = ProfileManager::shared().getScore(list, board, moveCount, minEraseCondition, row, column);
-
+    int score = ProfileManager::shared().getScore(list, board, moveCount);
     return score;
 }
 
@@ -342,13 +343,13 @@ int PBoard::getMaxCombo(int *counter)
 
         for (int i = 1; i < pad::ORB_COUNT; i++)
         {
-            // Keep -3 or other minEraseCondition (4, 5) until all orbs are less than 2
+            // Keep -3 or other minErase (4, 5) until all orbs are less than 2
             int curr = counter[i];
-            if (curr >= minEraseCondition)
+            if (curr >= minErase)
             {
                 moreComboCount += 1;
                 comboCounter++;
-                counter[i] -= minEraseCondition;
+                counter[i] -= minErase;
                 if (curr > maxOrbCounter)
                     maxOrbCounter = curr;
             }
@@ -362,8 +363,8 @@ int PBoard::getMaxCombo(int *counter)
         if (moreComboCount == 1)
         {
             // Orbs left are in different colour but they can still seperate other colours
-            int maxComboPossible = orbLeft / minEraseCondition;
-            int maxCombo = maxOrbCounter / minEraseCondition;
+            int maxComboPossible = orbLeft / minErase;
+            int maxCombo = maxOrbCounter / minErase;
             // Make sure there are enough orbs
             comboCounter += maxCombo > maxComboPossible ? maxComboPossible : maxCombo;
 
