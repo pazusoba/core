@@ -254,7 +254,7 @@ public:
         }
 
         // Check if colours matches
-        score += colours.size() * pad::TIER_SEVEN_SCORE;
+        score += colours.size() * pad::TIER_SIX_SCORE;
         return score;
     }
 };
@@ -309,7 +309,7 @@ public:
             // 2U needs 4 orbs connected
             if (c.size() == 4 && isTheOrb(c[0].orb))
             {
-                score += pad::TIER_SEVEN_SCORE;
+                score += pad::TIER_SIX_SCORE;
             }
         }
         return score;
@@ -367,7 +367,7 @@ public:
                         counter++;
 
                     if (counter == 2)
-                        score += pad::TIER_EIGHT_PLUS_SCORE;
+                        score += pad::TIER_EIGHT_SCORE;
                 }
             }
         }
@@ -425,7 +425,7 @@ public:
                         counter++;
 
                     if (counter == 2)
-                        score += pad::TIER_NINE_SCORE;
+                        score += pad::TIER_EIGHT_SCORE;
                 }
             }
         }
@@ -507,7 +507,7 @@ public:
                         if (count < 6)
                             score += count * pad::TIER_EIGHT_PLUS_SCORE;
                         if (count == 6)
-                            score += count * pad::TIER_TEN_SCORE;
+                            score += count * pad::TIER_NINE_SCORE;
                     }
                 }
                 else
