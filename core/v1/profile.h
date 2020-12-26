@@ -16,14 +16,19 @@
 #include <iostream>
 #include "board.h"
 #include "pad.h"
+#include "configuration.h"
 
 // The base of all profiles, it only requires a getScore function
 class Profile
 {
 public:
+    int row = Configuration::shared().getRow();
+    int column = Configuration::shared().getColumn();
+    int minErase = Configuration::shared().getMinErase();
+
     virtual ~Profile() {}
     virtual std::string getProfileName() const = 0;
-    virtual int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const = 0;
+    virtual int getScore(const ComboList &list, const Board &board, int moveCount) const = 0;
 };
 
 // This is a singleton class to update profiles at run time
@@ -42,13 +47,13 @@ public:
 
     // Loop through all profiles and add scores based on every profile
     // You need a list of combos, the current board and moveCount
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column)
+    int getScore(const ComboList &list, const Board &board, int moveCount)
     {
         int score = 0;
 
         for (auto &p : profiles)
         {
-            score += p->getScore(list, board, moveCount, minEraseCondition, row, column);
+            score += p->getScore(list, board, moveCount);
         }
 
         return score;
@@ -100,7 +105,7 @@ public:
         return "combo";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         int combo = list.size();
@@ -228,7 +233,7 @@ public:
         return "colour";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         std::set<Orb> colours;
@@ -297,7 +302,7 @@ public:
         return "2U";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -327,7 +332,7 @@ public:
         return "L";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -386,7 +391,7 @@ public:
         return "+";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -445,7 +450,7 @@ public:
         return "void damage penetration";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         // Try this board
         // DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH
@@ -459,7 +464,7 @@ public:
                 int size = c.size();
                 int distance = size - 9;
 
-                if (size == minEraseCondition)
+                if (size == minErase)
                 {
                     score -= pad::TIER_NINE_SCORE;
                 }
@@ -532,7 +537,7 @@ public:
         return "soybean";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -558,7 +563,7 @@ public:
         return "row";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -601,7 +606,7 @@ public:
         return "column";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -648,7 +653,7 @@ public:
         return "orb remains";
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         if (list.size() == 0)
@@ -664,7 +669,7 @@ public:
         for (const auto &c : list)
         {
             int size = c.size();
-            score += (size - minEraseCondition) * pad::TIER_FIVE_SCORE;
+            score += (size - minErase) * pad::TIER_FIVE_SCORE;
             orbErased += size;
         }
 

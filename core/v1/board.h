@@ -10,6 +10,7 @@
 #include <array>
 #include <set>
 #include "pad.h"
+#include "configuration.h"
 
 /// Convert location to index
 #define INDEX_OF(x, y) (x * column + y)
@@ -25,7 +26,7 @@ struct OrbLocation
     int index;
     int first;
     int second;
-    int column;
+    int column = Configuration::shared().getColumn();
 
     bool operator==(const OrbLocation &loc) const
     {
@@ -33,13 +34,13 @@ struct OrbLocation
     }
 
     OrbLocation() {}
-    OrbLocation(int index, int column) : index(index), column(column)
+    OrbLocation(int index) : index(index)
     {
         first = index / column;
         second = index % column;
     }
     // column can be ignored sometimes
-    OrbLocation(int first, int second, int column) : first(first), second(second), column(column)
+    OrbLocation(int first, int second) : first(first), second(second)
     {
         index = first * column + second;
     }
@@ -60,8 +61,8 @@ class PBoard
 {
     int row;
     int column;
-    /// By default, if 3 orbs are connected, it is considered a combo. Up to
-    int minEraseCondition = 3;
+    int minErase;
+
     /// This saves all orbs in an array, support all orb types
     Board board;
 
@@ -94,7 +95,7 @@ class PBoard
     /// A quick and easy way of getting max combo
     inline int getBoardMaxCombo()
     {
-        return row * column / minEraseCondition;
+        return row * column / minErase;
     }
 
     /// Check if the file is empty or doesn't exists
@@ -124,8 +125,8 @@ class PBoard
     }
 
 public:
-    PBoard();
-    PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
+    PBoard() {}
+    PBoard(const Board &board);
 
     /// Rate current board with profiles
     int rateBoard();

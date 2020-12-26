@@ -16,37 +16,35 @@
 
 class PSolver
 {
-    int minEraseCondition = 3;
+    int row = 0;
+    int column = 0;
+    int minErase = 3;
     int steps = 25;
     int size = 1000;
     bool debug = true;
 
-    // Read board from filePath, return the board
+    /// Read board from filePath, return the board
     Board readBoard(const std::string &filePath);
 
 public:
-    // Row and column are used to count board size
-    int row = 0;
-    int column = 0;
-    // This is the original board
+    /// This is the original board
     PBoard board;
 
-    PSolver(int minEraseCondition, int maxStep, int maxSize);
-    PSolver(const std::string &filePath, int minEraseCondition, int maxStep, int maxSize);
+    PSolver(const std::string &filePath, int minErase, int steps, int size);
 
-    // Solve the current board
+    /// Solve the current board
     std::vector<Route> solve();
 
-    // Read a board from a string
+    /// Read a board from a string
     void setBoardFrom(const std::string &board);
 
-    // A random board that is row x column
+    /// A random board that is row x column
     void setRandomBoard(int row, int column);
 
-    // Update beam size, mainly for Qt
+    /// Update beam size, mainly for Qt
     void setBeamSize(int size);
 
-    // Update step limit
+    /// Update step limit
     void setStepLimit(int step);
 };
 

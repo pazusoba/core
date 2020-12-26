@@ -17,6 +17,7 @@
 #include "queue.h"
 #include "timer.h"
 #include "profile.h"
+#include "configuration.h"
 
 // This is only for the priority queue
 class PointerCompare
@@ -31,26 +32,16 @@ public:
 
 // MARK: - Constrcutors
 
-PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
+PSolver::PSolver(const std::string &filePath, int minErase, int steps, int size)
 {
-    this->minEraseCondition = minEraseCondition;
-    this->steps = maxStep;
-    this->size = maxSize;
-
-    // Generate a random board
-    setRandomBoard(6, 5);
-}
-
-PSolver::PSolver(const std::string &filePath, int minEraseCondition, int steps, int size)
-{
-    this->minEraseCondition = minEraseCondition;
+    this->minErase = minErase;
     this->steps = steps;
     this->size = size;
 
     if (filePath.find(".txt") != std::string::npos)
     {
         auto currBoard = readBoard(filePath);
-        board = PBoard(currBoard, row, column, minEraseCondition);
+        board = PBoard(currBoard);
     }
     else
     {
@@ -136,7 +127,7 @@ std::vector<Route> PSolver::solve()
     {
         for (int j = 0; j < column; ++j)
         {
-            auto loc = OrbLocation(i, j, column);
+            auto loc = OrbLocation(i, j);
             auto root = new PState(board, loc, loc, 0, steps);
             rootStates.emplace_back(root);
             toVisit.emplace(root);
@@ -342,6 +333,7 @@ Board PSolver::readBoard(const std::string &filePath)
         column++;
     }
 
+    Configuration::shared().config(row, column, minErase);
     boardFile.close();
     return board;
 }
@@ -366,6 +358,8 @@ void PSolver::setBoardFrom(const std::string &board)
         row = 6;
         column = 7;
     }
+
+    Configuration::shared().config(row, column, minErase);
 
     // Read from a string
     Board currBoard;
@@ -392,7 +386,7 @@ void PSolver::setBoardFrom(const std::string &board)
         }
     }
 
-    this->board = PBoard(currBoard, row, column, minEraseCondition);
+    this->board = PBoard(currBoard);
 }
 
 // MARK: - Setters
@@ -413,7 +407,7 @@ void PSolver::setRandomBoard(int row, int column)
         currBoard[i] = pad::orbs(std::rand() % 6 + 1);
     }
 
-    this->board = PBoard(currBoard, row, column, minEraseCondition);
+    this->board = PBoard(currBoard);
 }
 
 void PSolver::setBeamSize(int size)
