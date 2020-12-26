@@ -42,7 +42,7 @@ public:
 
     // Loop through all profiles and add scores based on every profile
     // You need a list of combos, the current board and moveCount
-    int getScore(ComboList &list, Board &board, int moveCount, int minEraseCondition, int row, int column)
+    int getScore(const ComboList &list, const Board &board, int moveCount, int minEraseCondition, int row, int column)
     {
         int score = 0;
 
@@ -71,7 +71,7 @@ public:
     }
 
     // Clear all profiles and set it to a new one
-    void updateProfile(std::vector<Profile *> &p)
+    void updateProfile(const std::vector<Profile *> &p)
     {
         clear();
         for (const auto &p : profiles)
