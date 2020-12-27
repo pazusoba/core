@@ -30,7 +30,7 @@ struct OrbLocation
 
     bool operator==(const OrbLocation &loc) const
     {
-        return first == loc.first && second == loc.second;
+        return index == loc.index;
     }
 
     OrbLocation() {}
@@ -42,6 +42,7 @@ struct OrbLocation
     // column can be ignored sometimes
     OrbLocation(int first, int second) : first(first), second(second)
     {
+        // first and second are all indices so need to add one here
         index = first * column + second;
     }
 };
@@ -170,16 +171,8 @@ public:
 
     inline bool validLocation(const OrbLocation &loc)
     {
-        int x = loc.first;
-        int y = loc.second;
-        if (x >= 0 && x < row && y >= 0 && y < column)
-        {
-            // You cannot move a sealed orb
-            // return board[x][y] != pad::seal;
-            return true;
-        }
-
-        return false;
+        // Check if it is in bound, check for orb in the future?
+        return loc.index >= 0 && loc.index < row * column;
     }
 };
 

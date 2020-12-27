@@ -50,10 +50,6 @@ bool PState::operator>(const PState &a) const
 
 bool PState::operator<(const PState &a) const
 {
-    // 0 - 99
-    // int num = rand() % 100;
-    // if (num < 50)
-    //     return true;
     return score < a.score;
 }
 
@@ -81,6 +77,10 @@ PState::PStateList PState::getChildren()
     {
         for (int j = -1; j <= 1; j++)
         {
+            // same location
+            if (i == 0 && j == 0)
+                continue;
+
             if (
                 (i == -1 && j == -1) ||
                 (i == 1 && j == 1) ||
@@ -94,9 +94,9 @@ PState::PStateList PState::getChildren()
                 continue;
             }
 
-            auto next = OrbLocation(current.index + (i * current.column) + j);
+            auto next = OrbLocation(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations
-            if (next == current || next == previous)
+            if (next == previous)
                 continue;
 
             // It must be a valid location so not out of bound
