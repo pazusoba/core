@@ -96,12 +96,13 @@ PState::PStateList PState::getChildren()
 
             auto next = OrbLocation(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations
-            if (next == previous)
-                continue;
 
             // It must be a valid location so not out of bound
             if (board.validLocation(next))
             {
+                if (next == previous)
+                    continue;
+                
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
                 if (nextState != nullptr)
