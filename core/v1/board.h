@@ -24,7 +24,7 @@ typedef std::array<Orb, 42> Board;
 /// Convert index to include first (x) and second (y)
 struct OrbLocation
 {
-    int index;
+    int index = -1;
     int first;
     int second;
     int column = Configuration::shared().getColumn();
