@@ -15,6 +15,7 @@
 PBoard::PBoard(const Board &board)
 {
     this->board = board;
+    this->temp.fill(Orb(0));
 
     auto config = Configuration::shared();
     this->row = config.getRow();
@@ -49,7 +50,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, loc, orb, -1);
+                floodfill(&combo, loc, orb);
                 if ((int)combo.size() >= minErase)
                 {
                     moreCombo = true;
@@ -71,7 +72,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int direction)
+void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
 {
     if (!validLocation(loc))
         return;
@@ -189,10 +190,10 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int 
                     cx -= i;
 
                 // fill all directions here
-                floodfill(list, OrbLocation(cx, cy + 1), orb, 0);
-                floodfill(list, OrbLocation(cx, cy - 1), orb, 1);
-                floodfill(list, OrbLocation(cx + 1, cy), orb, 2);
-                floodfill(list, OrbLocation(cx - 1, cy), orb, 3);
+                floodfill(list, OrbLocation(cx, cy + 1), orb);
+                floodfill(list, OrbLocation(cx, cy - 1), orb);
+                floodfill(list, OrbLocation(cx + 1, cy), orb);
+                floodfill(list, OrbLocation(cx - 1, cy), orb);
             }
         }
     }

@@ -67,12 +67,14 @@ class PBoard
 
     /// This saves all orbs in an array, support all orb types
     Board board;
+    /// Used for flood fill
+    Board temp;
 
     /// Move orbs down if there is an empty orb below, return whether board has been changed
     bool moveOrbsDown();
 
     /// Search for a combo and erase orbs
-    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, int direction);
+    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb);
 
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
@@ -169,7 +171,14 @@ public:
     inline bool validLocation(const OrbLocation &loc)
     {
         // Check if it is in bound, check for orb in the future?
-        return loc.index >= 0 && loc.index < row * column;
+        int x = loc.first;
+        int y = loc.second;
+        if (x >= 0 && x < row && y >= 0 && y < column)
+        {
+            return true;
+        }
+
+        return false;
     }
 };
 
