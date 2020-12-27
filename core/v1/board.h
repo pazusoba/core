@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <set>
+#include <functional>
 #include "pad.h"
 #include "configuration.h"
 
@@ -114,14 +115,9 @@ class PBoard
     inline int *collectOrbCount()
     {
         int *counter = new int[pad::ORB_COUNT]{0};
-        for (int i = 0; i < row; i++)
-        {
-            for (int j = 0; j < column; j++)
-            {
-                auto orb = board[INDEX_OF(i, j)];
-                counter[orb]++;
-            }
-        }
+        traverse([&](int i, int j, Orb orb) {
+            counter[orb]++;
+        });
         return counter;
     }
 
@@ -142,13 +138,14 @@ public:
     void printBoardInfo();
 
     /// Traverse through the board
-    inline void traverse(void func(int, int))
+    inline void traverse(std::function<void(int, int, Orb)> func)
     {
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < column; j++)
             {
-                func(i, j);
+                auto orb = board[INDEX_OF(i, j)];
+                func(i, j, orb);
             }
         }
     }
