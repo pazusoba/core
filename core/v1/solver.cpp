@@ -107,7 +107,7 @@ std::vector<Route> PSolver::solve()
 
     ProfileManager::shared().updateProfile(profiles);
 
-    std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
+    std::cout << "The board is " << column << " x " << row << ". Max step is " << steps << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
@@ -149,9 +149,8 @@ std::vector<Route> PSolver::solve()
     // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
     // By locking and unlocking, it will make sure it is safe
     std::mutex mtx;
-    // std::recursive_mutex mtx;
 
-    // srand(time(0));
+    srand(time(0));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
