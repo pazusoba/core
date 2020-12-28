@@ -15,11 +15,12 @@
 
 /// Convert location to index
 #define INDEX_OF(x, y) (x * column + y)
+#define MAX_BOARD_SIZE 42
 
 /// Another name for orb enum from pad.h
 typedef pad::orbs Orb;
 /// Board is an array of Orb, for now max 7x6 so 42
-typedef std::array<Orb, 42> Board;
+typedef std::array<Orb, MAX_BOARD_SIZE> Board;
 
 /// Convert index to include first (x) and second (y)
 struct OrbLocation
@@ -68,7 +69,7 @@ class PBoard
     /// This saves all orbs in an array, support all orb types
     Board board;
     /// Used for flood fill
-    Board temp;
+    std::array<int, MAX_BOARD_SIZE> temp;
 
     /// Move orbs down if there is an empty orb below, return whether board has been changed
     bool moveOrbsDown();
