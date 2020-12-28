@@ -53,15 +53,15 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 floodfill(&combo, loc, orb);
                 if ((int)combo.size() >= minErase)
                 {
-                    moreCombo = true;
-                    comboList.push_back(combo);
-                    combo.clear();
-
                     // Only reset visited orbs
                     for (const auto &orb : combo)
                     {
                         temp[INDEX_OF(orb.first, orb.second)] = 0;
                     }
+
+                    moreCombo = true;
+                    comboList.push_back(combo);
+                    combo.clear();
                 }
             }
         }
@@ -84,17 +84,12 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
         return;
 
     auto currOrb = board[loc.index];
-    // must be the same orb
+    // only accept if current orb is the target orb
     if (currOrb != orb)
         return;
-
-    // ignore visited orbs
-    if (temp[loc.index] > 0)
-        return;
-    else
-        temp[loc.index] = 1;
     
-    int count = 0;
+    // track num of connected orbs, also include the current orb so start from 1
+    int count = 1;
     // track all directions
     int dList[4] = {0, 0, 0, 0};
     // the min number of connected orbs to consider it as a combo
@@ -114,7 +109,8 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
         if (d > 1)
             loop = column;
 
-        for (int i = 0; i < loop; i++)
+        // start from 1 to look for orbs around
+        for (int i = 1; i < loop; i++)
         {
             int cx = x;
             int cy = y;
@@ -131,8 +127,9 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
             if (!validLocation(loc))
                 break;
 
-            // stop if it doesn't match
-            if (board[loc.index] != orb)
+            // stop if it doesn't match and it is not visited yet
+            // if visited, it means this orb has the same colour
+            if (board[loc.index] != orb && temp[loc.index] == 0)
                 break;
 
             dList[d]++;
@@ -140,21 +137,26 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
         }
     }
 
-    // added the same orb 4 times so need to -3
-    count -= 3;
-
     // more than erase condition
     if (count >= minErase)
     {
-        // erase and do flood fill
-        for (int d = 0; d < 4; d++)
-        {
-            int currCount = dList[d];
-            // must be more than min erase
-            if (currCount < minConnection)
-                continue;
+        // minConnection is used here for +, L shapes
+        bool horizontal = dList[0] + dList[1] + 1 >= minConnection;
+        bool vertical = dList[2] + dList[3] + 1 >= minConnection;
+        int start = 0;
+        int end = 2;
+        if (!horizontal)
+            start = 1;
+        if (!vertical)
+            end = 1;
 
-            for (int i = 0; i < currCount; i++)
+        // erase and do flood fill
+        for (int d = start; d < end; d++)
+        {
+            int startCount = dList[d * 2];
+            int endCount = -(dList[d * 2 + 1]);
+
+            for (int i = endCount; i < startCount; i++)
             {
                 int cx = x;
                 int cy = y;
@@ -167,28 +169,21 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 else if (d == 3)
                     cx -= i;
 
-                // only need to check two orbs because by default, it needs to have at least 3 connected orbs to be considered as a combo
-                bool hasOrbAround = false;
-                if (d < 2)
+                int index = INDEX_OF(cx, cy);
+                if (board[index] != pad::empty)
                 {
-                    // check up down
-                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx + 1, cy)) && hasSameOrb(orb, OrbLocation(cx - 1, cy));
+                    board[index] = pad::empty;
+                    list->emplace_back(cx, cy, orb);
+                    temp[index] = 1;
                 }
                 else
                 {
-                    // check left right
-                    hasOrbAround = hasSameOrb(orb, OrbLocation(cx, cy + 1)) && hasSameOrb(orb, OrbLocation(cx, cy - 1));
-                }
-
-                // only remove if there are no same orbs in a different direction
-                if (!hasOrbAround)
-                {
-                    board[INDEX_OF(cx, cy)] = pad::empty;
-                    list->emplace_back(cx, cy, orb);
+                    // shouldn't visit this orb again
+                    temp[index] = 2;
                 }
             }
 
-            for (int i = 0; i < currCount; i++)
+            for (int i = endCount; i < startCount; i++)
             {
                 int cx = x;
                 int cy = y;
@@ -201,11 +196,15 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 else if (d == 3)
                     cx -= i;
 
-                // fill all directions here
-                floodfill(list, OrbLocation(cx, cy + 1), orb);
-                floodfill(list, OrbLocation(cx, cy - 1), orb);
-                floodfill(list, OrbLocation(cx + 1, cy), orb);
-                floodfill(list, OrbLocation(cx - 1, cy), orb);
+                // prevent going to the same orb again
+                if (temp[INDEX_OF(cx, cy)] < 2)
+                {
+                    // fill all directions here
+                    floodfill(list, OrbLocation(cx, cy + 1), orb);
+                    floodfill(list, OrbLocation(cx, cy - 1), orb);
+                    floodfill(list, OrbLocation(cx + 1, cy), orb);
+                    floodfill(list, OrbLocation(cx - 1, cy), orb);
+                }
             }
         }
     }
