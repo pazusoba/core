@@ -11,7 +11,7 @@ board = "RHBDDRRGHDGBHGBGHHRLLRGBBHHRLL"
 
 overall = time.time()
 time_taken = 0
-count = 50
+count = 10
 divider = count
 crash_count = 0
 
@@ -21,7 +21,7 @@ while count > 0:
         os.remove(output_file)
 
     # run the program
-    pazusoba = subprocess.Popen([program, board, '3', '50', '500'], stdout=subprocess.DEVNULL)
+    pazusoba = subprocess.Popen([program, board, '3', '50', '5000'], stdout=subprocess.DEVNULL)
     start = time.time()
     pazusoba.wait()
 
