@@ -85,8 +85,8 @@ std::vector<Route> PSolver::solve()
     //     new TwoWayProfile({pad::light}),
     //     new ColourProfile};
     // Just combo
-    std::vector<Profile *> profiles{
-        new ComboProfile};
+    // std::vector<Profile *> profiles{
+    //     new ComboProfile};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
@@ -99,15 +99,16 @@ std::vector<Route> PSolver::solve()
     //     new TwoWayProfile({pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // 7x6 Plus
-    // std::vector<Profile *> profiles{
-    //     new ComboProfile,
-    //     new PlusProfile({pad::light, pad::dark}),
-    //     // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::light, pad::dark})};
+    std::vector<Profile *> profiles{
+        new ComboProfile,
+        new PlusProfile({pad::light, pad::dark})};
+        // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+        // new ColourProfile({pad::light, pad::dark})};
 
+    auto conf = Configuration::shared();
     ProfileManager::shared().updateProfile(profiles);
 
-    std::cout << "The board is " << column << " x " << row << ". Max step is " << steps << ".\n";
+    std::cout << "The board is " << conf.getColumn() << " x " << conf.getRow() << ". Max step is " << steps << ". Min erase is " << conf.getMinErase() << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size

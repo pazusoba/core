@@ -75,7 +75,7 @@ class PBoard
     bool moveOrbsDown();
 
     /// Search for a combo and erase orbs
-    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb);
+    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool initial);
 
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
@@ -176,7 +176,7 @@ public:
         int y = loc.second;
         if (x >= 0 && x < row && y >= 0 && y < column)
         {
-            return true;
+            return board[loc.index] != pad::unknown;
         }
 
         return false;

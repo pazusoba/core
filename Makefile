@@ -42,7 +42,7 @@ clean:
 	$(CLEAN_AUTOMATION)
 
 # compile for automation
-python:
+py:
 	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
 	$(MOVE_PYTHON)
 
