@@ -396,7 +396,7 @@ public:
         int score = 0;
         for (const auto &c : list)
         {
-            // L shape must erase 5 orbs
+            // + shape must erase 5 orbs
             if (c.size() == 5 && isTheOrb(c[0].orb))
             {
                 std::map<int, int> vertical;
@@ -430,7 +430,7 @@ public:
                         counter++;
 
                     if (counter == 2)
-                        score += pad::TIER_EIGHT_SCORE;
+                        score += pad::TIER_TEN_SCORE * 2;
                 }
             }
         }

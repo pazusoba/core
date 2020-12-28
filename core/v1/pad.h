@@ -37,7 +37,7 @@ namespace pad
     /// For displaying the orb name
     const std::string ORB_NAMES[ORB_COUNT] = {" ", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-", "???"};
     /// Some emulation websites use these names for orbs (not all orbs are supported)
-    const std::string ORB_SIMULATION_NAMES[ORB_COUNT] = {" ", "R", "B", "G", "L", "D", "H", "J", "", "P", "", "", "", ""};
+    const std::string ORB_SIMULATION_NAMES[ORB_COUNT] = {" ", "R", "B", "G", "L", "D", "H", "J", "E", "P", "T", "=", "X", "?"};
     /// Weight for all orbs, heal and bomb are priority, how to use this properly though?
     const double ORB_WEIGHTS[ORB_COUNT] = {0, 1, 1, 1, 1, 1, 2, 1, 3, 0.9, 0.8, 0, 0, 0};
 

@@ -50,7 +50,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     continue;
 
                 // Start finding combos
-                floodfill(&combo, loc, orb);
+                floodfill(&combo, loc, orb, true);
                 // reset visited orbs
                 for (const auto &orb : combo)
                 {
@@ -78,7 +78,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
-void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
+void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool initial)
 {
     if (!validLocation(loc))
         return;
@@ -93,7 +93,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     // track all directions
     int dList[4] = {0, 0, 0, 0};
     // the min number of connected orbs to consider it as a combo
-    int minConnection = minErase >= 3 ? 3 : minErase;
+    int minConnection = initial ? minErase : (minErase >= 3 ? 3 : minErase);
 
     int x = loc.first;
     int y = loc.second;
@@ -138,13 +138,22 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     }
 
     // more than erase condition
-    if (count >= minErase)
+    if (count >= minConnection)
     {
         int start = 0;
         int end = 2;
-        // minConnection is used here for +, L shapes
-        bool horizontal = dList[0] + dList[1] + 1 >= minConnection;
-        bool vertical = dList[2] + dList[3] + 1 >= minConnection;
+
+        int hCount = dList[0] + dList[1] + 1;
+        int vCount = dList[2] + dList[3] + 1;
+        bool horizontal = hCount >= minConnection;
+        bool vertical = vCount >= minConnection;
+        // this is either L or +
+        if (hCount == 3 && vCount == 3)
+        {
+            horizontal = true;
+            vertical = true;
+        }
+
         if (!horizontal)
             start = 1;
         if (!vertical)
@@ -199,13 +208,13 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                     if (d == 0)
                     {
                         // horizontal so fill vertically
-                        floodfill(list, OrbLocation(cx + 1, cy), orb);
-                        floodfill(list, OrbLocation(cx - 1, cy), orb);
+                        floodfill(list, OrbLocation(cx + 1, cy), orb, false);
+                        floodfill(list, OrbLocation(cx - 1, cy), orb, false);
                     }
                     else
                     {
-                        floodfill(list, OrbLocation(cx, cy + 1), orb);
-                        floodfill(list, OrbLocation(cx, cy - 1), orb); 
+                        floodfill(list, OrbLocation(cx, cy + 1), orb, false);
+                        floodfill(list, OrbLocation(cx, cy - 1), orb, false);
                     }
                 }
             }
