@@ -153,7 +153,7 @@ std::vector<Route> PSolver::solve()
     srand(time(0));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
-    {
+    {        
         // int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         // threadSize = currSize / processor_count;
         if (debug)
@@ -329,8 +329,8 @@ Board PSolver::readBoard(const std::string &filePath)
         {
             // Only add one to row if we are in the first column,
             // the size is fixed so there won't be a row with a different number of orbs
-            if (column == 0)
-                row++;
+            if (row == 0)
+                column++;
             // Read it out as a number
             int a = 0;
             ss >> a;
@@ -339,7 +339,7 @@ Board PSolver::readBoard(const std::string &filePath)
             board[currIndex] = Orb(a);
             currIndex++;
         }
-        column++;
+        row++;
     }
 
     Configuration::shared().config(row, column, minErase);
