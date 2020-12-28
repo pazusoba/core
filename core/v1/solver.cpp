@@ -281,7 +281,7 @@ std::vector<Route> PSolver::solve()
     else
     {
         // move from (0, 0) to (0, 1)
-        auto one = new PState(board, OrbLocation(0), OrbLocation(0), 1, steps);
+        auto one = new PState(board, OrbLocation(0), OrbLocation(0), 0, steps);
         one->saveToDisk();
         delete one;
     }
