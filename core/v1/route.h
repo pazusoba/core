@@ -19,6 +19,7 @@ typedef std::vector<pad::direction> Directions;
 class Route
 {
     PBoard finalBoard;
+    PBoard erasedBoard;
     // A list of direction
     Directions directions;
     OrbLocation start;
@@ -38,6 +39,7 @@ public:
     Route(const PState *state);
 
     void printRoute();
+    void printErasedBoard();
 };
 
 #endif

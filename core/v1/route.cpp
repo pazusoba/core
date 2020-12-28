@@ -8,6 +8,7 @@
 Route::Route(const PState *state)
 {
     finalBoard = state->board;
+    erasedBoard = state->erasedBoard;
     score = state->score;
     step = state->step;
     convertFromState(state);
@@ -24,6 +25,11 @@ void Route::printRoute()
         cout << pad::DIRECTION_NAMES[d] << " ";
     }
     cout << "\n\n";
+}
+
+void Route::printErasedBoard()
+{
+    erasedBoard.printBoard();
 }
 
 void Route::convertFromState(const PState *s)
