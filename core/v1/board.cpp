@@ -153,21 +153,17 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
         // erase and do flood fill
         for (int d = start; d < end; d++)
         {
-            int startCount = dList[d * 2];
-            int endCount = -(dList[d * 2 + 1]);
+            int startCount = -(dList[d * 2 + 1]);
+            int endCount = dList[d * 2] + 1;
 
-            for (int i = endCount; i < startCount; i++)
+            for (int i = startCount; i < endCount; i++)
             {
                 int cx = x;
                 int cy = y;
                 if (d == 0)
                     cy += i;
                 else if (d == 1)
-                    cy -= i;
-                else if (d == 2)
                     cx += i;
-                else if (d == 3)
-                    cx -= i;
 
                 int index = INDEX_OF(cx, cy);
                 if (board[index] != pad::empty)
@@ -190,11 +186,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 if (d == 0)
                     cy += i;
                 else if (d == 1)
-                    cy -= i;
-                else if (d == 2)
                     cx += i;
-                else if (d == 3)
-                    cx -= i;
 
                 // prevent going to the same orb again
                 if (temp[INDEX_OF(cx, cy)] < 2)
