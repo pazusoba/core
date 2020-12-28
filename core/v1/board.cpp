@@ -38,7 +38,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         // Remember to reset
         moreCombo = false;
 
-        // from bottom to top
+        // from bottom left to top right
         for (int i = row - 1; i >= 0; i--)
         {
             for (int j = 0; j < column; j++)
@@ -86,7 +86,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     auto currOrb = board[loc.index];
     // only accept if current orb is the target orb
     if (currOrb != orb && temp[loc.index] < 1)
-        return;    
+        return;
 
     // track num of connected orbs, also include the current orb so start from 1
     int count = 1;
@@ -178,7 +178,12 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                     temp[index] = 2;
                 }
             }
+        }
 
+        for (int d = start; d < end; d++)
+        {
+            int startCount = -(dList[d * 2 + 1]);
+            int endCount = dList[d * 2] + 1;
             for (int i = startCount; i < endCount; i++)
             {
                 int cx = x;
