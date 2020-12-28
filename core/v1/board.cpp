@@ -15,7 +15,7 @@
 PBoard::PBoard(const Board &board)
 {
     this->board = board;
-    this->temp.fill(Orb(0));
+    this->temp.fill(0);
 
     auto config = Configuration::shared();
     this->row = config.getRow();
@@ -56,6 +56,12 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                     moreCombo = true;
                     comboList.push_back(combo);
                     combo.clear();
+
+                    // Only reset visited orbs
+                    for (const auto &orb : combo)
+                    {
+                        temp[INDEX_OF(orb.first, orb.second)] = 0;
+                    }
                 }
             }
         }
@@ -82,9 +88,18 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     if (currOrb != orb)
         return;
 
+    // ignore visited orbs
+    if (temp[loc.index] > 0)
+        return;
+    else
+        temp[loc.index] = 1;
+    
     int count = 0;
     // track all directions
     int dList[4] = {0, 0, 0, 0};
+    // the min number of connected orbs to consider it as a combo
+    int minConnection = minErase >= 3 ? 3 : minErase;
+
     int x = loc.first;
     int y = loc.second;
 
@@ -131,9 +146,6 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     // more than erase condition
     if (count >= minErase)
     {
-        // the min number of connected orbs to consider it as a combo
-        int minConnection = minErase >= 3 ? 3 : minErase;
-
         // erase and do flood fill
         for (int d = 0; d < 4; d++)
         {
