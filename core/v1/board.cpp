@@ -56,7 +56,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 {
                     temp[INDEX_OF(orb.first, orb.second)] = 0;
                 }
-                
+
                 if ((int)combo.size() > 0)
                 {
                     moreCombo = true;
@@ -196,11 +196,17 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 // prevent going to the same orb again
                 if (temp[INDEX_OF(cx, cy)] < 2)
                 {
-                    // fill all directions here
-                    floodfill(list, OrbLocation(cx + 1, cy), orb);
-                    floodfill(list, OrbLocation(cx - 1, cy), orb);
-                    floodfill(list, OrbLocation(cx, cy + 1), orb);
-                    floodfill(list, OrbLocation(cx, cy - 1), orb);
+                    if (d == 0)
+                    {
+                        // horizontal so fill vertically
+                        floodfill(list, OrbLocation(cx + 1, cy), orb);
+                        floodfill(list, OrbLocation(cx - 1, cy), orb);
+                    }
+                    else
+                    {
+                        floodfill(list, OrbLocation(cx, cy + 1), orb);
+                        floodfill(list, OrbLocation(cx, cy - 1), orb); 
+                    }
                 }
             }
         }
