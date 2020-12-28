@@ -39,9 +39,9 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
         moreCombo = false;
 
         // from bottom to top
-        for (int i = column - 1; i >= 0; i--)
+        for (int i = row - 1; i >= 0; i--)
         {
-            for (int j = 0; j < row; j++)
+            for (int j = 0; j < column; j++)
             {
                 auto loc = OrbLocation(i, j);
                 auto orb = board[loc.index];
@@ -56,10 +56,9 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
                 {
                     temp[INDEX_OF(orb.first, orb.second)] = 0;
                 }
-                
-                if ((int)combo.size() >= minErase)
-                {
 
+                if ((int)combo.size() > 0)
+                {
                     moreCombo = true;
                     comboList.push_back(combo);
                     combo.clear();
@@ -86,9 +85,9 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
 
     auto currOrb = board[loc.index];
     // only accept if current orb is the target orb
-    if (currOrb != orb)
-        return;
-    
+    if (currOrb != orb && temp[loc.index] < 1)
+        return;    
+
     // track num of connected orbs, also include the current orb so start from 1
     int count = 1;
     // track all directions
@@ -130,7 +129,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
 
             // stop if it doesn't match and it is not visited yet
             // if visited, it means this orb has the same colour
-            if (board[loc.index] != orb && temp[loc.index] == 0)
+            if (board[loc.index] != orb && temp[loc.index] < 1)
                 break;
 
             dList[d]++;
@@ -167,7 +166,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                     cx += i;
 
                 int index = INDEX_OF(cx, cy);
-                if (board[index] != pad::empty)
+                if (temp[index] == 0)
                 {
                     board[index] = pad::empty;
                     list->emplace_back(cx, cy, orb);
@@ -193,10 +192,16 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 if (temp[INDEX_OF(cx, cy)] < 2)
                 {
                     // fill all directions here
-                    floodfill(list, OrbLocation(cx, cy + 1), orb);
-                    floodfill(list, OrbLocation(cx, cy - 1), orb);
-                    floodfill(list, OrbLocation(cx + 1, cy), orb);
-                    floodfill(list, OrbLocation(cx - 1, cy), orb);
+                    if (d == 0)
+                    {
+                        floodfill(list, OrbLocation(cx + 1, cy), orb);
+                        floodfill(list, OrbLocation(cx - 1, cy), orb);
+                    }
+                    else
+                    {
+                        floodfill(list, OrbLocation(cx, cy + 1), orb);
+                        floodfill(list, OrbLocation(cx, cy - 1), orb);
+                    }
                 }
             }
         }
@@ -225,13 +230,9 @@ bool PBoard::moveOrbsDown()
         {
             auto orb = board[INDEX_OF(i, j)];
             if (orb != pad::empty)
-            {
                 orbs.push_back(orb);
-            }
             else
-            {
                 emptyCount++;
-            }
         }
 
         // Must be less than column (it means that this column is all empty)
