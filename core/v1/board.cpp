@@ -51,13 +51,14 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
 
                 // Start finding combos
                 floodfill(&combo, loc, orb);
+                // reset visited orbs
+                for (const auto &orb : combo)
+                {
+                    temp[INDEX_OF(orb.first, orb.second)] = 0;
+                }
+                
                 if ((int)combo.size() >= minErase)
                 {
-                    // Only reset visited orbs
-                    for (const auto &orb : combo)
-                    {
-                        temp[INDEX_OF(orb.first, orb.second)] = 0;
-                    }
 
                     moreCombo = true;
                     comboList.push_back(combo);
@@ -140,11 +141,11 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
     // more than erase condition
     if (count >= minErase)
     {
+        int start = 0;
+        int end = 2;
         // minConnection is used here for +, L shapes
         bool horizontal = dList[0] + dList[1] + 1 >= minConnection;
         bool vertical = dList[2] + dList[3] + 1 >= minConnection;
-        int start = 0;
-        int end = 2;
         if (!horizontal)
             start = 1;
         if (!vertical)
@@ -179,7 +180,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb)
                 }
             }
 
-            for (int i = endCount; i < startCount; i++)
+            for (int i = startCount; i < endCount; i++)
             {
                 int cx = x;
                 int cy = y;
