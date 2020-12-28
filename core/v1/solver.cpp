@@ -292,6 +292,8 @@ std::vector<Route> PSolver::solve()
     for (auto &r : routes)
     {
         r.printRoute();
+        if (debug)
+            r.printErasedBoard();
     }
 
     // Free up memories

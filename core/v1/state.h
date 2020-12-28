@@ -29,6 +29,7 @@ class PState
 public:
     // The board
     PBoard board;
+    PBoard erasedBoard;
     // This score shows how good the current board is
     int score = 0;
     // This is the number of steps (depth)

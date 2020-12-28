@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 PSolver *handleInput(int argc, char *argv[])
 {
-    std::string filePath = "assets/sample_board_65_2.txt";
+    std::string filePath = "assets/sample_board_floodfill_bug.txt";
     // std::string filePath = "RHGHDRGLBLHGDBLLHBBBHRLHGHDGLB";
     // std::string filePath = "LHHLHDLDDLHLDDLDHDDDLLHDLHDHHDHHLDLDLHDHDH";
     int minErase = 3;
