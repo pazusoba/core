@@ -3,36 +3,35 @@
  * by Yiheng Quan
  */
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <queue>
-#include <thread>
-#include <mutex>
+#include "solver.h"
+#include "configuration.h"
+#include "profile.h"
+#include "queue.h"
+#include "timer.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include "solver.h"
-#include "queue.h"
-#include "timer.h"
-#include "profile.h"
-#include "configuration.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <mutex>
+#include <queue>
+#include <sstream>
+#include <thread>
+#include <algorithm>
 
 // This is only for the priority queue
 class PointerCompare
 {
 public:
     template <typename T>
-    bool operator()(T *a, T *b)
-    {
-        return (*a) < (*b);
-    }
+    bool operator()(T *a, T *b) { return (*a) < (*b); }
 };
 
 // MARK: - Constrcutors
 
-PSolver::PSolver(const std::string &filePath, int minErase, int steps, int size)
+PSolver::PSolver(const std::string &filePath, int minErase, int steps,
+                 int size)
 {
     this->minErase = minErase;
     this->steps = steps;
@@ -56,9 +55,9 @@ std::vector<Route> PSolver::solve()
     // +
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
-    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::light, pad::dark})};
+    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //     pad::dark}), new ColourProfile({pad::fire, pad::water, pad::wood,
+    //     pad::light, pad::dark}), new ColourProfile({pad::light, pad::dark})};
     // paimon
     //    std::vector<Profile *> profiles{
     //        new ComboProfile,
@@ -73,20 +72,20 @@ std::vector<Route> PSolver::solve()
     //      profiles{
     //          new ComboProfile(7),
     //          new OrbProfile(1),
-    //          new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //          new OneColumnProfile};
+    //          new PlusProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //          pad::dark}), new OneColumnProfile};
     // Two way
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
-    //     new TwoWayProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
+    //     new TwoWayProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //     pad::dark})};
     // Combo
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
     //     new TwoWayProfile({pad::light}),
     //     new ColourProfile};
     // Just combo
-    std::vector<Profile *> profiles{
-        new ComboProfile};
+    std::vector<Profile *> profiles{new ComboProfile};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
@@ -102,13 +101,15 @@ std::vector<Route> PSolver::solve()
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
     //     new PlusProfile({pad::light, pad::dark})};
-        // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-        // new ColourProfile({pad::light, pad::dark})};
+    // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+    // new ColourProfile({pad::light, pad::dark})};
 
     auto conf = Configuration::shared();
     ProfileManager::shared().updateProfile(profiles);
 
-    std::cout << "The board is " << conf.getColumn() << " x " << conf.getRow() << ". Max step is " << steps << ". Min erase is " << conf.getMinErase() << ".\n";
+    std::cout << "The board is " << conf.getColumn() << " x " << conf.getRow()
+              << ". Max step is " << steps << ". Min erase is "
+              << conf.getMinErase() << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
@@ -147,14 +148,15 @@ std::vector<Route> PSolver::solve()
     boardThreads.reserve(processor_count);
     // Cut into equal sizes
     int threadSize = size / processor_count;
-    // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
-    // By locking and unlocking, it will make sure it is safe
+    // This is important for queue and childrenStates because if you access them
+    // at the same time, the program will crash. By locking and unlocking, it will
+    // make sure it is safe
     std::mutex mtx;
 
     srand(time(0));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
-    {        
+    {
         // int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         // threadSize = currSize / processor_count;
         if (debug)
@@ -229,7 +231,8 @@ std::vector<Route> PSolver::solve()
         // Clear for next round
         boardThreads.clear();
 
-        toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
+        toVisit =
+            std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
         for (const auto &s : childrenStates)
         {
             // push randomly
@@ -251,33 +254,37 @@ std::vector<Route> PSolver::solve()
     // free all profiles once the search is completed
     ProfileManager::shared().clear();
 
-    int routeSize = 3;
-    if (debug)
-        routeSize = 5;
-
     std::vector<Route> routes;
-    routes.reserve(routeSize);
-    // This gets routes for best 10
-    int i = 0;
-    PState *bestState = nullptr;
-    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
-    {
-        if (i > routeSize)
-            break;
-        else
-            i++;
 
-        if (i == 1)
+    int prevScore = -1;
+    int i = 0;
+    for (auto it = bestScore.end(); it != bestScore.begin(); it--, i++)
+    {
+        if (i == 0)
             continue;
-        // Save this state
-        else if (i == 2)
-            bestState = it->second;
-        routes.emplace_back(it->second);
+
+        auto curr = it->second;
+        int currScore = curr->score;
+        if (prevScore < 0)
+        {
+            prevScore = currScore / 1000;
+        }
+        else if (currScore / 1000 < prevScore)
+        {
+            break;
+        }
+
+        routes.emplace_back(curr);
     }
 
-    if (bestState != nullptr)
+    // Sort saved routes by steps
+    std::sort(routes.begin(), routes.end(), [](Route &a, Route &b) {
+        return a.getStep() < b.getStep();
+    });
+
+    if (routes.size() > 0)
     {
-        bestState->saveToDisk();
+        routes[0].saveToDisk();
     }
     else
     {
@@ -286,15 +293,19 @@ std::vector<Route> PSolver::solve()
         one->saveToDisk();
         delete one;
     }
-    
+
     Timer::shared().end(999);
 
-    // Print saved routes
+    // Print saved routes, top 5 only
+    i = 0;
     for (auto &r : routes)
     {
+        if (i > 5)
+            break;
         r.printRoute();
         if (debug)
             r.printErasedBoard();
+        i++;
     }
 
     // Free up memories
@@ -322,7 +333,8 @@ Board PSolver::readBoard(const std::string &filePath)
         if (lines.find("//") == 0)
             continue;
 
-        // Remove trailing spaces by substr, +1 for substr (to include the char before space)
+        // Remove trailing spaces by substr, +1 for substr (to include the char
+        // before space)
         int index = lines.find_last_not_of(" ") + 1;
         lines = lines.substr(0, index);
 
@@ -331,7 +343,8 @@ Board PSolver::readBoard(const std::string &filePath)
         while (ss.good())
         {
             // Only add one to row if we are in the first column,
-            // the size is fixed so there won't be a row with a different number of orbs
+            // the size is fixed so there won't be a row with a different number of
+            // orbs
             if (row == 0)
                 column++;
             // Read it out as a number
@@ -422,12 +435,6 @@ void PSolver::setRandomBoard(int row, int column)
     this->board = PBoard(currBoard);
 }
 
-void PSolver::setBeamSize(int size)
-{
-    this->size = size;
-}
+void PSolver::setBeamSize(int size) { this->size = size; }
 
-void PSolver::setStepLimit(int step)
-{
-    this->steps = step;
-}
+void PSolver::setStepLimit(int step) { this->steps = step; }

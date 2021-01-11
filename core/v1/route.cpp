@@ -5,8 +5,9 @@
 
 #include "route.h"
 
-Route::Route(const PState *state)
+Route::Route(PState *state)
 {
+    this->state = state;
     finalBoard = state->board;
     erasedBoard = state->erasedBoard;
     score = state->score;
