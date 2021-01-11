@@ -50,6 +50,11 @@ bool PState::operator>(const PState &a) const
 
 bool PState::operator<(const PState &a) const
 {
+    // if similar score, check steps
+    if ((score / 1000) == (a.score / 1000))
+    {
+        return step > a.step;
+    }
     return score < a.score;
 }
 
