@@ -250,7 +250,7 @@ bool PBoard::moveOrbsDown()
         }
 
         // Must be less than column (it means that this column is all empty)
-        if (emptyCount > 0 && emptyCount < column)
+        if (emptyCount > 0 && emptyCount < row)
         {
             // Fill the saved orbs
             int k = 0, s = (int)orbs.size();
