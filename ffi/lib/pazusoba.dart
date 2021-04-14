@@ -5,7 +5,7 @@ typedef pazusoba_func = Void Function(Int32, Pointer<Pointer<Int8>>);
 typedef Pazusoba = void Function(int, Pointer<Pointer<Int8>>);
 
 void main() {
-  final libary = DynamicLibrary.open('helloworld.so');
+  final libary = DynamicLibrary.open('pazusoba.so');
   final Pazusoba pazusoba = libary
       .lookup<NativeFunction<pazusoba_func>>('pazusoba')
       .asFunction<Pazusoba>();
