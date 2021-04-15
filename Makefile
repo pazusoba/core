@@ -26,6 +26,7 @@ endif
 OPTIMISATION=-Ofast -flto -pthread -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11
+SHARED=-shared -fPIC
 
 # v1 or v2, decides the source to compile
 VERSION=v1
@@ -42,7 +43,7 @@ clean:
 	$(CLEAN_AUTOMATION)
 
 so:
-	$(GCC) $(OPTIMISATION) -shared pazusoba.cpp $(CPP_FILES) -o pazusoba.so
+	$(GCC) $(OPTIMISATION) $(SHARED) pazusoba.cpp $(CPP_FILES) -o pazusoba.o
 
 # compile for automation
 py:
