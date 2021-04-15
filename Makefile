@@ -43,7 +43,7 @@ clean:
 	$(CLEAN_AUTOMATION)
 
 so:
-	$(GCC) $(OPTIMISATION) $(SHARED) pazusoba.cpp $(CPP_FILES) -o pazusoba.o
+	$(GCC) $(OPTIMISATION) $(SHARED) pazusoba.cpp $(CPP_FILES) -o pazusoba.so
 
 # compile for automation
 py:
