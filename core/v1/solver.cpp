@@ -153,7 +153,7 @@ std::vector<Route> PSolver::solve()
     // make sure it is safe
     std::mutex mtx;
 
-    srand(time(0));
+    srand(time(NULL));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
