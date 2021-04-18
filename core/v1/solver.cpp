@@ -181,7 +181,7 @@ std::vector<Route> PSolver::solve()
                     }
                     auto currentState = toVisit.top();
                     toVisit.pop();
-                    mtx.unlock();
+//                    mtx.unlock();
 
                     // Save current score for printing out later
                     int currentScore = currentState->score;
@@ -189,7 +189,7 @@ std::vector<Route> PSolver::solve()
 
                     // Save best scores
                     bool shouldAdd = false;
-                    mtx.lock();
+//                    mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
@@ -207,18 +207,19 @@ std::vector<Route> PSolver::solve()
                         }
                     }
                     mtx.unlock();
-
+                    
                     if (shouldAdd && currentState != nullptr)
                     {
                         // All all possible children
                         for (auto &s : currentState->getChildren())
                         {
                             // Simply insert because states compete with each other
-                            mtx.lock();
+//                            mtx.lock();
                             childrenStates.push_back(s);
-                            mtx.unlock();
+//                            mtx.unlock();
                         }
                     }
+
                 }
             });
         }

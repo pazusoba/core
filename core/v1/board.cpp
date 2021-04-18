@@ -78,6 +78,7 @@ ComboList PBoard::eraseComboAndMoveOrbs(int *moveCount)
     return comboList;
 }
 
+// This is also taking a lot of time
 void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool initial)
 {
     if (!validLocation(loc))
@@ -222,6 +223,7 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool
     }
 }
 
+// This is taking a lot of time
 int PBoard::rateBoard()
 {
     int moveCount = 0;
@@ -233,6 +235,7 @@ int PBoard::rateBoard()
 
 bool PBoard::moveOrbsDown()
 {
+    // Can be more efficient
     bool changed = false;
     for (int j = 0; j < column; j++)
     {
