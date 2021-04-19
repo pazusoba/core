@@ -87,7 +87,7 @@ Binaries are compiled locally and overall time are used based on the same board,
 |  0.5α   |    3.06s    |  1.79s  |   Profile & OpenCV    |
 |  0.6β   |    3.35s    |  2.04s  |      Automation       |
 | 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
-|  0.8β   |     ??s     |  0.7s   |  Overall Improvement  |
+|  0.8β   |      -      |  0.5s   |  Overall Improvement  |
 
 ### QT (Deprecated)
 This is now replaced with `automation`. 

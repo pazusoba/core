@@ -23,7 +23,7 @@ endif
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
 # lpthread - thread
 # flto - linking
-OPTIMISATION=-Ofast -flto -pthread -lpthread
+OPTIMISATION=-O3 -flto -pthread -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11
 
