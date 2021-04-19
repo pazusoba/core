@@ -239,7 +239,7 @@ bool PBoard::moveOrbsDown()
     bool changed = false;
     for (int j = 0; j < column; j++)
     {
-        std::vector<pad::orbs> orbs;
+        std::vector<Orb> orbs;
         orbs.reserve(row);
         int emptyCount = 0;
         // Start checking from the bottom most column

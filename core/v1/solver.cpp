@@ -430,7 +430,7 @@ void PSolver::setRandomBoard(int row, int column)
     currBoard.fill(pad::unknown);
     for (int i = 0; i < row * column; i++)
     {
-        currBoard[i] = pad::orbs(std::rand() % 6 + 1);
+        currBoard[i] = Orb(std::rand() % 6 + 1);
     }
 
     this->board = PBoard(currBoard);

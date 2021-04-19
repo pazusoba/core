@@ -18,7 +18,7 @@
 #define MAX_BOARD_SIZE 42
 
 /// Another name for orb enum from pad.h
-typedef pad::orbs Orb;
+typedef unsigned char Orb;
 /// Board is an array of Orb, for now max 7x6 so 42
 typedef std::array<Orb, MAX_BOARD_SIZE> Board;
 
