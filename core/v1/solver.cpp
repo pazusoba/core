@@ -297,9 +297,12 @@ std::vector<Route> PSolver::solve()
 
     // Print saved routes, top 5 only
     i = 0;
+    int limit = 5;
+    if (debug)
+        limit = 2;
     for (auto &r : routes)
     {
-        if (i > 5)
+        if (i > limit)
             break;
         r.printRoute();
         if (debug)

@@ -21,7 +21,7 @@ class PSolver
     int minErase = 3;
     int steps = 25;
     int size = 1000;
-    bool debug = true;
+    bool debug = false;
 
     /// Read board from filePath, return the board
     Board readBoard(const std::string &filePath);
