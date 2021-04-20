@@ -13,9 +13,12 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
 {
     // Update the board by swapping orbs
     this->board = board;
+
     // don't use current and previous because they are not yet initialised
     this->board.swapLocation(from, to);
-    this->erasedBoard = this->board;
+    // Using memory copy is better than assign
+    memcpy(&this->erasedBoard, &this->board, sizeof(this->board));
+    // this->erasedBoard = this->board;
     this->score = erasedBoard.rateBoard();
 
     // Copy other variables

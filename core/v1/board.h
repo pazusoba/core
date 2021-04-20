@@ -69,7 +69,7 @@ class PBoard
     /// This saves all orbs in an array, support all orb types
     Board board;
     /// Used for flood fill
-    std::array<int, MAX_BOARD_SIZE> temp;
+    std::array<Orb, MAX_BOARD_SIZE> temp;
 
     /// Move orbs down if there is an empty orb below, return whether board has been changed
     bool moveOrbsDown();
