@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstring>
 #include "state.h"
 
 // MARK: - Constrctor
