@@ -1,7 +1,7 @@
 /**
  * profile.h
  * P&D has many teams and profiles are for different teams and play style
- * 
+ *
  * by Yiheng Quan
  */
 

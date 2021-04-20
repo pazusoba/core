@@ -131,7 +131,8 @@ void PPriorityQueue::printQueue()
     using namespace std;
     foreach ([](PElement *curr) {
         cout << curr->state->score << " -> ";
-    });
+    })
+        ;
     cout << "nullptr\n";
 }
 

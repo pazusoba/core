@@ -111,7 +111,7 @@ PState::PStateList PState::getChildren()
             {
                 if (next == previous)
                     continue;
-                
+
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
                 if (nextState != nullptr)

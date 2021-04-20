@@ -2,7 +2,7 @@
  * configuration.h
  * Once a board is read, some values won't change.
  * Configuration is just for this purpose.
- * 
+ *
  * by Yiheng Quan
  */
 
