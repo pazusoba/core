@@ -85,7 +85,10 @@ std::vector<Route> PSolver::solve()
     //     new TwoWayProfile({pad::light}),
     //     new ColourProfile};
     // Just combo
-    std::vector<Profile *> profiles{new ComboProfile};
+    std::vector<Profile *> profiles{
+        new ComboProfile,
+        new TwoWayProfile({pad::fire, pad::light, pad::dark}),
+        new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
@@ -181,7 +184,7 @@ std::vector<Route> PSolver::solve()
                     }
                     auto currentState = toVisit.top();
                     toVisit.pop();
-                    //                    mtx.unlock();
+                    // mtx.unlock();
 
                     // Save current score for printing out later
                     int currentScore = currentState->score;
@@ -189,7 +192,7 @@ std::vector<Route> PSolver::solve()
 
                     // Save best scores
                     bool shouldAdd = false;
-                    //                    mtx.lock();
+                    // mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
@@ -214,9 +217,9 @@ std::vector<Route> PSolver::solve()
                         for (auto &s : currentState->getChildren())
                         {
                             // Simply insert because states compete with each other
-                            //                            mtx.lock();
+                            mtx.lock();
                             childrenStates.push_back(s);
-                            //                            mtx.unlock();
+                            mtx.unlock();
                         }
                     }
                 }
