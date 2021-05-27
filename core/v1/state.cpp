@@ -35,12 +35,12 @@ PState::~PState()
 {
     if (children.size() > 0)
     {
+        mtx.lock();
         for (auto const &c : children)
         {
-            mtx.lock();
             delete c;
-            mtx.unlock();
         }
+        mtx.unlock();
         children.clear();
     }
 }
@@ -81,6 +81,8 @@ PState::PStateList PState::getChildren()
     if (step > maxStep)
         return children;
 
+    mtx.lock();
+
     // from -1 to 1, all 8 directions
     for (int i = -1; i <= 1; i++)
     {
@@ -111,19 +113,18 @@ PState::PStateList PState::getChildren()
             {
                 if (next == previous)
                     continue;
-                
+
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
                 if (nextState != nullptr)
                 {
                     nextState->parent = this;
-                    mtx.lock();
                     children.push_back(nextState);
-                    mtx.unlock();
                 }
             }
         }
     }
+    mtx.unlock();
 
     return children;
 }

@@ -12,7 +12,7 @@ namespace pad
 {
     /**
      * All orbs in the game.
-     * 
+     *
      * seal is a tape over a row and orbs cannot move,
      * disabled means it will not get erased even if connected.
      */
