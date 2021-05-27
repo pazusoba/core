@@ -1,5 +1,5 @@
-# パズそば・改🍜
-Puzzle & Dragons is a mobile game developed by Gungho. In this game, there is a board and you can erase orbs to make combos and damage dungeon monsters. Every combo will increase your attack by 25%. Also, there are skyfall orbs that might potentially make more combos.
+# 🍜パズそば・スーパー
+Puzzle & Dragons is a mobile game developed by [GungHo Online Entertainment,Inc](https://www.gungho.co.jp/). In this game, there is a board and you can erase orbs to make combos and damage dungeon monsters. Every combo will increase your attack by 25%. Also, there are skyfall orbs that might potentially make more combos.
 
 Some demo on [YouTube](https://www.youtube.com/playlist?list=PLl6hdCL2pzdV69Ilh8vUrP2o6t2GIimqU) mostly in Japanese.
 
