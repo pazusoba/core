@@ -18,7 +18,9 @@ typedef std::vector<pad::direction> Directions;
 
 class Route
 {
+    PState *state;
     PBoard finalBoard;
+    PBoard erasedBoard;
     // A list of direction
     Directions directions;
     OrbLocation start;
@@ -35,36 +37,12 @@ class Route
     pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev);
 
 public:
-    Route(const PState *state);
+    Route(PState *state);
 
     void printRoute();
-
-    /// All Qt realated functions
-
-    inline std::vector<int> getBoardOrbs()
-    {
-        return finalBoard.getBoardOrbs();
-    }
-
-    inline OrbLocation getStartLocation()
-    {
-        return start;
-    }
-
-    inline Directions getDirections()
-    {
-        return directions;
-    }
-
-    inline int getScore()
-    {
-        return score;
-    }
-
-    inline int getStep()
-    {
-        return step;
-    }
+    void printErasedBoard();
+    inline int getStep() { return step; }
+    inline void saveToDisk() { state->saveToDisk(); }
 };
 
 #endif

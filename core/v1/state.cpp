@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstring>
 #include "state.h"
 
 // MARK: - Constrctor
@@ -13,10 +14,13 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
 {
     // Update the board by swapping orbs
     this->board = board;
+
     // don't use current and previous because they are not yet initialised
     this->board.swapLocation(from, to);
-    auto copy = this->board;
-    this->score = copy.rateBoard();
+    // Using memory copy is better than assign
+    memcpy(&this->erasedBoard, &this->board, sizeof(this->board));
+    // this->erasedBoard = this->board;
+    this->score = erasedBoard.rateBoard();
 
     // Copy other variables
     this->previous = from;
@@ -41,12 +45,20 @@ PState::~PState()
     }
 }
 
+// MARK: - Operator
+
+bool PState::operator>(const PState &a) const
+{
+    return score > a.score;
+}
+
 bool PState::operator<(const PState &a) const
 {
-    // 0 - 99
-    // int num = rand() % 100;
-    // if (num < 50)
-    //     return true;
+    // if similar score, check steps
+    if ((score / 1000) == (a.score / 1000))
+    {
+        return step > a.step;
+    }
     return score < a.score;
 }
 
@@ -74,6 +86,10 @@ PState::PStateList PState::getChildren()
     {
         for (int j = -1; j <= 1; j++)
         {
+            // same location
+            if (i == 0 && j == 0)
+                continue;
+
             if (
                 (i == -1 && j == -1) ||
                 (i == 1 && j == 1) ||
@@ -87,14 +103,15 @@ PState::PStateList PState::getChildren()
                 continue;
             }
 
-            auto next = LOCATION(current.first + i, current.second + j);
+            auto next = OrbLocation(current.first + i, current.second + j);
             // Ignore current and previous location so only 7 possible locations
-            if (next == current || next == previous)
-                continue;
 
             // It must be a valid location so not out of bound
             if (board.validLocation(next))
             {
+                if (next == previous)
+                    continue;
+                
                 // Setup new state and add this to children
                 auto nextState = new PState(board, current, next, step + 1, maxStep);
                 if (nextState != nullptr)
@@ -113,7 +130,7 @@ PState::PStateList PState::getChildren()
 
 // MARK: - Utils
 
-void PState::saveStateFromRoot(PState *parent, std::ofstream *file)
+void PState::saveStateFromRoot(const PState *parent, std::ofstream *file)
 {
     if (parent != nullptr)
     {
@@ -131,7 +148,7 @@ void PState::saveToDisk()
     f.close();
 }
 
-void PState::printStateFromRoot(PState *parent)
+void PState::printStateFromRoot(const PState *parent)
 {
     if (parent != nullptr)
     {

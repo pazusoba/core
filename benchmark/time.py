@@ -16,12 +16,15 @@ divider = count
 crash_count = 0
 
 while count > 0:
+    output_file = "path.pazusoba"
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
     # run the program
     pazusoba = subprocess.Popen([program, board, '3', '50', '5000'], stdout=subprocess.DEVNULL)
     start = time.time()
     pazusoba.wait()
 
-    output_file = "path.pazusoba"
     if os.path.exists(output_file):
         count -= 1
         curr_time = time.time() - start

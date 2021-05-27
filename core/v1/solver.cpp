@@ -3,54 +3,44 @@
  * by Yiheng Quan
  */
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <queue>
-#include <thread>
-#include <mutex>
+#include "solver.h"
+#include "configuration.h"
+#include "profile.h"
+#include "queue.h"
+#include "timer.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include "solver.h"
-#include "queue.h"
-#include "timer.h"
-#include "profile.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <mutex>
+#include <queue>
+#include <sstream>
+#include <thread>
+#include <algorithm>
 
 // This is only for the priority queue
 class PointerCompare
 {
 public:
     template <typename T>
-    bool operator()(T *a, T *b)
-    {
-        return (*a) < (*b);
-    }
+    bool operator()(T *a, T *b) { return (*a) < (*b); }
 };
 
 // MARK: - Constrcutors
 
-PSolver::PSolver(int minEraseCondition, int maxStep, int maxSize)
+PSolver::PSolver(const std::string &filePath, int minErase, int steps,
+                 int size)
 {
-    this->minEraseCondition = minEraseCondition;
-    this->steps = maxStep;
-    this->size = maxSize;
-
-    // Generate a random board
-    setRandomBoard(6, 5);
-}
-
-PSolver::PSolver(std::string &filePath, int minEraseCondition, int steps, int size)
-{
-    this->minEraseCondition = minEraseCondition;
+    this->minErase = minErase;
     this->steps = steps;
     this->size = size;
 
     if (filePath.find(".txt") != std::string::npos)
     {
         auto currBoard = readBoard(filePath);
-        board = PBoard(currBoard, row, column, minEraseCondition);
+        board = PBoard(currBoard);
     }
     else
     {
@@ -65,9 +55,9 @@ std::vector<Route> PSolver::solve()
     // +
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
-    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::light, pad::dark})};
+    //     new PlusProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //     pad::dark}), new ColourProfile({pad::fire, pad::water, pad::wood,
+    //     pad::light, pad::dark}), new ColourProfile({pad::light, pad::dark})};
     // paimon
     //    std::vector<Profile *> profiles{
     //        new ComboProfile,
@@ -82,20 +72,20 @@ std::vector<Route> PSolver::solve()
     //      profiles{
     //          new ComboProfile(7),
     //          new OrbProfile(1),
-    //          new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //          new OneColumnProfile};
+    //          new PlusProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //          pad::dark}), new OneColumnProfile};
     // Two way
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
-    //     new TwoWayProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
+    //     new TwoWayProfile({pad::fire, pad::water, pad::wood, pad::light,
+    //     pad::dark})};
     // Combo
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
     //     new TwoWayProfile({pad::light}),
     //     new ColourProfile};
     // Just combo
-    std::vector<Profile *> profiles{
-        new ComboProfile};
+    std::vector<Profile *> profiles{new ComboProfile};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
@@ -110,13 +100,16 @@ std::vector<Route> PSolver::solve()
     // 7x6 Plus
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
-    //     new PlusProfile({pad::light, pad::dark}),
-    //     // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
-    //     new ColourProfile({pad::light, pad::dark})};
+    //     new PlusProfile({pad::light, pad::dark})};
+    // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
+    // new ColourProfile({pad::light, pad::dark})};
 
+    auto conf = Configuration::shared();
     ProfileManager::shared().updateProfile(profiles);
 
-    std::cout << "The board is " << row << " x " << column << ". Max step is " << steps << ".\n";
+    std::cout << "The board is " << conf.getColumn() << " x " << conf.getRow()
+              << ". Max step is " << steps << ". Min erase is "
+              << conf.getMinErase() << ".\n";
     board.printBoardForSimulation();
 
     // A queue that only saves top 100, 1000 based on the size
@@ -132,9 +125,9 @@ std::vector<Route> PSolver::solve()
     // This is the root state, 30 of them in a list to be deleted later
     std::vector<PState *> rootStates;
     rootStates.reserve(row * column);
-    for (int i = 0; i < column; ++i)
+    for (int i = 0; i < row; ++i)
     {
-        for (int j = 0; j < row; ++j)
+        for (int j = 0; j < column; ++j)
         {
             auto loc = OrbLocation(i, j);
             auto root = new PState(board, loc, loc, 0, steps);
@@ -146,6 +139,7 @@ std::vector<Route> PSolver::solve()
     std::vector<std::thread> boardThreads;
     // This uses all your cores, make sure you don't make the size too large
     int processor_count = std::thread::hardware_concurrency();
+    // int processor_count = 0;
     if (processor_count == 0)
     {
         processor_count = 1;
@@ -154,17 +148,18 @@ std::vector<Route> PSolver::solve()
     boardThreads.reserve(processor_count);
     // Cut into equal sizes
     int threadSize = size / processor_count;
-    // This is important for queue and childrenStates because if you access them at the same time, the program will crash.
-    // By locking and unlocking, it will make sure it is safe
+    // This is important for queue and childrenStates because if you access them
+    // at the same time, the program will crash. By locking and unlocking, it will
+    // make sure it is safe
     std::mutex mtx;
-    // std::recursive_mutex mtx;
 
+    srand(time(NULL));
     // Only take first 1000, reset for every step
     for (int i = 0; i < steps; ++i)
     {
         // int currSize = size * (100 + ((steps - i - 1) * 100 / steps)) / 200;
         // threadSize = currSize / processor_count;
-        if (DEBUG)
+        if (debug)
             Timer::shared().start(i);
 
         // Use multi threading
@@ -177,18 +172,16 @@ std::vector<Route> PSolver::solve()
             boardThreads.emplace_back([&] {
                 for (int k = 0; k < threadSize; ++k)
                 {
-                    mtx.lock();
-                    bool isEmpty = toVisit.empty();
-                    mtx.unlock();
-
-                    // Early steps might not have enough size
-                    if (isEmpty)
-                        break;
-
                     // Get the best state
                     mtx.lock();
+                    if (toVisit.empty())
+                    {
+                        mtx.unlock();
+                        break;
+                    }
                     auto currentState = toVisit.top();
                     toVisit.pop();
+//                    mtx.unlock();
 
                     // Save current score for printing out later
                     int currentScore = currentState->score;
@@ -196,6 +189,7 @@ std::vector<Route> PSolver::solve()
 
                     // Save best scores
                     bool shouldAdd = false;
+//                    mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
@@ -213,18 +207,19 @@ std::vector<Route> PSolver::solve()
                         }
                     }
                     mtx.unlock();
-
+                    
                     if (shouldAdd && currentState != nullptr)
                     {
                         // All all possible children
                         for (auto &s : currentState->getChildren())
                         {
                             // Simply insert because states compete with each other
-                            mtx.lock();
+//                            mtx.lock();
                             childrenStates.push_back(s);
-                            mtx.unlock();
+//                            mtx.unlock();
                         }
                     }
+
                 }
             });
         }
@@ -237,55 +232,81 @@ std::vector<Route> PSolver::solve()
         // Clear for next round
         boardThreads.clear();
 
-        toVisit = std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
+        toVisit =
+            std::priority_queue<PState *, std::vector<PState *>, PointerCompare>();
         for (const auto &s : childrenStates)
         {
+            // push randomly
+            // int num = rand() % 30;
+            // if (i < 10 && num < 25)
+            //     toVisit.push(s);
+            // else if (num < 15)
             toVisit.push(s);
         }
         childrenStates.clear();
 
-        if (DEBUG)
+        if (debug)
             Timer::shared().end(i);
     }
 
-    if (DEBUG)
+    if (debug)
         std::cout << "Search has been completed\n\n";
 
     // free all profiles once the search is completed
     ProfileManager::shared().clear();
 
-    int routeSize = 3;
-    if (DEBUG)
-        routeSize = 5;
-
     std::vector<Route> routes;
-    routes.reserve(routeSize);
-    // This gets routes for best 10
-    int i = 0;
-    PState *bestState = nullptr;
-    for (auto it = bestScore.end(); it != bestScore.begin(); it--)
-    {
-        if (i > routeSize)
-            break;
-        else
-            i++;
 
-        if (i == 1)
+    int prevScore = -1;
+    int i = 0;
+    for (auto it = bestScore.end(); it != bestScore.begin(); it--, i++)
+    {
+        if (i == 0)
             continue;
-        // Save this state
-        else if (i == 2)
-            bestState = it->second;
-        routes.emplace_back(it->second);
+
+        auto curr = it->second;
+        int currScore = curr->score;
+        if (prevScore < 0)
+        {
+            prevScore = currScore / 1000;
+        }
+        else if (currScore / 1000 < prevScore)
+        {
+            break;
+        }
+
+        routes.emplace_back(curr);
     }
 
-    if (bestState != nullptr)
-        bestState->saveToDisk();
+    // Sort saved routes by steps
+    std::sort(routes.begin(), routes.end(), [](Route &a, Route &b) {
+        return a.getStep() < b.getStep();
+    });
+
+    if (routes.size() > 0)
+    {
+        routes[0].saveToDisk();
+    }
+    else
+    {
+        // move from (0, 0) to (0, 1)
+        auto one = new PState(board, OrbLocation(0), OrbLocation(0), 0, steps);
+        one->saveToDisk();
+        delete one;
+    }
+
     Timer::shared().end(999);
 
-    // Print saved routes
+    // Print saved routes, top 5 only
+    i = 0;
     for (auto &r : routes)
     {
+        if (i > 5)
+            break;
         r.printRoute();
+        if (debug)
+            r.printErasedBoard();
+        i++;
     }
 
     // Free up memories
@@ -299,11 +320,13 @@ std::vector<Route> PSolver::solve()
 
 // MARK: - Read the board from filePath or a string
 
-Board PSolver::readBoard(std::string &filePath)
+Board PSolver::readBoard(const std::string &filePath)
 {
     Board board;
+    board.fill(pad::unknown);
     std::string lines;
 
+    int currIndex = 0;
     std::ifstream boardFile(filePath);
     while (getline(boardFile, lines))
     {
@@ -311,92 +334,89 @@ Board PSolver::readBoard(std::string &filePath)
         if (lines.find("//") == 0)
             continue;
 
-        // Remove trailing spaces by substr, +1 for substr (to include the char before space)
+        // Remove trailing spaces by substr, +1 for substr (to include the char
+        // before space)
         int index = lines.find_last_not_of(" ") + 1;
         lines = lines.substr(0, index);
 
-        // This is for storing this new row
-        Row boardRow;
         // Keep reading until error, it will get rid of spaces automatically
         std::stringstream ss(lines);
         while (ss.good())
         {
             // Only add one to row if we are in the first column,
-            // the size is fixed so there won't be a row with a different number of orbs
-            if (column == 0)
-                row++;
+            // the size is fixed so there won't be a row with a different number of
+            // orbs
+            if (row == 0)
+                column++;
             // Read it out as a number
             int a = 0;
             ss >> a;
 
             // Convert int into orbs
-            boardRow.push_back(Orb(a));
+            board[currIndex] = Orb(a);
+            currIndex++;
         }
-
-        // Add this row to the board
-        board.push_back(boardRow);
-
-        column++;
+        row++;
     }
 
+    Configuration::shared().config(row, column, minErase);
     boardFile.close();
     return board;
 }
 
-void PSolver::setBoardFrom(std::string &board)
+void PSolver::setBoardFrom(const std::string &board)
 {
     // This is just a string with the board
     int size = board.length();
     // It is just a string so must be fixed size
     if (size == 20) // 5x4
     {
-        row = 5;
-        column = 4;
+        row = 4;
+        column = 5;
     }
     else if (size == 30) // 6x5
     {
-        row = 6;
-        column = 5;
+        row = 5;
+        column = 6;
     }
     else if (size == 42) // 7x6
     {
-        row = 7;
-        column = 6;
+        row = 6;
+        column = 7;
     }
+
+    Configuration::shared().config(row, column, minErase);
 
     // Read from a string
     Board currBoard;
-    for (int i = 0; i < column; i++)
+    currBoard.fill(pad::unknown);
+
+    for (int i = 0; i < size; i++)
     {
-        Row r;
-        for (int j = 0; j < row; j++)
+        char orb = board[i];
+
+        // Check if it is a number between 1 and 9
+        if (orb >= '0' && orb <= '9')
         {
-            int index = j + i * row;
-            char orb = board[index];
+            currBoard[i] = pad::orbs(orb - '0');
+        }
 
-            // Check if it is a number between 1 and 9
-            if (orb >= '0' && orb <= '9')
+        // Check if it is a letter (RBGLDH)
+        for (int k = 0; k < pad::ORB_COUNT; k++)
+        {
+            if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
             {
-                r.push_back(pad::orbs(orb - '0'));
-            }
-
-            // Check if it is a letter (RBGLDH)
-            for (int k = 0; k < pad::ORB_COUNT; k++)
-            {
-                if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb)
-                {
-                    r.push_back(Orb(k));
-                    break;
-                }
+                currBoard[i] = Orb(k);
+                break;
             }
         }
-        currBoard.push_back(r);
     }
 
-    this->board = PBoard(currBoard, row, column, minEraseCondition);
+    this->board = PBoard(currBoard);
 }
 
-// MARK: - Setters, mainly for Qt
+// MARK: - Setters
+// Are they still used? Maybe remove later
 
 void PSolver::setRandomBoard(int row, int column)
 {
@@ -407,26 +427,15 @@ void PSolver::setRandomBoard(int row, int column)
     // Update seed
     srand(time(NULL));
     Board currBoard;
-    for (int i = 0; i < column; i++)
+    currBoard.fill(pad::unknown);
+    for (int i = 0; i < row * column; i++)
     {
-        Row r;
-        for (int j = 0; j < row; j++)
-        {
-            // From 1 to 6 are normal orbs
-            r.push_back(pad::orbs(std::rand() % 6 + 1));
-        }
-        currBoard.push_back(r);
+        currBoard[i] = Orb(std::rand() % 6 + 1);
     }
 
-    this->board = PBoard(currBoard, row, column, minEraseCondition);
+    this->board = PBoard(currBoard);
 }
 
-void PSolver::setBeamSize(int size)
-{
-    this->size = size;
-}
+void PSolver::setBeamSize(int size) { this->size = size; }
 
-void PSolver::setStepLimit(int step)
-{
-    this->steps = step;
-}
+void PSolver::setStepLimit(int step) { this->steps = step; }

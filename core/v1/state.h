@@ -22,13 +22,14 @@ class PState
     std::mutex mtx;
 
     // This is a recursive function to print from the beginning
-    void printStateFromRoot(PState *parent);
+    void printStateFromRoot(const PState *parent);
     // This is a recursive function to save state from the beginning
-    void saveStateFromRoot(PState *parent, std::ofstream* file);
+    void saveStateFromRoot(const PState *parent, std::ofstream* file);
 
 public:
     // The board
     PBoard board;
+    PBoard erasedBoard;
     // This score shows how good the current board is
     int score = 0;
     // This is the number of steps (depth)

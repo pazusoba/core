@@ -7,33 +7,55 @@
 #define BOARD_H
 
 #include <vector>
+#include <array>
 #include <set>
+#include <functional>
 #include "pad.h"
+#include "configuration.h"
 
-// shorten the code to make a pair
-#define LOCATION(x, y) (std::make_pair(x, y))
-// shotern the code to get/set an orb from the board
-#define ORB(board, location) (board[location.first][location.second])
+/// Convert location to index
+#define INDEX_OF(x, y) (x * column + y)
+#define MAX_BOARD_SIZE 42
 
-// Another name for orb enum from pad.h
-typedef pad::orbs Orb;
-// Row is a list of Orbs
-typedef std::vector<Orb> Row;
-// Board is just a 2D vector
-typedef std::vector<Row> Board;
-// This indicates current orb's location
-typedef std::pair<int, int> OrbLocation;
-// This is used to get all connected orbs that can be erased
-typedef std::set<OrbLocation> OrbSet;
-// Combo needs to save orb locations
+/// Another name for orb enum from pad.h
+typedef unsigned char Orb;
+/// Board is an array of Orb, for now max 7x6 so 42
+typedef std::array<Orb, MAX_BOARD_SIZE> Board;
 
-// A special structure for ComboInfo
+/// Convert index to include first (x) and second (y)
+struct OrbLocation
+{
+    int index = -1;
+    int first;
+    int second;
+    int column = Configuration::shared().getColumn();
+
+    bool operator==(const OrbLocation &loc) const
+    {
+        return index == loc.index;
+    }
+
+    OrbLocation() {}
+    OrbLocation(int index) : index(index)
+    {
+        first = index / column;
+        second = index % column;
+    }
+    // column can be ignored sometimes
+    OrbLocation(int first, int second) : first(first), second(second)
+    {
+        // first and second are all indices so need to add one here
+        index = first * column + second;
+    }
+};
+
+/// Struct for storing combo info
 struct ComboInfo
 {
     int first;
     int second;
     Orb orb;
-    ComboInfo(int f, int s, Orb o) : first(f), second(s), orb(o) {}
+    ComboInfo(int f, int s, const Orb &o) : first(f), second(s), orb(o) {}
 };
 typedef std::vector<ComboInfo> Combo;
 typedef std::vector<Combo> ComboList;
@@ -42,53 +64,27 @@ class PBoard
 {
     int row;
     int column;
-    // This tells the soler how to erase orb (by default, erase orbs if 3 or more of them are connected)
-    int minEraseCondition = 3;
-    // This saves all orbs in a 2D array, support all orb types
-    Board board;
+    int minErase;
 
-    /**
-     * Move orbs down if there is an empty orb below, return whether board has been changed
-     */
+    /// This saves all orbs in an array, support all orb types
+    Board board;
+    /// Used for flood fill
+    std::array<Orb, MAX_BOARD_SIZE> temp;
+
+    /// Move orbs down if there is an empty orb below, return whether board has been changed
     bool moveOrbsDown();
-    void floodfill(Combo *list, int x, int y, Orb orb, int direction);
+
+    /// Search for a combo and erase orbs
+    void floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool initial);
 
     // Erase all combos, move orbs down and track the move count
     ComboList eraseComboAndMoveOrbs(int *moveCount);
 
-    /**
-     * Check whether there are at least 3 (4, 5 or more) same orbs around (up, down, left, right)
-     * return - a set of xy that can be erased
-     */
-    OrbSet findSameOrbsAround(int x, int y);
-    inline OrbSet findSameOrbsAround(OrbLocation loc)
+    inline bool hasSameOrb(const Orb &orb, const OrbLocation &loc)
     {
-        return findSameOrbsAround(loc.first, loc.second);
-    }
-
-    /**
-     * Check whether there is at least 1 same orb around (up, down, left, right) that is not in vhOrbs
-     * return - a pair pointer that should be checked next
-     */
-    OrbLocation nextSameOrbAround(OrbSet *vhOrbs, int x, int y);
-    inline OrbLocation nextSameOrbAround(OrbSet *vhOrbs, OrbLocation loc)
-    {
-        return nextSameOrbAround(vhOrbs, loc.first, loc.second);
-    }
-
-    /**
-     * Check if orb at (x, y) has the same orb
-     */
-    inline bool hasSameOrb(Orb orb, OrbLocation loc)
-    {
-        return hasSameOrb(orb, loc.first, loc.second);
-    }
-
-    inline bool hasSameOrb(Orb orb, int x, int y)
-    {
-        if (validLocation(x, y))
+        if (validLocation(loc))
         {
-            return board[x][y] == orb;
+            return board[loc.index] == orb;
         }
 
         return false;
@@ -101,80 +97,60 @@ class PBoard
      */
     int getMaxCombo(int *counter);
 
-    /**
-     * Max combo is simply row x column / 3
-     */
+    /// A quick and easy way of getting max combo
     inline int getBoardMaxCombo()
     {
-        return row * column / minEraseCondition;
+        return row * column / minErase;
     }
 
-    /**
-     * Check if the file is empty or doesn't exists
-     */
+    /// Check if the file is empty or doesn't exists
     inline bool isEmptyFile()
     {
         return column == 0 && row == 0;
     }
 
-    /**
-     * Loop through the vector and count the number of each orbs
-     */
+    inline int getIndex(int x, int y)
+    {
+        return y * column + x;
+    }
+
+    /// Loop through the vector and count the number of each orbs
     inline int *collectOrbCount()
     {
         int *counter = new int[pad::ORB_COUNT]{0};
-        for (auto const &row : board)
-        {
-            for (auto const &orb : row)
-            {
-                counter[orb]++;
-            }
-        }
+        traverse([&](int i, int j, Orb orb) {
+            counter[orb]++;
+        });
         return counter;
     }
 
 public:
-    PBoard();
-    PBoard(const Board &board, int row, int column, int minEraseCondition = 3);
-    ~PBoard();
+    PBoard() {}
+    PBoard(const Board &board);
 
-    /**
-     * Rate current board. This is the heuristic
-     * - three in a line (1000pt), based on 10^orb
-     * - two in a line (100pt)
-     * - more coming soon
-     */
+    /// Rate current board with profiles
     int rateBoard();
 
-    /**
-     * Print out a board nicely formatted
-     */
+    /// Print out a board nicely formatted
     void printBoard();
 
-    /**
-     * Print out all orbs in a line and it can be used for simulation
-     */
+    /// Print out all orbs in a line and it can be used for simulation
     void printBoardForSimulation();
 
-    /**
-     * Print out some info about the board we have
-     */
+    /// Print out some info about the board we have
     void printBoardInfo();
 
-    // This is for displaying the board in QT
-    inline std::vector<int> getBoardOrbs()
+    /// Traverse through the board
+    inline void traverse(std::function<void(int, int, Orb)> func)
     {
-        std::vector<int> orbs;
-        orbs.reserve(row * column);
-        for (auto const &row : board)
+        for (int i = 0; i < row; i++)
         {
-            for (auto const &orb : row)
+            for (int j = 0; j < column; j++)
             {
-                // , is important because you have 10 which can be 1 0 or just 10
-                orbs.push_back(orb);
+                auto orb = board[INDEX_OF(i, j)];
+                func(i, j, orb);
             }
         }
-        return orbs;
     }
 
     inline bool hasSameBoard(const PBoard *b) const
@@ -182,41 +158,28 @@ public:
         return board == b->board;
     }
 
-    /**
-     * Swap the value of two orbs
-     */
-    inline void swapLocation(OrbLocation one, OrbLocation two)
+    /// Swap the value of two orbs
+    inline void swapLocation(const OrbLocation &one, const OrbLocation &two)
     {
-        // TODO: all points should be valid why?
         if (!validLocation(one) || !validLocation(two))
             return;
 
-        auto temp = ORB(board, one);
-        ORB(board, one) = ORB(board, two);
-        ORB(board, two) = temp;
+        auto temp = board[one.index];
+        board[one.index] = board[two.index];
+        board[two.index] = temp;
     }
 
-    // Check if this loc is valid (not out of index)
-    inline bool validLocation(OrbLocation loc)
+    inline bool validLocation(const OrbLocation &loc)
     {
-        return validLocation(loc.first, loc.second);
-    }
-
-    inline bool validLocation(int x, int y)
-    {
-        if (x >= 0 && x < column && y >= 0 && y < row)
+        // Check if it is in bound, check for orb in the future?
+        int x = loc.first;
+        int y = loc.second;
+        if (x >= 0 && x < row && y >= 0 && y < column)
         {
-            // You cannot move a sealed orb
-            // return board[x][y] != pad::seal;
-            return true;
+            return board[loc.index] != pad::unknown;
         }
 
         return false;
-    }
-
-    inline int orbLocationKey(const OrbLocation &loc)
-    {
-        return loc.first * 10000 + loc.second;
     }
 };
 

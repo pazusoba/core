@@ -34,14 +34,14 @@ namespace pad
         unknown
     };
     const int ORB_COUNT = 14;
-    // For displaying the orb name
-    const std::string ORB_NAMES[ORB_COUNT] = {"", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-", "???"};
-    // Some emulation websites use these names for orbs (not all orbs are supported)
-    const std::string ORB_SIMULATION_NAMES[ORB_COUNT] = {"", "R", "B", "G", "L", "D", "H", "J", "", "P", "", "", "", ""};
+    /// For displaying the orb name
+    const std::string ORB_NAMES[ORB_COUNT] = {" ", "Fire", "Water", "Wood", "Light", "Dark", "Heal", "Jammer", "Bomb", "Poison", "Poison+", "Tape", "-X-", "???"};
+    /// Some emulation websites use these names for orbs (not all orbs are supported)
+    const std::string ORB_SIMULATION_NAMES[ORB_COUNT] = {" ", "R", "B", "G", "L", "D", "H", "J", "E", "P", "T", "=", "X", "?"};
+    /// Weight for all orbs, heal and bomb are priority, how to use this properly though?
+    const double ORB_WEIGHTS[ORB_COUNT] = {0, 1, 1, 1, 1, 1, 2, 1, 3, 0.9, 0.8, 0, 0, 0};
 
-    // TODO: consider weight to adjust the heuristic
-
-    // All 8 possible directions to move to
+    /// All 8 possible directions to move to
     enum direction
     {
         upLeft,
@@ -53,23 +53,23 @@ namespace pad
         down,
         downRight
     };
-    // Direction names
+    /// Direction names
     const std::string DIRECTION_NAMES[8] = {"UL", "U", "UR", "L", "R", "DL", "D", "DR"};
 
-    // This is for all profiles and based on how important it is
+    /// Score for all profiles and based on how important it is
     enum score
     {
         TIER_ONE_SCORE = 1,
-        TIER_TWO_SCORE = 5,
-        TIER_THREE_SCORE = 10,
-        TIER_FOUR_SCORE = 20,
-        TIER_FIVE_SCORE = 50,
-        TIER_SIX_SCORE = 100,
-        TIER_SEVEN_SCORE = 500,
-        TIER_EIGHT_SCORE = 1000,
-        TIER_EIGHT_PLUS_SCORE = 2500,
-        TIER_NINE_SCORE = 5000,
-        TIER_TEN_SCORE = 10000,
+        TIER_TWO_SCORE = 3,
+        TIER_THREE_SCORE = 6,
+        TIER_FOUR_SCORE = 12,
+        TIER_FIVE_SCORE = 25,
+        TIER_SIX_SCORE = 50,
+        TIER_SEVEN_SCORE = 100,
+        TIER_EIGHT_SCORE = 200,
+        TIER_EIGHT_PLUS_SCORE = 300,
+        TIER_NINE_SCORE = 500,
+        TIER_TEN_SCORE = 1000,
     };
 } // namespace pad
 

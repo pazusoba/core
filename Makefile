@@ -23,9 +23,10 @@ endif
 # Ofast - increase the speed quite significantly (use it with causion), O3 should be good enough
 # lpthread - thread
 # flto - linking
-OPTIMISATION=-Os -flto -pthread -lpthread
+OPTIMISATION=-O3 -flto -pthread -lpthread
 # shared arguments
 GCC=g++ -Wall -Werror -std=c++11
+SHARED=-shared -fPIC
 
 # v1 or v2, decides the source to compile
 VERSION=v1
@@ -45,8 +46,11 @@ clean:
 	$(CLEAN)
 	$(CLEAN_AUTOMATION)
 
+so:
+	$(GCC) $(OPTIMISATION) $(SHARED) pazusoba.cpp $(CPP_FILES) -o pazusoba.so
+
 # compile for automation
-python:
+py:
 	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES) -o $(OUTPUT_PYTHON)
 	$(MOVE_PYTHON)
 
