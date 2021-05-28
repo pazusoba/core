@@ -18,10 +18,6 @@ def get_location_manually():
     print("Board Location - [{}, {}, {}, {}]".format(one.x, one.y, two.x, two.y))
     return [one.x, one.y, two.x, two.y]
 
-def clearAllWindows():
-    cv.waitKey()
-    cv.destroyAllWindows()
-
 def get_location_automatically():
     """
     Get the board location automatically on the screen
@@ -44,5 +40,9 @@ def get_location_automatically():
         cv.imshow("fullscreen", result)
         clearAllWindows()
 
-get_location_manually()
+def clearAllWindows():
+    cv.waitKey()
+    cv.destroyAllWindows()
+
+# get_location_manually()
 # get_location_automatically()

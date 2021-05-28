@@ -7,7 +7,8 @@ def getEachOrb(image, board_size, orb_count, border_len):
     w, h = board_size
     orbs = []
 
-    global board_column, board_row
+    board_column = 0
+    board_row = 0
     if orb_count == 20:
         # 5x4
         board_column = 5
@@ -21,7 +22,7 @@ def getEachOrb(image, board_size, orb_count, border_len):
         board_column = 7
         board_row = 6
     else:
-        print("Unknown orb count.")
+        exit("utils.py - unknown orb count")
 
     # consider added padding here
     initial = border_len * 2
@@ -42,4 +43,4 @@ def getEachOrb(image, board_size, orb_count, border_len):
         y1 += orb_h
         # reset x1 and x2
         x1 = x2 = initial
-    return orbs
+    return (orbs, (board_column, board_row))

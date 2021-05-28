@@ -14,14 +14,15 @@ import mss.tools
 
 # Automation
 import pyautogui as gui
-
+from utils import *
+from location import *
 
 # %%
 # Print everything in debug mode
 debug_mode = True
 
 # start and end loc
-board_loc = [509, 1258, 1405, 2009]
+board_loc = get_location_manually()
 # what's the size of the board
 # TODO: detect this automatically
 board_config = [6, 5]
@@ -31,9 +32,9 @@ border_len = 1
 board_column = board_row = 0
 screen_scale = 1
 # get board position here
-pos = gui.position()
+# pos = gui.position()
 # this makes update board_loc a bit easier
-print("{}, {}".format(pos.x, pos.y))
+# print("{}, {}".format(pos.x, pos.y))
 
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
@@ -58,7 +59,6 @@ orb_templates = {
 }
 match_offset = 25
 
-
 # %%
 # detect the colour of all orbs and return a list
 def detectColour(orbs):
@@ -81,7 +81,7 @@ def detectColour(orbs):
             m = cv.matchTemplate(gray, curr_template, cv.TM_CCOEFF_NORMED)
             threshold = orb_templates[c][1]
             match = False
-            for pt in zip(*np.where(m >= threshold)[::-1]):
+            for _ in zip(*np.where(m >= threshold)[::-1]):
                 match = True
                 break
             if match:
@@ -152,7 +152,9 @@ def run():
     # # get every single orb here
     # orb_count = len(orbContours) + jammer_len + bomb_len
     # print("There are {} orbs in total".format(orb_count))
-    orbs = getEachOrb(src)
+    orbs, info = getEachOrb(src, board_size, orb_count, border_len)
+    global board_column, board_row
+    board_column, board_row = info
     # cv.imshow("orb", orbs[3])
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
@@ -288,6 +290,7 @@ def perform(solution):
     gui.mouseUp()
     # move back to current position after everything
     gui.moveTo(px, py)
+    gui.leftClick()
 
     # save solution image
     width = (end_left - left) * screen_scale
@@ -307,7 +310,8 @@ def getSolution(input):
     failed_count = 0
     # make sure a solution is written to the disk
     while not completed:
-        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '25', '8000'])
+        # Ignore output from the program
+        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '30', '8000'], stdout=subprocess.DEVNULL)
         pazusoba.wait()
 
         output_file = "path.pazusoba"
@@ -356,9 +360,13 @@ def shorten(solution):
 # %%
 # 20, 30 or 42
 orb_count = 30
-delay = 0
+auto = False
+battle_count = 0
 
 while True:
+    battle_count += 1
+    print("\n=== BATTLE {} ===".format((battle_count)))
+
     start = time.time()
     board = run()
     print(board)
@@ -375,12 +383,10 @@ while True:
         print("Solved in %.3fs.\n" % (time.time() - start))
         perform(solution)
 
-    if delay <= 0:
-        break
-    time.sleep(delay)
-
-
-# %%
-
-
-
+    if auto:
+        continue
+    else:
+        # Ask for user input
+        decision = input("Please enter to continue, q to quit: ")
+        if decision.startswith("q"):
+            break
