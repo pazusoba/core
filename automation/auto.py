@@ -22,7 +22,9 @@ from location import *
 debug_mode = True
 
 # start and end loc
-board_loc = get_location_manually()
+# board_loc = get_location_manually()
+board_loc = [0, 0, 0, 0]
+
 # what's the size of the board
 # TODO: detect this automatically
 board_config = [6, 5]
@@ -146,6 +148,8 @@ def run():
         # Save to disk TODO: is this still necessary
         # mss.tools.to_png(screen_raw.rgb, screen_raw.size, output="./board.png")
 
+    # NOTE: Testing only
+    screen_img = cv.imread("sample/dark.PNG")
     # resize it to about 830, 690 which is the size I use
     src = cv.resize(screen_img, board_size)
 
