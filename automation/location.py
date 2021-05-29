@@ -44,5 +44,5 @@ def clearAllWindows():
     cv.waitKey()
     cv.destroyAllWindows()
 
-# get_location_manually()
+get_location_manually()
 # get_location_automatically()

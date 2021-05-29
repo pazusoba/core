@@ -6,4 +6,4 @@
 # allow images only in sample and template folders
 !sample/*
 !template/*
-!game/*
+!game/**

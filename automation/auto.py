@@ -8,14 +8,11 @@ import time
 import cv2 as cv
 import numpy as np
 
-# Taking screenshot
-import mss
-import mss.tools
-
 # Automation
 import pyautogui as gui
 from utils import *
 from location import *
+from screenshot import *
 
 # %%
 # Print everything in debug mode
@@ -23,7 +20,7 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [0, 0, 0, 0]
+board_loc = [461, 1266, 1451, 2085]
 
 # what's the size of the board
 # TODO: detect this automatically
@@ -139,17 +136,11 @@ def run():
     width = (end_left - left) * screen_scale
     height = (end_top - top) * screen_scale
 
-    with mss.mss() as screenshot:
-        # Take a screenshot at certain location
-        monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
-        screen_raw = screenshot.grab(monitor)
-        # convert to numpy for OpenCV
-        screen_img = np.array(screen_raw)
-        # Save to disk TODO: is this still necessary
-        # mss.tools.to_png(screen_raw.rgb, screen_raw.size, output="./board.png")
-
+    monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
+    screen_img = np.array(take_screenshot(monitor))
+   
     # NOTE: Testing only
-    screen_img = cv.imread("sample/dark.PNG")
+    # screen_img = cv.imread("sample/dark.PNG")
     # resize it to about 830, 690 which is the size I use
     src = cv.resize(screen_img, board_size)
 
