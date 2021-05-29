@@ -7,22 +7,26 @@ import os
 from functools import cmp_to_key
 
 import pyautogui as gui
+import config
 
 game_loc = [454, 120, 1459, 2086]
 screen_scale = 1
-match_offset = 100
-uniform_size = (1000, 1950)
+INPUT_SIZE = (1000, 1950)
+SORT_OFFSET = 100
 
-def find(template, img):
+def find(template: str, img, tap=False) -> bool:
+    """
+    Find template in img and tap on it if needed.
+    img doesn't need to be in gray scale because it will be converted in this function.
+    """
     found = False
     if os.path.exists(template):
-        # cv color
         template_img = cv.imread(template, 0)
         print("Read template from '{}'".format(template))
         # show(template_img, "template")
 
         # NOTE: resize is very important for the detection to be consistent
-        img = cv.resize(img, uniform_size)
+        img = cv.resize(img, INPUT_SIZE)
         # show(img, "Resize")
 
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -31,23 +35,14 @@ def find(template, img):
 
         # Check if anything matches with the template
         w, h = template_img.shape[::-1]
-        curr_pt = None
-        locations = list(sorted_matches(matches, 0.8))
+        locations = __sorted_matches(matches, 0.8, offset=SORT_OFFSET)
         for pt in locations:
-             # remove duplicates
-            if curr_pt is None:
-                curr_pt = pt
-            elif abs(curr_pt[0] - pt[0]) < match_offset and abs(curr_pt[1] - pt[1]) < match_offset:
-                continue
-            else:
-                curr_pt = pt
-            # print(pt)
-
             # draw rectangles around all locations
             found = True
             cv.rectangle(img, pt, (pt[0] + w, pt[1] + h), (255, 0, 255), 3)
 
         if found:
+            # only consider the first one
             x, y = locations[0]
             # need to scale x, y to original
             x += game_loc[0]
@@ -61,27 +56,53 @@ def find(template, img):
             gui.leftClick(x, y)
             print("Found at ({}, {})".format(x, y))
             show(img, "Matches")
-        return found
     else:
-        exit("Cannot find {}".format(template))
+        exit("Cannot find file at {}".format(template))
     return found
 
-def sorted_matches(matches, threshold):
-    filtered_matches = np.where(matches >= threshold)
-    return sorted(zip(*filtered_matches[::-1]), key=cmp_to_key(sortLocation))
+def __sorted_matches(matches, threshold: int, offset=25, allow_duplicates=False) -> list:
+    """
+    Filter out matches base on the threshold.
+    Return a list of sorted and filtered matches
+    """
+    output = []
+    curr_pt = None
 
-def sortLocation(a, b):
+    filtered_matches = np.where(matches >= threshold)
+    for pt in sorted(zip(*filtered_matches[::-1]), key=cmp_to_key(lambda a, b : __sort_element(a, b, offset))):
+        if not allow_duplicates:
+            # ignore points which are close to each other
+            if curr_pt is None:
+                curr_pt = pt
+            elif abs(curr_pt[0] - pt[0]) < offset and abs(curr_pt[1] - pt[1]) < offset:
+                continue
+            else:
+                curr_pt = pt
+
+        output.append(pt)
+    return output
+
+def __sort_element(a, b, offset: int) -> bool:
+    """
+    Sort elements based on the offset
+    """
     # 140, 141, 142 are treated as one point here
-    if abs(a[0] - b[0]) < match_offset:
+    if abs(a[0] - b[0]) < offset:
         return a[1] - b[1]
     return a[0] - b[0]
 
-def show(img, name="Image"):
+def __show(img, name="image"):
+    """
+    Show an image using opencv with title
+    """
     cv.imshow(name, img)
     cv.waitKey()
     cv.destroyWindow(name)
 
-def testFind():
+def __testFind():
+    """
+    Debug only
+    """
     left, top, end_left, end_top = game_loc
     width = (end_left - left) * screen_scale
     height = (end_top - top) * screen_scale
@@ -91,9 +112,10 @@ def testFind():
     game_img = np.array(take_screenshot(monitor))
     # show(game_img, "game")
 
-    print(find(u"game/dungeons/tamadora.png", game_img))
+    # print(find(u"game/dungeons/tamadora.png", game_img))
     # print(find(u"game/dungeons/mugen-kairou.png", game_img))
     # print(find(u"game/sell.png", game_img))
+    print(find(u"game/home.png", game_img))
 
 # NOTE: comment this line when using as a module
-testFind()
+__testFind()

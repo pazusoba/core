@@ -1,4 +1,4 @@
-def getEachOrb(image, board_size, orb_count, border_len):
+def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
     """
     Based on count, get a list of every orb, this is also an ordered list
     """

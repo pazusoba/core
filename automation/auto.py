@@ -10,9 +10,15 @@ import numpy as np
 
 # Automation
 import pyautogui as gui
+
 from utils import *
 from location import *
 from screenshot import *
+import os
+
+current_dir = os.path.abspath(os.getcwd())
+if not current_dir.endswith("automation"):
+    exit("Run auto.py inside automation folder. Current path is {}".format(current_dir))
 
 # %%
 # Print everything in debug mode
@@ -20,7 +26,7 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [461, 1266, 1451, 2085]
+board_loc = [509, 1259, 1403, 2006]
 
 # what's the size of the board
 # TODO: detect this automatically
@@ -30,10 +36,6 @@ orb_size = (140, 140)
 border_len = 1
 board_column = board_row = 0
 screen_scale = 1
-# get board position here
-# pos = gui.position()
-# this makes update board_loc a bit easier
-# print("{}, {}".format(pos.x, pos.y))
 
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
@@ -50,17 +52,19 @@ jammer_template = cv.imread("template/jammer.png", 0)
 poison_template = cv.imread("template/poison.png", 0)
 bomb_template = cv.imread("template/bomb.png", 0)
 heal_template = cv.imread("template/heal.png", 0)
+
 orb_templates = {
     "J": (jammer_template, 0.6),
     "P": (poison_template, 0.6),
     "H": (heal_template, 0.6),
     "E": (bomb_template, 0.7) # E for explosive
 }
+
 match_offset = 25
 
 # %%
 # detect the colour of all orbs and return a list
-def detectColour(orbs):
+def detectColour(orbs: list) -> str:
     output = ""
 
     # first do colour detection
@@ -119,16 +123,6 @@ def detectColour(orbs):
         output += curr
     return output
 
-
-# %%
-# sort all location for jammer and bomb
-def sortLocation(a, b):
-    # 140, 141, 142 are treated as one point here
-    if abs(a[0] - b[0]) < match_offset:
-        return a[1] - b[1]
-    return a[0] - b[0]
-
-
 # %%
 def run():
     # take a screenshot at board_loc, need to subtract because it is width and height
@@ -150,7 +144,6 @@ def run():
     orbs, info = getEachOrb(src, board_size, orb_count, border_len)
     global board_column, board_row
     board_column, board_row = info
-    # cv.imshow("orb", orbs[3])
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
     return detectColour(orbs)
@@ -230,7 +223,7 @@ def run():
 
 # %%
 # 0,0 0,1 0,2 0,3 -> 0,0 0,3
-def shorten(path):
+def shorten(path: list) -> list:
     # copy the original list
     temp = path[:]
     prev = after = None
@@ -249,9 +242,8 @@ def shorten(path):
     print("Shortened {} moves".format(count)) 
     return temp
 
-
 # %%
-def perform(solution):
+def perform(solution: list):
     print("- PERFORMING -")
     # setup everything
     left, top, end_left, end_top = board_loc
@@ -293,9 +285,8 @@ def perform(solution):
     board_img = gui.screenshot(region=(left * screen_scale, top * screen_scale, width, height))
     board_img.save("./solution.png")
 
-
 # %%
-def getSolution(input):
+def getSolution(input: str) -> list:
     print("- SOLVING -")
     if os.path.exists("path.pazusoba"):
         os.remove("path.pazusoba")
@@ -327,9 +318,8 @@ def getSolution(input):
     return shorten(solution)
     # return solution
 
-
 # %%
-def shorten(solution):
+def shorten(solution: list) -> list:
    print("- SIMPLIFYING -")
    # insert the first
    simplified_solution = [solution[0]]

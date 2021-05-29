@@ -6,7 +6,9 @@ import numpy as np
 import mss
 import mss.tools
 
-def get_location_manually():
+from typing import List
+
+def get_location_manually() -> List[int]:
     """
     Get the board location on the screen
     """
@@ -44,5 +46,5 @@ def clearAllWindows():
     cv.waitKey()
     cv.destroyAllWindows()
 
-get_location_manually()
+# get_location_manually()
 # get_location_automatically()
