@@ -68,7 +68,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
 
             result = (True, (x, y))
             print("=> ({}, {})".format(x, y))
-            __show(img, "Matches")
+            # __show(img, "Matches")
     else:
         exit("Cannot find template at {}".format(template))
     return result
@@ -182,6 +182,10 @@ def __testInstructions(instructions: List[str]) -> bool:
     print("✔ All instructions have been performed\n")
     return True
 
+def __get_resized_screenshot():
+    screenshot_img = np.array(take_screenshot(monitor))
+    __show(cv.resize(screenshot_img, INPUT_SIZE), "Screenshot")
+
 # NOTE: comment this line when using as a module
 # __testFind()
 
@@ -206,18 +210,22 @@ def __testInstructions(instructions: List[str]) -> bool:
 
 # time.sleep(2)
 
+# __get_resized_screenshot()
+
 battle = 0
 boss = False
 while True:
     game_img = np.array(take_screenshot(monitor))
-    if not boss:
-        if find(u"game/battle/battle_number.png", game_img)[0]:
-            battle += 1
-            print("=> Battle {}".format(battle))
-        elif find(u"game/battle/boss_alert.png", game_img)[0]:
-            battle += 1
-            boss = True
-            print("=> Boss ({} / {})".format(battle, battle))
-    if tap(u"game/buttons/ok.png", game_img):
-        print("=> End")
+    if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
+        print("=> Falling")
+    # if not boss:
+    #     if find(u"game/battle/battle_number.png", game_img)[0]:
+    #         battle += 1
+    #         print("=> Battle {}".format(battle))
+    #     elif find(u"game/battle/boss_alert.png", game_img)[0]:
+    #         battle += 1
+    #         boss = True
+    #         print("=> Boss ({} / {})".format(battle, battle))
+    # if tap(u"game/buttons/ok.png", game_img):
+    #     print("=> End")
     time.sleep(500 / 1000)
