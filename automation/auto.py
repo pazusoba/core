@@ -26,7 +26,7 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [509, 1258, 1405, 2005]
+board_loc = [461, 1264, 1449, 2087]
 
 # what's the size of the board
 # TODO: detect this automatically
@@ -266,11 +266,14 @@ def perform(solution: list):
             gui.mouseDown(target_x, target_y, button='left')
             gui.mouseDown(target_x, target_y, button='left')            
         else:
+            # NOTE: 50ms is about the minimum time for the game to recognise movements, less than it will cause some issues
             duration = 0
-            if len(curr) == 3:
-                duration = 0.2
+            # if len(curr) == 3:
+            #     duration = 0.2
             # simply move to there
-            gui.moveTo(target_x, target_y, duration=duration)
+            # NOTE: when _pause is False, it will go very fast
+            gui.moveTo(target_x, target_y, duration=duration, _pause=False)
+            time.sleep(50 / 1000)
     print("Performed!")
     print("It took %.3fs." % (time.time() - start))
     # only release it when everything are all done
@@ -297,7 +300,7 @@ def getSolution(input: str) -> list:
     # make sure a solution is written to the disk
     while not completed:
         # Ignore output from the program
-        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '30', '8000'], stdout=subprocess.DEVNULL)
+        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '40', '9000'], stdout=subprocess.DEVNULL)
         pazusoba.wait()
 
         output_file = "path.pazusoba"
@@ -345,7 +348,7 @@ def shorten(solution: list) -> list:
 # %%
 # 20, 30 or 42
 orb_count = 30
-auto = True
+auto = False
 battle_count = 0
 
 while True:
