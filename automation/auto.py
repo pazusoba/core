@@ -26,7 +26,7 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [509, 1259, 1403, 2006]
+board_loc = [459, 1266, 1454, 2089]
 
 # what's the size of the board
 # TODO: detect this automatically
