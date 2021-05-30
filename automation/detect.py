@@ -49,7 +49,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
 
         # Check if anything matches with the template
         w, h = template_img.shape[::-1]
-        locations = __sorted_matches(matches, 0.8, offset=SORT_OFFSET)
+        locations = __sorted_matches(matches, 0.95, offset=SORT_OFFSET)
         for pt in locations:
             # draw rectangles around all locations
             result = (True, ())
@@ -147,7 +147,7 @@ def __testFind():
     # print(tap(u"game/home.png", game_img))
 
     # go to the required dungeon
-    tap(u"game/dungeons/kairou/main.png", game_img)
+    tap(u"game/dungeons/kairou/sub1.png", game_img)
 
 def __testInstructions(instructions: List[str]) -> bool:
     """
@@ -186,46 +186,65 @@ def __get_resized_screenshot():
     screenshot_img = np.array(take_screenshot(monitor))
     __show(cv.resize(screenshot_img, INPUT_SIZE), "Screenshot")
 
+def __swipe_up(up=True):
+    # find center point
+    if up:
+        offset = height / 3.3
+    else:
+        offset = - height / 3.3
+
+    x, y = width / 2 + left, height / 2 + top
+    gui.moveTo(x, y - offset)        
+    gui.mouseDown()
+    gui.moveTo(x, y + offset, duration=0.5)
+    gui.mouseUp()
+
+def __swipe_down():
+    __swipe_up(False)
+
 # NOTE: comment this line when using as a module
+# __get_resized_screenshot()
+__swipe_up()
+# __swipe_down()
 # __testFind()
 
 # Go to mugen kairou
 # while True:
-# test join and quit
-# __testInstructions([
-#     "game/dungeons/kairou/main.png", 
-#     "game/dungeons/kairou/sub1.png",
-#     "game/buttons/you.png",
-#     "game/buttons/challenge.png",
-# ])
+#     # test join and quit
+#     __testInstructions([
+#         # "game/dungeons/kairou/main.png",
+#         "game/dungeons/kairou/sub1.png",
+#         "game/buttons/you.png",
+#         "game/buttons/challenge.png",
+#     ])
 
-# time.sleep(8)
+#     time.sleep(8)
 
-# # Quit any battles
-# __testInstructions([
-#     "game/buttons/menu.png",
-#     "game/buttons/quit_battle.png",
-#     "game/buttons/yes.png",
-# ])
+#     # Quit any battles
+#     __testInstructions([
+#         "game/battle/menu.png",
+#         "game/buttons/quit_battle.png",
+#         "game/buttons/yes.png",
+#     ])
 
-# time.sleep(2)
+#     time.sleep(2)
 
 # __get_resized_screenshot()
 
-battle = 0
-boss = False
-while True:
-    game_img = np.array(take_screenshot(monitor))
-    if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
-        print("=> Falling")
-    # if not boss:
-    #     if find(u"game/battle/battle_number.png", game_img)[0]:
-    #         battle += 1
-    #         print("=> Battle {}".format(battle))
-    #     elif find(u"game/battle/boss_alert.png", game_img)[0]:
-    #         battle += 1
-    #         boss = True
-    #         print("=> Boss ({} / {})".format(battle, battle))
-    # if tap(u"game/buttons/ok.png", game_img):
-    #     print("=> End")
-    time.sleep(500 / 1000)
+# battle = 0
+# boss = False
+# while True:
+#     game_img = np.array(take_screenshot(monitor))
+#     if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
+#         print("=> Falling")
+#     # if not boss:
+#     #     if find(u"game/battle/battle_number.png", game_img)[0]:
+#     #         battle += 1
+#     #         print("=> Battle {}".format(battle))
+#     #     elif find(u"game/battle/boss_alert.png", game_img)[0]:
+#     #         battle += 1
+#     #         boss = True
+#     #         print("=> Boss ({} / {})".format(battle, battle))
+#     # if tap(u"game/buttons/ok.png", game_img):
+#     #     print("=> End")
+#     time.sleep(500 / 1000)
