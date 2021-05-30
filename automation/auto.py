@@ -26,7 +26,7 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [459, 1266, 1454, 2089]
+board_loc = [509, 1258, 1405, 2005]
 
 # what's the size of the board
 # TODO: detect this automatically
@@ -345,7 +345,7 @@ def shorten(solution: list) -> list:
 # %%
 # 20, 30 or 42
 orb_count = 30
-auto = False
+auto = True
 battle_count = 0
 
 while True:
@@ -358,15 +358,21 @@ while True:
     print("Read the board in %.3fs.\n" % (time.time() - start))
     # board = "RHHBDRDRGHDLLBGRRBRHBGGBHBDDHH"
     if "?" in board:
-        print("Adjustment needed.")
+        battle_count -= 1
+        print("Waiting...")
+        # wait for a second
+        time.sleep(2)
         # print it out for me to see and manually adjust it above
-        for i in range(board_row):
-            start = i * board_column
-            print(board[start:(start + board_column)])
+        # for i in range(board_row):
+        #     start = i * board_column
+        #     print(board[start:(start + board_column)])
     else:
         solution = getSolution(board)
         print("Solved in %.3fs.\n" % (time.time() - start))
         perform(solution)
+
+        print('Cooling down...')
+        time.sleep(4)
 
     if auto:
         continue

@@ -36,7 +36,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     result = (False, ())
     if os.path.exists(template):
         template_img = cv.imread(template, 0)
-        print("👀 Looing for '{}'".format(template))
+        # print("👀 Looing for '{}'".format(template))
         # __show(template_img, "template")
 
         # NOTE: resize is very important for the detection to be consistent
@@ -68,7 +68,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
 
             result = (True, (x, y))
             print("=> ({}, {})".format(x, y))
-            # __show(img, "Matches")
+            __show(img, "Matches")
     else:
         exit("Cannot find template at {}".format(template))
     return result
@@ -188,20 +188,36 @@ def __testInstructions(instructions: List[str]) -> bool:
 # Go to mugen kairou
 # while True:
 # test join and quit
-__testInstructions([
-    "game/dungeons/kairou/main.png", 
-    "game/dungeons/kairou/sub1.png",
-    "game/buttons/you.png",
-    "game/buttons/challenge.png",
-])
+# __testInstructions([
+#     "game/dungeons/kairou/main.png", 
+#     "game/dungeons/kairou/sub1.png",
+#     "game/buttons/you.png",
+#     "game/buttons/challenge.png",
+# ])
 
-time.sleep(8)
+# time.sleep(8)
 
-# Quit any battles
-__testInstructions([
-    "game/buttons/menu.png",
-    "game/buttons/quit_battle.png",
-    "game/buttons/yes.png",
-])
+# # Quit any battles
+# __testInstructions([
+#     "game/buttons/menu.png",
+#     "game/buttons/quit_battle.png",
+#     "game/buttons/yes.png",
+# ])
 
-time.sleep(2)
+# time.sleep(2)
+
+battle = 0
+boss = False
+while True:
+    game_img = np.array(take_screenshot(monitor))
+    if not boss:
+        if find(u"game/battle/battle_number.png", game_img)[0]:
+            battle += 1
+            print("=> Battle {}".format(battle))
+        elif find(u"game/battle/boss_alert.png", game_img)[0]:
+            battle += 1
+            boss = True
+            print("=> Boss ({} / {})".format(battle, battle))
+    if tap(u"game/buttons/ok.png", game_img):
+        print("=> End")
+    time.sleep(500 / 1000)
