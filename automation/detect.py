@@ -12,11 +12,21 @@ from typing import Tuple, List
 import pyautogui as gui
 import config
 
-game_loc = [454, 120, 1459, 2086]
+game_loc = [501, 219, 1411, 2006]
 screen_scale = 1
 INPUT_SIZE = (1000, 1950)
 SORT_OFFSET = 100
 TAP_DELAY = 500
+
+left, top, end_left, end_top = game_loc
+width = (end_left - left) * screen_scale
+height = (end_top - top) * screen_scale
+print("=> Game Size is ({}, {})".format(width, height))
+monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
+
+width_scale = width / INPUT_SIZE[0]
+height_scale = height / INPUT_SIZE[1]
+print("=> Scales: Width - {}, Height - {}".format(width_scale, height_scale))
 
 def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     """
@@ -48,8 +58,9 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
         if result[0]:
             # only consider the first one
             x, y = locations[0]
-
-            # TODO: consider the scale change when we resize the image
+            # NOTE: consider the scale change when we resize the image
+            x *= width_scale
+            y *= height_scale
 
             # need to scale x, y to original and get center point
             x += game_loc[0] +  w / 2
@@ -139,19 +150,35 @@ def __testFind():
     tap(u"game/dungeons/kairou/main.png", game_img)
 
 def __testInstructions(instructions: List[str]) -> bool:
-    left, top, end_left, end_top = game_loc
-    width = (end_left - left) * screen_scale
-    height = (end_top - top) * screen_scale
-    print("=> Game Size is ({}, {})".format(width, height))
+    """
+    Find templates in order with delay
+    """
+    i = 0
+    while i < len(instructions):
+        template = instructions[i]
+        # NOTE: move the cursor to (0, 0) so that it doesn't cover up the screen
+        gui.moveTo(1, 1)
 
-    monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
-    for template in instructions:
         game_img = np.array(take_screenshot(monitor))
         success = tap(template, game_img)
         if not success:
-            print("❌ Couldn't find '{}'".format(template))
-            return False
+            # go back to previous step and try again
+            i -= 1
+            if i < 0:
+                print("❌ Couldn't find '{}'".format(template))
+                break
+            else:
+                print("❌ Revert back to previous")
+        else:
+            i += 1
 
+    # for template in instructions:
+    #     while not success:
+            
+        # if not success:
+        #     print("❌ Couldn't find '{}'".format(template))
+        #     return False
+        
     print("✔ All instructions have been performed\n")
     return True
 
@@ -159,8 +186,10 @@ def __testInstructions(instructions: List[str]) -> bool:
 # __testFind()
 
 # Go to mugen kairou
+# while True:
+# test join and quit
 __testInstructions([
-    "game/dungeons/kairou/main.png",
+    "game/dungeons/kairou/main.png", 
     "game/dungeons/kairou/sub1.png",
     "game/buttons/you.png",
     "game/buttons/challenge.png",
@@ -174,3 +203,5 @@ __testInstructions([
     "game/buttons/quit_battle.png",
     "game/buttons/yes.png",
 ])
+
+time.sleep(2)
