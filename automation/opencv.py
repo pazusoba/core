@@ -17,12 +17,13 @@ import numpy as np
 import pyautogui as gui
 from screenshot import *
 
-from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION
+from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION, BOARD_UNIFORM_SIZE, ORB_COUNT, \
+    BOARD_COLUMN, BOARD_ROW, BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
 
 # %%
 
 # start and end loc
-# board_loc = get_location_manually()
+# BOARD_LOCATION = get_location_manually()
 
 # what's the size of the board
 # TODO: detect this automatically
@@ -64,7 +65,7 @@ def detectColour(orbs: list) -> str:
         curr = "?"
         src = orbs[i]
         # resize to be larger than the template
-        src = cv.resize(src, orb_size)
+        src = cv.resize(src, ORB_TEMPLATE_SIZE)
 
         # cv.imshow("orb", src)
         # cv.waitKey()
@@ -84,7 +85,7 @@ def detectColour(orbs: list) -> str:
                 break
         
         scale = 0.6
-        x, _ = orb_size
+        x, _ = ORB_TEMPLATE_SIZE
         # Calculate new size and offset for both x and y
         size = int(x * scale)
         start = int((x - size) / 2)
@@ -126,34 +127,35 @@ def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
     w, h = board_size
     orbs = []
 
-    board_column = 0
-    board_row = 0
     if orb_count == 20:
         # 5x4
-        board_column = 5
-        board_row = 4
+        BOARD_COLUMN = 5
+        BOARD_ROW = 4
     elif orb_count == 30:
         # 6x5
-        board_column = 6
-        board_row = 5
+        BOARD_COLUMN = 6
+        BOARD_ROW = 5
     elif orb_count == 42:
         # 7x6
-        board_column = 7
-        board_row = 6
+        BOARD_COLUMN = 7
+        BOARD_ROW = 6
     else:
-        exit("utils.py - unknown orb count")
+        exit("opencv - unknown orb count")
+
+    if DEBUG_MODE:
+        print("=> Board is {} x {}".format(BOARD_COLUMN, BOARD_ROW))
 
     # consider added padding here
     initial = border_len * 2
-    orb_w = int((w + initial) / board_column)
-    orb_h = int((h + initial) / board_row)
+    orb_w = int((w + initial) / BOARD_COLUMN)
+    orb_h = int((h + initial) / BOARD_ROW)
     x1 = y1 = initial
     x2 = y2 = initial
     # start getting every orb
-    for _ in range(board_row):
+    for _ in range(BOARD_ROW):
         # update x2 and y2 first
         y2 += orb_h
-        for _ in range(board_column):
+        for _ in range(BOARD_COLUMN):
             x2 += orb_w
             # NOTE: you need to save a copy here because it changes image
             orbs.append(image[y1:y2, x1:x2].copy())
@@ -162,13 +164,13 @@ def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
         y1 += orb_h
         # reset x1 and x2
         x1 = x2 = initial
-    return (orbs, (board_column, board_row))
+    return (orbs, (BOARD_COLUMN, BOARD_ROW))
 
 
 # %%
 def run():
-    # take a screenshot at board_loc, need to subtract because it is width and height
-    left, top, end_left, end_top = board_loc
+    # take a screenshot at BOARD_LOCATION, need to subtract because it is width and height
+    left, top, end_left, end_top = BOARD_LOCATION
     width = (end_left - left) * SCREEN_SCALE
     height = (end_top - top) * SCREEN_SCALE
 
@@ -178,14 +180,14 @@ def run():
     # NOTE: Testing only
     # screen_img = cv.imread("sample/dark.PNG")
     # resize it to about 830, 690 which is the size I use
-    src = cv.resize(screen_img, board_size)
+    src = cv.resize(screen_img, BOARD_UNIFORM_SIZE)
 
     # # get every single orb here
     # orb_count = len(orbContours) + jammer_len + bomb_len
     # print("There are {} orbs in total".format(orb_count))
-    orbs, info = getEachOrb(src, board_size, orb_count, border_len)
-    global board_column, board_row
-    board_column, board_row = info
+    orbs, info = getEachOrb(src, BOARD_UNIFORM_SIZE, ORB_COUNT, BORDER_LENGTH)
+    global BOARD_COLUMN, BOARD_ROW
+    BOARD_COLUMN, BOARD_ROW = info
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
     return detectColour(orbs)
@@ -281,15 +283,16 @@ def shorten(path: list) -> list:
                 # make prev longer to move
                 prev.append(0.5)
                 count += 1
-    print("Shortened {} moves".format(count)) 
+    if DEBUG_MODE:
+        print("Shortened {} moves".format(count)) 
     return temp
 
 # %%
 def perform(solution: list):
     print("- PERFORMING -")
     # setup everything
-    left, top, end_left, end_top = board_loc
-    orb_height = (end_top - top) / board_row
+    left, top, end_left, end_top = BOARD_LOCATION
+    orb_height = (end_top - top) / BOARD_ROW
     x_start = left + orb_height / 2
     y_start = top + orb_height / 2
 

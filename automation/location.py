@@ -50,6 +50,7 @@ def clearAllWindows():
     cv.waitKey()
     cv.destroyAllWindows()
 
+# this check if this script is being executed instead of using as a module
 if __name__ == "__main__":
     get_location_manually()
     # get_location_automatically()

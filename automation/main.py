@@ -11,7 +11,6 @@ if not current_dir.endswith("automation"):
     exit("Run main.py inside automation folder. Current path is {}".format(current_dir))
 
 # 20, 30 or 42
-orb_count = 30
 full_auto = False
 battle_count = 0
 
@@ -20,7 +19,7 @@ while True:
     print("\n=== BATTLE {} ===".format((battle_count)))
 
     start = time.time()
-    board = auto.run()
+    board = opencv.run()
     print(board)
     print("Read the board in %.3fs.\n" % (time.time() - start))
     # board = "RHHBDRDRGHDLLBGRRBRHBGGBHBDDHH"
@@ -34,9 +33,9 @@ while True:
         #     start = i * board_column
         #     print(board[start:(start + board_column)])
     else:
-        solution = auto.getSolution(board)
+        solution = opencv.getSolution(board)
         print("Solved in %.3fs.\n" % (time.time() - start))
-        auto.perform(solution)
+        opencv.perform(solution)
 
         print('Cooling down...')
         time.sleep(4)
