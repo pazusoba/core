@@ -12,7 +12,7 @@ from typing import Tuple, List
 import pyautogui as gui
 import config
 
-game_loc = [501, 219, 1411, 2006]
+game_loc = [149, 122, 1291, 2086]
 screen_scale = 1
 INPUT_SIZE = (1000, 1950)
 SORT_OFFSET = 100
@@ -24,9 +24,23 @@ height = (end_top - top) * screen_scale
 print("=> Game Size is ({}, {})".format(width, height))
 monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
 
+# track original size to go back to extract point
 width_scale = width / INPUT_SIZE[0]
 height_scale = height / INPUT_SIZE[1]
 print("=> Scales: Width - {}, Height - {}".format(width_scale, height_scale))
+
+# determine best input size
+ratio = height / width
+ACCURACY = 0.85
+if ratio < 1.6:
+    INPUT_SIZE = (1000, 1440)
+elif ratio < 1.85:
+    INPUT_SIZE = (1000, 1720)
+else:
+    # NOTE: all templates are based on 2 : 1 game ratio
+    ACCURACY = 0.95
+    INPUT_SIZE = (1000, 1950)
+print("=> Ratio is {}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
 
 def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     """
@@ -49,7 +63,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
 
         # Check if anything matches with the template
         w, h = template_img.shape[::-1]
-        locations = __sorted_matches(matches, 0.95, offset=SORT_OFFSET)
+        locations = __sorted_matches(matches, ACCURACY, offset=SORT_OFFSET)
         for pt in locations:
             # draw rectangles around all locations
             result = (True, ())
@@ -204,7 +218,7 @@ def __swipe_down():
 
 # NOTE: comment this line when using as a module
 # __get_resized_screenshot()
-__swipe_up()
+# __swipe_up()
 # __swipe_down()
 # __testFind()
 
@@ -231,20 +245,23 @@ __swipe_up()
 
 # __get_resized_screenshot()
 
-# battle = 0
-# boss = False
-# while True:
-#     game_img = np.array(take_screenshot(monitor))
-#     if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
-#         print("=> Falling")
-#     # if not boss:
-#     #     if find(u"game/battle/battle_number.png", game_img)[0]:
-#     #         battle += 1
-#     #         print("=> Battle {}".format(battle))
-#     #     elif find(u"game/battle/boss_alert.png", game_img)[0]:
-#     #         battle += 1
-#     #         boss = True
-#     #         print("=> Boss ({} / {})".format(battle, battle))
-#     # if tap(u"game/buttons/ok.png", game_img):
-#     #     print("=> End")
-#     time.sleep(500 / 1000)
+battle = 0
+boss = False
+while True:
+    game_img = np.array(take_screenshot(monitor))
+    # if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
+    #     print("=> Falling")
+    if not boss:
+        if find(u"game/battle/battle_number.png", game_img)[0]:
+            battle += 1
+            print("=> Battle {}".format(battle))
+            # wait for one extra cycle to prevent counting twice
+            time.sleep(500 / 1000)
+        elif find(u"game/battle/boss_alert.png", game_img)[0]:
+            battle += 1
+            boss = True
+            print("=> Boss ({} / {})".format(battle, battle))
+
+    if tap(u"game/buttons/ok.png", game_img):
+        print("=> End")
+    time.sleep(500 / 1000)
