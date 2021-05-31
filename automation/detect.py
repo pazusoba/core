@@ -24,11 +24,6 @@ height = (end_top - top) * screen_scale
 print("=> Game Size is ({}, {})".format(width, height))
 monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
 
-# track original size to go back to extract point
-width_scale = width / INPUT_SIZE[0]
-height_scale = height / INPUT_SIZE[1]
-print("=> Scales: Width - {}, Height - {}".format(width_scale, height_scale))
-
 # determine best input size
 ratio = height / width
 ACCURACY = 0.85
@@ -41,6 +36,11 @@ else:
     ACCURACY = 0.95
     INPUT_SIZE = (1000, 1950)
 print("=> Ratio is {}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
+
+# track original size to go back to extract point
+width_scale = width / INPUT_SIZE[0]
+height_scale = height / INPUT_SIZE[1]
+print("=> Scales: Width - {}, Height - {}".format(width_scale, height_scale))
 
 def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     """
@@ -170,8 +170,8 @@ def __testInstructions(instructions: List[str]) -> bool:
     i = 0
     while i < len(instructions):
         template = instructions[i]
-        # NOTE: move the cursor to (0, 0) so that it doesn't cover up the screen
-        gui.moveTo(1, 1)
+        # NOTE: move the cursor outside the game screen so that it doesn't cover up the screen
+        gui.moveTo(end_left + 10, height / 2)
 
         game_img = np.array(take_screenshot(monitor))
         success = tap(template, game_img)
@@ -223,45 +223,45 @@ def __swipe_down():
 # __testFind()
 
 # Go to mugen kairou
-# while True:
-#     # test join and quit
-#     __testInstructions([
-#         # "game/dungeons/kairou/main.png",
-#         "game/dungeons/kairou/sub1.png",
-#         "game/buttons/you.png",
-#         "game/buttons/challenge.png",
-#     ])
+while True:
+    # test join and quit
+    __testInstructions([
+        # "game/dungeons/kairou/main.png",
+        "game/dungeons/kairou/sub1.png",
+        "game/buttons/you.png",
+        "game/buttons/challenge.png",
+    ])
 
-#     time.sleep(8)
+    time.sleep(8)
 
-#     # Quit any battles
-#     __testInstructions([
-#         "game/battle/menu.png",
-#         "game/buttons/quit_battle.png",
-#         "game/buttons/yes.png",
-#     ])
+    # Quit any battles
+    __testInstructions([
+        "game/battle/menu.png",
+        "game/buttons/quit_battle.png",
+        "game/buttons/yes.png",
+    ])
 
-#     time.sleep(2)
+    time.sleep(2)
 
 # __get_resized_screenshot()
 
-battle = 0
-boss = False
-while True:
-    game_img = np.array(take_screenshot(monitor))
-    # if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
-    #     print("=> Falling")
-    if not boss:
-        if find(u"game/battle/battle_number.png", game_img)[0]:
-            battle += 1
-            print("=> Battle {}".format(battle))
-            # wait for one extra cycle to prevent counting twice
-            time.sleep(500 / 1000)
-        elif find(u"game/battle/boss_alert.png", game_img)[0]:
-            battle += 1
-            boss = True
-            print("=> Boss ({} / {})".format(battle, battle))
+# battle = 0
+# boss = False
+# while True:
+#     game_img = np.array(take_screenshot(monitor))
+#     # if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
+#     #     print("=> Falling")
+#     if not boss:
+#         if find(u"game/battle/battle_number.png", game_img)[0]:
+#             battle += 1
+#             print("=> Battle {}".format(battle))
+#             # wait for one extra cycle to prevent counting twice
+#             time.sleep(500 / 1000)
+#         elif find(u"game/battle/boss_alert.png", game_img)[0]:
+#             battle += 1
+#             boss = True
+#             print("=> Boss ({} / {})".format(battle, battle))
 
-    if tap(u"game/buttons/ok.png", game_img):
-        print("=> End")
-    time.sleep(500 / 1000)
+#     if tap(u"game/buttons/ok.png", game_img):
+#         print("=> End")
+#     time.sleep(500 / 1000)
