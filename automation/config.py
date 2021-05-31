@@ -1,7 +1,16 @@
+"""
+Configurations for the automation (static and dynamic)
+"""
+
+# TODO: Everything should be moved to a class instead of using globals 
+# They are all captical so it is easy to extract them from methods
+
+# # # # # # # # # # # #
 #
-# Constants
+# CONSTANTS
 # Modify them before running
 #
+# # # # # # # # # # # #
 
 # The cycle of automation
 CYCLE_DURATION = 500
@@ -32,10 +41,12 @@ BORDER_LENGTH = 1
 # This is used to ignore similar matches by how close they are using this offset
 SORT_OFFSET = 100
 
+# # # # # # # # # # # #
 #
-# Variables
+# VARIABLES
 # They will get updated in run time
 #
+# # # # # # # # # # # #
 
 BOARD_COLUMN = 0
 BOARD_ROW = 0

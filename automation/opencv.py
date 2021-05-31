@@ -2,9 +2,9 @@
 A collection of opencv methods
 """
 
-# To add a new cell, type '# %%'
-# To add a new markdown cell, type '# %% [markdown]'
-# %%
+# To add a new cell, type ''
+# To add a new markdown cell, type ' [markdown]'
+
 import subprocess
 import os
 import time
@@ -20,7 +20,7 @@ from screenshot import *
 from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION, BOARD_UNIFORM_SIZE, ORB_COUNT, \
     BOARD_COLUMN, BOARD_ROW, BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
 
-# %%
+
 
 # start and end loc
 # BOARD_LOCATION = get_location_manually()
@@ -55,7 +55,7 @@ orb_templates = {
 
 match_offset = 25
 
-# %%
+
 # detect the colour of all orbs and return a list
 def detectColour(orbs: list) -> str:
     output = ""
@@ -116,37 +116,33 @@ def detectColour(orbs: list) -> str:
         output += curr
     return output
 
-
-# %%
-def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
+def getEachOrb(image) -> list:
     """
     Based on count, get a list of every orb, this is also an ordered list
     """
 
     # weight, height
-    w, h = board_size
+    w, h = BOARD_UNIFORM_SIZE
     orbs = []
 
-    if orb_count == 20:
+    global BOARD_COLUMN, BOARD_ROW
+    if ORB_COUNT == 20:
         # 5x4
         BOARD_COLUMN = 5
         BOARD_ROW = 4
-    elif orb_count == 30:
+    elif ORB_COUNT == 30:
         # 6x5
         BOARD_COLUMN = 6
         BOARD_ROW = 5
-    elif orb_count == 42:
+    elif ORB_COUNT == 42:
         # 7x6
         BOARD_COLUMN = 7
         BOARD_ROW = 6
     else:
         exit("opencv - unknown orb count")
 
-    if DEBUG_MODE:
-        print("=> Board is {} x {}".format(BOARD_COLUMN, BOARD_ROW))
-
     # consider added padding here
-    initial = border_len * 2
+    initial = BORDER_LENGTH * 2
     orb_w = int((w + initial) / BOARD_COLUMN)
     orb_h = int((h + initial) / BOARD_ROW)
     x1 = y1 = initial
@@ -164,10 +160,8 @@ def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
         y1 += orb_h
         # reset x1 and x2
         x1 = x2 = initial
-    return (orbs, (BOARD_COLUMN, BOARD_ROW))
+    return orbs
 
-
-# %%
 def run():
     # take a screenshot at BOARD_LOCATION, need to subtract because it is width and height
     left, top, end_left, end_top = BOARD_LOCATION
@@ -185,9 +179,9 @@ def run():
     # # get every single orb here
     # orb_count = len(orbContours) + jammer_len + bomb_len
     # print("There are {} orbs in total".format(orb_count))
-    orbs, info = getEachOrb(src, BOARD_UNIFORM_SIZE, ORB_COUNT, BORDER_LENGTH)
-    global BOARD_COLUMN, BOARD_ROW
-    BOARD_COLUMN, BOARD_ROW = info
+    orbs = getEachOrb(src)
+    if DEBUG_MODE:
+        print("=> Board is {} x {}".format(BOARD_COLUMN, BOARD_ROW))
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
     return detectColour(orbs)
@@ -264,30 +258,27 @@ def run():
     # cv.imshow("bw", binary)
     # cv.waitKey()
 
-
-# %%
 # 0,0 0,1 0,2 0,3 -> 0,0 0,3
-def shorten(path: list) -> list:
-    # copy the original list
-    temp = path[:]
-    prev = after = None
-    l = len(path)
-    count = 0
-    for index, item in enumerate(path):
-        if index > 0 and index < (l - 1):
-            prev = path[index - 1]
-            after = path[index + 1]
-            # remove item if it is in the middle
-            if (prev[0] == item[0] == after[0] or prev[1] == item[1] == after[1]):
-                temp.remove(item)
-                # make prev longer to move
-                prev.append(0.5)
-                count += 1
-    if DEBUG_MODE:
-        print("Shortened {} moves".format(count)) 
-    return temp
+# def shorten(path: list) -> list:
+#     # copy the original list
+#     temp = path[:]
+#     prev = after = None
+#     l = len(path)
+#     count = 0
+#     for index, item in enumerate(path):
+#         if index > 0 and index < (l - 1):
+#             prev = path[index - 1]
+#             after = path[index + 1]
+#             # remove item if it is in the middle
+#             if (prev[0] == item[0] == after[0] or prev[1] == item[1] == after[1]):
+#                 temp.remove(item)
+#                 # make prev longer to move
+#                 prev.append(0.5)
+#                 count += 1
+#     if DEBUG_MODE:
+#         print("Shortened {} moves".format(count)) 
+#     return temp
 
-# %%
 def perform(solution: list):
     print("- PERFORMING -")
     # setup everything
@@ -333,7 +324,6 @@ def perform(solution: list):
     board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
     board_img.save("./solution.png")
 
-# %%
 def getSolution(input: str) -> list:
     print("- SOLVING -")
     if os.path.exists("path.pazusoba"):
@@ -366,7 +356,6 @@ def getSolution(input: str) -> list:
     return shorten(solution)
     # return solution
 
-# %%
 def shorten(solution: list) -> list:
    print("- SIMPLIFYING -")
    # insert the first
