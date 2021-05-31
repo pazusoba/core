@@ -3,10 +3,11 @@ pazusoba automation
 """
 
 import os
+import time
 
 import opencv
-from config import DEBUG_MODE, CYCLE
-from gui import GUI
+import gui
+from config import DEBUG_MODE
 from utils import waitForCycles
 
 current_dir = os.path.abspath(os.getcwd())
@@ -24,7 +25,7 @@ while True:
 
     start = time.time()
     board = opencv.run()
-    if DEBUG:
+    if DEBUG_MODE:
         print("=> Read the board in %.3fs\n" % (time.time() - start))
         print(board)
 
@@ -45,11 +46,10 @@ while True:
         print('=> Cooling down...')
         waitForCycles(8)
 
-
     if FULL_AUTO_MODE:
         continue
     else:
         # Ask for user input
-        decision = input("=> press enter to continue, enter q to quit: ")
-        if decision.startswith("q"):
+        decision = input("=> press enter to continue, enter anything to quit: ")
+        if not decision == "":
             break

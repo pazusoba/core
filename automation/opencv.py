@@ -18,8 +18,9 @@ import pyautogui as gui
 from screenshot import *
 
 from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION, BOARD_UNIFORM_SIZE, ORB_COUNT, \
-    BOARD_COLUMN, BOARD_ROW, BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
-    
+    BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
+from utils import getMonitorParamsFrom, getColumnRow
+
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
     "R": (np.array([0, 100, 100]), np.array([10, 255, 255])),
@@ -42,9 +43,6 @@ orb_templates = {
     "H": (heal_template, 0.6),
     "E": (bomb_template, 0.7) # E for explosive
 }
-
-match_offset = 25
-
 
 # detect the colour of all orbs and return a list
 def detectColourFrom(orbs: list) -> str:
@@ -111,37 +109,22 @@ def getOrbListFrom(image) -> list:
     Based on count, get a list of every orb, this is also an ordered list
     """
 
+    orbs = []
     # weight, height
     w, h = BOARD_UNIFORM_SIZE
-    orbs = []
-
-    global BOARD_COLUMN, BOARD_ROW
-    if ORB_COUNT == 20:
-        # 5x4
-        BOARD_COLUMN = 5
-        BOARD_ROW = 4
-    elif ORB_COUNT == 30:
-        # 6x5
-        BOARD_COLUMN = 6
-        BOARD_ROW = 5
-    elif ORB_COUNT == 42:
-        # 7x6
-        BOARD_COLUMN = 7
-        BOARD_ROW = 6
-    else:
-        exit("opencv - unknown orb count")
+    column, row = getColumnRow()
 
     # consider added padding here
     initial = BORDER_LENGTH * 2
-    orb_w = int((w + initial) / BOARD_COLUMN)
-    orb_h = int((h + initial) / BOARD_ROW)
+    orb_w = int((w + initial) / column)
+    orb_h = int((h + initial) / row)
     x1 = y1 = initial
     x2 = y2 = initial
     # start getting every orb
-    for _ in range(BOARD_ROW):
+    for _ in range(row):
         # update x2 and y2 first
         y2 += orb_h
-        for _ in range(BOARD_COLUMN):
+        for _ in range(column):
             x2 += orb_w
             # NOTE: you need to save a copy here because it changes image
             orbs.append(image[y1:y2, x1:x2].copy())
@@ -153,25 +136,18 @@ def getOrbListFrom(image) -> list:
     return orbs
 
 def run():
-    # take a screenshot at BOARD_LOCATION, need to subtract because it is width and height
-    left, top, end_left, end_top = BOARD_LOCATION
-    width = (end_left - left) * SCREEN_SCALE
-    height = (end_top - top) * SCREEN_SCALE
-
-    monitor = {"top": top * SCREEN_SCALE, "left": left * SCREEN_SCALE, "width": width, "height": height}
-    screen_img = np.array(take_screenshot(monitor))
+    # convert screenshot to numpy array
+    screen_img = np.array(take_screenshot(getMonitorParamsFrom(BOARD_LOCATION)))
    
     # NOTE: Testing only
     # screen_img = cv.imread("sample/dark.PNG")
     # resize it to about 830, 690 which is the size I use
     src = cv.resize(screen_img, BOARD_UNIFORM_SIZE)
 
-    # # get every single orb here
+    # get every single orb here
     # orb_count = len(orbContours) + jammer_len + bomb_len
     # print("There are {} orbs in total".format(orb_count))
     orbs = getOrbListFrom(src)
-    if DEBUG_MODE:
-        print("=> Board is {} x {}".format(BOARD_COLUMN, BOARD_ROW))
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
     return detectColourFrom(orbs)
@@ -180,6 +156,7 @@ def getSolution(input: str) -> list:
     print("- SOLVING -")
     if os.path.exists("path.pazusoba"):
         os.remove("path.pazusoba")
+
     start = time.time()
     solution = []
     completed = False
@@ -199,14 +176,12 @@ def getSolution(input: str) -> list:
             completed = True
         else:
             failed_count += 1
-            print("Failed. Retry... {}".format(failed_count))
+            print("=> Failed {}...".format(failed_count))
             if failed_count > 10:
-                print("Failed. Try again later.")
-                break
-    print("It took %.3fs." % (time.time() - start))
+                exit("=> The main program isn't working as expected")
+    print("=> It took %.3fs." % (time.time() - start))
 
     return shorten(solution)
-    # return solution
 
 def shorten(solution: list) -> list:
    print("- SIMPLIFYING -")
@@ -227,10 +202,12 @@ def shorten(solution: list) -> list:
 
    # insert the last
    simplified_solution.append(solution[length - 1])
-   print("{} steps -> {} steps".format(length, len(simplified_solution)))
+   print("=> {} steps -> {} steps".format(length, len(simplified_solution)))
    return simplified_solution
 
 # TODO: Legacy automatic board detection code
+
+# match_offset = 25
 # board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
 # save the img for open cv
 # board_img.save("./board.png")

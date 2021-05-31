@@ -41,15 +41,5 @@ BORDER_LENGTH = 1
 # This is used to ignore similar matches by how close they are using this offset
 SORT_OFFSET = 100
 
-# # # # # # # # # # # #
-#
-# VARIABLES
-# They will get updated in run time
-#
-# # # # # # # # # # # #
-
-BOARD_COLUMN = 0
-BOARD_ROW = 0
-
 # 20, 30 or 42
 ORB_COUNT = 30
