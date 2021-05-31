@@ -9,13 +9,14 @@ CYCLE_DURATION = 500
 # Game is the entire game without status bar
 # Board is only the board area
 GAME_LOCATION  = [149, 122, 1291, 2086]
-BOARD_LOCATION = [0, 0, 0, 0]
+BOARD_LOCATION = [156, 1151, 1281, 2080]
 
 # When in DEBUG mode, more texts will be printed
 DEBUG_MODE = True
 
-# This shouldn't be changed. Used to resize ORB to a uniform size
+# These values shouldn't be changed
 ORB_TEMPLATE_SIZE = (140, 140)
+BOARD_UNIFORM_SIZE = (830, 690)
 
 # Resize for game ratio 2:1, 16:9 and 3:2
 GAME_SCREEN_SIZE_2_1  = (1000, 1950)

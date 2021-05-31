@@ -1,3 +1,7 @@
+"""
+Choose board or game location
+"""
+
 import pyautogui as gui
 
 import cv2 as cv
@@ -46,5 +50,6 @@ def clearAllWindows():
     cv.waitKey()
     cv.destroyAllWindows()
 
-# get_location_manually()
-# get_location_automatically()
+if __name__ == "__main__":
+    get_location_manually()
+    # get_location_automatically()

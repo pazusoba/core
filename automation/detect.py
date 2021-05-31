@@ -262,12 +262,12 @@ def __get_resized_screenshot():
     screenshot_img = np.array(take_screenshot(monitor))
     __show(cv.resize(screenshot_img, INPUT_SIZE), "Screenshot")
 
-# NOTE: comment this line when using as a module
-# __get_resized_screenshot()
-# swipe_up()
-# swipe_down()
-# __testFind()
+if __name__ == "__main__":
+    # __get_resized_screenshot()
+    # swipe_up()
+    # swipe_down()
+    # __testFind()
 
-# __mugen_loop()
-# __get_resized_screenshot()
-__battle_counter()
+    # __mugen_loop()
+    # __get_resized_screenshot()
+    __battle_counter()

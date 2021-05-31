@@ -1,7 +1,12 @@
+"""
+A collection of opencv methods
+"""
+
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
-import subprocess, os
+import subprocess
+import os
 import time
 
 # OpenCV
@@ -10,28 +15,19 @@ import numpy as np
 
 # Automation
 import pyautogui as gui
-
-from utils import *
-from location import *
 from screenshot import *
-import os
 
-current_dir = os.path.abspath(os.getcwd())
-if not current_dir.endswith("automation"):
-    exit("Run auto.py inside automation folder. Current path is {}".format(current_dir))
+from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION
 
 # %%
-# Print everything in debug mode
-debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [156, 1151, 1281, 2080]
 
 # what's the size of the board
 # TODO: detect this automatically
 # board_config = [6, 5]
-board_size = (830, 690)
+
 
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
@@ -119,14 +115,64 @@ def detectColour(orbs: list) -> str:
         output += curr
     return output
 
+
+# %%
+def getEachOrb(image, board_size, orb_count, border_len) -> tuple:
+    """
+    Based on count, get a list of every orb, this is also an ordered list
+    """
+
+    # weight, height
+    w, h = board_size
+    orbs = []
+
+    board_column = 0
+    board_row = 0
+    if orb_count == 20:
+        # 5x4
+        board_column = 5
+        board_row = 4
+    elif orb_count == 30:
+        # 6x5
+        board_column = 6
+        board_row = 5
+    elif orb_count == 42:
+        # 7x6
+        board_column = 7
+        board_row = 6
+    else:
+        exit("utils.py - unknown orb count")
+
+    # consider added padding here
+    initial = border_len * 2
+    orb_w = int((w + initial) / board_column)
+    orb_h = int((h + initial) / board_row)
+    x1 = y1 = initial
+    x2 = y2 = initial
+    # start getting every orb
+    for _ in range(board_row):
+        # update x2 and y2 first
+        y2 += orb_h
+        for _ in range(board_column):
+            x2 += orb_w
+            # NOTE: you need to save a copy here because it changes image
+            orbs.append(image[y1:y2, x1:x2].copy())
+            # update x1 and y2 later
+            x1 += orb_w
+        y1 += orb_h
+        # reset x1 and x2
+        x1 = x2 = initial
+    return (orbs, (board_column, board_row))
+
+
 # %%
 def run():
     # take a screenshot at board_loc, need to subtract because it is width and height
     left, top, end_left, end_top = board_loc
-    width = (end_left - left) * screen_scale
-    height = (end_top - top) * screen_scale
+    width = (end_left - left) * SCREEN_SCALE
+    height = (end_top - top) * SCREEN_SCALE
 
-    monitor = {"top": top * screen_scale, "left": left * screen_scale, "width": width, "height": height}
+    monitor = {"top": top * SCREEN_SCALE, "left": left * SCREEN_SCALE, "width": width, "height": height}
     screen_img = np.array(take_screenshot(monitor))
    
     # NOTE: Testing only
@@ -144,7 +190,7 @@ def run():
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
     return detectColour(orbs)
 
-    # board_img = gui.screenshot(region=(left * screen_scale, top * screen_scale, width, height))
+    # board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
     # save the img for open cv
     # board_img.save("./board.png")
 
@@ -279,9 +325,9 @@ def perform(solution: list):
     gui.leftClick()
 
     # save solution image
-    width = (end_left - left) * screen_scale
-    height = (end_top - top) * screen_scale
-    board_img = gui.screenshot(region=(left * screen_scale, top * screen_scale, width, height))
+    width = (end_left - left) * SCREEN_SCALE
+    height = (end_top - top) * SCREEN_SCALE
+    board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
     board_img.save("./solution.png")
 
 # %%
@@ -339,44 +385,3 @@ def shorten(solution: list) -> list:
    simplified_solution.append(solution[length - 1])
    print("{} steps -> {} steps".format(length, len(simplified_solution)))
    return simplified_solution
-
-
-# %%
-# 20, 30 or 42
-orb_count = 30
-auto = False
-battle_count = 0
-
-while True:
-    battle_count += 1
-    print("\n=== BATTLE {} ===".format((battle_count)))
-
-    start = time.time()
-    board = run()
-    print(board)
-    print("Read the board in %.3fs.\n" % (time.time() - start))
-    # board = "RHHBDRDRGHDLLBGRRBRHBGGBHBDDHH"
-    if "?" in board:
-        battle_count -= 1
-        print("Waiting...")
-        # wait for a second
-        time.sleep(2)
-        # print it out for me to see and manually adjust it above
-        # for i in range(board_row):
-        #     start = i * board_column
-        #     print(board[start:(start + board_column)])
-    else:
-        solution = getSolution(board)
-        print("Solved in %.3fs.\n" % (time.time() - start))
-        perform(solution)
-
-        print('Cooling down...')
-        time.sleep(4)
-
-    if auto:
-        continue
-    else:
-        # Ask for user input
-        decision = input("Please enter to continue, q to quit: ")
-        if decision.startswith("q"):
-            break
