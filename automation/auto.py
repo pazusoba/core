@@ -26,16 +26,12 @@ debug_mode = True
 
 # start and end loc
 # board_loc = get_location_manually()
-board_loc = [461, 1264, 1449, 2087]
+board_loc = [156, 1151, 1281, 2080]
 
 # what's the size of the board
 # TODO: detect this automatically
-board_config = [6, 5]
+# board_config = [6, 5]
 board_size = (830, 690)
-orb_size = (140, 140)
-border_len = 1
-board_column = board_row = 0
-screen_scale = 1
 
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
