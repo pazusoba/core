@@ -3,12 +3,12 @@ import cv2 as cv
 import numpy as np
 
 import os
-import time
 
 from screenshot import *
 from functools import cmp_to_key
 from typing import Tuple, List
 
+from utils import waitForCycles, waitForNextCycle
 import pyautogui as gui
 from config import GAME_LOCATION, GAME_SCREEN_SIZE_16_9, GAME_SCREEN_SIZE_2_1, GAME_SCREEN_SIZE_3_2, \
     SCREEN_SCALE, SORT_OFFSET, CYCLE_DURATION
@@ -83,7 +83,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
         exit("Cannot find template at {}".format(template))
     return result
 
-def tap(template: str, img, delay=500) -> bool:
+def tap(template: str, img, delay=1) -> bool:
     """
     Find template from img and tap on it
     """
@@ -96,7 +96,7 @@ def tap(template: str, img, delay=500) -> bool:
         gui.mouseDown()
         gui.mouseUp()
 
-        time.sleep(delay / 500)
+        waitForCycles(delay)
     return found
 
 def swipe_up(up=True):
@@ -221,7 +221,7 @@ def __mugen_loop():
             "game/buttons/challenge.png",
         ])
 
-        time.sleep(8)
+        waitForCycles(16)
 
         # Quit any battles
         __testInstructions([
@@ -230,7 +230,7 @@ def __mugen_loop():
             "game/buttons/yes.png",
         ])
 
-        time.sleep(2)
+        waitForCycles(6)
 
 def __battle_counter():
     """
@@ -247,7 +247,7 @@ def __battle_counter():
                 battle += 1
                 print("=> Battle {}".format(battle))
                 # wait for one extra cycle to prevent counting twice
-                time.sleep(CYCLE_DURATION * 2 / 1000)
+                waitForCycles(2)
             elif find(u"game/battle/boss_alert.png", game_img)[0]:
                 battle += 1
                 boss = True
@@ -255,8 +255,7 @@ def __battle_counter():
 
         if tap(u"game/buttons/ok.png", game_img):
             print("=> End")
-        time.sleep(CYCLE_DURATION / 1000)
-
+        waitForNextCycle()
 
 def __get_resized_screenshot():
     screenshot_img = np.array(take_screenshot(monitor))

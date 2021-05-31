@@ -19,17 +19,7 @@ from screenshot import *
 
 from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION, BOARD_UNIFORM_SIZE, ORB_COUNT, \
     BOARD_COLUMN, BOARD_ROW, BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
-
-
-
-# start and end loc
-# BOARD_LOCATION = get_location_manually()
-
-# what's the size of the board
-# TODO: detect this automatically
-# board_config = [6, 5]
-
-
+    
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
     "R": (np.array([0, 100, 100]), np.array([10, 255, 255])),
@@ -57,7 +47,7 @@ match_offset = 25
 
 
 # detect the colour of all orbs and return a list
-def detectColour(orbs: list) -> str:
+def detectColourFrom(orbs: list) -> str:
     output = ""
 
     # first do colour detection
@@ -116,7 +106,7 @@ def detectColour(orbs: list) -> str:
         output += curr
     return output
 
-def getEachOrb(image) -> list:
+def getOrbListFrom(image) -> list:
     """
     Based on count, get a list of every orb, this is also an ordered list
     """
@@ -179,150 +169,12 @@ def run():
     # # get every single orb here
     # orb_count = len(orbContours) + jammer_len + bomb_len
     # print("There are {} orbs in total".format(orb_count))
-    orbs = getEachOrb(src)
+    orbs = getOrbListFrom(src)
     if DEBUG_MODE:
         print("=> Board is {} x {}".format(BOARD_COLUMN, BOARD_ROW))
 
     # detect the colour of every orb and output a string, the list is in order so simple join the list will do
-    return detectColour(orbs)
-
-    # board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
-    # save the img for open cv
-    # board_img.save("./board.png")
-
-    # scan through the entire image
-    # src = cv.imread("./board.png")
-    # src = cv.imread("sample/battle.png")
-
-    # # add some padding in case orbs are too close to the border
-    # src = cv.copyMakeBorder(src, border_len, border_len, border_len, border_len, cv.BORDER_CONSTANT)
-
-    # # convert to grayscale
-    # gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
-    # # create a binary thresholded image
-    # _, binary = cv.threshold(gray, 80, 255, cv.THRESH_BINARY_INV)
-    # # find the contours from the thresholded image
-    # contours, _ = cv.findContours(binary, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
-    # # for c in contours: print(cv.contourArea(c))
-    # # Only orbs and poison
-    # orbContours = [c for c in contours if 10000 < cv.contourArea(c) < 20000]
-
-    # # match jammer and bomb
-    # jammer_len = bomb_len = 0
-    # """
-    # Jammer detection
-    # """
-    # curr_pt = None
-    # w, h = jammer_template.shape[::-1]
-    # jm = cv.matchTemplate(gray, jammer_template, cv.TM_CCORR_NORMED)
-    # threshold = 0.9
-    # jammer_loc = sorted(zip(*np.where(jm >= threshold)[::-1]), key=cmp_to_key(sortLocation))
-    # for pt in jammer_loc:
-    #     # remove duplicates
-    #     if curr_pt is None:
-    #         curr_pt = pt
-    #     elif abs(curr_pt[0] - pt[0]) < match_offset and abs(curr_pt[1] - pt[1]) < match_offset:
-    #             continue
-    #     else:
-    #         curr_pt = pt
-    #     # print(pt)
-    #     # count and draw a box
-    #     jammer_len += 1
-    #     # cv.rectangle(src, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 1)
-    # print("There are {} jammer(s)".format(jammer_len))
-    # """
-    # Bomb detection
-    # """
-    # curr_pt = None
-    # w, h = bomb_template.shape[::-1]
-    # bm = cv.matchTemplate(gray, bomb_template, cv.TM_CCOEFF_NORMED)
-    # threshold = 0.515
-    # bomb_loc = sorted(zip(*np.where(bm >= threshold)[::-1]), key=cmp_to_key(sortLocation))
-    # for pt in bomb_loc:
-    #     # remove duplicates
-    #     if curr_pt is None:
-    #         curr_pt = pt
-    #     elif abs(curr_pt[0] - pt[0]) < match_offset and abs(curr_pt[1] - pt[1]) < match_offset:
-    #             continue
-    #     else:
-    #         curr_pt = pt
-    #     # print(pt)
-    #     # count and draw a box        
-    #     bomb_len += 1
-    #     # cv.rectangle(src, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 1)
-    # print("There are {} bomb(s)".format(bomb_len))
-
-    # draw all contours
-    # image = cv.drawContours(src, orbContours, -1, (255, 255, 255), 3)
-    # cv.imshow("board", src)
-    # cv.imshow("bw", binary)
-    # cv.waitKey()
-
-# 0,0 0,1 0,2 0,3 -> 0,0 0,3
-# def shorten(path: list) -> list:
-#     # copy the original list
-#     temp = path[:]
-#     prev = after = None
-#     l = len(path)
-#     count = 0
-#     for index, item in enumerate(path):
-#         if index > 0 and index < (l - 1):
-#             prev = path[index - 1]
-#             after = path[index + 1]
-#             # remove item if it is in the middle
-#             if (prev[0] == item[0] == after[0] or prev[1] == item[1] == after[1]):
-#                 temp.remove(item)
-#                 # make prev longer to move
-#                 prev.append(0.5)
-#                 count += 1
-#     if DEBUG_MODE:
-#         print("Shortened {} moves".format(count)) 
-#     return temp
-
-def perform(solution: list):
-    print("- PERFORMING -")
-    # setup everything
-    left, top, end_left, end_top = BOARD_LOCATION
-    orb_height = (end_top - top) / BOARD_ROW
-    x_start = left + orb_height / 2
-    y_start = top + orb_height / 2
-
-    # save current position
-    (px, py) = gui.position()
-    step = len(solution)
-    print("{} steps in total.".format(step))
-    start = time.time()
-    for i in range(step):
-        curr = solution[i]
-        x, y = curr
-        target_x = x_start + y * orb_height
-        target_y = y_start + x * orb_height
-        if i == 0:
-            # need to hold the mouse
-            gui.mouseDown(target_x, target_y, button='left')
-            gui.mouseDown(target_x, target_y, button='left')            
-        else:
-            # NOTE: 50ms is about the minimum time for the game to recognise movements, less than it will cause some issues
-            duration = 0
-            # if len(curr) == 3:
-            #     duration = 0.2
-            # simply move to there
-            # NOTE: when _pause is False, it will go very fast
-            gui.moveTo(target_x, target_y, duration=duration, _pause=False)
-            time.sleep(50 / 1000)
-    print("Performed!")
-    print("It took %.3fs." % (time.time() - start))
-    # only release it when everything are all done
-    gui.mouseUp()
-    # move back to current position after everything
-    gui.moveTo(px, py)
-    gui.leftClick()
-
-    # save solution image
-    width = (end_left - left) * SCREEN_SCALE
-    height = (end_top - top) * SCREEN_SCALE
-    board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
-    board_img.save("./solution.png")
+    return detectColourFrom(orbs)
 
 def getSolution(input: str) -> list:
     print("- SOLVING -")
@@ -377,3 +229,76 @@ def shorten(solution: list) -> list:
    simplified_solution.append(solution[length - 1])
    print("{} steps -> {} steps".format(length, len(simplified_solution)))
    return simplified_solution
+
+# TODO: Legacy automatic board detection code
+# board_img = gui.screenshot(region=(left * SCREEN_SCALE, top * SCREEN_SCALE, width, height))
+# save the img for open cv
+# board_img.save("./board.png")
+
+# scan through the entire image
+# src = cv.imread("./board.png")
+# src = cv.imread("sample/battle.png")
+
+# # add some padding in case orbs are too close to the border
+# src = cv.copyMakeBorder(src, border_len, border_len, border_len, border_len, cv.BORDER_CONSTANT)
+
+# # convert to grayscale
+# gray = cv.cvtColor(src, cv.COLOR_BGR2GRAY)
+# # create a binary thresholded image
+# _, binary = cv.threshold(gray, 80, 255, cv.THRESH_BINARY_INV)
+# # find the contours from the thresholded image
+# contours, _ = cv.findContours(binary, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
+# # for c in contours: print(cv.contourArea(c))
+# # Only orbs and poison
+# orbContours = [c for c in contours if 10000 < cv.contourArea(c) < 20000]
+
+# # match jammer and bomb
+# jammer_len = bomb_len = 0
+# """
+# Jammer detection
+# """
+# curr_pt = None
+# w, h = jammer_template.shape[::-1]
+# jm = cv.matchTemplate(gray, jammer_template, cv.TM_CCORR_NORMED)
+# threshold = 0.9
+# jammer_loc = sorted(zip(*np.where(jm >= threshold)[::-1]), key=cmp_to_key(sortLocation))
+# for pt in jammer_loc:
+#     # remove duplicates
+#     if curr_pt is None:
+#         curr_pt = pt
+#     elif abs(curr_pt[0] - pt[0]) < match_offset and abs(curr_pt[1] - pt[1]) < match_offset:
+#             continue
+#     else:
+#         curr_pt = pt
+#     # print(pt)
+#     # count and draw a box
+#     jammer_len += 1
+#     # cv.rectangle(src, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 1)
+# print("There are {} jammer(s)".format(jammer_len))
+# """
+# Bomb detection
+# """
+# curr_pt = None
+# w, h = bomb_template.shape[::-1]
+# bm = cv.matchTemplate(gray, bomb_template, cv.TM_CCOEFF_NORMED)
+# threshold = 0.515
+# bomb_loc = sorted(zip(*np.where(bm >= threshold)[::-1]), key=cmp_to_key(sortLocation))
+# for pt in bomb_loc:
+#     # remove duplicates
+#     if curr_pt is None:
+#         curr_pt = pt
+#     elif abs(curr_pt[0] - pt[0]) < match_offset and abs(curr_pt[1] - pt[1]) < match_offset:
+#             continue
+#     else:
+#         curr_pt = pt
+#     # print(pt)
+#     # count and draw a box        
+#     bomb_len += 1
+#     # cv.rectangle(src, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 1)
+# print("There are {} bomb(s)".format(bomb_len))
+
+# draw all contours
+# image = cv.drawContours(src, orbContours, -1, (255, 255, 255), 3)
+# cv.imshow("board", src)
+# cv.imshow("bw", binary)
+    # cv.waitKey()

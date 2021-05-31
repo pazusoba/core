@@ -13,7 +13,7 @@ Configurations for the automation (static and dynamic)
 # # # # # # # # # # # #
 
 # The cycle of automation
-CYCLE_DURATION = 500
+ONE_CYCLE = 500
 
 # Game is the entire game without status bar
 # Board is only the board area
