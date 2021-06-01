@@ -12,7 +12,7 @@ import gui
 
 from config import DEBUG_MODE, BOARD_LOCATION, GAME_LOCATION
 from utils import waitForCycles, waitForNextCycle, getMonitorParamsFrom
-from automation import tapInOrder, find, tap
+from automation import tapInOrder, find, tap, touch
 from screenshot import take_screenshot
 
 current_dir = os.path.abspath(os.getcwd())
@@ -27,11 +27,13 @@ def game_loop():
     battle_count = 0
     boss_battle = False
     in_dungeon = None
+    # prevent excessive computation
+    puzzle_after_cycles = 0
+    getting_rewards = False
 
     MONITOR = getMonitorParamsFrom(GAME_LOCATION)
 
     while True:
-        waitForNextCycle()
         # Get current game screen
         game_img = np.array(take_screenshot(MONITOR, write2disk=True, name="eye.png"))
 
@@ -46,37 +48,89 @@ def game_loop():
             if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
                 if DEBUG_MODE:
                     print("=> Waiting for combo")
-                waitForNextCycle()
+                puzzle_after_cycles += 1
                 continue
-
+            
             # Before boss batlle, track current battle
             if not boss_battle:
                 if find(u"game/battle/battle_number.png", game_img)[0]:
                     battle_count += 1
+                    puzzle_after_cycles += 1
                     print("=> Battle {}".format(battle_count))
                     # wait for one extra cycle to prevent counting twice here
                     waitForCycles(2)
                     continue
-
-                if find(u"game/battle/boss_alert.png", game_img)[0]:
+                elif find(u"game/battle/boss_alert.png", game_img)[0]:
                     battle_count += 1
+                    puzzle_after_cycles += 1
                     boss_battle = True
                     print("=> Boss ({} / {})".format(battle_count, battle_count))
                     continue
-
+            
             # Clear or Game Over
             if tap(u"game/buttons/ok.png", game_img):
                 print("=> Exiting the dungeon")
                 in_dungeon = False
-                waitForCycles(2)
                 continue
 
-            # Do puzzle here
-            __doPuzzle()
+            # Do puzzle if allowed
+            if puzzle_after_cycles <= 0:
+                if __doPuzzle():
+                    puzzle_after_cycles += 4
+                else:
+                    puzzle_after_cycles += 8
+                # reset the counter
+                puzzle_after_cycles = 0
+            else:
+                puzzle_after_cycles -= 1
         else:
-            # either before entering a dungeon or getting rewards
-            pass
-            
+            # check if getting rewards
+            if getting_rewards or find(u"game/rewards.png", game_img)[0]:
+                # Already back to home
+                if find(u"game/dungeon.png", game_img)[0]:
+                    getting_rewards = False
+                    continue
+
+                # update the flag because it may go to another screen
+                if not getting_rewards:
+                    getting_rewards = True
+                    print("=> Getting rewards")
+
+                # keep tapping the screen until sell button is visible 
+                if not find(u"game/buttons/sell.png", game_img)[0]:
+                    touch()
+                else:
+                    # clear the flag and keep tapping
+                    if getting_rewards:
+                        getting_rewards = False
+                        print("=> Collected all rewards")
+                    touch()
+            # always click ok button to dismiss alerts
+            elif tap(u"game/buttons/ok.png", game_img):
+                print("=> OK")
+                continue
+            # tap on new if found any
+            elif tap(u"game/dungeons/new.png", game_img):
+                print("=> New Dungeon")
+                continue
+            # choose a helper and enter the dungeon
+            elif find(u"game/friends/helper.png", game_img)[0]:
+                # NOTE: consider the case when it is out of stamina
+                success = tapInOrder([
+                    u"game/friends/henry.png",
+                    u"game/friends/select.png",
+                    u"game/buttons/challenge.png",
+                ])
+
+                if success:
+                    in_dungeon = True
+                    puzzle_after_cycles = 6            
+            # try going up one level to normal
+            elif not find(u"game/dungeons/normal.png", game_img)[0]:
+                tap(u"game/buttons/up.png", game_img)
+
+        # NOTE: Never block the loop because it very important to see what's happen
+        waitForNextCycle()
 
 def manual_loop():
     """
@@ -105,11 +159,13 @@ def __doPuzzle():
         # for i in range(board_row):
         #     start = i * board_column
         #     print(board[start:(start + board_column)])
+        return False
     else:
         solution = opencv.getSolution(board)
         if DEBUG_MODE:
             print("=> Solved in %.3fs\n" % (time.time() - start))
         gui.perform(solution)
+        return True
 
 if __name__ == "__main__":
     game_loop()

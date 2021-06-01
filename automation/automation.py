@@ -29,7 +29,7 @@ elif ratio < 1.85:
     INPUT_SIZE = GAME_SCREEN_SIZE_16_9
 else:
     # NOTE: all templates are based on 2 : 1 game ratio
-    ACCURACY = 0.95
+    ACCURACY = 0.9
     INPUT_SIZE = GAME_SCREEN_SIZE_2_1
 print("=> Ratio is {:.3f}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
 
@@ -115,6 +115,16 @@ def swipe_up(up=True):
 def swipe_down():
     swipe_up(False)
 
+def touch():
+    """
+    Tap the center point of Game Location
+    """
+    x = width * 0.5 + left
+    y = height * 0.75 + top
+    gui.moveTo(x, y)
+    gui.mouseDown()
+    gui.mouseUp()
+
 def __sorted_matches(matches, threshold: int, offset=25, allow_duplicates=False) -> list:
     """
     Filter out matches base on the threshold.
@@ -179,24 +189,18 @@ def tapInOrder(instructions: List[str]) -> bool:
     """
     Find templates in order with delay
     """
-    i = 0
-    while i < len(instructions):
-        template = instructions[i]
+
+    result = False
+
+    # at least, try all of them and see if one if successful
+    for template in instructions:
         # NOTE: move the cursor outside the game screen so that it doesn't cover up the screen
         gui.moveTo(end_left + 10, height / 2)
 
         game_img = np.array(take_screenshot(monitor))
         success = tap(template, game_img)
-        if not success:
-            # go back to previous step and try again
-            i -= 1
-            if i < 0:
-                print("❌ Couldn't find '{}'".format(template))
-                break
-            else:
-                print("❌ Revert back to previous")
-        else:
-            i += 1
+        if success:
+            result = True
 
     # for template in instructions:
     #     while not success:
@@ -205,7 +209,6 @@ def tapInOrder(instructions: List[str]) -> bool:
         #     print("❌ Couldn't find '{}'".format(template))
         #     return False
         
-    print("✔ All instructions have been performed\n")
     return True
 
 def __mugen_loop():
@@ -217,7 +220,7 @@ def __mugen_loop():
         tapInOrder([
             # "game/dungeons/kairou/main.png",
             "game/dungeons/kairou/sub1.png",
-            "game/buttons/you.png",
+            "game/friends/you.png",
             "game/buttons/challenge.png",
         ])
 
