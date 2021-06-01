@@ -44,13 +44,29 @@ def game_loop():
                 print("=> In a dungeon - {}".format(in_dungeon))
 
         if in_dungeon:
+            # never continue
+            if tap(u"game/battle/continue.png", game_img):
+                tapInOrder([
+                    "game/buttons/no.png",
+                    "game/buttons/yes.png",
+                ])
+                print("=> Lose. Give Up")
+            
+                        
+            # Clear or Game Over
+            if tap(u"game/buttons/ok.png", game_img):
+                print("=> Exiting the dungeon")
+                in_dungeon = False
+                waitForNextCycle()
+                continue
+            
             # Orbs are still falling, wait
             if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
                 if DEBUG_MODE:
                     print("=> Waiting for combo")
                 puzzle_after_cycles += 1
                 continue
-            
+
             # Before boss batlle, track current battle
             if not boss_battle:
                 if find(u"game/battle/battle_number.png", game_img)[0]:
@@ -66,12 +82,6 @@ def game_loop():
                     boss_battle = True
                     print("=> Boss ({} / {})".format(battle_count, battle_count))
                     continue
-            
-            # Clear or Game Over
-            if tap(u"game/buttons/ok.png", game_img):
-                print("=> Exiting the dungeon")
-                in_dungeon = False
-                continue
 
             # Do puzzle if allowed
             if puzzle_after_cycles <= 0:
@@ -108,11 +118,15 @@ def game_loop():
             # always click ok button to dismiss alerts
             elif tap(u"game/buttons/ok.png", game_img):
                 print("=> OK")
+                waitForNextCycle()
                 continue
             # tap on new if found any
             elif tap(u"game/dungeons/new.png", game_img):
                 print("=> New Dungeon")
                 continue
+            # elif tap(u"game/dungeons/new_loss.png", game_img):
+            #     print("=> Challenge again")
+            #     continue
             # choose a helper and enter the dungeon
             elif find(u"game/friends/helper.png", game_img)[0]:
                 # NOTE: consider the case when it is out of stamina

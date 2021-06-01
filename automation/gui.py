@@ -37,7 +37,6 @@ def perform(route: list, snapshot=True):
         target_x = x_start + y * orb_height
         target_y = y_start + x * orb_height
         if i == 0:
-            pyautogui.click()          
             __holdLeftKey(target_x, target_y)  
         else:
             __moveTo(target_x, target_y)
