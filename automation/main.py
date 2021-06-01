@@ -46,6 +46,7 @@ def game_loop():
             if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
                 if DEBUG_MODE:
                     print("=> Waiting for combo")
+                waitForNextCycle()
                 continue
 
             # Before boss batlle, track current battle

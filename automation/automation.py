@@ -268,5 +268,5 @@ if __name__ == "__main__":
     # __testFind()
 
     # __mugen_loop()
-    # __get_resized_screenshot()
-    __battle_counter()
+    __get_resized_screenshot()
+    # __battle_counter()
