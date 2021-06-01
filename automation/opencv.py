@@ -164,7 +164,7 @@ def getSolution(input: str) -> list:
     # make sure a solution is written to the disk
     while not completed:
         # Ignore output from the program
-        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '40', '9000'], stdout=subprocess.DEVNULL)
+        pazusoba = subprocess.Popen(['./pazusoba.exe', input, '3', '35', '8000'], stdout=subprocess.DEVNULL)
         pazusoba.wait()
 
         output_file = "path.pazusoba"
