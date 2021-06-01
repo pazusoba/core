@@ -11,7 +11,7 @@ from typing import Tuple, List
 from utils import waitForCycles, waitForNextCycle
 import pyautogui as gui
 from config import GAME_LOCATION, GAME_SCREEN_SIZE_16_9, GAME_SCREEN_SIZE_2_1, GAME_SCREEN_SIZE_3_2, \
-    SCREEN_SCALE, SORT_OFFSET, CYCLE_DURATION
+    SCREEN_SCALE, SORT_OFFSET, ONE_CYCLE
 
 left, top, end_left, end_top = GAME_LOCATION
 width = (end_left - left) * SCREEN_SCALE
@@ -22,7 +22,7 @@ monitor = {"top": top * SCREEN_SCALE, "left": left * SCREEN_SCALE, "width": widt
 # determine best input size
 ratio = height / width
 INPUT_SIZE = 0
-ACCURACY = 0.85
+ACCURACY = 0.8
 if ratio < 1.6:
     INPUT_SIZE = GAME_SCREEN_SIZE_3_2
 elif ratio < 1.85:
@@ -31,12 +31,12 @@ else:
     # NOTE: all templates are based on 2 : 1 game ratio
     ACCURACY = 0.95
     INPUT_SIZE = GAME_SCREEN_SIZE_2_1
-print("=> Ratio is {}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
+print("=> Ratio is {:.3f}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
 
 # track original size to go back to extract point
 width_scale = width / INPUT_SIZE[0]
 height_scale = height / INPUT_SIZE[1]
-print("=> Scales: Width - {}, Height - {}".format(width_scale, height_scale))
+print("=> Scales: Width - {:.3f}, Height - {:.3f}".format(width_scale, height_scale))
 
 def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     """
@@ -47,15 +47,15 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
     if os.path.exists(template):
         template_img = cv.imread(template, 0)
         # print("👀 Looing for '{}'".format(template))
-        # __show(template_img, "template")
+        # showImage(template_img, "template")
 
         # NOTE: resize is very important for the detection to be consistent
         img = cv.resize(img, INPUT_SIZE)
-        # __show(img, "Resize")
+        # showImage(img, "Resize")
 
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         matches = cv.matchTemplate(gray, template_img, cv.TM_CCOEFF_NORMED)
-        # __show(matches, "Raw")
+        # showImage(matches, "Raw")
 
         # Check if anything matches with the template
         w, h = template_img.shape[::-1]
@@ -78,7 +78,7 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
 
             result = (True, (x, y))
             print("=> ({}, {})".format(x, y))
-            # __show(img, "Matches")
+            # showImage(img, "Matches")
     else:
         exit("Cannot find template at {}".format(template))
     return result
@@ -146,7 +146,7 @@ def __sort_element(a, b, offset: int) -> bool:
         return a[1] - b[1]
     return a[0] - b[0]
 
-def __show(img, name="image"):
+def showImage(img, name="image"):
     """
     Show an image using opencv with title
     """
@@ -175,7 +175,7 @@ def __testFind():
     # go to the required dungeon
     tap(u"game/dungeons/kairou/sub1.png", game_img)
 
-def __testInstructions(instructions: List[str]) -> bool:
+def tapInOrder(instructions: List[str]) -> bool:
     """
     Find templates in order with delay
     """
@@ -214,7 +214,7 @@ def __mugen_loop():
     """
     while True:
         # test join and quit
-        __testInstructions([
+        tapInOrder([
             # "game/dungeons/kairou/main.png",
             "game/dungeons/kairou/sub1.png",
             "game/buttons/you.png",
@@ -224,7 +224,7 @@ def __mugen_loop():
         waitForCycles(16)
 
         # Quit any battles
-        __testInstructions([
+        tapInOrder([
             "game/battle/menu.png",
             "game/buttons/quit_battle.png",
             "game/buttons/yes.png",
@@ -259,7 +259,7 @@ def __battle_counter():
 
 def __get_resized_screenshot():
     screenshot_img = np.array(take_screenshot(monitor))
-    __show(cv.resize(screenshot_img, INPUT_SIZE), "Screenshot")
+    showImage(cv.resize(screenshot_img, INPUT_SIZE), "Screenshot")
 
 if __name__ == "__main__":
     # __get_resized_screenshot()
