@@ -39,7 +39,7 @@ def perform(route: list, snapshot=True):
         if i == 0:
             __holdLeftKey(target_x, target_y)  
         else:
-            __moveTo(target_x, target_y)
+            __moveTo(target_x, target_y, ultra_fast=True)
 
     # only release it when everything are all done
     pyautogui.mouseUp()

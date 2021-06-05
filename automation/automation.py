@@ -68,17 +68,23 @@ def find(template: str, img) -> Tuple[bool, Tuple[int, int]]:
         if result[0]:
             # only consider the first one
             x, y = locations[0]
+            # print("=> Original ({}, {})".format(x, y))
             # NOTE: consider the scale change when we resize the image
             x *= width_scale
             y *= height_scale
+            # print("=> Scaled ({}, {})".format(x, y))
+            # print("=> w {}, h {}".format(w, h))
 
             # need to scale x, y to original and get center point
-            x += GAME_LOCATION[0] +  w / 2
-            y += GAME_LOCATION[1] + h / 2
+            # NOTE: consider template scale as well
+            # TODO: make sure this still works on other machines
+            x += GAME_LOCATION[0] +  w * width_scale / 2
+            y += GAME_LOCATION[1] + h * height_scale / 2
 
             result = (True, (x, y))
             print("=> ({}, {})".format(x, y))
-            # showImage(img, "Matches")
+            # resized_img = cv.resize(img, (300, 570))
+            # showImage(resized_img, "Matches")
     else:
         exit("Cannot find template at {}".format(template))
     return result
