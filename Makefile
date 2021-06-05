@@ -1,5 +1,5 @@
 # set it to `mac` or `win`
-PLATFORM=mac
+PLATFORM=win
 
 # assign different commands
 ifeq ($(PLATFORM), mac)

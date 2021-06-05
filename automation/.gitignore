@@ -7,3 +7,6 @@
 !sample/*
 !template/*
 !game/**
+
+# virtual environment
+env/
