@@ -131,7 +131,7 @@ def game_loop():
             elif find(u"game/friends/helper.png", game_img)[0]:
                 # NOTE: consider the case when it is out of stamina
                 success = tapInOrder([
-                    u"game/friends/henry.png",
+                    u"game/friends/you.png",
                     u"game/friends/select.png",
                     u"game/buttons/challenge.png",
                 ])
