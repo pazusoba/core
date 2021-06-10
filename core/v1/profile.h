@@ -372,7 +372,7 @@ public:
                         counter++;
 
                     if (counter == 2)
-                        score += pad::TIER_EIGHT_SCORE;
+                        score += pad::TIER_TEN_SCORE * 2;
                 }
             }
         }

@@ -52,19 +52,21 @@ def game_loop():
                 ])
                 print("=> Lose. Give Up")
             
-                        
+            # Rank Fever mode always show something in the begining
+            feverMode = find(u"game/rank/fever.png", game_img)[0]
             # Clear or Game Over
             if tap(u"game/buttons/ok.png", game_img):
-                print("=> Exiting the dungeon")
-                in_dungeon = False
-                waitForNextCycle()
+                if not feverMode:
+                    print("=> Exiting the dungeon")
+                    in_dungeon = False
+                    waitForNextCycle()
                 continue
             
             # Orbs are still falling, wait
             if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
                 if DEBUG_MODE:
                     print("=> Waiting for combo")
-                puzzle_after_cycles += 1
+                puzzle_after_cycles += 0.5
                 continue
 
             # Before boss batlle, track current battle
@@ -121,8 +123,11 @@ def game_loop():
                 waitForNextCycle()
                 continue
             # tap on new if found any
-            elif tap(u"game/dungeons/new.png", game_img):
-                print("=> New Dungeon")
+            # elif tap(u"game/dungeons/new.png", game_img):
+            #     print("=> New Dungeon")
+            #     continue
+            elif tap(u"game/rank/gacha.png", game_img):
+                print("=> Rank Fever Mode")
                 continue
             elif tap(u"game/buttons/challenge.png", game_img):
                 print("=> Challenge")
@@ -142,7 +147,9 @@ def game_loop():
 
                 if success:
                     in_dungeon = True
-                    puzzle_after_cycles = 6            
+                    puzzle_after_cycles = 6  
+            elif find(u"game/rank/title.png", game_img)[0]:
+                touch()      
             # try going up one level to normal
             elif not find(u"game/dungeons/normal.png", game_img)[0]:
                 tap(u"game/buttons/up.png", game_img)

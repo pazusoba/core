@@ -19,7 +19,7 @@ from screenshot import *
 
 from config import SCREEN_SCALE, BOARD_UNIFORM_SIZE, BOARD_LOCATION, BOARD_UNIFORM_SIZE, ORB_COUNT, \
     BORDER_LENGTH, ORB_TEMPLATE_SIZE, DEBUG_MODE
-from utils import getMonitorParamsFrom, getColumnRow
+from utils import getMonitorParamsFrom, getColumnRow, getExcutableName
 
 # This has Red, Blue, Green, Light, Dark and Heal
 colour_range = {
@@ -164,7 +164,7 @@ def getSolution(input: str) -> list:
     # make sure a solution is written to the disk
     while not completed:
         # Ignore output from the program
-        pazusoba = subprocess.Popen(['./pazusoba.out', input, '3', '30', '5000'], stdout=subprocess.DEVNULL)
+        pazusoba = subprocess.Popen([getExcutableName(), input, '3', '30', '8000'], stdout=subprocess.DEVNULL)
         pazusoba.wait()
 
         output_file = "path.pazusoba"

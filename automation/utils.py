@@ -3,6 +3,7 @@ Utilities
 """
 
 import time
+import os
 from config import ONE_CYCLE, ORB_COUNT, SCREEN_SCALE
 from typing import Tuple, Dict
 
@@ -12,6 +13,11 @@ def waitForNextCycle():
 def waitForCycles(count: int):
     # at least, one cycle here
     time.sleep((ONE_CYCLE * max(count, 1)) / 1000)
+
+def getExcutableName() -> str:
+    if os.name == 'nt':
+        return 'pazusoba.exe'
+    return 'pazusoba.out'
 
 def getMonitorParamsFrom(board: Tuple[int, int, int, int]) -> Dict[str, int]:
     """
