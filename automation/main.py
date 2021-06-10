@@ -124,6 +124,10 @@ def game_loop():
             elif tap(u"game/dungeons/new.png", game_img):
                 print("=> New Dungeon")
                 continue
+            elif tap(u"game/buttons/challenge.png", game_img):
+                print("=> Challenge")
+                in_dungeon = True
+                continue
             # elif tap(u"game/dungeons/new_loss.png", game_img):
             #     print("=> Challenge again")
             #     continue
