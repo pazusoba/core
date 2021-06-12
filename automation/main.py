@@ -66,7 +66,7 @@ def game_loop():
             if find(u"game/battle/empty1.png", game_img)[0] or find(u"game/battle/empty2.png", game_img)[0]:
                 if DEBUG_MODE:
                     print("=> Waiting for combo")
-                puzzle_after_cycles += 0.5
+                puzzle_after_cycles += 0.25
                 continue
 
             # Before boss batlle, track current battle
@@ -88,11 +88,9 @@ def game_loop():
             # Do puzzle if allowed
             if puzzle_after_cycles <= 0:
                 if __doPuzzle():
-                    puzzle_after_cycles += 4
-                else:
-                    puzzle_after_cycles += 8
-                # reset the counter
-                puzzle_after_cycles = 0
+                    # reset the counter
+                    puzzle_after_cycles = 0
+                puzzle_after_cycles = 2
             else:
                 puzzle_after_cycles -= 1
         else:
@@ -110,6 +108,7 @@ def game_loop():
 
                 # keep tapping the screen until sell button is visible 
                 if not find(u"game/buttons/sell.png", game_img)[0]:
+                    print("=> Received all rewards")
                     touch()
                 else:
                     # clear the flag and keep tapping
@@ -132,6 +131,7 @@ def game_loop():
             elif tap(u"game/buttons/challenge.png", game_img):
                 print("=> Challenge")
                 in_dungeon = True
+                puzzle_after_cycles = 6
                 continue
             # elif tap(u"game/dungeons/new_loss.png", game_img):
             #     print("=> Challenge again")
@@ -149,9 +149,11 @@ def game_loop():
                     in_dungeon = True
                     puzzle_after_cycles = 6  
             elif find(u"game/rank/title.png", game_img)[0]:
+                print("=> Checking current rank")
                 touch()      
             # try going up one level to normal
             elif not find(u"game/dungeons/normal.png", game_img)[0]:
+                print("=> One level back")
                 tap(u"game/buttons/up.png", game_img)
 
         # NOTE: Never block the loop because it very important to see what's happen

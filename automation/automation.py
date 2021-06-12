@@ -22,14 +22,14 @@ monitor = {"top": top * SCREEN_SCALE, "left": left * SCREEN_SCALE, "width": widt
 # determine best input size
 ratio = height / width
 INPUT_SIZE = 0
-ACCURACY = 0.8
+ACCURACY = 0.
 if ratio < 1.6:
     INPUT_SIZE = GAME_SCREEN_SIZE_3_2
 elif ratio < 1.85:
     INPUT_SIZE = GAME_SCREEN_SIZE_16_9
 else:
     # NOTE: all templates are based on 2 : 1 game ratio
-    ACCURACY = 0.9
+    # ACCURACY = 0.9
     INPUT_SIZE = GAME_SCREEN_SIZE_2_1
 print("=> Ratio is {:.3f}. Resize to {}. Accuracy is set to {}".format(ratio, INPUT_SIZE, ACCURACY))
 

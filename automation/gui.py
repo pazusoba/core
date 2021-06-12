@@ -70,7 +70,7 @@ def __moveTo(x, y, ultra_fast=False, random=False):
     if ultra_fast:
         pyautogui.moveTo(x, y, duration=0, _pause=False)
         # add an random offset if required
-        offset = 0 if not random else randint(0, 150)
+        offset = 0 if not random else randint(0, 100)
 
         # NOTE: 50ms is about the minimum time for the game to recognise correctly, less than it will cause some issues
         time.sleep((50 + offset) / 1000)
