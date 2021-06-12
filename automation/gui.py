@@ -39,7 +39,7 @@ def perform(route: list, snapshot=True):
         if i == 0:
             __holdLeftKey(target_x, target_y)  
         else:
-            __moveTo(target_x, target_y, ultra_fast=True)
+            __moveTo(target_x, target_y, ultra_fast=True, random=True)
 
     # only release it when everything are all done
     pyautogui.mouseUp()
@@ -70,7 +70,7 @@ def __moveTo(x, y, ultra_fast=False, random=False):
     if ultra_fast:
         pyautogui.moveTo(x, y, duration=0, _pause=False)
         # add an random offset if required
-        offset = 0 if not random else randint(0, 100)
+        offset = 0 if not random else randint(0, 150)
 
         # NOTE: 50ms is about the minimum time for the game to recognise correctly, less than it will cause some issues
         time.sleep((50 + offset) / 1000)
