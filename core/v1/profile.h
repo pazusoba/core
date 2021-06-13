@@ -160,7 +160,7 @@ public:
                 if (distance > 0)
                 {
                     // 1500 - 1700
-                    score -= distance * 5000;
+                    score -= distance * 4650;
                 }
             }
 
@@ -675,7 +675,7 @@ public:
         // As long as, we reached the goal, don't bother erase more
         if (ok <= 0)
             orbErased += ok;
-        score += orbErased * 800;
+        score += orbErased * 3000;
 
         return score;
     }
