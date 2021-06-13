@@ -66,7 +66,7 @@ std::vector<Route> PSolver::solve()
     // Amen
     // std::vector<Profile *> profiles{
     //     new ComboProfile(7),
-    //     new OrbProfile(2)};
+    //     new OrbProfile(3)};
     // Amen & +
     //  std::vector<Profile *>
     //      profiles{
@@ -85,10 +85,10 @@ std::vector<Route> PSolver::solve()
     //     new TwoWayProfile({pad::light}),
     //     new ColourProfile};
     // Just combo
-    std::vector<Profile *> profiles{
-        new ComboProfile,
-        new TwoWayProfile({pad::fire, pad::light, pad::dark}),
-        new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
+    // std::vector<Profile *> profiles{
+    //     new ComboProfile,
+    //     new TwoWayProfile({pad::fire, pad::light, pad::dark}),
+    //     new ColourProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark})};
     // Laou
     // std::vector<Profile *> profiles{
     //     new ComboProfile,
@@ -101,9 +101,8 @@ std::vector<Route> PSolver::solve()
     //     new TwoWayProfile({pad::light, pad::dark}),
     //     new ColourProfile({pad::light, pad::dark})};
     // 7x6 Plus
-    // std::vector<Profile *> profiles{
-    //     new ComboProfile,
-    //     new PlusProfile({pad::light, pad::dark})};
+    std::vector<Profile *> profiles{
+        new ComboProfile};
     // new PlusProfile({pad::fire, pad::water, pad::wood, pad::light, pad::dark}),
     // new ColourProfile({pad::light, pad::dark})};
 

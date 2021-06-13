@@ -29,6 +29,7 @@ public:
     virtual ~Profile() {}
     virtual std::string getProfileName() const = 0;
     virtual int getScore(const ComboList &list, const Board &board, int moveCount) const = 0;
+    virtual int getWeight() const = 0;
 };
 
 // This is a singleton class to update profiles at run time
@@ -50,12 +51,19 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount)
     {
         int score = 0;
+        int totalWeight = 0;
 
         for (auto &p : profiles)
         {
-            score += p->getScore(list, board, moveCount);
+            // TODO: consider about weight
+            int weight = 1;
+            score += p->getScore(list, board, moveCount) * weight;
+            totalWeight += weight;
         }
 
+        // Get the average of all profiles so that they are equally important
+        if (totalWeight == 0)
+            return 0;
         return score;
     }
 
@@ -103,6 +111,11 @@ public:
     std::string getProfileName() const override
     {
         return "combo";
+    }
+
+    int getWeight() const override
+    {
+        return 20;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -195,19 +208,15 @@ public:
         {
             if (targetCombo > 0)
             {
-                int distance = combo - targetCombo;
+                int distance = abs(combo - targetCombo);
                 if (distance > 0)
                 {
                     // Sometimes, it is ok to do more combo temporarily
-                    combo *= -1;
+                    combo -= distance;
                 }
             }
-            else
-            {
-                // Encourage cascading
-                score += pad::TIER_FIVE_SCORE * moveCount;
-            }
 
+            score += pad::TIER_FIVE_SCORE * moveCount;
             // Always aim for max combo by default
             score += pad::TIER_ONE_SCORE * orbAround;
             score += pad::TIER_TWO_SCORE * orbNext2;
@@ -231,6 +240,11 @@ public:
     std::string getProfileName() const override
     {
         return "colour";
+    }
+
+    int getWeight() const override
+    {
+        return 8;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -302,6 +316,11 @@ public:
         return "2U";
     }
 
+    int getWeight() const override
+    {
+        return 3;
+    }
+
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
@@ -330,6 +349,11 @@ public:
     std::string getProfileName() const override
     {
         return "L";
+    }
+
+    int getWeight() const override
+    {
+        return 3;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -391,6 +415,11 @@ public:
         return "+";
     }
 
+    int getWeight() const override
+    {
+        return 3;
+    }
+
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
@@ -448,6 +477,11 @@ public:
     std::string getProfileName() const override
     {
         return "void damage penetration";
+    }
+
+    int getWeight() const override
+    {
+        return 10;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -537,6 +571,12 @@ public:
         return "soybean";
     }
 
+    
+    int getWeight() const override
+    {
+        return 8;
+    }
+
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
@@ -561,6 +601,11 @@ public:
     std::string getProfileName() const override
     {
         return "row";
+    }
+
+    int getWeight() const override
+    {
+        return 8;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -604,6 +649,11 @@ public:
     std::string getProfileName() const override
     {
         return "column";
+    }
+
+    int getWeight() const override
+    {
+        return 10;
     }
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
@@ -653,13 +703,18 @@ public:
         return "orb remains";
     }
 
+    int getWeight() const override
+    {
+        return 10;
+    }
+
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         int score = 0;
         if (list.size() == 0)
             return score;
 
-        int orbCount = board.size();
+        // int orbCount = board.size();
 
         // Track how many orbs are erased and left
         int orbErased = 0;
@@ -669,13 +724,13 @@ public:
         for (const auto &c : list)
         {
             int size = c.size();
-            score += (size - minErase) * pad::TIER_FIVE_SCORE;
+            score += (size - minErase) * pad::TIER_TEN_SCORE * 2;
             orbErased += size;
         }
 
-        orbLeft = orbCount - orbErased;
+        score += orbErased * pad::TIER_SIX_SCORE;
         // More points for erasing more orbs
-        score -= pad::TIER_SIX_SCORE * orbLeft;
+        score -= pad::TIER_TEN_SCORE * orbLeft * 2;
         if (orbLeft <= targetNumber)
         {
             score += pad::TIER_NINE_SCORE;
