@@ -159,8 +159,8 @@ public:
                 int distance = abs(combo - targetCombo);
                 if (distance > 0)
                 {
-                    // Sometimes, it is ok to do more combo temporarily
-                    combo -= distance;
+                    // 1500 - 1700
+                    score -= distance * 5000;
                 }
             }
 
@@ -659,27 +659,23 @@ public:
         if (list.size() == 0)
             return score;
 
-        // int orbCount = board.size();
 
         // Track how many orbs are erased and left
         int orbErased = 0;
-        int orbLeft = 0;
-
         // Encourage to connect more orbs in a combo
         for (const auto &c : list)
         {
             int size = c.size();
-            score += (size - minErase) * pad::TIER_TEN_SCORE * 2;
+            score += (size - minErase) * 80;
             orbErased += size;
         }
 
-        score += orbErased * pad::TIER_SIX_SCORE;
-        // More points for erasing more orbs
-        score -= pad::TIER_TEN_SCORE * orbLeft * 2;
-        if (orbLeft <= targetNumber)
-        {
-            score += pad::TIER_NINE_SCORE;
-        }
+        int orbLeft = board.size() - orbErased;
+        int ok = orbLeft - targetNumber;
+        // As long as, we reached the goal, don't bother erase more
+        if (ok <= 0)
+            orbErased += ok;
+        score += orbErased * 800;
 
         return score;
     }
