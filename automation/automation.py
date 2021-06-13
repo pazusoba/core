@@ -22,7 +22,7 @@ monitor = {"top": top * SCREEN_SCALE, "left": left * SCREEN_SCALE, "width": widt
 # determine best input size
 ratio = height / width
 INPUT_SIZE = 0
-ACCURACY = 0.
+ACCURACY = 0.8
 if ratio < 1.6:
     INPUT_SIZE = GAME_SCREEN_SIZE_3_2
 elif ratio < 1.85:
