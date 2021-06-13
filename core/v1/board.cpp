@@ -229,7 +229,8 @@ int PBoard::rateBoard()
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
-    int score = ProfileManager::shared().getScore(list, board, moveCount);
+    // TODO: erased board (the final board) or the full board, erased board seems to work better
+    int score = ProfileManager::shared().getScore(list, temp, moveCount);
     return score;
 }
 

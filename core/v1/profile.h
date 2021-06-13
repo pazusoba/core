@@ -123,84 +123,32 @@ public:
         int score = 0;
         int combo = list.size();
 
-        // Check if there are orbs next to each other
-        int orbAround = 0;
-        int orbNext2 = 0;
-
-        // Collect all orbs with current location
-        // std::map<Orb, std::vector<OrbLocation>> distanceInfo;
-
+        // std::array<Orb, pad::ORB_COUNT> orbInfo;
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < column; j++)
             {
                 auto curr = board[INDEX_OF(i, j)];
-                if (curr == pad::empty)
-                    continue;
-
-                // TODO: improve this??
-                // save this location
-                // distanceInfo[curr].push_back(LOCATION(i, j));
-
-                // Check if there are same orbs around
-                for (int a = -1; a <= 1; a++)
+                // X is important to bring orbs together
+                for (int y = j + 1; y < column; y++)
                 {
-                    for (int b = -1; b <= 1; b++)
+                    int count = 0;
+                    if (board[INDEX_OF(i, y)] == curr)
                     {
-                        // This is the current orb
-                        if (a == 0 && b == 0)
-                            continue;
-
-                        int x = i + a, y = j + b;
-                        // check x & y are valid
-                        if (x >= 0 && x < row && y >= 0 && y < column)
-                        {
-                            // Check orbs are the same
-                            auto orb = board[INDEX_OF(i, j)];
-                            if (curr == orb)
-                            {
-                                orbAround++;
-                                if ((a == 0 && ((b == 1) || (b == -1))) ||
-                                    (b == 0 && ((a == 1) || (a == -1))))
-                                {
-                                    // This means that it is a line
-                                    orbNext2 += 1;
-                                    orbAround -= 1;
-                                }
-                            }
-                        }
+                        count++;
+                        // Further away
+                        score -= (y - j) * pad::TIER_THREE_SCORE;
                     }
+                    if (count == 0)
+                        // Nothing is found so this orb is alone
+                        score -= pad::TIER_FIVE_SCORE;
                 }
             }
         }
 
-        // For every orbs, we need to get the distance of it from other orbs
-        // for (auto curr = distanceInfo.begin(); curr != distanceInfo.end(); curr++)
-        // {
-        //     // track the total distance
-        //     int distance = 0;
-        //     auto orbs = curr->second;
-        //     int size = orbs.size();
-        //     for (int i = 0; i < size; i++)
-        //     {
-        //         auto loc = orbs[i];
-        //         for (int j = i; j < size; j++)
-        //         {
-        //             auto other = orbs[j];
-        //             distance += abs(loc.first - other.first) + abs(loc.second - other.second);
-        //             // distance += (int)sqrt(pow(loc.first - other.first, 2) + pow(loc.second - other.second, 2));
-        //         }
-        //     }
-
-        //     // Less points if far away
-        //     score -= pad::TIER_THREE_SCORE * distance;
-        // }
-
         if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
-            score -= pad::TIER_ONE_SCORE * orbAround;
-            score -= pad::TIER_TWO_SCORE * orbNext2;
             score -= pad::TIER_FIVE_SCORE * moveCount;
             score -= pad::TIER_TEN_SCORE * combo;
         }
@@ -216,10 +164,8 @@ public:
                 }
             }
 
-            score += pad::TIER_FIVE_SCORE * moveCount;
-            // Always aim for max combo by default
-            score += pad::TIER_ONE_SCORE * orbAround;
-            score += pad::TIER_TWO_SCORE * orbNext2;
+            // 45 - 48 are the best score for now
+            score += 48 * moveCount;
             score += pad::TIER_TEN_SCORE * combo;
         }
 
@@ -571,7 +517,6 @@ public:
         return "soybean";
     }
 
-    
     int getWeight() const override
     {
         return 8;
