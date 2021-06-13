@@ -122,26 +122,22 @@ public:
     {
         int score = 0;
         int combo = list.size();
+        std::array<std::array<int, 2>, pad::ORB_COUNT> orbDistance{0};
 
         // std::array<Orb, pad::ORB_COUNT> orbInfo;
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < column; j++)
             {
-                auto curr = board[INDEX_OF(i, j)];
-                // X is important to bring orbs together
-                for (int y = j + 1; y < column; y++)
+                auto orb = board[INDEX_OF(i, j)];
+                // Store the max and min value of the X value of this orb
+                if (j < orbDistance[orb][0])
                 {
-                    int count = 0;
-                    if (board[INDEX_OF(i, y)] == curr)
-                    {
-                        count++;
-                        // Further away
-                        score -= (y - j) * pad::TIER_THREE_SCORE;
-                    }
-                    if (count == 0)
-                        // Nothing is found so this orb is alone
-                        score -= pad::TIER_FIVE_SCORE;
+                    orbDistance[orb][0] = j;
+                }
+                if (j > orbDistance[orb][1])
+                {
+                    orbDistance[orb][1] = j;
                 }
             }
         }
@@ -149,8 +145,12 @@ public:
         if (targetCombo == 0)
         {
             // Aim for zero combo and make sure orbs are not close to each other
-            score -= pad::TIER_FIVE_SCORE * moveCount;
+            score -= pad::TIER_EIGHT_SCORE * moveCount;
             score -= pad::TIER_TEN_SCORE * combo;
+            for (const auto &orbInfo : orbDistance)
+            {
+                score += (orbInfo[1] - orbInfo[0]) * 50;
+            }
         }
         else
         {
@@ -165,7 +165,11 @@ public:
             }
 
             // 45 - 48 are the best score for now
-            score += 48 * moveCount;
+            for (const auto &orbInfo : orbDistance)
+            {
+                score -= (orbInfo[1] - orbInfo[0]) * 75;
+            }
+
             score += pad::TIER_TEN_SCORE * combo;
         }
 
@@ -196,11 +200,22 @@ public:
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
         // evaluate=-30*|7-コンボ数|-Σ(r_i-l_i)-10*(残りドロップ数-3) by koduma san
-        std::array<std::array<int, 2>, pad::ORB_COUNT> orbDistance {0};
+        std::array<std::array<int, 2>, pad::ORB_COUNT> orbDistance{0};
+        // if (board[0] > 0)
+        // {
+        //     int a = 0;
+        //     a++;
+        // }
 
         int score = 0;
-        score += (targetCombo - abs(targetCombo - list.size())) * 1000;
+        int combo = list.size();
+        // if (combo > targetCombo)
+        //     combo = 0;
+        score += combo * 1000;
+        score += 50 * moveCount;
+
         int remaining = 0;
+        int total = 0;
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < column; j++)
@@ -208,6 +223,7 @@ public:
                 auto orb = board[INDEX_OF(i, j)];
                 if (orb != pad::empty)
                     remaining++;
+                total++;
 
                 // Store the max and min value of the X value of this orb
                 if (j < orbDistance[orb][0])
@@ -221,14 +237,16 @@ public:
             }
         }
 
-        for (const auto &orbInfo : orbDistance)
-        {
-            // printf("%d\n", orbInfo[1] - orbInfo[0]);
-            score -= abs(orbInfo[1] - orbInfo[0]) * 200;
-        }
+        // for (const auto &orbInfo : orbDistance)
+        // {
+        //     // printf("%d\n", orbInfo[1] - orbInfo[0]);
+        //     score -= (orbInfo[1] - orbInfo[0]) * 500;
+        // }
 
-        if (remaining > targetRemaining)
-            score -= remaining * 10000;
+        // int erased = total - remaining;
+        // if (remaining <= targetRemaining)
+        //     erased = total - targetRemaining;
+        // score += erased * 500;
         return score;
     }
 };

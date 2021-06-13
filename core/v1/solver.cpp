@@ -65,7 +65,7 @@ std::vector<Route> PSolver::solve()
     //        new ColourProfile({pad::light, pad::dark})};
     // Amen
     std::vector<Profile *> profiles{
-        new AmenProfile};
+        new ComboProfile};
     // Amen & +
     //  std::vector<Profile *>
     //      profiles{
