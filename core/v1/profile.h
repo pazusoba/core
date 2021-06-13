@@ -176,11 +176,12 @@ public:
 // 7 Combo and less than 3 orbs remaining
 class AmenProfile : public Profile
 {
-    int combo = 7;
-    int orbReaming = 3;
+    int targetCombo = 7;
+    int targetRemaining = 3;
+
 public:
     AmenProfile() {}
-    AmenProfile(int c, int o) : combo(c), orbReaming(o) {}
+    AmenProfile(int c, int o) : targetCombo(c), targetRemaining(o) {}
 
     std::string getProfileName() const override
     {
@@ -194,7 +195,41 @@ public:
 
     int getScore(const ComboList &list, const Board &board, int moveCount) const override
     {
-        return 100;
+        // evaluate=-30*|7-コンボ数|-Σ(r_i-l_i)-10*(残りドロップ数-3) by koduma san
+        std::array<std::array<int, 2>, pad::ORB_COUNT> orbDistance {0};
+
+        int score = 0;
+        score += (targetCombo - abs(targetCombo - list.size())) * 1000;
+        int remaining = 0;
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < column; j++)
+            {
+                auto orb = board[INDEX_OF(i, j)];
+                if (orb != pad::empty)
+                    remaining++;
+
+                // Store the max and min value of the X value of this orb
+                if (j < orbDistance[orb][0])
+                {
+                    orbDistance[orb][0] = j;
+                }
+                if (j > orbDistance[orb][1])
+                {
+                    orbDistance[orb][1] = j;
+                }
+            }
+        }
+
+        for (const auto &orbInfo : orbDistance)
+        {
+            // printf("%d\n", orbInfo[1] - orbInfo[0]);
+            score -= abs(orbInfo[1] - orbInfo[0]) * 200;
+        }
+
+        if (remaining > targetRemaining)
+            score -= remaining * 10000;
+        return score;
     }
 };
 
@@ -683,7 +718,6 @@ public:
         int score = 0;
         if (list.size() == 0)
             return score;
-
 
         // Track how many orbs are erased and left
         int orbErased = 0;

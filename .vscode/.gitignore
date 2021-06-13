@@ -1,0 +1,5 @@
+*.json
+
+# Debug and Build
+!launch.json
+!tasks.json
