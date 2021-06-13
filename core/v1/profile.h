@@ -173,6 +173,31 @@ public:
     }
 };
 
+// 7 Combo and less than 3 orbs remaining
+class AmenProfile : public Profile
+{
+    int combo = 7;
+    int orbReaming = 3;
+public:
+    AmenProfile() {}
+    AmenProfile(int c, int o) : combo(c), orbReaming(o) {}
+
+    std::string getProfileName() const override
+    {
+        return "amen";
+    }
+
+    int getWeight() const override
+    {
+        return 100;
+    }
+
+    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    {
+        return 100;
+    }
+};
+
 // More points for more colour erased
 class ColourProfile : public Profile
 {
