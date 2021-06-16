@@ -21,12 +21,18 @@ class Skill:
         # calculate the location
         left, top, end_left, end_top = BOARD_LOCATION
         width = end_left - left
+        height = end_top - top
+
         one = width / self.numberOfSkills
         half = one / 2
+        
+        # calculate the location of this skill
         skill_left = (one * current - half) + left
-        skill_top = top - 60
-        print(skill_left, skill_top)
-        pyautogui.moveTo(skill_left, skill_top)        
+        skill_top = top - (height / 5)
+        # print(skill_left, skill_top, height / 5)
+        
+        pyautogui.moveTo(skill_left, skill_top)
+        pyautogui.leftClick()    
         pyautogui.mouseDown()
         pyautogui.mouseUp()
 
