@@ -163,6 +163,12 @@ public:
                     // 1500 - 1700
                     score -= distance * 4650;
                 }
+            } else {
+                for (const auto &combo : list) 
+                {
+                    if ((int)combo.size() > minErase)
+                        score -= 100;
+                }
             }
 
             // 45 - 48 are the best score for now
@@ -171,8 +177,9 @@ public:
                 score -= (orbInfo[1] - orbInfo[0]) * 75;
             }
 
-            // if (maxStep / step == 1)
-            score += pad::TIER_TEN_SCORE * combo;
+            // If the max step is small, no need to wait for combo
+            if (maxStep <= 30 || step * 2 >= maxStep)
+                score += pad::TIER_TEN_SCORE * combo;
         }
 
         return score;

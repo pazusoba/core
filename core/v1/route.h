@@ -42,6 +42,7 @@ public:
     void printRoute();
     void printErasedBoard();
     inline int getStep() { return step; }
+    inline int getScore() { return score; }
     inline void saveToDisk() { state->saveToDisk(); }
 };
 

@@ -121,6 +121,7 @@ std::vector<Route> PSolver::solve()
     childrenStates.reserve(size * 4);
     // This saves the best score
     std::map<int, PState *> bestScore;
+    std::map<unsigned long, bool> visited;
     Timer::shared().start(999);
 
     // This is the root state, 30 of them in a list to be deleted later
@@ -184,23 +185,31 @@ std::vector<Route> PSolver::solve()
                     toVisit.pop();
                     // mtx.unlock();
 
+                    auto hash = currentState->board.hash();
+                    if (visited[hash] && i > 3)
+                    {
+                        // Don't forget to unlock here
+                        mtx.unlock();
+                        k--;
+                        continue;
+                    }
+                    else
+                    {
+                        visited[hash] = true;
+                    }
+
                     // Save current score for printing out later
                     int currentScore = currentState->score;
                     int currentStep = currentState->step;
 
-                    // Save best scores
-                    bool shouldAdd = false;
                     // mtx.lock();
                     if (bestScore[currentScore] == nullptr)
                     {
                         bestScore[currentScore] = currentState;
-                        shouldAdd = true;
                     }
                     else
                     {
                         auto saved = bestScore[currentScore];
-                        shouldAdd = !(saved == currentState);
-
                         if (saved->step > currentStep)
                         {
                             // We found a better one
@@ -209,7 +218,7 @@ std::vector<Route> PSolver::solve()
                     }
                     mtx.unlock();
 
-                    if (shouldAdd && currentState != nullptr)
+                    if (currentState != nullptr)
                     {
                         // All all possible children
                         for (auto &s : currentState->getChildren())
@@ -279,8 +288,8 @@ std::vector<Route> PSolver::solve()
     }
 
     // Sort saved routes by steps
-    std::sort(routes.begin(), routes.end(),
-              [](Route &a, Route &b) { return a.getStep() < b.getStep(); });
+    // std::sort(routes.begin(), routes.end(),
+    //           [](Route &a, Route &b) { return a.getScore() > b.getScore(); });
 
     if (routes.size() > 0)
     {
