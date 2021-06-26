@@ -14,6 +14,7 @@ class Configuration
     int row = 0;
     int column = 0;
     int minErase = 0;
+    int maxStep = 0;
 
     Configuration() {}
 
@@ -26,17 +27,19 @@ public:
     }
 
     /// This should only be called once
-    void config(int row, int column, int minErase)
+    void config(int row, int column, int minErase, int maxStep)
     {
         this->row = row;
         this->column = column;
         this->minErase = minErase;
+        this->maxStep = maxStep;
     }
 
     // MARK: - Getter
     int &getRow() { return row; }
     int &getColumn() { return column; }
     int &getMinErase() { return minErase; }
+    int &getMaxStep() { return maxStep; }
 };
 
 #endif

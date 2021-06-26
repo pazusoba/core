@@ -224,13 +224,13 @@ void PBoard::floodfill(Combo *list, const OrbLocation &loc, const Orb &orb, bool
 }
 
 // This is taking a lot of time
-int PBoard::rateBoard()
+int PBoard::rateBoard(int step)
 {
     int moveCount = 0;
     auto list = eraseComboAndMoveOrbs(&moveCount);
 
     // TODO: erased board (the final board) or the full board, erased board seems to work better
-    int score = ProfileManager::shared().getScore(list, board, moveCount);
+    int score = ProfileManager::shared().getScore(list, board, moveCount, step);
     return score;
 }
 

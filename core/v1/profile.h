@@ -25,10 +25,11 @@ public:
     int row = Configuration::shared().getRow();
     int column = Configuration::shared().getColumn();
     int minErase = Configuration::shared().getMinErase();
+    int maxStep = Configuration::shared().getMaxStep();
 
     virtual ~Profile() {}
     virtual std::string getProfileName() const = 0;
-    virtual int getScore(const ComboList &list, const Board &board, int moveCount) const = 0;
+    virtual int getScore(const ComboList &list, const Board &board, int moveCount, int step) const = 0;
     virtual int getWeight() const = 0;
 };
 
@@ -48,7 +49,7 @@ public:
 
     // Loop through all profiles and add scores based on every profile
     // You need a list of combos, the current board and moveCount
-    int getScore(const ComboList &list, const Board &board, int moveCount)
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step)
     {
         int score = 0;
         int totalWeight = 0;
@@ -57,7 +58,7 @@ public:
         {
             // TODO: consider about weight
             int weight = 1;
-            score += p->getScore(list, board, moveCount) * weight;
+            score += p->getScore(list, board, moveCount, step) * weight;
             totalWeight += weight;
         }
 
@@ -118,7 +119,7 @@ public:
         return 20;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         int combo = list.size();
@@ -170,6 +171,7 @@ public:
                 score -= (orbInfo[1] - orbInfo[0]) * 75;
             }
 
+            // if (maxStep / step == 1)
             score += pad::TIER_TEN_SCORE * combo;
         }
 
@@ -197,7 +199,7 @@ public:
         return 100;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         // evaluate=-30*|7-コンボ数|-Σ(r_i-l_i)-10*(残りドロップ数-3) by koduma san
         std::array<std::array<int, 2>, pad::ORB_COUNT> orbDistance{0};
@@ -271,7 +273,7 @@ public:
         return 8;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         std::set<Orb> colours;
@@ -345,7 +347,7 @@ public:
         return 3;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -380,7 +382,7 @@ public:
         return 3;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -444,7 +446,7 @@ public:
         return 3;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -508,7 +510,7 @@ public:
         return 10;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         // Try this board
         // DHLHHDHDDDHLDDHDLLLHHLHLLLLDHLHLDLHLLLHLHH
@@ -600,7 +602,7 @@ public:
         return 8;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -631,7 +633,7 @@ public:
         return 8;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -679,7 +681,7 @@ public:
         return 10;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         for (const auto &c : list)
@@ -731,7 +733,7 @@ public:
         return 10;
     }
 
-    int getScore(const ComboList &list, const Board &board, int moveCount) const override
+    int getScore(const ComboList &list, const Board &board, int moveCount, int step) const override
     {
         int score = 0;
         if (list.size() == 0)

@@ -12,6 +12,7 @@
 #include <functional>
 #include "pad.h"
 #include "configuration.h"
+#include "../v2/hash.h"
 
 /// Convert location to index
 #define INDEX_OF(x, y) (x * column + y)
@@ -129,7 +130,7 @@ public:
     PBoard(const Board &board);
 
     /// Rate current board with profiles
-    int rateBoard();
+    int rateBoard(int step);
 
     /// Print out a board nicely formatted
     void printBoard();
@@ -151,6 +152,10 @@ public:
                 func(i, j, orb);
             }
         }
+    }
+
+    inline unsigned long hash() const {
+        return pazusoba::djb2_hash(board.data());
     }
 
     inline bool hasSameBoard(const PBoard *b) const

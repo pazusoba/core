@@ -20,7 +20,7 @@ PState::PState(const PBoard &board, const OrbLocation &from, const OrbLocation &
     // Using memory copy is better than assign
     memcpy(&this->erasedBoard, &this->board, sizeof(this->board));
     // this->erasedBoard = this->board;
-    this->score = erasedBoard.rateBoard();
+    this->score = erasedBoard.rateBoard(step);
 
     // Copy other variables
     this->previous = from;

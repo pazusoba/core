@@ -361,7 +361,7 @@ Board PSolver::readBoard(const std::string &filePath)
         row++;
     }
 
-    Configuration::shared().config(row, column, minErase);
+    Configuration::shared().config(row, column, minErase, steps);
     boardFile.close();
     return board;
 }
@@ -387,7 +387,7 @@ void PSolver::setBoardFrom(const std::string &board)
         column = 7;
     }
 
-    Configuration::shared().config(row, column, minErase);
+    Configuration::shared().config(row, column, minErase, steps);
 
     // Read from a string
     Board currBoard;
