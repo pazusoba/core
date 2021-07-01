@@ -1,5 +1,0 @@
-pillow
-numpy
-opencv-python
-pyautogui
-mss
