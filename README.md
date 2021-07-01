@@ -3,6 +3,13 @@ Puzzle & Dragons is a mobile game developed by [GungHo Online Entertainment,Inc]
 
 Some demo on [YouTube](https://www.youtube.com/playlist?list=PLl6hdCL2pzdV69Ilh8vUrP2o6t2GIimqU) mostly in Japanese.
 
+### Projects
+- [pazusoba](https://github.com/HenryQuan/pazusoba), the core algorithm
+- [pazulove](https://github.com/HenryQuan/pazulove), machine learning
+- [pazuauto](https://github.com/HenryQuan/pazuauto), automation
+- [pazuflata](https://github.com/HenryQuan/pazuflata), pazusoba with Flutter
+- [pazusoba-android](https://github.com/HenryQuan/pazusoba-android), pazusoba and automation on Android
+
 ## The goal
 There are 30 * 3 ^ 25 possible states for a 6 x 5 board (with max steps of 25) so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal).
 
