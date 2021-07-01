@@ -155,7 +155,7 @@ public:
     }
 
     inline unsigned long hash() const {
-        return pazusoba::djb2_hash(board.data());
+        return pazusoba::hash::djb2_hash(board.data());
     }
 
     inline bool hasSameBoard(const PBoard *b) const

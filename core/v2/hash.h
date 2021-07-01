@@ -4,7 +4,7 @@
 #ifndef HASH_H
 #define HASH_H
 
-namespace pazusoba
+namespace pazusoba::hash
 {
     inline unsigned long djb2_hash(const unsigned char *str)
     {

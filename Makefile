@@ -29,7 +29,7 @@ GCC=g++ -Wall -Werror -std=c++11
 SHARED=-shared -fPIC
 
 # v1 or v2, decides the source to compile
-VERSION=v1
+VERSION=v2
 CPP_FILES=core/$(VERSION)/*.cpp
 
 build:
