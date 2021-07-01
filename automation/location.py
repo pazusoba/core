@@ -1,3 +1,7 @@
+"""
+Choose board or game location
+"""
+
 import pyautogui as gui
 
 import cv2 as cv
@@ -6,7 +10,9 @@ import numpy as np
 import mss
 import mss.tools
 
-def get_location_manually():
+from typing import List
+
+def get_location_manually() -> List[int]:
     """
     Get the board location on the screen
     """
@@ -17,10 +23,6 @@ def get_location_manually():
 
     print("Board Location - [{}, {}, {}, {}]".format(one.x, one.y, two.x, two.y))
     return [one.x, one.y, two.x, two.y]
-
-def clearAllWindows():
-    cv.waitKey()
-    cv.destroyAllWindows()
 
 def get_location_automatically():
     """
@@ -44,5 +46,11 @@ def get_location_automatically():
         cv.imshow("fullscreen", result)
         clearAllWindows()
 
-get_location_manually()
-# get_location_automatically()
+def clearAllWindows():
+    cv.waitKey()
+    cv.destroyAllWindows()
+
+# this check if this script is being executed instead of using as a module
+if __name__ == "__main__":
+    get_location_manually()
+    # get_location_automatically()

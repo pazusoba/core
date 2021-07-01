@@ -366,7 +366,7 @@ public:
             // 2U needs 4 orbs connected
             if (c.size() == 4 && isTheOrb(c[0].orb))
             {
-                score += pad::TIER_SIX_SCORE;
+                score += pad::TIER_TEN_SCORE;
             }
         }
         return score;
@@ -429,7 +429,7 @@ public:
                         counter++;
 
                     if (counter == 2)
-                        score += pad::TIER_EIGHT_SCORE;
+                        score += pad::TIER_TEN_SCORE * 2;
                 }
             }
         }
