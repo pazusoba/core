@@ -10,5 +10,6 @@
 
 #include "timer.h"
 #include "constant.h"
+#include "hash.h"
 
 #endif

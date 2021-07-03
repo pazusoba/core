@@ -23,3 +23,6 @@
 # xcode
 **/*.xcuserstate
 **/*.xcbkptlist
+
+# cmake build
+build/
