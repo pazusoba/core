@@ -36,10 +36,6 @@ CPP_FILES=core/$(VERSION)/*.cpp
 build:
 	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES)
 
-test:
-	$(GCC) $(OPTIMISATION) main_$(VERSION).cpp $(CPP_FILES) -o test
-	./test
-
 debug:
 	$(GCC) -g main_$(VERSION).cpp $(CPP_FILES)
 
