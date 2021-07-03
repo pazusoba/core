@@ -8,38 +8,40 @@
 
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-
-class Configuration
+extern "C"
 {
-    int row = 0;
-    int column = 0;
-    int minErase = 0;
-    int maxStep = 0;
 
-    Configuration() {}
-
-public:
-    /// A shared instance of configuration
-    static Configuration &shared()
+    class Configuration
     {
-        static Configuration p;
-        return p;
-    }
+        int row = 0;
+        int column = 0;
+        int minErase = 0;
+        int maxStep = 0;
 
-    /// This should only be called once
-    void config(int row, int column, int minErase, int maxStep)
-    {
-        this->row = row;
-        this->column = column;
-        this->minErase = minErase;
-        this->maxStep = maxStep;
-    }
+        Configuration() {}
 
-    // MARK: - Getter
-    int &getRow() { return row; }
-    int &getColumn() { return column; }
-    int &getMinErase() { return minErase; }
-    int &getMaxStep() { return maxStep; }
-};
+    public:
+        /// A shared instance of configuration
+        static Configuration &shared()
+        {
+            static Configuration p;
+            return p;
+        }
 
+        /// This should only be called once
+        void config(int row, int column, int minErase, int maxStep)
+        {
+            this->row = row;
+            this->column = column;
+            this->minErase = minErase;
+            this->maxStep = maxStep;
+        }
+
+        // MARK: - Getter
+        int &getRow() { return row; }
+        int &getColumn() { return column; }
+        int &getMinErase() { return minErase; }
+        int &getMaxStep() { return maxStep; }
+    };
+}
 #endif

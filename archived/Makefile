@@ -25,12 +25,12 @@ endif
 # flto - linking
 OPTIMISATION=-O3 -flto -pthread -lpthread
 # shared arguments
-# GCC=g++ -Wall -Werror
-GCC=g++ -Wall -Wextra -pedantic
+GCC=g++ -Wall -Werror
+# GCC=g++ -Wall -Wextra -pedantic
 SHARED=-shared -fPIC
 
 # v1 or v2, decides the source to compile
-VERSION=v2
+VERSION=v1
 CPP_FILES=core/$(VERSION)/*.cpp
 
 build:

@@ -1,7 +1,7 @@
 name=helloworld
 
 all:
-	gcc -shared $(name).c -o $(name).so
+	g++ -shared $(name).cpp -o $(name).so
 	dart compile exe $(name).dart -o $(name).out
 	./$(name).out
 

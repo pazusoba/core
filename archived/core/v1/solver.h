@@ -13,6 +13,8 @@
 #include "route.h"
 #include "board.h"
 #include "state.h"
+extern "C"
+{
 
 class PSolver
 {
@@ -47,5 +49,5 @@ public:
     /// Update step limit
     void setStepLimit(int step);
 };
-
+}
 #endif

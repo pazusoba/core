@@ -1,6 +1,6 @@
 //
-// core.h
-// Import all core headers
+// pazusoba.h
+// The main header which includes every single header
 //
 // Created by Yiheng Quan on 11/11/2020
 //

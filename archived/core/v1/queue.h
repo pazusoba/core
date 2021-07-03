@@ -14,38 +14,41 @@
 
 #include "state.h"
 
-struct PElement
+extern "C"
 {
-    // Current state
-    PState *state = nullptr;
-    // Link to next state
-    PElement *next = nullptr;
-    // Link to next state
-    PElement *previous = nullptr;
 
-    PElement(PState *s) : state(s) {}
-};
+    struct PElement
+    {
+        // Current state
+        PState *state = nullptr;
+        // Link to next state
+        PElement *next = nullptr;
+        // Link to next state
+        PElement *previous = nullptr;
 
-struct PPriorityQueue
-{
-    // This is max size possible for this queue
-    int maxSize;
-    int size = 0;
+        PElement(PState *s) : state(s) {}
+    };
 
-    PElement *top = nullptr;
-    PElement *bottom = nullptr;
+    struct PPriorityQueue
+    {
+        // This is max size possible for this queue
+        int maxSize;
+        int size = 0;
 
-    PPriorityQueue(int size) : maxSize(size) {}
-    ~PPriorityQueue();
+        PElement *top = nullptr;
+        PElement *bottom = nullptr;
 
-    // Insert a new state if size < maxSize or this state is better than top state
-    void insert(PState *);
-    // Return and remove the top state
-    PState *pop();
-    // Print out all elements in this queue
-    void printQueue();
-    // Loop through the queue
-    void foreach (void func(PElement *));
-};
+        PPriorityQueue(int size) : maxSize(size) {}
+        ~PPriorityQueue();
 
+        // Insert a new state if size < maxSize or this state is better than top state
+        void insert(PState *);
+        // Return and remove the top state
+        PState *pop();
+        // Print out all elements in this queue
+        void printQueue();
+        // Loop through the queue
+        void foreach (void func(PElement *));
+    };
+}
 #endif

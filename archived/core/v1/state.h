@@ -9,6 +9,8 @@
 #include <fstream>
 #include <mutex>
 #include "board.h"
+extern "C"
+{
 
 class PState
 {
@@ -61,5 +63,5 @@ public:
     // Save the entire state from begining to the end to the disk
     void saveToDisk();
 };
-
+}
 #endif

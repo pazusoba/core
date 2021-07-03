@@ -13,37 +13,39 @@
 #include "board.h"
 #include "state.h"
 #include "pad.h"
-
-typedef std::vector<pad::direction> Directions;
-
-class Route
+extern "C"
 {
-    PState *state;
-    PBoard finalBoard;
-    PBoard erasedBoard;
-    // A list of direction
-    Directions directions;
-    OrbLocation start;
-    int score;
-    int step;
 
-    // Convert the end state to Directions
-    void convertFromState(const PState *s);
+    typedef std::vector<pad::direction> Directions;
 
-    // Go all the way back to the start and push to directions
-    void stateBack(const PState *curr, const PState *parent);
+    class Route
+    {
+        PState *state;
+        PBoard finalBoard;
+        PBoard erasedBoard;
+        // A list of direction
+        Directions directions;
+        OrbLocation start;
+        int score;
+        int step;
 
-    // Convert orbLocation to a direction
-    pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev);
+        // Convert the end state to Directions
+        void convertFromState(const PState *s);
 
-public:
-    Route(PState *state);
+        // Go all the way back to the start and push to directions
+        void stateBack(const PState *curr, const PState *parent);
 
-    void printRoute();
-    void printErasedBoard();
-    inline int getStep() { return step; }
-    inline int getScore() { return score; }
-    inline void saveToDisk() { state->saveToDisk(); }
-};
+        // Convert orbLocation to a direction
+        pad::direction getDirection(const OrbLocation &curr, const OrbLocation &prev);
 
+    public:
+        Route(PState *state);
+
+        void printRoute();
+        void printErasedBoard();
+        inline int getStep() { return step; }
+        inline int getScore() { return score; }
+        inline void saveToDisk() { state->saveToDisk(); }
+    };
+}
 #endif

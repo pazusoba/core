@@ -12,14 +12,10 @@ project(
 
 message("-- Getting headers and sources")
 
-file(GLOB PAZUSOBA_HEADERS "include/*.h")
+# This is needed to find headers
+include_directories(include)
 file(GLOB PAZUSOBA_SOURCES "src/*.cpp")
 add_library(
-    pazusoba_lib
-    ${PAZUSOBA_HEADERS}
+    pazusoba SHARED
     ${PAZUSOBA_SOURCES}
-)
-set_target_properties(
-    pazusoba_lib 
-    PROPERTIES PUBLIC_HEADER include/core.h
 )
