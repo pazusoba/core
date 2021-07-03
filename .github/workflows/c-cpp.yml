@@ -13,9 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: => go to test/
-      run: cd test/
-    - name: => build for test
-      run: g++ -Wall -Wextra -pedantic test.cpp -o pazusoba.test
-    - name: => test pazusoba
-      run: ./pazusoba.test
+    - name: => build and test pazusoba
+      working-directory: ./test
+      run: make test
