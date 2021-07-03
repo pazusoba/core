@@ -13,6 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: test pazusoba
-      run: cd test
+    - name: => go to test/
+      run: cd test/
+    - name: => build and test pazusoba
       run: make
