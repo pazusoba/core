@@ -8,6 +8,7 @@
 **/*_wrap.cxx
 **/.ipynb_checkpoints
 **/__pycache**
+**/*.test
 
 # generated boards
 **/board_*.txt

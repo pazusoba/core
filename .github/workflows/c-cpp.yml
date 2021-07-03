@@ -15,5 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: => go to test/
       run: cd test/
-    - name: => build and test pazusoba
-      run: make
+    - name: => build for test
+      run: g++ -Wall -Wextra -pedantic test.cpp -o pazusoba.test
+    - name: => test pazusoba
+      run: ./pazusoba.test
