@@ -148,8 +148,14 @@ Things that were helpful during my experiments.
 - [BSD License](https://github.com/asweigart/pyautogui/blob/master/LICENSE.txt) for pyautogui
 - [NumPy License](https://numpy.org/devdocs/license.html)
 
+
+<details>
+<summary>Miscellaneous</summary>
+
 # Miscellaneous
 ## 2000 days
 I have been playing this game (the Japanese version) for more than 2000 days (until 2/7/2020). I started playing in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. C++ reminds me of my good old days with C programming. You feel like you can do anything with it. C is special because it was my first programming language but it was a tough way to start programming, lol. Lately, I have been using JS, Python, Dart, Swift and Kotlin. They are modern, nice and easier to write but it is nice to stop and go back to the origin once a while. 
 ![2000日たまドラ](https://raw.githubusercontent.com/HenryQuan/pazusoba/master/support/2000.jpg?token=ABTRDFH6WOWXATCBOZXXCGK7BAJ5G)
 たま~ たま~
+
+</details>
