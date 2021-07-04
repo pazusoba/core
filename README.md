@@ -78,13 +78,27 @@ You can mix everything together and use for many teams.
 This project was originally developed on Windows 10 with `MinGW`. Later, I also tried on Mac OS and Linux. Now, I am using `CMake` to make it easier to build across all three platforms. 
 
 ### Setup
-On Windows, `MinGW` is recommened as this is what I am using. `Visual Studio` can also be used but not tested. On Mac OS and Linux, `g++/clang++` is preferred. 
+On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is not supported for now. On Mac OS and Linux, `g++/clang++` is preferred. 
 
-Requirements
+#### Requirements
 - CMake (3.10+)
 - MinGW/g++/clang++ with C++17 support
   - C++11 is the minimum requirement as lambda is used
   - Nested namespace requires C++17 but can be easily updated
+
+#### Setup CMake
+~~~shell
+cmake -B release -G "MinGW Makefiles"
+cmake --build release --target pazusoba_binary
+./release/pazusoba_binary.exe
+~~~
+
+Add `-DCMAKE_BUILD_TYPE=Debug` to debug or test pazusoba.
+~~~shell
+cmake -B debug -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug
+cmake --build debug --target test_pazusoba
+./debug/test_pazusoba.exe
+~~~
 
 ### Build
 On Windows, it is recommened to use `cmake .. -G "MinGW Makefiles"` for CMake. On Mac OS and Linux, simply use the default. Run `cmake --build .` to build everything or specify a target. More coming soon later.

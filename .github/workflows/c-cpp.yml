@@ -13,6 +13,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: => build and test pazusoba
-      working-directory: ./test
-      run: make test
+
+    # test in debug
+    - name: Configure CMake [DEBUG]
+      run: cmake -B ${{github.workspace}}/debug -DCMAKE_BUILD_TYPE=debug
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/debug --target test_pazusoba
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ./test_pazusoba.out
+
+    # test in release just in case
+    - name: Configure CMake [RELEASE]
+      run: cmake -B ${{github.workspace}}/release
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/release --target test_pazusoba
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ./test_pazusoba.out

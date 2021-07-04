@@ -3,16 +3,16 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "CMake pazusoba_debug",
+			"label": "CMake: Debug pazusoba",
 			"command": "cmake",
 			"args": [
 				"--build",
 				".",
 				"--target",
-				"pazusoba_debug"
+				"debug_pazusoba"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}\\build"
+				"cwd": "${workspaceFolder}\\debug"
 			},
 			"problemMatcher": [
 				// "$gcc"

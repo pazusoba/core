@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\pazusoba_debug.exe",
+            "program": "${workspaceFolder}\\debug\\debug_pazusoba.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -23,7 +23,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "CMake pazusoba_debug"
+            "preLaunchTask": "CMake: Debug pazusoba"
         }
     ]
 }

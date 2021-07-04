@@ -24,5 +24,7 @@
 **/*.xcuserstate
 **/*.xcbkptlist
 
-# cmake build
+# cmake genrated folders
 build/
+debug/
+release/

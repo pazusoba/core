@@ -8,6 +8,10 @@ project(
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
 
+if(NOT CMAKE_COMPILER_IS_GNUCXX)
+    message(FATAL_ERROR "MSVC is not supported. Use `MinGW Makefiles` instead")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
@@ -15,27 +19,10 @@ set(MAIN_CPP test/pazusoba.cpp)
 set(TEST_CPP test/test.cpp)
 
 set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic)
-set(OTHER_COMPILER_FLAGS -Wall -Werror)
+set(OPTIMISATION_FLAGS -O2)
 set(DEBUG_COMPILER_FLAGS -g)
 
-# compiler settings
-if(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
-    message(STATUS "GCC - adding compiler flags")
-    add_compile_options(${GNU_COMPILER_FLAGS})
-elseif(MSVC)
-    # Assume that this is visual studio on Windows
-    message(STATUS "MSVC - using different compiler flags")
-    add_compile_options(${OTHER_COMPILER_FLAGS})
-endif()
-
-set(CMAKE_BUILD_TYPE RELEASE)
-
-# Add O2 to all release build
-if(CMAKE_BUILD_TYPE MATCHES Release)
-    message(STATUS "Apply optimisation")
-    add_compile_options(-O2)
-endif()
-
+message(STATUS "Add {fmt} module")
 # add {fmt} module
 add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
 link_libraries(fmt::fmt-header-only)
@@ -44,45 +31,60 @@ link_libraries(fmt::fmt-header-only)
 include_directories(include)
 file(GLOB PAZUSOBA_SOURCES "src/*.cpp")
 
-# shared library
-add_library(
-    pazusoba 
-    SHARED
-    ${PAZUSOBA_SOURCES}
-)
+# use release by default
+if (NOT CMAKE_BUILD_TYPE)
+    message(NOTICE "CMAKE_BUILD_TYPE is not set, use release as default")
+    set(CMAKE_BUILD_TYPE RELEASE)
+endif()
 
-# pazuauto
-add_executable(
-    pazuauto
-    ${MAIN_CPP}
-    ${PAZUSOBA_SOURCES}
-)
+string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
+# check if current config is release
+if(${build_type} STREQUAL "release")
+    message(STATUS "Generating for RELEASE")
+    add_compile_options(${GNU_COMPILER_FLAGS} ${OPTIMISATION_FLAGS})
 
-# pazusoba binary
-add_executable(
-    pazusoba_binary
-    ${MAIN_CPP}
-    ${PAZUSOBA_SOURCES}
-)
+    # shared library
+    add_library(
+        pazusoba 
+        SHARED
+        ${PAZUSOBA_SOURCES}
+    )
 
-# pazusoba debug binary
-add_executable(
-    pazusoba_debug
-    ${MAIN_CPP}
-    ${PAZUSOBA_SOURCES}
-)
-target_compile_options(
-    pazusoba_debug 
-    PRIVATE ${DEBUG_COMPILER_FLAGS}
-)
+    # pazuauto
+    add_executable(
+        pazuauto
+        ${MAIN_CPP}
+        ${PAZUSOBA_SOURCES}
+    )
 
-# pazusoba test
-add_executable(
-    test_pazusoba
-    ${TEST_CPP}
-    ${PAZUSOBA_SOURCES}
-)
-target_compile_options(
-    test_pazusoba 
-    PRIVATE ${DEBUG_COMPILER_FLAGS}
-)
+    # pazusoba binary
+    add_executable(
+        pazusoba_binary
+        ${MAIN_CPP}
+        ${PAZUSOBA_SOURCES}
+    )
+
+    # pazusoba test in release mode in case anything is different
+    add_executable(
+        test_pazusoba
+        ${TEST_CPP}
+        ${PAZUSOBA_SOURCES}
+    )
+else()
+    message(STATUS "Generating for DEBUG")
+    add_compile_options(${GNU_COMPILER_FLAGS} ${DEBUG_COMPILER_FLAGS})
+ 
+    # pazusoba debug binary
+    add_executable(
+        debug_pazusoba
+        ${MAIN_CPP}
+        ${PAZUSOBA_SOURCES}
+    )
+
+    # pazusoba test
+    add_executable(
+        test_pazusoba
+        ${TEST_CPP}
+        ${PAZUSOBA_SOURCES}
+    )
+endif()
