@@ -29,9 +29,7 @@ public:
     }
 
     /// When the timer is out of the scope, this function will be called
-    ~Timer() { stop(); }
-
-    void stop() {
+    ~Timer() {
         duration<double> duration = high_resolution_clock::now() - start;
         auto second = duration.count();
         auto ms = second * 1000;

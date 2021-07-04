@@ -22,7 +22,8 @@ void testTimer() {
     int a = 0;
     int b = a + 99;
     int c = a + b + 1;
-    for (int i = 0; i < b * b * c * c; i++) {
+    for (int i = 0; i < 10; i++) {
+        c++;
+        fmt::print("c is now {}\n", c);
     }
-    timer.stop();
 }

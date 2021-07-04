@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "(gdb) Launch Debug",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}\\debug\\debug_pazusoba.exe",
@@ -24,6 +24,27 @@
                 }
             ],
             "preLaunchTask": "CMake: Debug pazusoba"
+        },
+        {
+            "name": "(gdb) Launch Test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\debug\\test_pazusoba.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: Test pazusoba"
         }
     ]
 }

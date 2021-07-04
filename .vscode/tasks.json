@@ -21,6 +21,27 @@
 				"kind": "test",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "shell",
+			"label": "CMake: Test pazusoba",
+			"command": "cmake",
+			"args": [
+				"--build",
+				".",
+				"--target",
+				"test_pazusoba"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}\\debug"
+			},
+			"problemMatcher": [
+				// "$gcc"
+			],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
 		}
 	]
 }
