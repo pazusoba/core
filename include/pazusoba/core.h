@@ -8,8 +8,8 @@
 #ifndef _CORE_H_
 #define _CORE_H_
 
-#include "timer.h"
 #include "constant.h"
 #include "hash.h"
+#include "timer.h"
 
 #endif

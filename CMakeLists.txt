@@ -48,3 +48,15 @@ add_executable(
     ${PAZUSOBA_SOURCES}
 )
 target_link_libraries(pazusoba_binary PRIVATE fmt::fmt-header-only)
+
+# pazusoba debug binary
+add_executable(
+    pazusoba_debug
+    ${PAZUSOBA_SOURCES}
+)
+set_target_properties(
+    pazusoba_debug
+    PROPERTIES 
+    COMPILE_FLAGS "-Wall -Werror -g"
+)
+target_link_libraries(pazusoba_debug PRIVATE fmt::fmt-header-only)

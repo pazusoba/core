@@ -1,24 +1,21 @@
 {
-    "version": "2.0.0",
-    "tasks": [
+	"version": "2.0.0",
+	"tasks": [
 		{
 			"type": "shell",
-			"label": "C/C++: g++.exe build active file",
-			"command": "g++.exe",
+			"label": "CMake pazusoba_debug",
+			"command": "cmake",
 			"args": [
-				"-Wall",
-				"-Werror",
-				"-g",
-				"${workspaceFolder}\\main_v1.cpp",
-				"${workspaceFolder}\\core\\v1\\*.cpp",
-				"-o",
-				"${fileDirname}\\debug.exe"
+				"--build",
+				".",
+				"--target",
+				"pazusoba_debug"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}\\build"
 			},
 			"problemMatcher": [
-				"$gcc"
+				// "$gcc"
 			],
 			"group": {
 				"kind": "test",
