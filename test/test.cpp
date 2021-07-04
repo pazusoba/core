@@ -17,7 +17,7 @@ void testAll() {
 
 void testTimer() {
     fmt::print("--- Test Timer ---\n");
-    // timer is ignored with O2
+    // timer crashes with O2
     pazusoba::Timer timer("=> Test Timer");
     int a = 0;
     int b = a + 99;

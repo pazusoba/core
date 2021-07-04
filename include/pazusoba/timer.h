@@ -30,10 +30,9 @@ public:
 
     /// When the timer is out of the scope, this function will be called
     ~Timer() {
-        duration<double> duration = high_resolution_clock::now() - start;
+        duration<float> duration = high_resolution_clock::now() - start;
         auto second = duration.count();
-        auto ms = second * 1000;
-        fmt::print("{}, {}s ({}ms)\n", name, second, ms);
+        fmt::print("{}, {}s\n", name, second);
     }
 };
 }  // namespace pazusoba
