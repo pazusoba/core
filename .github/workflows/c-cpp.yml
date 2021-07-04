@@ -25,7 +25,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/debug --target test_pazusoba
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/debug
       run: ./test_pazusoba.out
 
     # test in release just in case
@@ -37,5 +37,5 @@ jobs:
       run: cmake --build ${{github.workspace}}/release --target test_pazusoba
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/release
       run: ./test_pazusoba.out
