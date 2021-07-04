@@ -24,9 +24,13 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/debug --target test_pazusoba
 
+    - name: Output
+      working-directory: ${{github.workspace}}/debug
+      run: ls -al
+      
     - name: Test
       working-directory: ${{github.workspace}}/debug
-      run: ./test_pazusoba.out
+      run: ./test_pazusoba
 
     # test in release just in case
     - name: Configure CMake [RELEASE]
@@ -38,4 +42,4 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/release
-      run: ./test_pazusoba.out
+      run: ./test_pazusoba
