@@ -28,15 +28,23 @@ add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
 include_directories(include)
 file(GLOB PAZUSOBA_SOURCES "src/*.cpp")
 
+# shared library
 add_library(
     pazusoba SHARED
     ${PAZUSOBA_SOURCES}
 )
 target_link_libraries(pazusoba PRIVATE fmt::fmt-header-only)
 
+# pazuauto
 add_executable(
-    pazusoba_release
+    pazuauto
     ${PAZUSOBA_SOURCES}
 )
-target_link_libraries(pazusoba_release PRIVATE fmt::fmt-header-only)
+target_link_libraries(pazuauto PRIVATE fmt::fmt-header-only)
 
+# pazusoba binary
+add_executable(
+    pazusoba_binary
+    ${PAZUSOBA_SOURCES}
+)
+target_link_libraries(pazusoba_binary PRIVATE fmt::fmt-header-only)
