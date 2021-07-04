@@ -21,8 +21,9 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Release)
 
-# add {fmt} module and exclude from `cmake --build .`
+# add {fmt} module
 add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
+
 # include headers and get all source files
 include_directories(include)
 file(GLOB PAZUSOBA_SOURCES "src/*.cpp")
