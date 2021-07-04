@@ -8,8 +8,8 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#include <fmt/core.h>
 #include <chrono>
+#include <cstdio>
 #include <string>
 
 namespace pazusoba {
@@ -21,7 +21,7 @@ private:
     /// Track the starting time
     time_point<high_resolution_clock> start;
     /// Used for know which timer only
-    const string& name;
+    string name;
 
 public:
     Timer(const string& name) : name(name) {
@@ -32,7 +32,8 @@ public:
     ~Timer() {
         duration<float> duration = high_resolution_clock::now() - start;
         auto second = duration.count();
-        fmt::print("{}, {}s\n", name, second);
+        auto ms = second * 1000;
+        printf("%s, %fs (%fms)\n", name.c_str(), second, ms);
     }
 };
 }  // namespace pazusoba
