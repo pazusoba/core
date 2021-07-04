@@ -25,5 +25,4 @@ void testTimer() {
     for (int i = 0; i < b * b * c * c; i++) {
     }
     timer.stop();
-    assert(false);
 }
