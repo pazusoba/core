@@ -15,6 +15,9 @@ Some demo on [YouTube](https://www.youtube.com/playlist?list=PLl6hdCL2pzdV69Ilh8
 ## The goal
 There are 30 * 3 ^ 25 possible states for a 6 x 5 board (with max steps of 25) so it is impossible to find the true optimal path. Therefore, the goal is to find a good path quickly. Ideally, it should be short, cascading and aiming for the max combo (except that it is never that ideal).
 
+<details>
+<summary>Show more information</summary>
+
 ## My approach
 A priority queue is used which limits the size to a fixed number and only states with a better score can be inserted to the queue. Thus, this is a very greedy approach and it is callled `BEAM SEARCH`. Overall, it has surpassed many pro players but it is not perfect. I will keep making it better over times.
 
@@ -69,10 +72,24 @@ You can mix everything together and use for many teams.
 *It is quite simple to add more profiles so feel free to fork this repo and add even more profiles.*
 </details>
 
-## How to compile
-This is written on Windows 10 and Mac OS. On Windows, `mingw` is used to compile and use makefiles. On Mac, you just need to have xcode command line tools.
+</details>
 
-The program accepts 4 arguments
+## How to compile
+This project was originally developed on Windows 10 with `MinGW`. Later, I also tried on Mac OS and Linux. Now, I am using `CMake` to make it easier to build across all three platforms. 
+
+### Setup
+On Windows, `MinGW` is recommened as this is what I am using. `Visual Studio` can also be used but not tested. On Mac OS and Linux, `g++/clang++` is preferred. 
+
+Requirements
+- CMake (3.10+)
+- MinGW/g++/clang++ with C++17 support
+  - C++11 is the minimum requirement as lambda is used
+  - Nested namespace requires C++17 but can be easily updated
+
+### Build
+On Windows, it is recommened to use `cmake .. -G "MinGW Makefiles"` for CMake. On Mac OS and Linux, simply use the default. Run `cmake --build .` to build everything or specify a target. More coming soon later.
+
+The program accepts 4 arguments for now (more might be added later)
 - Path to the board
 - Minimum erase condition (by default 3)
 - Max step (by default 50)
@@ -98,8 +115,8 @@ Binaries are compiled locally and overall time are used based on the same board,
 | 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
 |  0.8β   |      -      |  0.5s   |  Overall Improvement  |
 
-### QT (Deprecated)
-This is now replaced with `automation`. 
+## QT (Deprecated)
+This was my original attempt to port pazusoba to all platforms but was abondoned. [pazuauto](https://github.com/HenryQuan/pazuauto) was what it had became. The true successor is [pazuflata](https://github.com/HenryQuan/pazuflata) (Flutter) and it can be done by using Dart FFI to port pazusoba to all platforms.
 
 ## Resources
 Things that were helpful during my experiments.
@@ -134,5 +151,5 @@ Things that were helpful during my experiments.
 # Miscellaneous
 ## 2000 days
 I have been playing this game (the Japanese version) for more than 2000 days (until 2/7/2020). I started playing in 2013 and it was also when I started programming and learning the Japanese language. Lots of great memories back then with my Japanese friend. C++ reminds me of my good old days with C programming. You feel like you can do anything with it. C is special because it was my first programming language but it was a tough way to start programming, lol. Lately, I have been using JS, Python, Dart, Swift and Kotlin. They are modern, nice and easier to write but it is nice to stop and go back to the origin once a while. 
-![2000日たまドラ](https://raw.githubusercontent.com/HenryQuan/pazusoba/master/assets/2000.jpg?token=ABTRDFH6WOWXATCBOZXXCGK7BAJ5G)
+![2000日たまドラ](https://raw.githubusercontent.com/HenryQuan/pazusoba/master/support/2000.jpg?token=ABTRDFH6WOWXATCBOZXXCGK7BAJ5G)
 たま~ たま~
