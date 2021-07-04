@@ -1,17 +1,29 @@
-#include <iostream>
 #include <assert.h>
+#include <fmt/core.h>
+#include <pazusoba/core.h>
 
 void testAll();
+void testTimer();
 
-int main()
-{
+int main() {
     using namespace std;
-    cout << "=== TEST ===\n";
     testAll();
-    cout << "All Good!\n";
+    fmt::print("All Good!\n");
 }
 
-void testAll()
-{
-    assert(true);
+void testAll() {
+    testTimer();
+}
+
+void testTimer() {
+    fmt::print("--- Test Timer ---\n");
+    // timer is ignored with O2
+    pazusoba::Timer timer("=> Test Timer");
+    int a = 0;
+    int b = a + 99;
+    int c = a + b + 1;
+    for (int i = 0; i < b * b * c * c; i++) {
+    }
+    timer.stop();
+    assert(false);
 }
