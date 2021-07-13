@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		92262344255E7B6200971027 /* main_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262342255E7B6200971027 /* main_v1.cpp */; };
-		9226237A255E7E4900971027 /* route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9226236D255E7E4900971027 /* route.cpp */; };
-		9226237B255E7E4900971027 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262372255E7E4900971027 /* state.cpp */; };
-		9226237C255E7E4900971027 /* solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262373255E7E4900971027 /* solver.cpp */; };
-		9226237D255E7E4900971027 /* queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262377255E7E4900971027 /* queue.cpp */; };
-		9226237E255E7E4900971027 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92262378255E7E4900971027 /* board.cpp */; };
+		92D646A5269DA450006210C4 /* main_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646A4269DA450006210C4 /* main_v1.cpp */; };
+		92D646B4269DA456006210C4 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646A8269DA456006210C4 /* state.cpp */; };
+		92D646B5269DA456006210C4 /* solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646AA269DA456006210C4 /* solver.cpp */; };
+		92D646B6269DA456006210C4 /* route.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646AD269DA456006210C4 /* route.cpp */; };
+		92D646B7269DA456006210C4 /* queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646B1269DA456006210C4 /* queue.cpp */; };
+		92D646B8269DA456006210C4 /* board.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92D646B3269DA456006210C4 /* board.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,20 +29,21 @@
 
 /* Begin PBXFileReference section */
 		92262335255E792D00971027 /* pazusoba */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pazusoba; sourceTree = BUILT_PRODUCTS_DIR; };
-		92262342255E7B6200971027 /* main_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_v1.cpp; path = ../main_v1.cpp; sourceTree = "<group>"; };
-		9226236D255E7E4900971027 /* route.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = route.cpp; path = ../core/v1/route.cpp; sourceTree = "<group>"; };
-		9226236E255E7E4900971027 /* pad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pad.h; path = ../core/v1/pad.h; sourceTree = "<group>"; };
-		9226236F255E7E4900971027 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = state.h; path = ../core/v1/state.h; sourceTree = "<group>"; };
-		92262370255E7E4900971027 /* profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profile.h; path = ../core/v1/profile.h; sourceTree = "<group>"; };
-		92262371255E7E4900971027 /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = queue.h; path = ../core/v1/queue.h; sourceTree = "<group>"; };
-		92262372255E7E4900971027 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = state.cpp; path = ../core/v1/state.cpp; sourceTree = "<group>"; };
-		92262373255E7E4900971027 /* solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = solver.cpp; path = ../core/v1/solver.cpp; sourceTree = "<group>"; };
-		92262374255E7E4900971027 /* solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solver.h; path = ../core/v1/solver.h; sourceTree = "<group>"; };
-		92262375255E7E4900971027 /* board.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = board.h; path = ../core/v1/board.h; sourceTree = "<group>"; };
-		92262376255E7E4900971027 /* route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = route.h; path = ../core/v1/route.h; sourceTree = "<group>"; };
-		92262377255E7E4900971027 /* queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = queue.cpp; path = ../core/v1/queue.cpp; sourceTree = "<group>"; };
-		92262378255E7E4900971027 /* board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = board.cpp; path = ../core/v1/board.cpp; sourceTree = "<group>"; };
-		92262379255E7E4900971027 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../core/v1/timer.h; sourceTree = "<group>"; };
+		92D646A4269DA450006210C4 /* main_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main_v1.cpp; path = archived/main_v1.cpp; sourceTree = "<group>"; };
+		92D646A6269DA456006210C4 /* profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = profile.h; path = archived/core/v1/profile.h; sourceTree = "<group>"; };
+		92D646A7269DA456006210C4 /* pad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pad.h; path = archived/core/v1/pad.h; sourceTree = "<group>"; };
+		92D646A8269DA456006210C4 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = state.cpp; path = archived/core/v1/state.cpp; sourceTree = "<group>"; };
+		92D646A9269DA456006210C4 /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = queue.h; path = archived/core/v1/queue.h; sourceTree = "<group>"; };
+		92D646AA269DA456006210C4 /* solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = solver.cpp; path = archived/core/v1/solver.cpp; sourceTree = "<group>"; };
+		92D646AB269DA456006210C4 /* board.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = board.h; path = archived/core/v1/board.h; sourceTree = "<group>"; };
+		92D646AC269DA456006210C4 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = archived/core/v1/timer.h; sourceTree = "<group>"; };
+		92D646AD269DA456006210C4 /* route.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = route.cpp; path = archived/core/v1/route.cpp; sourceTree = "<group>"; };
+		92D646AE269DA456006210C4 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = state.h; path = archived/core/v1/state.h; sourceTree = "<group>"; };
+		92D646AF269DA456006210C4 /* route.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = route.h; path = archived/core/v1/route.h; sourceTree = "<group>"; };
+		92D646B0269DA456006210C4 /* solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = solver.h; path = archived/core/v1/solver.h; sourceTree = "<group>"; };
+		92D646B1269DA456006210C4 /* queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = queue.cpp; path = archived/core/v1/queue.cpp; sourceTree = "<group>"; };
+		92D646B2269DA456006210C4 /* configuration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = configuration.h; path = archived/core/v1/configuration.h; sourceTree = "<group>"; };
+		92D646B3269DA456006210C4 /* board.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = board.cpp; path = archived/core/v1/board.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,20 +60,21 @@
 		9226232C255E792D00971027 = {
 			isa = PBXGroup;
 			children = (
-				92262342255E7B6200971027 /* main_v1.cpp */,
-				92262378255E7E4900971027 /* board.cpp */,
-				92262375255E7E4900971027 /* board.h */,
-				9226236E255E7E4900971027 /* pad.h */,
-				92262370255E7E4900971027 /* profile.h */,
-				92262377255E7E4900971027 /* queue.cpp */,
-				92262371255E7E4900971027 /* queue.h */,
-				9226236D255E7E4900971027 /* route.cpp */,
-				92262376255E7E4900971027 /* route.h */,
-				92262373255E7E4900971027 /* solver.cpp */,
-				92262374255E7E4900971027 /* solver.h */,
-				92262372255E7E4900971027 /* state.cpp */,
-				9226236F255E7E4900971027 /* state.h */,
-				92262379255E7E4900971027 /* timer.h */,
+				92D646A4269DA450006210C4 /* main_v1.cpp */,
+				92D646B3269DA456006210C4 /* board.cpp */,
+				92D646AB269DA456006210C4 /* board.h */,
+				92D646B2269DA456006210C4 /* configuration.h */,
+				92D646A7269DA456006210C4 /* pad.h */,
+				92D646A6269DA456006210C4 /* profile.h */,
+				92D646B1269DA456006210C4 /* queue.cpp */,
+				92D646A9269DA456006210C4 /* queue.h */,
+				92D646AD269DA456006210C4 /* route.cpp */,
+				92D646AF269DA456006210C4 /* route.h */,
+				92D646AA269DA456006210C4 /* solver.cpp */,
+				92D646B0269DA456006210C4 /* solver.h */,
+				92D646A8269DA456006210C4 /* state.cpp */,
+				92D646AE269DA456006210C4 /* state.h */,
+				92D646AC269DA456006210C4 /* timer.h */,
 				92262336255E792D00971027 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -118,7 +120,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 92262330255E792D00971027 /* Build configuration list for PBXProject "pazusoba" */;
+			buildConfigurationList = 92262330255E792D00971027 /* Build configuration list for PBXProject "pazusoba-v1" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -141,12 +143,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92262344255E7B6200971027 /* main_v1.cpp in Sources */,
-				9226237D255E7E4900971027 /* queue.cpp in Sources */,
-				9226237E255E7E4900971027 /* board.cpp in Sources */,
-				9226237B255E7E4900971027 /* state.cpp in Sources */,
-				9226237C255E7E4900971027 /* solver.cpp in Sources */,
-				9226237A255E7E4900971027 /* route.cpp in Sources */,
+				92D646A5269DA450006210C4 /* main_v1.cpp in Sources */,
+				92D646B7269DA456006210C4 /* queue.cpp in Sources */,
+				92D646B8269DA456006210C4 /* board.cpp in Sources */,
+				92D646B6269DA456006210C4 /* route.cpp in Sources */,
+				92D646B4269DA456006210C4 /* state.cpp in Sources */,
+				92D646B5269DA456006210C4 /* solver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,7 +284,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = s;
 				LLVM_LTO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -292,7 +294,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		92262330255E792D00971027 /* Build configuration list for PBXProject "pazusoba" */ = {
+		92262330255E792D00971027 /* Build configuration list for PBXProject "pazusoba-v1" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9226233A255E792D00971027 /* Debug */,

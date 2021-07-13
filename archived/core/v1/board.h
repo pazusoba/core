@@ -12,7 +12,7 @@
 #include <functional>
 #include "pad.h"
 #include "configuration.h"
-#include "../../../include/hash.h"
+#include "../../../include/pazusoba/hash.h"
 
 extern "C"
 {
@@ -42,6 +42,7 @@ extern "C"
         OrbLocation() {}
         OrbLocation(int index) : index(index)
         {
+            if (column == 0) column = 1;
             first = index / column;
             second = index % column;
         }
