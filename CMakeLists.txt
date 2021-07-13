@@ -8,7 +8,7 @@ project(
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
 
-if(NOT CMAKE_COMPILER_IS_GNUCXX)
+if(MSVC)
     message(FATAL_ERROR "MSVC is not supported. Use `MinGW Makefiles` instead")
 endif()
 
