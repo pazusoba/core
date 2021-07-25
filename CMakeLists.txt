@@ -12,12 +12,14 @@ if(MSVC)
     message(FATAL_ERROR "MSVC is not supported. Use `MinGW Makefiles` instead")
 endif()
 
+# TODO: is C++17 required excpept for the nested namespace?
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 set(MAIN_CPP test/pazusoba.cpp)
 set(TEST_CPP test/test.cpp)
 
+# strict compiler warnings
 set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic)
 set(OPTIMISATION_FLAGS -O2)
 set(DEBUG_COMPILER_FLAGS -g)

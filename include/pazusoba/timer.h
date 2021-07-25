@@ -21,7 +21,7 @@ private:
     /// Track the starting time
     time_point<high_resolution_clock> start;
     /// Used for know which timer only
-    string name;
+    const string& name;
 
 public:
     Timer(const string& name) : name(name) {

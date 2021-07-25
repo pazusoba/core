@@ -6,9 +6,8 @@ void testAll();
 void testTimer();
 
 int main() {
-    using namespace std;
     testAll();
-    fmt::print("All Good!\n");
+    fmt::print("\nALL GOOD!\n");
 }
 
 void testAll() {

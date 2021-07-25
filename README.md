@@ -110,26 +110,28 @@ git submodule update --init --recursive
 #### Setup CMake
 
 ```shell
-cmake -B release -G "MinGW Makefiles"
-cmake --build release --target pazusoba_binary
+cmake -B release
+cd release
+make pazusoba_binary
 ./release/pazusoba_binary.exe
 ```
 
 Add `-DCMAKE_BUILD_TYPE=Debug` to debug or test pazusoba.
 
 ```shell
-cmake -B debug -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug
-cmake --build debug --target test_pazusoba
+cmake -B debug -G -DCMAKE_BUILD_TYPE=Debug
+cd debug
+make test_pazusoba
 ./debug/test_pazusoba.exe
 ```
 
 ### Build
 
-On Windows, it is recommened to use `cmake .. -G "MinGW Makefiles"` for CMake. On Mac OS and Linux, simply use the default. Run `cmake --build .` to build everything or specify a target. More coming soon later.
+On Windows, it is recommened to use `-G "MinGW Makefiles"` instead of `MSVC`. On Mac OS and Linux, simply use the default. Go to the `debug` or `release` folder and run `make [target]`.
 
 The program accepts 4 arguments for now (more might be added later)
 
-- Path to the board
+- Path to the board / board string
 - Minimum erase condition (by default 3)
 - Max step (by default 50)
 - Max beam size (by default 5000)
@@ -153,7 +155,7 @@ Binaries are compiled locally and overall time are used based on the same board,
 | 0.5α | 3.06s | 1.79s | Profile & OpenCV |
 | 0.6β | 3.35s | 2.04s | Automation |
 | 0.7.1β | 1.71s | 0.91s | General Improvement |
-| 0.8β | - | 0.5s | Overall Improvement |
+| 0.7.5β | - | - | Full Automation |
 
 ## QT (Deprecated)
 
