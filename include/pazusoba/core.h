@@ -12,4 +12,7 @@
 #include "hash.h"
 #include "timer.h"
 
+/// when true, more logs will be printed
+#define DEBUG_PRINT true
+
 #endif

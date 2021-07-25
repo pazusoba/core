@@ -11,8 +11,6 @@
 #include <string>
 
 namespace pazusoba::constant {
-// Flags
-bool debug = true;
 
 enum ORBS {
     empty,
