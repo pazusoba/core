@@ -10,9 +10,7 @@
 
 #include "constant.h"
 #include "hash.h"
+#include "parser.h"
 #include "timer.h"
-
-/// when true, more logs will be printed
-#define DEBUG_PRINT true
 
 #endif

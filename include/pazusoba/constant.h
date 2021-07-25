@@ -10,8 +10,9 @@
 
 #include <string>
 
+/// when true, more logs will be printed
+#define DEBUG_PRINT true
 namespace pazusoba::constant {
-
 enum ORBS {
     empty,
     fire,
