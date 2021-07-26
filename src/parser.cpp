@@ -46,6 +46,93 @@ Parser::Parser(const std::string& board,
 }
 
 void Parser::parse() {
-    //
+    // the board can be the actually board or the path to a local file
+    if (board.find(".txt") != std::string::npos) {
+        readBoardFrom(filePath);
+    } else {
+        setBoardFrom(filePath);
+    }
+}
+
+void Parser::readBoardFrom(const std::string& path) {
+    Board board;
+    board.fill(pad::unknown);
+    std::string lines;
+
+    int currIndex = 0;
+    std::ifstream boardFile(filePath);
+    while (getline(boardFile, lines)) {
+        // Ignore lines that start with `//`
+        if (lines.find("//") == 0)
+            continue;
+
+        // Remove trailing spaces by substr, +1 for substr (to include the char
+        // before space)
+        int index = lines.find_last_not_of(" ") + 1;
+        lines = lines.substr(0, index);
+
+        // Keep reading until error, it will get rid of spaces automatically
+        std::stringstream ss(lines);
+        while (ss.good()) {
+            // Only add one to row if we are in the first column,
+            // the size is fixed so there won't be a row with a different number
+            // of orbs
+            if (row == 0)
+                column++;
+            // Read it out as a number
+            int a = 0;
+            ss >> a;
+
+            // Convert int into orbs
+            board[currIndex] = Orb(a);
+            currIndex++;
+        }
+        row++;
+    }
+
+    Configuration::shared().config(row, column, minErase, steps);
+    boardFile.close();
+}
+
+void Parser::setBoardFro(const std::string& board) {
+    int size = board.length();
+
+    // only support 3 fixed size for now, more can be added later
+    if (size == 20) {
+        row = 4;
+        column = 5;
+    } else if (size == 30) {
+        row = 5;
+        column = 6;
+    } else if (size == 42) {
+        row = 6;
+        column = 7;
+    } else {
+        fmt::print("Unsupported board size - {}", size);
+        exit(-1);
+    }
+
+    Configuration::shared().config(row, column, minErase, steps);
+
+    // Read from a string
+    Board currBoard;
+    currBoard.fill(pad::unknown);
+
+    for (int i = 0; i < size; i++) {
+        char orb = board[i];
+
+        // Check if it is a number between 1 and 9
+        if (orb >= '0' && orb <= '9') {
+            currBoard[i] = pad::orbs(orb - '0');
+        }
+
+        // Check if it is a letter (RBGLDH)
+        for (int k = 0; k < pad::ORB_COUNT; k++) {
+            if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb) {
+                currBoard[i] = Orb(k);
+                break;
+            }
+        }
+    }
 }
 }  // namespace pazusoba

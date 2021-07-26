@@ -33,6 +33,12 @@ class Parser {
         exit(0);
     }
 
+    /// Read the text from the path and convert it to a board,
+    /// sample_board_65.txt
+    void readBoardFrom(const std::string& path);
+    /// Set the board from a board string, RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB
+    void setBoardFrom(const std::string& board);
+
 public:
     Parser(int argc, char* argv[]);
     Parser(const std::string& board, int minErase, int maxSteps, int beamSize);
