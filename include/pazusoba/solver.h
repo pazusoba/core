@@ -9,7 +9,7 @@
 #define _SOLVER_H_
 
 namespace pazusoba {
-class Solver {
+class solver {
 public:
 };
 }  // namespace pazusoba

@@ -2,7 +2,7 @@
 #include <pazusoba/parser.h>
 
 namespace pazusoba {
-Parser::Parser(int argc, char* argv[]) {
+parser::Parser(int argc, char* argv[]) {
     // parse command line arguments
     if (argc > 1) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
@@ -35,7 +35,7 @@ Parser::Parser(int argc, char* argv[]) {
                    Board(), MinErase(), MaxSteps(), BeamSize());
 }
 
-Parser::Parser(const std::string& board,
+parser::Parser(const std::string& board,
                int minErase,
                int maxSteps,
                int beamSize) {
@@ -45,7 +45,7 @@ Parser::Parser(const std::string& board,
     this->beamSize = beamSize;
 }
 
-void Parser::parse() {
+void parser::parse() {
     // the board can be the actually board or the path to a local file
     if (board.find(".txt") != std::string::npos) {
         readBoardFrom(filePath);
@@ -54,7 +54,7 @@ void Parser::parse() {
     }
 }
 
-void Parser::readBoardFrom(const std::string& path) {
+void parser::readBoardFrom(const std::string& path) {
     Board board;
     board.fill(pad::unknown);
     std::string lines;
@@ -94,7 +94,7 @@ void Parser::readBoardFrom(const std::string& path) {
     boardFile.close();
 }
 
-void Parser::setBoardFro(const std::string& board) {
+void parser::setBoardFrom(const std::string& board) {
     int size = board.length();
 
     // only support 3 fixed size for now, more can be added later

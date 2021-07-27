@@ -12,7 +12,7 @@
 #include <string>
 
 namespace pazusoba {
-class Parser {
+class parser {
     int row = 0;
     int column = 0;
     int minErase = 3;
@@ -40,8 +40,8 @@ class Parser {
     void setBoardFrom(const std::string& board);
 
 public:
-    Parser(int argc, char* argv[]);
-    Parser(const std::string& board, int minErase, int maxSteps, int beamSize);
+    parser(int argc, char* argv[]);
+    parser(const std::string& board, int minErase, int maxSteps, int beamSize);
     void parse();
 
     // Getters

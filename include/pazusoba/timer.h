@@ -16,7 +16,7 @@ namespace pazusoba {
 using namespace std;
 using namespace std::chrono;
 
-class Timer {
+class timer {
 private:
     /// Track the starting time
     time_point<high_resolution_clock> start;
@@ -24,12 +24,12 @@ private:
     const string& name;
 
 public:
-    Timer(const string& name) : name(name) {
+    timer(const string& name) : name(name) {
         start = high_resolution_clock::now();
     }
 
     /// When the timer is out of the scope, this function will be called
-    ~Timer() {
+    ~timer() {
         duration<float> duration = high_resolution_clock::now() - start;
         auto second = duration.count();
         auto ms = second * 1000;
