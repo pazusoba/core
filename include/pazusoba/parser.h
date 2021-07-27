@@ -10,6 +10,7 @@
 
 #include <fmt/core.h>
 #include <string>
+#include "board.h"
 
 namespace pazusoba {
 class parser {
@@ -18,7 +19,8 @@ class parser {
     int minErase = 3;
     int maxSteps = 30;
     int beamSize = 5000;
-    std::string board = "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB";
+    std::string boardString = "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB";
+    board currentBoard;
 
     inline void showUsage() {
         fmt::print(
@@ -35,9 +37,9 @@ class parser {
 
     /// Read the text from the path and convert it to a board,
     /// sample_board_65.txt
-    void readBoardFrom(const std::string& path);
+    void readBoardFrom(const std::string&);
     /// Set the board from a board string, RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB
-    void setBoardFrom(const std::string& board);
+    void setBoardFrom(const std::string&);
 
 public:
     parser(int argc, char* argv[]);
@@ -47,10 +49,10 @@ public:
     // Getters
     const int& Row() const { return row; }
     const int& Column() const { return column; }
-    const std::string& Board() const { return board; }
     const int& MinErase() const { return minErase; }
     const int& MaxSteps() const { return maxSteps; }
     const int& BeamSize() const { return beamSize; }
+    const board& Board() const { return currentBoard; }
 };
 }  // namespace pazusoba
 

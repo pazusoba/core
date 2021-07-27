@@ -1,14 +1,17 @@
 #include <pazusoba/constant.h>
 #include <pazusoba/parser.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 namespace pazusoba {
-parser::Parser(int argc, char* argv[]) {
+parser::parser(int argc, char* argv[]) {
     // parse command line arguments
     if (argc > 1) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
             showUsage();
         } else {
-            this->board = argv[1];
+            this->boardString = argv[1];
         }
     }
 
@@ -32,14 +35,14 @@ parser::Parser(int argc, char* argv[]) {
 
     if (DEBUG_PRINT)
         fmt::print("board: {}\nminErase: {}\nmaxStep: {}\nbeamSize: {}\n",
-                   Board(), MinErase(), MaxSteps(), BeamSize());
+                   this->boardString, MinErase(), MaxSteps(), BeamSize());
 }
 
-parser::Parser(const std::string& board,
+parser::parser(const std::string& board,
                int minErase,
                int maxSteps,
                int beamSize) {
-    this->board = board;
+    this->boardString = board;
     this->minErase = minErase;
     this->maxSteps = maxSteps;
     this->beamSize = beamSize;
@@ -47,27 +50,28 @@ parser::Parser(const std::string& board,
 
 void parser::parse() {
     // the board can be the actually board or the path to a local file
-    if (board.find(".txt") != std::string::npos) {
-        readBoardFrom(filePath);
+    if (this->boardString.find(".txt") != std::string::npos) {
+        readBoardFrom(this->boardString);
     } else {
-        setBoardFrom(filePath);
+        setBoardFrom(this->boardString);
+    }
+
+    if (DEBUG_PRINT) {
     }
 }
 
 void parser::readBoardFrom(const std::string& path) {
-    Board board;
-    board.fill(pad::unknown);
     std::string lines;
 
     int currIndex = 0;
-    std::ifstream boardFile(filePath);
+    std::ifstream boardFile(path);
     while (getline(boardFile, lines)) {
         // Ignore lines that start with `//`
         if (lines.find("//") == 0)
             continue;
 
-        // Remove trailing spaces by substr, +1 for substr (to include the char
-        // before space)
+        // Remove trailing spaces by substr, +1 for substr
+        // (to include the char before space)
         int index = lines.find_last_not_of(" ") + 1;
         lines = lines.substr(0, index);
 
@@ -84,18 +88,17 @@ void parser::readBoardFrom(const std::string& path) {
             ss >> a;
 
             // Convert int into orbs
-            board[currIndex] = Orb(a);
+            this->currentBoard[currIndex] = orb(a);
             currIndex++;
         }
         row++;
     }
 
-    Configuration::shared().config(row, column, minErase, steps);
     boardFile.close();
 }
 
-void parser::setBoardFrom(const std::string& board) {
-    int size = board.length();
+void parser::setBoardFrom(const std::string& boardString) {
+    int size = boardString.length();
 
     // only support 3 fixed size for now, more can be added later
     if (size == 20) {
@@ -112,24 +115,18 @@ void parser::setBoardFrom(const std::string& board) {
         exit(-1);
     }
 
-    Configuration::shared().config(row, column, minErase, steps);
-
-    // Read from a string
-    Board currBoard;
-    currBoard.fill(pad::unknown);
-
     for (int i = 0; i < size; i++) {
-        char orb = board[i];
+        orb current = boardString[i];
 
         // Check if it is a number between 1 and 9
-        if (orb >= '0' && orb <= '9') {
-            currBoard[i] = pad::orbs(orb - '0');
+        if (current >= '0' && current <= '9') {
+            this->currentBoard[i] = orb(current - '0');
         }
 
         // Check if it is a letter (RBGLDH)
-        for (int k = 0; k < pad::ORB_COUNT; k++) {
-            if (pad::ORB_SIMULATION_NAMES[k].c_str()[0] == orb) {
-                currBoard[i] = Orb(k);
+        for (int k = 0; k < constant::orbCount; k++) {
+            if (current == constant::orbWebNames[k].c_str()[0]) {
+                this->currentBoard[i] = orb(k);
                 break;
             }
         }

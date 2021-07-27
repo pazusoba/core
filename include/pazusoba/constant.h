@@ -10,9 +10,15 @@
 
 #include <string>
 
+namespace pazusoba {
 /// when true, more logs will be printed
 #define DEBUG_PRINT true
-namespace pazusoba::constant {
+// 7x6
+#define MAX_BOARD_SIZE 42
+// NOTE: if memory is not a concern, use int instead
+typedef char orb;
+
+namespace constant {
 enum orbs {
     empty = 0,
     fire,
@@ -65,7 +71,7 @@ const std::string orbNames[orbCount] = {
     "Jammer", "Bomb", "Poison", "Poison+", "Tape",  "-X-",  "???"};
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const std::string orbNamesWeb[orbCount] = {"",  "R", "B", "G", "L", "D", "H",
+const std::string orbWebNames[orbCount] = {"",  "R", "B", "G", "L", "D", "H",
                                            "J", "",  "P", "",  "",  "",  ""};
 
 /// Weight of orbs (some are more important than others)
@@ -75,6 +81,7 @@ const int orbWeights[orbCount] = {0,  10, 10, 10, 10, 10, 30,
 /// Name of directions
 const std::string directionNames[8] = {"UL", "U",  "UR", "L",
                                        "R",  "DL", "D",  "DR"};
-}  // namespace pazusoba::constant
+}  // namespace constant
+}  // namespace pazusoba
 
 #endif

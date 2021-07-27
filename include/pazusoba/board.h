@@ -9,18 +9,16 @@
 #define _BOARD_H_
 
 #include <array>
-
-// 7x6
-#define MAX_BOARD_SIZE 42
-// NOTE: if memory is not a concern, use int instead
-typedef char Orb;
-typedef std::array<Orb, MAX_BOARD_SIZE> Board;
+#include "constant.h"
 
 namespace pazusoba {
 class board {
-    Board board{-1};
+    std::array<orb, MAX_BOARD_SIZE> internalBoard;
 
 public:
+    board();
+
+    orb& operator[](size_t index);
 };
 }  // namespace pazusoba
 
