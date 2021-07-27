@@ -3,3 +3,4 @@
 # Debug and Build
 !launch.json
 !tasks.json
+!settings.json
