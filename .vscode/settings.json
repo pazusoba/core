@@ -1,6 +1,7 @@
 {
   "python.formatting.provider": "black",
   "C_Cpp.default.includePath": [
-    "${workspaceFolder}/include"
+    "${workspaceFolder}/include",
+    "${workspaceFolder}/src/fmt/include",
   ],
 }

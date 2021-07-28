@@ -12,7 +12,7 @@
 				"debug_pazusoba"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}\\debug"
+				"cwd": "${workspaceFolder}/debug"
 			},
 			"problemMatcher": [
 				// "$gcc"
@@ -33,7 +33,7 @@
 				"test_pazusoba"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}\\debug"
+				"cwd": "${workspaceFolder}/debug"
 			},
 			"problemMatcher": [
 				// "$gcc"
