@@ -14,8 +14,8 @@
 
 namespace pazusoba {
 class parser {
-    int row;
-    int column;
+    int row = 0;
+    int column = 0;
     int minErase = 3;
     int maxSteps = 30;
     int beamSize = 5000;

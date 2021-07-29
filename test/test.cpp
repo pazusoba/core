@@ -77,7 +77,7 @@ void testParser() {
     assert(parser.BeamSize() == 50000);
     assert(parser.MinErase() == 5);
 
-    fmt::print("=> pass data in\n");
+    fmt::print("=> pass data, board string\n");
     parser = pazusoba::parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 5, 200, 50000);
     parser.parse();
     pazuboard = parser.Board();
@@ -90,4 +90,17 @@ void testParser() {
     assert(parser.MinErase() == 5);
     assert(parser.MaxSteps() == 200);
     assert(parser.BeamSize() == 50000);
+
+    // Assume this is running from `debug/` (need to go up one level)
+    fmt::print("=> pass data, board path\n");
+    parser = pazusoba::parser("../support/sample_board_65.txt", 3, 50, 10000);
+    parser.parse();
+    pazuboard = parser.Board();
+    assert(pazuboard[0] == 1);
+    assert(pazuboard[10] == 3);
+    assert(pazuboard[20] == 4);
+    assert(pazuboard[29] == 4);
+    assert(pazuboard[30] == -1);
+    assert(parser.Row() == 5);
+    assert(parser.Column() == 6);
 }
