@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace pazusoba {
 parser::parser(int argc, char* argv[]) {
@@ -32,10 +33,6 @@ parser::parser(int argc, char* argv[]) {
     if (argc > 4) {
         this->beamSize = atoi(argv[4]);
     }
-
-    if (DEBUG_PRINT)
-        fmt::print("board: {}\nminErase: {}\nmaxStep: {}\nbeamSize: {}\n",
-                   this->boardString, MinErase(), MaxSteps(), BeamSize());
 }
 
 parser::parser(const std::string& board,
@@ -54,9 +51,6 @@ void parser::parse() {
         readBoardFrom(this->boardString);
     } else {
         setBoardFrom(this->boardString);
-    }
-
-    if (DEBUG_PRINT) {
     }
 }
 
@@ -111,8 +105,9 @@ void parser::setBoardFrom(const std::string& boardString) {
         row = 6;
         column = 7;
     } else {
-        fmt::print("Unsupported board size - {}", size);
-        exit(-1);
+        fmt::print("Unsupported board size - {}\n", size);
+        throw std::logic_error(
+            "parser::setBoardFrom - boardString has a invalid size");
     }
 
     for (int i = 0; i < size; i++) {

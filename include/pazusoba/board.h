@@ -12,13 +12,15 @@
 #include "constant.h"
 
 namespace pazusoba {
+typedef std::array<orb, MAX_BOARD_SIZE> pazuboard;
 class board {
-    std::array<orb, MAX_BOARD_SIZE> internalBoard;
+    pazuboard internalBoard;
 
 public:
     board();
 
     orb& operator[](size_t index);
+    const pazuboard& getBoard() const { return internalBoard; }
 };
 }  // namespace pazusoba
 

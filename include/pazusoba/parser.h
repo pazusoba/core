@@ -14,12 +14,12 @@
 
 namespace pazusoba {
 class parser {
-    int row = 0;
-    int column = 0;
+    int row;
+    int column;
     int minErase = 3;
     int maxSteps = 30;
     int beamSize = 5000;
-    std::string boardString = "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB";
+    std::string boardString;
     board currentBoard;
 
     inline void showUsage() {
