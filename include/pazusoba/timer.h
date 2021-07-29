@@ -25,18 +25,15 @@ private:
 
 public:
     timer(const string& name) : name(name) {
-        if (DEBUG_MODE)
-            start = high_resolution_clock::now();
+        start = high_resolution_clock::now();
     }
 
     /// When the timer is out of the scope, this function will be called
     ~timer() {
-        if (DEBUG_MODE) {
-            duration<float> duration = high_resolution_clock::now() - start;
-            auto second = duration.count();
-            auto ms = second * 1000;
-            printf("%s, %fs (%fms)\n", name.c_str(), second, ms);
-        }
+        duration<float> duration = high_resolution_clock::now() - start;
+        auto second = duration.count();
+        auto ms = second * 1000;
+        printf("%s, %fs (%fms)\n", name.c_str(), second, ms);
     }
 };
 }  // namespace pazusoba

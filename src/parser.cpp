@@ -7,6 +7,11 @@
 
 namespace pazusoba {
 parser::parser(int argc, char* argv[]) {
+    // Nothing passed in
+    if (argc <= 1) {
+        showUsage();
+    }
+
     // parse command line arguments
     if (argc > 1) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {

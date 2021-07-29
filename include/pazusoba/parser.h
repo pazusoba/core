@@ -35,8 +35,8 @@ class parser {
         exit(0);
     }
 
-    /// Read the text from the path and convert it to a board,
-    /// sample_board_65.txt
+    /// Read the text from the path and convert it to a board.
+    /// This is mainly used for TEST, sample_board_65.txt
     void readBoardFrom(const std::string&);
     /// Set the board from a board string, RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB
     void setBoardFrom(const std::string&);
