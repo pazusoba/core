@@ -13,7 +13,12 @@
 
 namespace pazusoba {
 typedef std::array<orb, MAX_BOARD_SIZE> pazuboard;
+
 class board {
+    // TODO: board should know row and column,
+    // parser should only get it from board?
+    int row;
+    int column;
     pazuboard internalBoard;
 
 public:
