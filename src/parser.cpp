@@ -63,6 +63,8 @@ void parser::readBoardFrom(const std::string& path) {
     std::string lines;
 
     int currIndex = 0;
+    int row = 0;
+    int column = 0;
     std::ifstream boardFile(path);
     while (getline(boardFile, lines)) {
         // Ignore lines that start with `//`
@@ -94,10 +96,15 @@ void parser::readBoardFrom(const std::string& path) {
     }
 
     boardFile.close();
+    this->currentBoard.row = row;
+    this->currentBoard.column = column;
+    this->currentBoard.size = row * column;
 }
 
 void parser::setBoardFrom(const std::string& boardString) {
     int size = boardString.length();
+    int row = 0;
+    int column = 0;
 
     // only support 3 fixed size for now, more can be added later
     if (size == 20) {
@@ -115,6 +122,11 @@ void parser::setBoardFrom(const std::string& boardString) {
             "parser::setBoardFrom - boardString has a invalid size");
     }
 
+    // TODO: move this to a function instead
+    this->currentBoard.size = size;
+    this->currentBoard.row = row;
+    this->currentBoard.column = column;
+
     for (int i = 0; i < size; i++) {
         orb current = boardString[i];
 
@@ -125,7 +137,7 @@ void parser::setBoardFrom(const std::string& boardString) {
 
         // Check if it is a letter (RBGLDH)
         for (int k = 0; k < constant::orbCount; k++) {
-            if (current == constant::orbWebNames[k].c_str()[0]) {
+            if (current == constant::orbWebNames[k][0]) {
                 this->currentBoard[i] = orb(k);
                 break;
             }

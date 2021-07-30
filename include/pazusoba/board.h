@@ -12,20 +12,35 @@
 #include "constant.h"
 
 namespace pazusoba {
+
 typedef std::array<orb, MAX_BOARD_SIZE> pazuboard;
 
+enum boardPrintStyles {
+    test = 0,   // print it out like sample_board_65.txt
+    name,       // print it with orb names
+    colourful,  // print it with orb colours
+};
+
+enum boardFormatStyles {
+    dawnglare = 0,  // letters used in dawnglare
+    serizawa,       // string used in puzzdra_theory_maker style
+};
+
 class board {
-    // TODO: board should know row and column,
-    // parser should only get it from board?
-    int row;
-    int column;
     pazuboard internalBoard;
 
 public:
-    board();
+    int row = 0;
+    int column = 0;
+    int size = 0;
 
-    orb& operator[](size_t index);
+    board();
+    void printBoard(boardPrintStyles style) const;
+    std::string getFormattedBoard(boardPrintStyles style) const;
+
     const pazuboard& getBoard() const { return internalBoard; }
+    // size_t is unsigned
+    orb& operator[](size_t index);
 };
 }  // namespace pazusoba
 

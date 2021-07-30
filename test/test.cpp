@@ -40,7 +40,6 @@ void testParser() {
     parser.parse();
     auto pazuboard = parser.Board();
     assert(pazuboard[29] == 2);
-    assert(pazuboard[30] == -1);
     assert(parser.Row() == 5);
     assert(parser.Column() == 6);
 
@@ -50,7 +49,6 @@ void testParser() {
     parser.parse();
     pazuboard = parser.Board();
     assert(pazuboard[19] == 1);
-    assert(pazuboard[20] == -1);
     assert(parser.MinErase() == 3);
     assert(parser.Row() == 4);
     assert(parser.Column() == 5);
@@ -84,7 +82,6 @@ void testParser() {
     assert(pazuboard[0] == 1);
     assert(pazuboard[5] == 3);
     assert(pazuboard[29] == 2);
-    assert(pazuboard[30] == -1);
     assert(parser.Row() == 5);
     assert(parser.Column() == 6);
     assert(parser.MinErase() == 5);
@@ -100,7 +97,6 @@ void testParser() {
     assert(pazuboard[10] == 3);
     assert(pazuboard[20] == 4);
     assert(pazuboard[29] == 4);
-    assert(pazuboard[30] == -1);
     assert(parser.Row() == 5);
     assert(parser.Column() == 6);
 }

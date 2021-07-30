@@ -192,6 +192,7 @@ Things that were helpful during my experiments.
 - [BSD License](https://opencv.org/license/) for opencv
 - [BSD License](https://github.com/asweigart/pyautogui/blob/master/LICENSE.txt) for pyautogui
 - [NumPy License](https://numpy.org/devdocs/license.html)
+- [{fmt}](https://github.com/fmtlib/fmt/blob/master/LICENSE.rst)
 
 <details>
 <summary>Miscellaneous</summary>

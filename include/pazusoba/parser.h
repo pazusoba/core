@@ -14,8 +14,6 @@
 
 namespace pazusoba {
 class parser {
-    int row = 0;
-    int column = 0;
     int minErase = 3;
     int maxSteps = 30;
     int beamSize = 5000;
@@ -47,8 +45,8 @@ public:
     void parse();
 
     // Getters
-    const int& Row() const { return row; }
-    const int& Column() const { return column; }
+    const int& Row() const { return currentBoard.row; }
+    const int& Column() const { return currentBoard.column; }
     const int& MinErase() const { return minErase; }
     const int& MaxSteps() const { return maxSteps; }
     const int& BeamSize() const { return beamSize; }

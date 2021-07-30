@@ -8,7 +8,7 @@
 #ifndef _CONSTANT_H_
 #define _CONSTANT_H_
 
-#include <string>
+#include <fmt/color.h>
 
 namespace pazusoba {
 /// when true, more logs will be printed
@@ -65,22 +65,36 @@ enum scores {
 /// The number of all available orbs
 const int orbCount = 14;
 
+// see https://stackoverflow.com/a/3088477 for why double const is needed
+// this makes sure that orbNames is not used multiple times
 /// Name of orbs
-const std::string orbNames[orbCount] = {
+const char* const orbNames[orbCount] = {
     "",       "Fire", "Water",  "Wood",    "Light", "Dark", "Heal",
     "Jammer", "Bomb", "Poison", "Poison+", "Tape",  "-X-",  "???"};
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const std::string orbWebNames[orbCount] = {"",  "R", "B", "G", "L", "D", "H",
+const char* const orbWebNames[orbCount] = {"",  "R", "B", "G", "L", "D", "H",
                                            "J", "",  "P", "",  "",  "",  ""};
+
+/// Match names http://serizawa.web5.jp/puzzdra_theory_maker/ use
+const char* const orbWebMakerNames[orbCount] = {
+    "", "0", "2", "1", "3", "4", "5", "6", "", "7", "", "", "", ""};
 
 /// Weight of orbs (some are more important than others)
 const int orbWeights[orbCount] = {0,  10, 10, 10, 10, 10, 30,
                                   10, 50, 5,  2,  0,  0,  0};
 
 /// Name of directions
-const std::string directionNames[8] = {"UL", "U",  "UR", "L",
+const char* const directionNames[8] = {"UL", "U",  "UR", "L",
                                        "R",  "DL", "D",  "DR"};
+
+// Console colours for each orb
+const fmt::color orbColors[orbCount] = {
+    fmt::color::black, fmt::color::red,         fmt::color::blue,
+    fmt::color::green, fmt::color::yellow,      fmt::color::purple,
+    fmt::color::pink,  fmt::color::brown,       fmt::color::fire_brick,
+    fmt::color::white, fmt::color::white_smoke, fmt::color::black,
+    fmt::color::black, fmt::color::black};
 }  // namespace constant
 }  // namespace pazusoba
 
