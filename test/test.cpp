@@ -113,17 +113,16 @@ void testBoard() {
     auto board = parser.Board();
 
     fmt::print("=> print board\n");
-    board.printBoard(pazusoba::boardPrintStyles::test);
-    board.printBoard(pazusoba::boardPrintStyles::name);
+    board.printBoard(pazusoba::PrintStyle::test);
+    board.printBoard(pazusoba::PrintStyle::name);
     // very nice!
-    board.printBoard(pazusoba::boardPrintStyles::colourful);
+    board.printBoard(pazusoba::PrintStyle::colourful);
 
-    auto output =
-        board.getFormattedBoard(pazusoba::boardFormatStyles::dawnglare);
+    auto output = board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
     fmt::print("=> test formatted board - dawnglare\n");
     assert(output == "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB");
     fmt::print("=> test formatted board - serizawa\n");
-    output = board.getFormattedBoard(pazusoba::boardFormatStyles::serizawa);
+    output = board.getFormattedBoard(pazusoba::FormatStyle::serizawa);
     assert(output == "053241705406760556104053137522");
 
     fmt::print("=> test board hash\n");

@@ -128,7 +128,7 @@ void parser::setBoardFrom(const std::string& boardString) {
     this->currentBoard.column = column;
 
     for (int i = 0; i < size; i++) {
-        orb current = boardString[i];
+        char current = boardString[i];
 
         // Check if it is a number between 1 and 9
         if (current >= '0' && current <= '9') {
@@ -136,9 +136,9 @@ void parser::setBoardFrom(const std::string& boardString) {
         }
 
         // Check if it is a letter (RBGLDH)
-        for (int k = 0; k < constant::orbCount; k++) {
-            if (current == constant::orbWebNames[k][0]) {
-                this->currentBoard[i] = orb(k);
+        for (int j = 0; j < constant::ORB_COUNT; j++) {
+            if (current == constant::ORB_WEB_NAME[j][0]) {
+                this->currentBoard[i] = orb(j);
                 break;
             }
         }
