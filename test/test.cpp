@@ -113,12 +113,14 @@ void testBoard() {
     fmt::print("=> print board\n");
     board.printBoard(pazusoba::boardPrintStyles::test);
     board.printBoard(pazusoba::boardPrintStyles::name);
+    // very nice!
     board.printBoard(pazusoba::boardPrintStyles::colourful);
 
-    fmt::print("=> test formatted board\n");
     auto output =
         board.getFormattedBoard(pazusoba::boardFormatStyles::dawnglare);
+    fmt::print("=> test formatted board - dawnglare\n");
     assert(output == "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB");
+    fmt::print("=> test formatted board - serizawa\n");
     output = board.getFormattedBoard(pazusoba::boardFormatStyles::serizawa);
-    assert(output == "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB");
+    assert(output == "053241705406760556104053137522");
 }

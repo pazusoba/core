@@ -34,7 +34,19 @@ void board::printBoard(boardPrintStyles style) const {
 }
 
 std::string board::getFormattedBoard(boardFormatStyles style) const {
-    return "";
+    std::string boardString = "";
+    for (int i = 0; i < size; i++) {
+        auto orb = int(this->internalBoard[i]);
+        switch (style) {
+            case boardFormatStyles::dawnglare:
+                boardString += constant::orbWebNames[orb];
+                break;
+            case boardFormatStyles::serizawa:
+                boardString += constant::orbWebMakerNames[orb];
+                break;
+        }
+    }
+    return boardString;
 }
 
 orb& board::operator[](size_t index) {
