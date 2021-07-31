@@ -1,6 +1,7 @@
 //
 // parser.h
-// Parse arguments and options
+// Parse arguments and options.
+// This is an interface for solver.
 //
 // Created by Yiheng Quan on 25/07/2021
 //

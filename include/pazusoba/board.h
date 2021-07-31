@@ -1,6 +1,7 @@
 //
 // board.h
-// A wrapper of the board array with helper functions
+// A wrapper of the board array with helper functions.
+// Any calculation or changes are done in solver.
 //
 // Created by Yiheng Quan on 27/07/2021
 //
@@ -13,6 +14,10 @@
 
 namespace pazusoba {
 
+// 7x6
+#define MAX_BOARD_SIZE 42
+// NOTE: if memory is not a concern, use int instead
+typedef char orb;
 typedef std::array<orb, MAX_BOARD_SIZE> pazuboard;
 
 enum boardPrintStyles {

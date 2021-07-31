@@ -12,6 +12,7 @@
 #include "constant.h"
 #include "hash.h"
 #include "parser.h"
+#include "solver.h"
 #include "timer.h"
 
 #endif

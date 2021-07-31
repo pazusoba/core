@@ -1,6 +1,6 @@
 //
 // solver.h
-// The actual solver of pazusoba
+// An interface of all solvers.
 //
 // Created by Yiheng Quan on 04/07/2021
 //

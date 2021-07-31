@@ -1,6 +1,11 @@
-/// String hash functions
-/// From https://stackoverflow.com/a/7666577 &
-/// http://www.cse.yorku.ca/~oz/hash.html
+//
+// hash.h
+// String hash functions
+// From https://stackoverflow.com/a/7666577 &
+// http://www.cse.yorku.ca/~oz/hash.html
+//
+// Mofified by Yiheng Quan on 31/07/2021
+//
 
 #ifndef _HASH_H_
 #define _HASH_H_

@@ -1,6 +1,6 @@
 //
 // timer.h
-// Track time taken
+// Track time with in the current scrope.
 //
 // Created by Yiheng Quan on 11/11/2020
 //

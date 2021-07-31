@@ -13,10 +13,6 @@
 namespace pazusoba {
 /// when true, more logs will be printed
 #define DEBUG_MODE true
-// 7x6
-#define MAX_BOARD_SIZE 42
-// NOTE: if memory is not a concern, use int instead
-typedef char orb;
 
 namespace constant {
 enum orbs {
