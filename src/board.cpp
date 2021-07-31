@@ -50,8 +50,11 @@ std::string board::getFormattedBoard(boardFormatStyles style) const {
     return boardString;
 }
 
-unsigned long board::hash() {
-    auto boardString = (const unsigned char*)this->internalBoard.data();
+size_t board::hash() {
+    unsigned char boardString[MAX_BOARD_SIZE] = {'\0'};
+    for (int i = 0; i < size; i++) {
+        boardString[i] = (unsigned char)(this->internalBoard[i]);
+    }
     return hash::djb2_hash(boardString);
 }
 

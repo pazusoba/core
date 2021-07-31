@@ -21,12 +21,11 @@ private:
     /// Track the starting time
     time_point<high_resolution_clock> start;
     /// Used for know which timer only
-    const string& name;
+    /// Don't do reference as it gets optimised in release
+    string name;
 
 public:
-    timer(const string& name) : name(name) {
-        start = high_resolution_clock::now();
-    }
+    timer(string name) : name(name) { start = high_resolution_clock::now(); }
 
     /// When the timer is out of the scope, this function will be called
     ~timer() {

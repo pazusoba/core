@@ -8,8 +8,8 @@ void testParser();
 void testBoard();
 
 int main() {
+    pazusoba::timer timer("\n=> Test Completed");
     testAll();
-    fmt::print("\n--- ALL GOOD ---\n");
 }
 
 void testAll() {
@@ -105,6 +105,8 @@ void testParser() {
 
 void testBoard() {
     fmt::print("\n--- Test Board ---\n");
+    pazusoba::timer timer("=> Test Board");
+
     auto parser =
         pazusoba::parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 5, 200, 50000);
     parser.parse();
@@ -124,5 +126,11 @@ void testBoard() {
     output = board.getFormattedBoard(pazusoba::boardFormatStyles::serizawa);
     assert(output == "053241705406760556104053137522");
 
-    fmt::print("=> board hash - {}\n", board.hash());
+    fmt::print("=> test board hash\n");
+    // Make sure it is always the same, calculate 10 times
+    assert(board.hash() == board.hash());
+    assert(board.hash() == board.hash());
+    assert(board.hash() == board.hash());
+    assert(board.hash() == board.hash());
+    assert(board.hash() == board.hash());
 }
