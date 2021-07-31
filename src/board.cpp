@@ -3,10 +3,6 @@
 #include <pazusoba/hash.h>
 
 namespace pazusoba {
-board::board() {
-    this->internalBoard.fill(-1);
-}
-
 void board::printBoard(boardPrintStyles style) const {
     for (int i = 0; i < size; i++) {
         auto orb = int(this->internalBoard[i]);

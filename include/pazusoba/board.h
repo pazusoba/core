@@ -34,7 +34,7 @@ public:
     int column = 0;
     int size = 0;
 
-    board();
+    board() {}
     void printBoard(boardPrintStyles style) const;
     std::string getFormattedBoard(boardFormatStyles style) const;
     size_t hash();
