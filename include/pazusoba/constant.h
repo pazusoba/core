@@ -90,11 +90,11 @@ const char* const directionNames[8] = {"UL", "U",  "UR", "L",
 
 // Console colours for each orb
 const fmt::color orbColors[orbCount] = {
-    fmt::color::black, fmt::color::red,         fmt::color::blue,
-    fmt::color::green, fmt::color::yellow,      fmt::color::purple,
-    fmt::color::pink,  fmt::color::brown,       fmt::color::fire_brick,
-    fmt::color::white, fmt::color::white_smoke, fmt::color::black,
-    fmt::color::black, fmt::color::black};
+    fmt::color::black,      fmt::color::red,         fmt::color::light_blue,
+    fmt::color::green,      fmt::color::yellow,      fmt::color::purple,
+    fmt::color::light_pink, fmt::color::brown,       fmt::color::dark_red,
+    fmt::color::white,      fmt::color::ghost_white, fmt::color::black,
+    fmt::color::black,      fmt::color::black};
 }  // namespace constant
 }  // namespace pazusoba
 

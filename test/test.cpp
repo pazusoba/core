@@ -5,15 +5,17 @@
 void testAll();
 void testTimer();
 void testParser();
+void testBoard();
 
 int main() {
     testAll();
-    fmt::print("\nALL GOOD!\n");
+    fmt::print("\n--- ALL GOOD ---\n");
 }
 
 void testAll() {
     testTimer();
     testParser();
+    testBoard();
 }
 
 void testTimer() {
@@ -99,4 +101,24 @@ void testParser() {
     assert(pazuboard[29] == 4);
     assert(parser.Row() == 5);
     assert(parser.Column() == 6);
+}
+
+void testBoard() {
+    fmt::print("\n--- Test Board ---\n");
+    auto parser =
+        pazusoba::parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 5, 200, 50000);
+    parser.parse();
+    auto board = parser.Board();
+
+    fmt::print("=> print board\n");
+    board.printBoard(pazusoba::boardPrintStyles::test);
+    board.printBoard(pazusoba::boardPrintStyles::name);
+    board.printBoard(pazusoba::boardPrintStyles::colourful);
+
+    fmt::print("=> test formatted board\n");
+    auto output =
+        board.getFormattedBoard(pazusoba::boardFormatStyles::dawnglare);
+    assert(output == "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB");
+    output = board.getFormattedBoard(pazusoba::boardFormatStyles::serizawa);
+    assert(output == "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB");
 }

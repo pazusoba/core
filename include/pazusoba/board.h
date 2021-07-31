@@ -36,9 +36,8 @@ public:
 
     board();
     void printBoard(boardPrintStyles style) const;
-    std::string getFormattedBoard(boardPrintStyles style) const;
+    std::string getFormattedBoard(boardFormatStyles style) const;
 
-    const pazuboard& getBoard() const { return internalBoard; }
     // size_t is unsigned
     orb& operator[](size_t index);
 };
