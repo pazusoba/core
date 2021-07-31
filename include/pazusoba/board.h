@@ -37,6 +37,7 @@ public:
     board();
     void printBoard(boardPrintStyles style) const;
     std::string getFormattedBoard(boardFormatStyles style) const;
+    size_t hash();
 
     // size_t is unsigned
     orb& operator[](size_t index);

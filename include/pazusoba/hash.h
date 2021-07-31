@@ -6,8 +6,8 @@
 #define _HASH_H_
 
 namespace pazusoba::hash {
-inline unsigned long djb2_hash(const unsigned char* str) {
-    unsigned long hash = 5381;
+inline size_t djb2_hash(const unsigned char* str) {
+    size_t hash = 5381;
     int c;
 
     while (*str) {
@@ -18,8 +18,8 @@ inline unsigned long djb2_hash(const unsigned char* str) {
     return hash;
 }
 
-inline unsigned long sdbm_hash(const unsigned char* str) {
-    unsigned long hash = 0;
+inline size_t sdbm_hash(const unsigned char* str) {
+    size_t hash = 0;
     int c;
 
     while (*str) {

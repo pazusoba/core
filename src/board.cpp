@@ -1,5 +1,6 @@
 #include <fmt/color.h>
 #include <pazusoba/board.h>
+#include <pazusoba/hash.h>
 
 namespace pazusoba {
 board::board() {
@@ -47,6 +48,11 @@ std::string board::getFormattedBoard(boardFormatStyles style) const {
         }
     }
     return boardString;
+}
+
+unsigned long board::hash() {
+    auto boardString = (const unsigned char*)this->internalBoard.data();
+    return hash::djb2_hash(boardString);
 }
 
 orb& board::operator[](size_t index) {

@@ -123,4 +123,6 @@ void testBoard() {
     fmt::print("=> test formatted board - serizawa\n");
     output = board.getFormattedBoard(pazusoba::boardFormatStyles::serizawa);
     assert(output == "053241705406760556104053137522");
+
+    fmt::print("=> board hash - {}\n", board.hash());
 }
