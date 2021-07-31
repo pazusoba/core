@@ -3,6 +3,11 @@
 #include <pazusoba/hash.h>
 
 namespace pazusoba {
+
+board::board(const pazuboard& board) {
+    this->internalBoard = board;
+}
+
 void board::printBoard(PrintStyle style) const {
     for (int i = 0; i < size; i++) {
         auto orb = int(this->internalBoard[i]);
@@ -54,6 +59,14 @@ size_t board::hash() {
     return hash::djb2_hash(boardString);
 }
 
+board board::copy() {
+    auto newBoard = board(this->internalBoard);
+    newBoard.row = this->row;
+    newBoard.column = this->column;
+    newBoard.size = this->size;
+    return newBoard;
+}
+
 void board::validateIndex(size_t index) {
     if (size > 0 && (int)index >= size) {
         // If the board is 6x5, the index should never go over 29,
@@ -73,7 +86,7 @@ orb& board::operator[](size_t index) {
 }
 
 orb& board::operator()(size_t x, size_t y) {
-    auto index = x * row + y;
+    auto index = x * column + y;
     validateIndex(index);
     return this->internalBoard[index];
 }

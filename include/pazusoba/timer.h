@@ -23,17 +23,28 @@ private:
     /// Used for know which timer only
     /// Don't do reference as it gets optimised in release
     string name;
+    bool running = true;
+
+    void stopTimer() {
+        if (running) {
+            running = false;
+            duration<float> duration = high_resolution_clock::now() - start;
+            auto second = duration.count();
+            auto ms = second * 1000;
+            printf("%s, %fs (%fms)\n", name.c_str(), second, ms);
+        }
+    }
 
 public:
-    timer(string name) : name(name) { start = high_resolution_clock::now(); }
+    timer(const string& name) : name(name) {
+        start = high_resolution_clock::now();
+    }
 
     /// When the timer is out of the scope, this function will be called
-    ~timer() {
-        duration<float> duration = high_resolution_clock::now() - start;
-        auto second = duration.count();
-        auto ms = second * 1000;
-        printf("%s, %fs (%fms)\n", name.c_str(), second, ms);
-    }
+    ~timer() { stopTimer(); }
+
+    /// Stop manually and won't start again
+    void end() { stopTimer(); }
 };
 }  // namespace pazusoba
 

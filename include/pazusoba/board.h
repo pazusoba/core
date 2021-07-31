@@ -42,10 +42,12 @@ public:
     int size = 0;
 
     board() {}
+    board(const pazuboard& board);
 
     void printBoard(PrintStyle) const;
     std::string getFormattedBoard(FormatStyle) const;
     size_t hash();
+    board copy();
 
     // size_t is unsigned
     orb& operator[](size_t);

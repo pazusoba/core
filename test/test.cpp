@@ -29,6 +29,8 @@ void testTimer() {
         c++;
         fmt::print("c is now {}\n", c);
     }
+    fmt::print("=> End timer manually\n");
+    timer.end();
 }
 
 void testParser() {
@@ -42,6 +44,8 @@ void testParser() {
     parser.parse();
     auto pazuboard = parser.Board();
     assert(pazuboard[29] == 2);
+    assert(pazuboard(4, 5) == pazuboard[29]);
+    assert(pazuboard(0, 0) == 1);
     assert(parser.Row() == 5);
     assert(parser.Column() == 6);
 
@@ -51,6 +55,7 @@ void testParser() {
     parser.parse();
     pazuboard = parser.Board();
     assert(pazuboard[19] == 1);
+    assert(pazuboard(3, 4) == pazuboard[19]);
     assert(parser.MinErase() == 3);
     assert(parser.Row() == 4);
     assert(parser.Column() == 5);
@@ -63,6 +68,9 @@ void testParser() {
     pazuboard = parser.Board();
     assert(pazuboard[20] > 0);
     assert(pazuboard[41] == 7);
+    fmt::print("=> modify board\n");
+    pazuboard(5, 6) = 0;
+    assert(pazuboard[41] == 0);
     assert(parser.Row() == 6);
     assert(parser.Column() == 7);
     assert(parser.MinErase() == 4);
@@ -132,4 +140,33 @@ void testBoard() {
     assert(board.hash() == board.hash());
     assert(board.hash() == board.hash());
     assert(board.hash() == board.hash());
+
+    fmt::print("=> test board copy\n");
+    auto board2 = board.copy();
+    assert(board2.hash() == board.hash());
+    assert(board2.row == board.row);
+    assert(board2.column == board.column);
+    assert(board2.size == board.size);
+    // Replace the last row with empty
+    board[29] = 0;
+    board[28] = 0;
+    board[27] = 0;
+    board[26] = 0;
+    board[25] = 0;
+    board[24] = 3;
+    assert(board2[29] != board[29]);
+    assert(board2[25] != board[25]);
+    assert(board2[24] == board[24]);
+    assert(board2.hash() != board.hash());
+    fmt::print("=> print both board\n");
+    board.printBoard(pazusoba::PrintStyle::colourful);
+    board2.printBoard(pazusoba::PrintStyle::colourful);
+    fmt::print("=> copy board one million times\n");
+    // about 24ms (14ms in release), it is fast enough
+    pazusoba::timer timerCopy("=> million copy");
+    for (int i = 0; i < 1000000; i++) {
+        auto board3 = board2.copy();
+        board3[0] = 0;
+    }
+    timerCopy.end();
 }
