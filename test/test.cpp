@@ -2,6 +2,8 @@
 #include <fmt/core.h>
 #include <pazusoba/core.h>
 
+#define MILLION 1000000
+
 void testAll();
 void testTimer();
 void testParser();
@@ -164,7 +166,7 @@ void testBoard() {
     fmt::print("=> copy board one million times\n");
     // about 24ms (14ms in release), it is fast enough
     pazusoba::timer timerCopy("=> million copy");
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < MILLION; i++) {
         auto board3 = board2.copy();
         board3[0] = 0;
     }

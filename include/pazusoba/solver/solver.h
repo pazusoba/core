@@ -8,9 +8,14 @@
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
+#include "../parser.h"
+
 namespace pazusoba {
 class solver {
 public:
+    solver(const parser& p);
+    virtual ~solver() = default;
+    virtual void solve() = 0;
 };
 }  // namespace pazusoba
 

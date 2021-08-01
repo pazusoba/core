@@ -12,7 +12,9 @@
 #include "constant.h"
 #include "hash.h"
 #include "parser.h"
-#include "solver.h"
+#include "route.h"
+#include "solver/beamsearch.h"
+#include "state.h"
 #include "timer.h"
 
 #endif

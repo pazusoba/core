@@ -31,7 +31,8 @@ link_libraries(fmt::fmt-header-only)
 
 # include headers and get all source files
 include_directories(include)
-file(GLOB PAZUSOBA_SOURCES "src/*.cpp")
+# fiind all source files under src/
+file(GLOB_RECURSE PAZUSOBA_SOURCES "src/*.cpp")
 
 # use release by default
 if (NOT CMAKE_BUILD_TYPE)
