@@ -143,6 +143,18 @@ $ ./a.out assets/sample_board_65.txt 3
 
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
+### Coding Style
+
+I am very free style but I think consistency is important. That's why I think it is time to define the coding style for this project.
+
+- Class should be named like `ClassName`
+- Function should be named like `functionName`
+- Variable should be named like `variable_name`
+- Enum should be named like `EnumName`
+- Const should be named like `CONST_NAME`
+- Everything should be inside `namespace pazusoba`
+- `new` should be avoided if possible
+
 ## Benchmark
 
 Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000. This might not be accurate. Use it as a reference.
