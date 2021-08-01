@@ -46,9 +46,9 @@ public:
     void parse();
 
     // Getters
-    const size_t& row() const { return _board.row(); }
-    const size_t& column() const { return _board.column(); }
-    const size_t& minErase() const { return _min_erase; }
+    const int& row() const { return _board.row(); }
+    const int& column() const { return _board.column(); }
+    const int& minErase() const { return _min_erase; }
     const int& maxSteps() const { return _max_steps; }
     const int& beamSize() const { return _beam_size; }
     const Board& board() const { return _board; }

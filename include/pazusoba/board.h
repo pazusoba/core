@@ -33,9 +33,9 @@ enum FormatStyle {
 
 class Board {
     board _board;
-    size_t _row = 0;
-    size_t _column = 0;
-    size_t _size = 0;
+    int _row = 0;
+    int _column = 0;
+    int _size = 0;
 
     void validateIndex(size_t);
 
@@ -48,11 +48,11 @@ public:
     size_t hash() const;
     Board copy() const;
 
-    const size_t& row() const { return _row; }
-    const size_t& column() const { return _column; }
-    const size_t& size() const { return _size; }
+    const int& row() const { return _row; }
+    const int& column() const { return _column; }
 
-    void set(const size_t& row, const size_t& column) {
+    /// Set row, column and size of the board
+    inline void set(int row, int column) {
         _row = row;
         _column = column;
         _size = row * column;

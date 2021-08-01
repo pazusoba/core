@@ -148,7 +148,6 @@ void testBoard() {
     assert(board2.hash() == board.hash());
     assert(board2.row() == board.row());
     assert(board2.column() == board.column());
-    assert(board2.size() == board.size());
     // Replace the last row with empty
     board[29] = 0;
     board[28] = 0;

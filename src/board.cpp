@@ -66,7 +66,7 @@ size_t Board::hash() const {
 }
 
 void Board::validateIndex(size_t index) {
-    if (_size > 0 && index >= _size) {
+    if (_size > 0 && index >= (size_t)_size) {
         // If the board is 6x5, the index should never go over 29,
         // this can be treated as a test as well.
         throw std::out_of_range(fmt::format(
