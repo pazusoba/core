@@ -11,10 +11,10 @@
 #include "../parser.h"
 
 namespace pazusoba {
-class solver {
+class Solver {
 public:
-    solver(const parser& p);
-    virtual ~solver() = default;
+    Solver(const Parser& p);
+    virtual ~Solver() = default;
     virtual void solve() = 0;
 };
 }  // namespace pazusoba

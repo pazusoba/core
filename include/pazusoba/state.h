@@ -10,7 +10,7 @@
 #define _STATE_H_
 
 namespace pazusoba {
-class state {
+class State {
 public:
 };
 }  // namespace pazusoba

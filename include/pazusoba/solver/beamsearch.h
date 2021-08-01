@@ -11,7 +11,7 @@
 #include "solver.h"
 
 namespace pazusoba {
-class beamsearch : public solver {
+class BeamSearch : public Solver {
 public:
 };
 }  // namespace pazusoba

@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 namespace pazusoba {
-parser::parser(int argc, char* argv[]) {
+Parser::Parser(int argc, char* argv[]) {
     // Nothing passed in
     if (argc <= 1) {
         showUsage();
@@ -17,7 +17,7 @@ parser::parser(int argc, char* argv[]) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
             showUsage();
         } else {
-            this->boardString = argv[1];
+            _board_string = argv[1];
         }
     }
 
@@ -28,38 +28,38 @@ parser::parser(int argc, char* argv[]) {
             minErase = 3;
         if (minErase > 5)
             minErase = 5;
-        this->minErase = minErase;
+        _min_erase = minErase;
     }
 
     if (argc > 3) {
-        this->maxSteps = atoi(argv[3]);
+        _max_steps = atoi(argv[3]);
     }
 
     if (argc > 4) {
-        this->beamSize = atoi(argv[4]);
+        this->_beam_size = atoi(argv[4]);
     }
 }
 
-parser::parser(const std::string& board,
+Parser::Parser(const std::string& boardString,
                int minErase,
                int maxSteps,
                int beamSize) {
-    this->boardString = board;
-    this->minErase = minErase;
-    this->maxSteps = maxSteps;
-    this->beamSize = beamSize;
+    _board_string = boardString;
+    _min_erase = minErase;
+    _max_steps = maxSteps;
+    this->_beam_size = beamSize;
 }
 
-void parser::parse() {
+void Parser::parse() {
     // the board can be the actually board or the path to a local file
-    if (this->boardString.find(".txt") != std::string::npos) {
-        readBoardFrom(this->boardString);
+    if (_board_string.find(".txt") != std::string::npos) {
+        readBoardFrom(_board_string);
     } else {
-        setBoardFrom(this->boardString);
+        setBoardFrom(_board_string);
     }
 }
 
-void parser::readBoardFrom(const std::string& path) {
+void Parser::readBoardFrom(const std::string& path) {
     std::string lines;
 
     int currIndex = 0;
@@ -89,19 +89,17 @@ void parser::readBoardFrom(const std::string& path) {
             ss >> a;
 
             // Convert int into orbs
-            this->currentBoard[currIndex] = orb(a);
+            _board[currIndex] = orb(a);
             currIndex++;
         }
         row++;
     }
 
     boardFile.close();
-    this->currentBoard.row = row;
-    this->currentBoard.column = column;
-    this->currentBoard.size = row * column;
+    _board.set(row, column);
 }
 
-void parser::setBoardFrom(const std::string& boardString) {
+void Parser::setBoardFrom(const std::string& boardString) {
     int size = boardString.length();
     int row = 0;
     int column = 0;
@@ -119,26 +117,23 @@ void parser::setBoardFrom(const std::string& boardString) {
     } else {
         fmt::print("Unsupported board size - {}\n", size);
         throw std::logic_error(
-            "parser::setBoardFrom - boardString has a invalid size");
+            "Parser::setBoardFrom - boardString has a invalid size");
     }
 
-    // TODO: move this to a function instead
-    this->currentBoard.size = size;
-    this->currentBoard.row = row;
-    this->currentBoard.column = column;
+    _board.set(row, column);
 
     for (int i = 0; i < size; i++) {
         char current = boardString[i];
 
         // Check if it is a number between 1 and 9
         if (current >= '0' && current <= '9') {
-            this->currentBoard[i] = orb(current - '0');
+            _board[i] = orb(current - '0');
         }
 
         // Check if it is a letter (RBGLDH)
         for (int j = 0; j < constant::ORB_COUNT; j++) {
             if (current == constant::ORB_WEB_NAME[j][0]) {
-                this->currentBoard[i] = orb(j);
+                _board[i] = orb(j);
                 break;
             }
         }

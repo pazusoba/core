@@ -4,14 +4,14 @@
 
 namespace pazusoba {
 
-board::board(const pazuboard& board) {
-    this->internalBoard = board;
+Board::Board(const board& board) {
+    _board = board;
 }
 
-void board::printBoard(PrintStyle style) const {
-    for (int i = 0; i < size; i++) {
-        auto orb = int(this->internalBoard[i]);
-        if (i > 0 && i % column == 0) {
+void Board::printBoard(PrintStyle style) const {
+    for (int i = 0; i < _size; i++) {
+        auto orb = int(_board[i]);
+        if (i > 0 && i % _column == 0) {
             fmt::print("\n");
             if (style == PrintStyle::colourful) {
                 fmt::print("\n");
@@ -35,10 +35,10 @@ void board::printBoard(PrintStyle style) const {
     fmt::print("\n============\n");
 }
 
-std::string board::getFormattedBoard(FormatStyle style) const {
+std::string Board::getFormattedBoard(FormatStyle style) const {
     std::string boardString = "";
-    for (int i = 0; i < size; i++) {
-        auto orb = int(this->internalBoard[i]);
+    for (int i = 0; i < _size; i++) {
+        auto orb = int(_board[i]);
         switch (style) {
             case FormatStyle::dawnglare:
                 boardString += constant::ORB_WEB_NAME[orb];
@@ -51,28 +51,26 @@ std::string board::getFormattedBoard(FormatStyle style) const {
     return boardString;
 }
 
-size_t board::hash() {
+Board Board::copy() const {
+    auto newBoard = Board(_board);
+    newBoard.set(_row, _column);
+    return newBoard;
+}
+
+size_t Board::hash() const {
     unsigned char boardString[MAX_BOARD_SIZE] = {'\0'};
-    for (int i = 0; i < size; i++) {
-        boardString[i] = (unsigned char)(this->internalBoard[i]);
+    for (int i = 0; i < _size; i++) {
+        boardString[i] = (unsigned char)(_board[i]);
     }
     return hash::djb2_hash(boardString);
 }
 
-board board::copy() {
-    auto newBoard = board(this->internalBoard);
-    newBoard.row = this->row;
-    newBoard.column = this->column;
-    newBoard.size = this->size;
-    return newBoard;
-}
-
-void board::validateIndex(size_t index) {
-    if (size > 0 && (int)index >= size) {
+void Board::validateIndex(size_t index) {
+    if (_size > 0 && index >= _size) {
         // If the board is 6x5, the index should never go over 29,
         // this can be treated as a test as well.
         throw std::out_of_range(fmt::format(
-            "pazusoba::board index {} out of range {}", index, size - 1));
+            "pazusoba::board index {} out of range {}", index, _size - 1));
     } else if (index >= MAX_BOARD_SIZE) {
         throw std::out_of_range(
             fmt::format("pazusoba::board index {} great than max board size {}",
@@ -80,14 +78,14 @@ void board::validateIndex(size_t index) {
     }
 }
 
-orb& board::operator[](size_t index) {
+orb& Board::operator[](size_t index) {
     validateIndex(index);
-    return this->internalBoard[index];
+    return _board[index];
 }
 
-orb& board::operator()(size_t x, size_t y) {
-    auto index = x * column + y;
+orb& Board::operator()(size_t x, size_t y) {
+    auto index = x * _column + y;
     validateIndex(index);
-    return this->internalBoard[index];
+    return _board[index];
 }
 }  // namespace pazusoba

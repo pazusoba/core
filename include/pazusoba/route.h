@@ -9,7 +9,7 @@
 #define _ROUTE_H_
 
 namespace pazusoba {
-class route {
+class Route {
 public:
 };
 }  // namespace pazusoba

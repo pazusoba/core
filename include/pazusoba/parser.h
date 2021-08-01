@@ -14,12 +14,12 @@
 #include "board.h"
 
 namespace pazusoba {
-class parser {
-    int minErase = 3;
-    int maxSteps = 30;
-    int beamSize = 5000;
-    std::string boardString;
-    board currentBoard;
+class Parser {
+    int _min_erase = 3;
+    int _max_steps = 30;
+    int _beam_size = 5000;
+    std::string _board_string;
+    Board _board;
 
     inline void showUsage() {
         fmt::print(
@@ -41,17 +41,17 @@ class parser {
     void setBoardFrom(const std::string&);
 
 public:
-    parser(int argc, char* argv[]);
-    parser(const std::string& board, int minErase, int maxSteps, int beamSize);
+    Parser(int argc, char* argv[]);
+    Parser(const std::string&, int, int, int);
     void parse();
 
     // Getters
-    const int& Row() const { return currentBoard.row; }
-    const int& Column() const { return currentBoard.column; }
-    const int& MinErase() const { return minErase; }
-    const int& MaxSteps() const { return maxSteps; }
-    const int& BeamSize() const { return beamSize; }
-    const board& Board() const { return currentBoard; }
+    const size_t& row() const { return _board.row(); }
+    const size_t& column() const { return _board.column(); }
+    const size_t& minErase() const { return _min_erase; }
+    const int& maxSteps() const { return _max_steps; }
+    const int& beamSize() const { return _beam_size; }
+    const Board& board() const { return _board; }
 };
 }  // namespace pazusoba
 
