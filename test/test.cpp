@@ -163,7 +163,7 @@ void testBoard() {
     board.printBoard(pazusoba::PrintStyle::colourful);
     board2.printBoard(pazusoba::PrintStyle::colourful);
     fmt::print("=> copy board one million times\n");
-    // about 24ms (14ms in release), it is fast enough
+    // about 26ms (14ms in release), it is fast enough
     pazusoba::Timer timerCopy("=> million copy");
     for (int i = 0; i < MILLION; i++) {
         auto board3 = board2.copy();

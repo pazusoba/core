@@ -70,10 +70,10 @@ void Board::validateIndex(size_t index) {
         // If the board is 6x5, the index should never go over 29,
         // this can be treated as a test as well.
         throw std::out_of_range(fmt::format(
-            "pazusoba::board index {} out of range {}", index, _size - 1));
+            "pazusoba::Board index {} out of range {}", index, _size - 1));
     } else if (index >= MAX_BOARD_SIZE) {
         throw std::out_of_range(
-            fmt::format("pazusoba::board index {} great than max board size {}",
+            fmt::format("pazusoba::Board index {} great than max board size {}",
                         index, MAX_BOARD_SIZE));
     }
 }
