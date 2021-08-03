@@ -2,7 +2,8 @@
 #include <fmt/core.h>
 #include <pazusoba/core.h>
 
-#define MILLION 1000000
+#define LOOPS 1000000
+typedef unsigned long long int int64;
 
 void testAll();
 void testTimer();
@@ -162,12 +163,32 @@ void testBoard() {
     fmt::print("=> print both board\n");
     board.printBoard(pazusoba::PrintStyle::colourful);
     board2.printBoard(pazusoba::PrintStyle::colourful);
-    fmt::print("=> copy board one million times\n");
     // about 26ms (14ms in release), it is fast enough
-    pazusoba::Timer timerCopy("=> million copy");
-    for (int i = 0; i < MILLION; i++) {
+    pazusoba::Timer timerCopy("=> copy multiple times");
+    for (int64 i = 0; i < LOOPS; i++) {
         auto board3 = board2.copy();
         board3[0] = 0;
     }
     timerCopy.end();
+
+    fmt::print("=> test orb swap\n");
+    board.swap(0, 1);
+    assert(board[0] == 6);
+    assert(board[1] == 1);
+    board.swap(0, 0, 0, 1);
+    assert(board[0] == 1);
+    assert(board[1] == 6);
+    // invalid swaps
+    board.swap(100, 200);
+    board.swap(29, 30);
+    assert(board[29] == 0);
+    // swap with out of range
+    board.swap(0, 30);
+    assert(board[0] == 1);
+    // about 40 seconds
+    pazusoba::Timer timerSwap("=> swap multiple times");
+    for (int64 i = 0; i < LOOPS; i++) {
+        board.swap(0, 1);
+    }
+    timerSwap.end();
 }

@@ -36,29 +36,31 @@ class Board {
     pint _row = 0;
     pint _column = 0;
     pint _size = 0;
+    /// Used for empty reference
+    orb _empty = 0;
 
-    void validateIndex(pint);
+    /// Validate index and whether errors should be thrown
+    bool validateIndex(pint) const;
 
 public:
     Board() {}
     Board(const board& board);
 
+    /// Set row, column and size of the board
+    void set(pint row, pint column);
+    void swap(pint, pint);
+    void swap(pint, pint, pint, pint);
+    Board copy() const;
+    size_t hash() const;
+
     void printBoard(PrintStyle) const;
     std::string getFormattedBoard(FormatStyle) const;
-    size_t hash() const;
-    Board copy() const;
 
     const pint& row() const { return _row; }
     const pint& column() const { return _column; }
 
-    /// Set row, column and size of the board
-    inline void set(pint row, pint column) {
-        _row = row;
-        _column = column;
-        _size = row * column;
-    }
-
-    // pint is unsigned
+    /// 0 is returned to indicate that the index is out of bound.
+    /// This is useful when swapping two orbs
     orb& operator[](pint index);
     orb& operator()(pint x, pint y);
 };
