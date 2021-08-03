@@ -13,6 +13,8 @@
 namespace pazusoba {
 class BeamSearch : public Solver {
 public:
+    BeamSearch(const Parser& parser) : Solver(parser){};
+    Route solve();
 };
 }  // namespace pazusoba
 

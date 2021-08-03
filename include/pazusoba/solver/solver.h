@@ -9,13 +9,18 @@
 #define _SOLVER_H_
 
 #include "../parser.h"
+#include "../route.h"
 
 namespace pazusoba {
 class Solver {
+protected:
+    const Parser& parser;
+
 public:
-    Solver(const Parser& p);
+    Solver(const Parser& parser) : parser(parser) {}
     virtual ~Solver() = default;
-    virtual void solve() = 0;
+
+    virtual Route solve() = 0;
 };
 }  // namespace pazusoba
 

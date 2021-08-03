@@ -175,9 +175,13 @@ void testBoard() {
     board.swap(0, 1);
     assert(board[0] == 6);
     assert(board[1] == 1);
+    board.printBoard(pazusoba::PrintStyle::colourful);
+
     board.swap(0, 0, 0, 1);
     assert(board[0] == 1);
     assert(board[1] == 6);
+    board.printBoard(pazusoba::PrintStyle::colourful);
+
     // invalid swaps
     board.swap(100, 200);
     board.swap(29, 30);
@@ -185,7 +189,7 @@ void testBoard() {
     // swap with out of range
     board.swap(0, 30);
     assert(board[0] == 1);
-    // about 40 seconds
+    // about 40 seconds (much less in relase)
     pazusoba::Timer timerSwap("=> swap multiple times");
     for (int64 i = 0; i < LOOPS; i++) {
         board.swap(0, 1);
