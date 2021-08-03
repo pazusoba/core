@@ -41,9 +41,9 @@ Parser::Parser(int argc, char* argv[]) {
 }
 
 Parser::Parser(const std::string& boardString,
-               uint minErase,
-               uint maxSteps,
-               uint beamSize) {
+               pint minErase,
+               pint maxSteps,
+               pint beamSize) {
     _board_string = boardString;
     _min_erase = minErase;
     _max_steps = maxSteps;

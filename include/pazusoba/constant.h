@@ -14,6 +14,7 @@ namespace pazusoba {
 
 /// when true, more logs will be printed
 #define DEBUG_MODE true
+typedef unsigned int pint;
 
 namespace constant {
 enum Orb {

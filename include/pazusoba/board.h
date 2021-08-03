@@ -33,11 +33,11 @@ enum FormatStyle {
 
 class Board {
     board _board;
-    uint _row = 0;
-    uint _column = 0;
-    uint _size = 0;
+    pint _row = 0;
+    pint _column = 0;
+    pint _size = 0;
 
-    void validateIndex(uint);
+    void validateIndex(pint);
 
 public:
     Board() {}
@@ -48,19 +48,19 @@ public:
     size_t hash() const;
     Board copy() const;
 
-    const uint& row() const { return _row; }
-    const uint& column() const { return _column; }
+    const pint& row() const { return _row; }
+    const pint& column() const { return _column; }
 
     /// Set row, column and size of the board
-    inline void set(uint row, uint column) {
+    inline void set(pint row, pint column) {
         _row = row;
         _column = column;
         _size = row * column;
     }
 
-    // uint is unsigned
-    orb& operator[](uint index);
-    orb& operator()(uint x, uint y);
+    // pint is unsigned
+    orb& operator[](pint index);
+    orb& operator()(pint x, pint y);
 };
 }  // namespace pazusoba
 

@@ -9,8 +9,8 @@ Board::Board(const board& board) {
 }
 
 void Board::printBoard(PrintStyle style) const {
-    for (uint i = 0; i < _size; i++) {
-        auto orb = uint(_board[i]);
+    for (pint i = 0; i < _size; i++) {
+        auto orb = pint(_board[i]);
         if (i > 0 && i % _column == 0) {
             fmt::print("\n");
             if (style == PrintStyle::colourful) {
@@ -37,8 +37,8 @@ void Board::printBoard(PrintStyle style) const {
 
 std::string Board::getFormattedBoard(FormatStyle style) const {
     std::string boardString = "";
-    for (uint i = 0; i < _size; i++) {
-        auto orb = uint(_board[i]);
+    for (pint i = 0; i < _size; i++) {
+        auto orb = pint(_board[i]);
         switch (style) {
             case FormatStyle::dawnglare:
                 boardString += constant::ORB_WEB_NAME[orb];
@@ -59,13 +59,13 @@ Board Board::copy() const {
 
 size_t Board::hash() const {
     unsigned char boardString[MAX_BOARD_SIZE] = {'\0'};
-    for (uint i = 0; i < _size; i++) {
+    for (pint i = 0; i < _size; i++) {
         boardString[i] = (unsigned char)(_board[i]);
     }
     return hash::djb2_hash(boardString);
 }
 
-void Board::validateIndex(uint index) {
+void Board::validateIndex(pint index) {
     if (_size > 0 && index >= _size) {
         // If the board is 6x5, the index should never go over 29,
         // this can be treated as a test as well.
@@ -78,12 +78,12 @@ void Board::validateIndex(uint index) {
     }
 }
 
-orb& Board::operator[](uint index) {
+orb& Board::operator[](pint index) {
     validateIndex(index);
     return _board[index];
 }
 
-orb& Board::operator()(uint x, uint y) {
+orb& Board::operator()(pint x, pint y) {
     auto index = x * _column + y;
     validateIndex(index);
     return _board[index];
