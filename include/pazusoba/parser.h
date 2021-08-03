@@ -15,9 +15,9 @@
 
 namespace pazusoba {
 class Parser {
-    int _min_erase = 3;
-    int _max_steps = 30;
-    int _beam_size = 5000;
+    uint _min_erase = 3;
+    uint _max_steps = 30;
+    uint _beam_size = 5000;
     std::string _board_string;
     Board _board;
 
@@ -42,15 +42,15 @@ class Parser {
 
 public:
     Parser(int argc, char* argv[]);
-    Parser(const std::string&, int, int, int);
+    Parser(const std::string&, uint, uint, uint);
     void parse();
 
     // Getters
-    const int& row() const { return _board.row(); }
-    const int& column() const { return _board.column(); }
-    const int& minErase() const { return _min_erase; }
-    const int& maxSteps() const { return _max_steps; }
-    const int& beamSize() const { return _beam_size; }
+    const uint& row() const { return _board.row(); }
+    const uint& column() const { return _board.column(); }
+    const uint& minErase() const { return _min_erase; }
+    const uint& maxSteps() const { return _max_steps; }
+    const uint& beamSize() const { return _beam_size; }
     const Board& board() const { return _board; }
 };
 }  // namespace pazusoba

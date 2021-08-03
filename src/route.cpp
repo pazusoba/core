@@ -13,7 +13,7 @@ void Route::addNextStep(constant::Direction direction) {
 
 void Route::printRoute() {
     fmt::print("{} -", _totalSteps);
-    for (pnum i = 0; i < _totalSteps; i++) {
+    for (uint i = 0; i < _totalSteps; i++) {
         fmt::print("{} ", constant::DIRECTION_STRING[_steps[i]]);
     }
     fmt::print("\n");
@@ -27,7 +27,7 @@ void Route::writeToDisk() {
     // Row and Column should be included?
 }
 
-void Route::goGack(positive_number steps) {
+void Route::goGack(uint steps) {
     if (steps > _totalSteps)
         throw std::logic_error("pazusoba::Board goBack too many steps");
     _totalSteps -= steps;
@@ -37,7 +37,7 @@ void Route::shorten() {
     //
 }
 
-constant::Direction& Route::operator[](positive_number index) {
+constant::Direction& Route::operator[](uint index) {
     if (index >= _totalSteps)
         throw std::out_of_range(
             fmt::format("pazusoba::Route index {} out of range {}", index,

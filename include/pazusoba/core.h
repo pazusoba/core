@@ -13,7 +13,7 @@
 #include "hash.h"
 #include "parser.h"
 #include "route.h"
-#include "solver/beamsearch.h"
+#include "solver/beam_search.h"
 #include "state.h"
 #include "timer.h"
 

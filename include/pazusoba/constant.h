@@ -14,8 +14,6 @@ namespace pazusoba {
 
 /// when true, more logs will be printed
 #define DEBUG_MODE true
-typedef unsigned int positive_number;
-typedef positive_number pnum;
 
 namespace constant {
 enum Orb {
