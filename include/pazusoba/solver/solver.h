@@ -20,6 +20,7 @@ public:
     Solver(const Parser& parser) : parser(parser) {}
     virtual ~Solver() = default;
 
+    /// Return a single route
     virtual Route solve() = 0;
 };
 }  // namespace pazusoba
