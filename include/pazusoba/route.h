@@ -9,12 +9,23 @@
 #define _ROUTE_H_
 
 #include <array>
+/// TODO: Remove cstdlib and ctime
+#include <cstdlib>
+#include <ctime>
 #include "constant.h"
 
 namespace pazusoba {
 
 #define MAX_STEPS 100
 typedef std::array<constant::Direction, MAX_STEPS> StepList;
+
+/// TO BE CONSIDERED: this is passed to python
+struct CRoute {
+    int x = 0;
+    int y = 0;
+    // Indicate the size of this list
+    int size = 0;
+};
 
 // TODO: is it necessary to
 class Route {
@@ -35,6 +46,21 @@ public:
     void goGack(pint);
     /// Shorten the route by removing unnessary moves
     void shorten();
+    /// TODO: not finalised
+    inline CRoute* toCRouteList() {
+        srand(time(nullptr));
+        int count = rand() % 100;
+        if (count == 0)
+            count = 1;
+
+        auto routes = new CRoute[count];
+        for (int i = 0; i < count; i++) {
+            routes[i].x = rand() % 10000;
+            routes[i].y = rand() % 10000;
+        }
+        routes[0].size = count;
+        return routes;
+    }
 
     const StepList& steps() const { return _steps; }
     const pint& totalSteps() const { return _totalSteps; }
