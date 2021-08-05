@@ -12,6 +12,7 @@ CRoute* solve(int argc, char* argv[]) {
     }
 
     auto parser = pazusoba::Parser(argc, argv);
+    parser.parse();
     auto search = pazusoba::BeamSearch(parser);
     return search.solve().toCRouteList();
 }
