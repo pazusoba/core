@@ -27,7 +27,7 @@ public:
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint index);
 
-    const State& next(pad::Direction);
+    State next(pad::Direction);
 
     bool operator<(const State&) const;
 };

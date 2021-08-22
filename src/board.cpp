@@ -8,23 +8,6 @@ Board::Board(const board& board) {
     _board = board;
 }
 
-bool Board::validateIndex(pint index) const {
-    if (_size > 0 && index >= _size) {
-        // if (error)
-        //     throw std::out_of_range(fmt::format(
-        //         "pazusoba::Board index {} out of range {}", index, _size -
-        //         1));
-        return false;
-    } else if (index >= MAX_BOARD_SIZE) {
-        // if (error)
-        //     throw std::out_of_range(fmt::format(
-        //         "pazusoba::Board index {} great than max board size {}",
-        //         index, MAX_BOARD_SIZE));
-        return false;
-    }
-    return true;
-}
-
 void Board::set(pint row, pint column) {
     _row = row;
     _column = column;
@@ -55,6 +38,35 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     auto temp = one;
     (*this)(one1, one2) = two;
     (*this)(two1, two2) = temp;
+}
+
+ComboList Board::eraseOrbs() {
+    ComboList list;
+
+    // How to improve the efficiency here?
+
+    return list;
+}
+
+void Board::moveOrbsDown() {
+    for (pint i = 0; i < _column; ++i) {
+        int emptyIndex = -1;
+        // signed type is needed or otherwise, j >= won't terminate at all
+        // because after -1 is the max value again
+        for (int j = _row - 1; j >= 0; --j) {
+            auto index = INDEX_OF(j, i);
+            auto orb = (*this)[index];
+            if (orb == 0) {
+                emptyIndex = j;
+            } else if (emptyIndex != -1) {
+                // replace last known empty index
+                // and replace it with current index
+                (*this)(emptyIndex, i) = orb;
+                (*this)[index] = 0;
+                emptyIndex = j;
+            }
+        }
+    }
 }
 
 Board Board::copy() const {
@@ -115,15 +127,15 @@ std::string Board::getFormattedBoard(FormatStyle style) const {
 }
 
 orb& Board::operator[](pint index) {
-    if (validateIndex(index))
-        return _board[index];
-    return _empty;
+    // TODO: when settings it for test, size can be 0
+    // but can be removed safely after testing
+    if (_size > 0 && index >= _size)
+        return _empty;
+    return _board[index];
 }
 
 orb& Board::operator()(pint x, pint y) {
-    auto index = x * _column + y;
-    if (validateIndex(index))
-        return _board[index];
-    return _empty;
+    auto index = INDEX_OF(x, y);
+    return (*this)[index];
 }
 }  // namespace pazusoba

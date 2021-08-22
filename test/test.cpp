@@ -199,6 +199,10 @@ void testBoard() {
         board.swap(0, 1);
     }
     timerSwap.end();
+
+    fmt::print("=> test move orbs down\n");
+    board.moveOrbsDown();
+    board.printBoard(pazusoba::PrintStyle::colourful);
 }
 
 void testState() {

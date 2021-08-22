@@ -10,15 +10,19 @@
 #define _BOARD_H_
 
 #include <array>
+#include <vector>
 #include "constant.h"
 
 namespace pazusoba {
 
 // 7x6
 #define MAX_BOARD_SIZE 42
+#define INDEX_OF(x, y) (x * _column + y);
 // NOTE: if memory is not a concern, use int instead
 typedef unsigned int orb;
 typedef std::array<orb, MAX_BOARD_SIZE> board;
+typedef std::vector<orb> Combo;
+typedef std::vector<Combo> ComboList;
 
 enum PrintStyle {
     test = 0,   // print it out like sample_board_65.txt
@@ -39,9 +43,6 @@ class Board {
     /// Used for empty reference
     orb _empty = 0;
 
-    /// Validate index and whether errors should be thrown
-    bool validateIndex(pint) const;
-
 public:
     Board() {}
     Board(const board& board);
@@ -50,6 +51,8 @@ public:
     void set(pint row, pint column);
     void swap(pint, pint);
     void swap(pint, pint, pint, pint);
+    ComboList eraseOrbs();
+    void moveOrbsDown();
     Board copy() const;
     size_t hash() const;
 

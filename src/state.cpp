@@ -9,12 +9,15 @@ State::State(const Board& board, pint maxStep, pint index) {
 }
 
 void State::calculateScore() {
+    // Calculate score after calling next??
+    // No, so I need to copy another board
     _score = 0;
 }
 
-const State& State::next(pad::Direction direction) {
+State State::next(pad::Direction direction) {
     switch (direction) {
         case pad::up_left:
+            _board[_currentIndex];
             break;
         case pad::up:
             break;
