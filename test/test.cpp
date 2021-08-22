@@ -201,8 +201,40 @@ void testBoard() {
     timerSwap.end();
 
     fmt::print("=> test move orbs down\n");
-    board.moveOrbsDown();
-    board.printBoard(pazusoba::PrintStyle::colourful);
+    // get a clean board
+    parser.parse();
+    auto combo_board = parser.board();
+    combo_board[0] = 0;
+    combo_board[8] = 0;
+    combo_board[11] = 0;
+    combo_board[12] = 0;
+    combo_board[16] = 0;
+    combo_board[19] = 0;
+    combo_board[22] = 0;
+    combo_board[24] = 0;
+    combo_board[25] = 0;
+    combo_board[26] = 0;
+    combo_board[27] = 0;
+    combo_board[28] = 0;
+    combo_board[29] = 0;
+    fmt::print("=> before moving\n");
+    combo_board.printBoard(pazusoba::PrintStyle::colourful);
+    combo_board.moveOrbsDown();
+    fmt::print("=> after moving\n");
+    combo_board.printBoard(pazusoba::PrintStyle::colourful);
+    // First two rows should be empty
+    assert(combo_board[1] == 0);
+    assert(combo_board[2] == 0);
+    assert(combo_board[3] == 0);
+    assert(combo_board[4] == 0);
+    assert(combo_board[5] == 0);
+    assert(combo_board[6] == 0);
+    assert(combo_board[7] == 0);
+    assert(combo_board[8] == 0);
+    assert(combo_board[9] == 0);
+    assert(combo_board[10] == 0);
+    assert(combo_board[11] == 0);
+    assert(combo_board[12] == 0);
 }
 
 void testState() {

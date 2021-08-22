@@ -57,7 +57,9 @@ void Board::moveOrbsDown() {
             auto index = INDEX_OF(j, i);
             auto orb = (*this)[index];
             if (orb == 0) {
-                emptyIndex = j;
+                // Don't override empty index if available
+                if (emptyIndex == -1)
+                    emptyIndex = j;
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index
