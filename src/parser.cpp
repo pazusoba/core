@@ -131,8 +131,8 @@ void Parser::setBoardFrom(const std::string& boardString) {
         }
 
         // Check if it is a letter (RBGLDH)
-        for (int j = 0; j < constant::ORB_COUNT; j++) {
-            if (current == constant::ORB_WEB_NAME[j][0]) {
+        for (int j = 0; j < pad::ORB_COUNT; j++) {
+            if (current == pad::ORB_WEB_NAME[j][0]) {
                 _board[i] = orb(j);
                 break;
             }

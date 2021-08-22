@@ -86,11 +86,11 @@ void Board::printBoard(PrintStyle style) const {
                 fmt::print("{} ", orb);
                 break;
             case PrintStyle::name:
-                fmt::print("{}\t", constant::ORB_NAME[orb]);
+                fmt::print("{}\t", pad::ORB_NAME[orb]);
                 break;
             case PrintStyle::colourful:
                 // bg -> background, fg -> foreground
-                fmt::print(bg(constant::ORB_COLOURS[orb]), "  ");
+                fmt::print(bg(pad::ORB_COLOURS[orb]), "  ");
                 fmt::print("  ");
                 break;
         }
@@ -104,10 +104,10 @@ std::string Board::getFormattedBoard(FormatStyle style) const {
         auto orb = pint(_board[i]);
         switch (style) {
             case FormatStyle::dawnglare:
-                boardString += constant::ORB_WEB_NAME[orb];
+                boardString += pad::ORB_WEB_NAME[orb];
                 break;
             case FormatStyle::serizawa:
-                boardString += constant::ORB_WEB_MAKER_NAME[orb];
+                boardString += pad::ORB_WEB_MAKER_NAME[orb];
                 break;
         }
     }

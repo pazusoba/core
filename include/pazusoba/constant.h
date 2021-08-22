@@ -16,7 +16,7 @@ namespace pazusoba {
 #define DEBUG_MODE true
 typedef unsigned int pint;
 
-namespace constant {
+namespace pad {
 enum Orb {
     empty = 0,
     fire,
@@ -93,7 +93,7 @@ const fmt::color ORB_COLOURS[ORB_COUNT] = {
     fmt::color::light_pink, fmt::color::brown,       fmt::color::dark_red,
     fmt::color::white,      fmt::color::ghost_white, fmt::color::black,
     fmt::color::black,      fmt::color::black};
-}  // namespace constant
+}  // namespace pad
 }  // namespace pazusoba
 
 #endif

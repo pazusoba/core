@@ -204,6 +204,12 @@ void testBoard() {
 void testState() {
     fmt::print("\n--- Test State ---\n");
     pazusoba::Timer timer("=> Test State");
+    auto parser =
+        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 10000);
+    parser.parse();
+    auto board = parser.board();
+
+    auto state1 = pazusoba::State(board, parser.maxSteps(), 0);
 }
 
 void testBeamSearch() {

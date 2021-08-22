@@ -27,8 +27,9 @@ public:
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint index);
 
-    bool ended() const { return _currentStep > _maxStep; }
-    bool operator<(const State& a) const;
+    const State& next(pad::Direction);
+
+    bool operator<(const State&) const;
 };
 }  // namespace pazusoba
 

@@ -17,7 +17,7 @@
 namespace pazusoba {
 
 #define MAX_STEPS 100
-typedef std::array<constant::Direction, MAX_STEPS> StepList;
+typedef std::array<pad::Direction, MAX_STEPS> StepList;
 
 /// TO BE CONSIDERED: this is passed to python
 struct CRoute {
@@ -38,7 +38,7 @@ public:
     /// the correct route can be writen properly
     Route(pint loc) : _startingLocation(loc) {}
 
-    void addNextStep(constant::Direction);
+    void addNextStep(pad::Direction);
     void printRoute();
     /// Legacy support, python can read the step list directly
     void writeToDisk();
@@ -65,7 +65,7 @@ public:
     const StepList& steps() const { return _steps; }
     const pint& totalSteps() const { return _totalSteps; }
 
-    constant::Direction& operator[](pint index);
+    pad::Direction& operator[](pint index);
 };
 }  // namespace pazusoba
 

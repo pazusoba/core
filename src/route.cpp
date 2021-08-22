@@ -2,7 +2,7 @@
 #include <pazusoba/route.h>
 
 namespace pazusoba {
-void Route::addNextStep(constant::Direction direction) {
+void Route::addNextStep(pad::Direction direction) {
     if (_totalSteps == MAX_STEPS)
         throw std::out_of_range(
             fmt::format("pazusoba::Route exceeded max steps {}", MAX_STEPS));
@@ -14,7 +14,7 @@ void Route::addNextStep(constant::Direction direction) {
 void Route::printRoute() {
     fmt::print("{} -", _totalSteps);
     for (pint i = 0; i < _totalSteps; i++) {
-        fmt::print("{} ", constant::DIRECTION_STRING[_steps[i]]);
+        fmt::print("{} ", pad::DIRECTION_STRING[_steps[i]]);
     }
     fmt::print("\n");
 }
@@ -37,7 +37,7 @@ void Route::shorten() {
     //
 }
 
-constant::Direction& Route::operator[](pint index) {
+pad::Direction& Route::operator[](pint index) {
     if (index >= _totalSteps)
         throw std::out_of_range(
             fmt::format("pazusoba::Route index {} out of range {}", index,
