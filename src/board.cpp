@@ -49,6 +49,8 @@ ComboList Board::eraseOrbs() {
 }
 
 void Board::moveOrbsDown() {
+    // TODO: maybe should taking min erase into account
+    // because it is impossible to erase only one orb
     for (pint i = 0; i < _column; ++i) {
         int emptyIndex = -1;
         // signed type is needed or otherwise, j >= won't terminate at all
@@ -65,7 +67,8 @@ void Board::moveOrbsDown() {
                 // and replace it with current index
                 (*this)(emptyIndex, i) = orb;
                 (*this)[index] = 0;
-                emptyIndex = j;
+                // simply move it up from last index
+                --emptyIndex;
             }
         }
     }

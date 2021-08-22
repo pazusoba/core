@@ -206,6 +206,7 @@ void testBoard() {
     auto combo_board = parser.board();
     combo_board[0] = 0;
     combo_board[8] = 0;
+    combo_board[9] = 0;
     combo_board[11] = 0;
     combo_board[12] = 0;
     combo_board[16] = 0;
@@ -235,6 +236,20 @@ void testBoard() {
     assert(combo_board[10] == 0);
     assert(combo_board[11] == 0);
     assert(combo_board[12] == 0);
+    assert(combo_board[16] == 0);
+    assert(combo_board[18] != 0);
+    assert(combo_board[19] != 0);
+    assert(combo_board[21] != 0);
+    assert(combo_board[23] != 0);
+    assert(combo_board[24] != 0);
+    assert(combo_board[26] != 0);
+    assert(combo_board[28] != 0);
+    assert(combo_board[29] != 0);
+    pazusoba::Timer moveOrbs("=> move orbs down multiple times");
+    for (int64 i = 0; i < LOOPS; i++) {
+        combo_board.moveOrbsDown();
+    }
+    moveOrbs.end();
 }
 
 void testState() {
