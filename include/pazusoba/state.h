@@ -28,6 +28,7 @@ public:
     State(const Board& board, pint maxStep, pint index);
 
     bool ended() const { return _currentStep > _maxStep; }
+    bool operator<(const State& a) const;
 };
 }  // namespace pazusoba
 

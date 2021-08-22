@@ -9,6 +9,8 @@ void testAll();
 void testTimer();
 void testParser();
 void testBoard();
+void testState();
+void testBeamSearch();
 
 int main() {
     pazusoba::Timer timer("\n=> Test Completed");
@@ -19,6 +21,8 @@ void testAll() {
     testTimer();
     testParser();
     testBoard();
+    testState();
+    testBeamSearch();
 }
 
 void testTimer() {
@@ -195,4 +199,20 @@ void testBoard() {
         board.swap(0, 1);
     }
     timerSwap.end();
+}
+
+void testState() {
+    fmt::print("\n--- Test State ---\n");
+    pazusoba::Timer timer("=> Test State");
+}
+
+void testBeamSearch() {
+    fmt::print("\n--- Test Beam Search ---\n");
+    pazusoba::Timer timer("=> Test Beam Search");
+    auto parser =
+        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 10000);
+    parser.parse();
+
+    auto beamSearch = pazusoba::BeamSearch(parser);
+    beamSearch.solve();
 }

@@ -11,4 +11,8 @@ State::State(const Board& board, pint maxStep, pint index) {
 void State::calculateScore() {
     _score = 0;
 }
+
+bool State::operator<(const State& a) const {
+    return _score < a._score;
+}
 };  // namespace pazusoba
