@@ -3,6 +3,8 @@
 #include <fmt/core.h>
 #include <pazusoba/core.h>
 
+// MAYBE add all C types here??
+
 extern "C" {
 namespace pazusoba {
 CRoute* solve(int argc, char* argv[]) {

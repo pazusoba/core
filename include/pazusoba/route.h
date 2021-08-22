@@ -34,8 +34,8 @@ class Route {
     pint _startingLocation;
 
 public:
-    /// Pass in the starting location so that the correct route can be writen
-    /// properly
+    /// Pass in the starting location so that
+    /// the correct route can be writen properly
     Route(pint loc) : _startingLocation(loc) {}
 
     void addNextStep(constant::Direction);

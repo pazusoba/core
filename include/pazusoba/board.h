@@ -58,6 +58,7 @@ public:
 
     const pint& row() const { return _row; }
     const pint& column() const { return _column; }
+    const pint& size() const { return _size; }
 
     /// 0 is returned to indicate that the index is out of bound.
     /// This is useful when swapping two orbs

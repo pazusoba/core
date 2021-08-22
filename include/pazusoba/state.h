@@ -14,16 +14,20 @@
 
 namespace pazusoba {
 class State {
-    board _board;
+    Board _board;
     pint _currentIndex = 0;
 
     pint _score = 0;
     pint _currentStep = 0;
     pint _maxStep = 0;
 
+    void calculateScore();
+
 public:
-    ///
-    State(pint maxStep) : _maxStep(maxStep) {}
+    /// This is only used in the initial state
+    State(const Board& board, pint maxStep, pint index);
+
+    bool ended() const { return _currentStep > _maxStep; }
 };
 }  // namespace pazusoba
 

@@ -14,10 +14,10 @@
 namespace pazusoba {
 class Solver {
 protected:
-    const Parser& parser;
+    const Parser& _parser;
 
 public:
-    Solver(const Parser& parser) : parser(parser) {}
+    Solver(const Parser& parser) : _parser(parser) {}
     virtual ~Solver() = default;
 
     /// Return a single route
