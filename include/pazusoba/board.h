@@ -21,7 +21,14 @@ namespace pazusoba {
 // NOTE: if memory is not a concern, use int instead
 typedef unsigned int orb;
 typedef std::array<orb, MAX_BOARD_SIZE> board;
-typedef std::vector<orb> Combo;
+
+/// The Orb + its location, used in profile
+struct OrbInfo {
+    orb info;
+    pint loc;
+    OrbInfo(const orb& o, const pint& i) : info(o), loc(i) {}
+};
+typedef std::vector<OrbInfo> Combo;
 typedef std::vector<Combo> ComboList;
 
 enum PrintStyle {
