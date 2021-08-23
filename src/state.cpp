@@ -22,10 +22,13 @@ State::State(const Board& board, pint prev, pint curr) {
 
 void State::calculateScore() {
     auto temp = _board;
-    auto list = temp.eraseOrbs();
+    ComboList list;
+    auto func = [&list](const Combo& c) { list.push_back(c); };
+
+    temp.eraseOrbs(func);
     while (list.size() > 0) {
         temp.moveOrbsDown();
-        list = temp.eraseOrbs();
+        temp.eraseOrbs(func);
     }
 
     // probably call the profile here to calculate the score

@@ -10,6 +10,7 @@
 #define _BOARD_H_
 
 #include <array>
+#include <functional>
 #include <vector>
 #include "constant.h"
 
@@ -57,7 +58,7 @@ public:
     void set(pint row, pint column);
     void swap(pint, pint);
     void swap(pint, pint, pint, pint);
-    ComboList eraseOrbs();
+    void eraseOrbs(const std::function<void(Combo)>&);
     void moveOrbsDown();
     Board copy() const;
     size_t hash() const;

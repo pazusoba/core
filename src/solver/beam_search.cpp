@@ -9,7 +9,8 @@ Route BeamSearch::solve() {
 
     // setup all the initial states
     for (pint i = 0; i < board.size(); ++i) {
-        pq.emplace(board, _parser.maxSteps(), i);
+        // Need to add 0 for the initial state
+        pq.emplace(board, _parser.maxSteps(), i, 0);
     }
 
     // Use Beam Search starting from step one

@@ -40,12 +40,8 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-ComboList Board::eraseOrbs() {
-    ComboList list;
-
+void Board::eraseOrbs(const std::function<void(Combo)>& func) {
     // How to improve the efficiency here?
-
-    return list;
 }
 
 void Board::moveOrbsDown() {
