@@ -266,7 +266,7 @@ void testState() {
     parser.parse();
     auto board = parser.board();
 
-    auto state1 = pazusoba::State(board, parser.maxSteps(), 0);
+    auto state1 = pazusoba::State(board, parser.maxSteps(), 0, 0);
 }
 
 void testBeamSearch() {

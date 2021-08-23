@@ -1,11 +1,12 @@
 #include <pazusoba/state.h>
 
 namespace pazusoba {
-State::State(const Board& board, pint maxStep, pint index) {
+State::State(const Board& board, pint maxStep, pint curr, pint prev) {
     _maxStep = maxStep;
     _currentStep = 0;
     _board = board;
-    _currIndex = index;
+    _currIndex = curr;
+    _prevIndex = prev;
 }
 
 State::State(const Board& board, pint prev, pint curr) {
@@ -16,11 +17,19 @@ State::State(const Board& board, pint prev, pint curr) {
     _board = board;
     _prevIndex = prev;
     _currIndex = curr;
+    calculateScore();
 }
 
 void State::calculateScore() {
-    // Calculate score after calling next??
-    // No, so I need to copy another board
+    auto temp = _board;
+    auto list = temp.eraseOrbs();
+    while (list.size() > 0) {
+        temp.moveOrbsDown();
+        list = temp.eraseOrbs();
+    }
+
+    // probably call the profile here to calculate the score
+    // can parse the reference down
     _score = 0;
 }
 
