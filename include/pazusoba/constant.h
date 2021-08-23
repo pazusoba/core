@@ -67,16 +67,16 @@ const int ORB_COUNT = 14;
 // this makes sure that orbNames is not used multiple times
 /// Name of orbs
 const char* const ORB_NAME[ORB_COUNT] = {
-    "",       "Fire", "Water",  "Wood",    "Light", "Dark", "Heal",
+    " ",      "Fire", "Water",  "Wood",    "Light", "Dark", "Heal",
     "Jammer", "Bomb", "Poison", "Poison+", "Tape",  "-X-",  "???"};
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const char* const ORB_WEB_NAME[ORB_COUNT] = {"",  "R", "B", "G", "L", "D", "H",
+const char* const ORB_WEB_NAME[ORB_COUNT] = {" ", "R", "B", "G", "L", "D", "H",
                                              "J", "",  "P", "",  "",  "",  ""};
 
 /// Match names http://serizawa.web5.jp/puzzdra_theory_maker/ use
 const char* const ORB_WEB_MAKER_NAME[ORB_COUNT] = {
-    "", "0", "2", "1", "3", "4", "5", "6", "", "7", "", "", "", ""};
+    " ", "0", "2", "1", "3", "4", "5", "6", "", "7", "", "", "", ""};
 
 /// Weight of orbs (some are more important than others)
 const int ORB_WEIGHT[ORB_COUNT] = {0,  10, 10, 10, 10, 10, 30,

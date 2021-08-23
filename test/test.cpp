@@ -15,6 +15,7 @@ void testBeamSearch();
 int main() {
     pazusoba::Timer timer("\n=> Test Completed");
     testAll();
+    fmt::print("\n--- Test All ---");
 }
 
 void testAll() {
@@ -245,6 +246,11 @@ void testBoard() {
     assert(combo_board[26] != 0);
     assert(combo_board[28] != 0);
     assert(combo_board[29] != 0);
+    auto combo_board_string =
+        combo_board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
+    // Match with the dawnglare format
+    assert(combo_board_string == "             HLB GPRRHDJGJDRRL");
+
     pazusoba::Timer moveOrbs("=> move orbs down multiple times");
     for (int64 i = 0; i < LOOPS; i++) {
         combo_board.moveOrbsDown();
