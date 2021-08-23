@@ -40,7 +40,7 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseOrbs(const std::function<void(Combo)>& func) {
+void Board::eraseOrbs(const std::function<void(const Combo&)>& func) {
     // How to improve the efficiency here?
 }
 
@@ -112,7 +112,7 @@ void Board::printBoard(PrintStyle style) const {
 }
 
 std::string Board::getFormattedBoard(FormatStyle style) const {
-    std::string boardString = "";
+    std::string boardString("");
     for (pint i = 0; i < _size; i++) {
         auto orb = pint(_board[i]);
         switch (style) {

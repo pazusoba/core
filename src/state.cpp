@@ -36,26 +36,8 @@ void State::calculateScore() {
     _score = 0;
 }
 
-State State::next(pad::Direction direction) {
-    switch (direction) {
-        case pad::up_left:
-            _board[_currIndex];
-            break;
-        case pad::up:
-            break;
-        case pad::up_right:
-            break;
-        case pad::left:
-            break;
-        case pad::right:
-            break;
-        case pad::down_left:
-            break;
-        case pad::down:
-            break;
-        case pad::down_right:
-            break;
-    }
+void State::children(const std::function<void(const State&)>& func) const {
+    // getting all possible children
 }
 
 bool State::stopped() const {
