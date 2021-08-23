@@ -5,7 +5,17 @@ State::State(const Board& board, pint maxStep, pint index) {
     _maxStep = maxStep;
     _currentStep = 0;
     _board = board;
-    _currentIndex = index;
+    _currIndex = index;
+}
+
+State::State(const Board& board, pint prev, pint curr) {
+    _currentStep++;
+    if (stopped())
+        return;
+
+    _board = board;
+    _prevIndex = prev;
+    _currIndex = curr;
 }
 
 void State::calculateScore() {
@@ -17,7 +27,7 @@ void State::calculateScore() {
 State State::next(pad::Direction direction) {
     switch (direction) {
         case pad::up_left:
-            _board[_currentIndex];
+            _board[_currIndex];
             break;
         case pad::up:
             break;
@@ -34,6 +44,10 @@ State State::next(pad::Direction direction) {
         case pad::down_right:
             break;
     }
+}
+
+bool State::stopped() const {
+    return _currentStep > _maxStep;
 }
 
 bool State::operator<(const State& a) const {

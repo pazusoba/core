@@ -15,7 +15,9 @@
 namespace pazusoba {
 class State {
     Board _board;
-    pint _currentIndex = 0;
+    pint _currIndex = 0;
+    // so that it doesn't go backwards
+    pint _prevIndex = 0;
 
     pint _score = 0;
     pint _currentStep = 0;
@@ -26,8 +28,10 @@ class State {
 public:
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint index);
+    State(const Board& board, pint prev, pint curr);
 
     State next(pad::Direction);
+    bool stopped() const;
 
     bool operator<(const State&) const;
 };
