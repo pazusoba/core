@@ -22,13 +22,12 @@ namespace pazusoba {
 typedef unsigned int orb;
 typedef std::array<orb, MAX_BOARD_SIZE> board;
 
-/// The Orb + its location, used in profile
-struct OrbInfo {
+/// Since Orb is always the same, we can simply store locations here
+struct Combo {
     orb info;
-    pint loc;
-    OrbInfo(const orb& o, const pint& i) : info(o), loc(i) {}
+    std::vector<pint> loc;
+    Combo(const orb& o) : info(o) {}
 };
-typedef std::vector<OrbInfo> Combo;
 typedef std::vector<Combo> ComboList;
 
 enum PrintStyle {
