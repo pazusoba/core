@@ -36,15 +36,18 @@ enum Orb {
 
 /// All 8 possible directions
 enum Direction {
-    up_left = 0,
-    up,
-    up_right,
+    up = 0,
+    down,
     left,
     right,
+    // after right, all moves are diagonal
+    up_left,
+    up_right,
     down_left,
-    down,
     down_right
 };
+
+const int DIRECTION_COUNT = 8;
 
 /// This is for all profiles and based on how important it is
 enum Score {

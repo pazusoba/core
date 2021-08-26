@@ -28,14 +28,21 @@ class State {
 
 public:
     /// This is only used in the initial state
-    State(const Board& board, pint maxStep, pint curr, pint prev);
-    State(const Board& board, pint prev, pint curr);
+    State(const Board& board, pint maxStep, pint curr);
+    State(const Board& board,
+          pint currStep,
+          pint maxStep,
+          pint prev,
+          pint curr);
 
     void children(const std::function<void(const State&)>&, bool) const;
     bool stopped() const;
 
     const pint& score() const { return _score; }
+    const Board& board() const { return _board; }
     const pint& currentStep() const { return _currentStep; }
+    const pint& currIndex() const { return _currIndex; }
+    const pint& prevIndex() const { return _prevIndex; }
     const pint& maxStep() const { return _maxStep; }
 
     bool operator<(const State&) const;

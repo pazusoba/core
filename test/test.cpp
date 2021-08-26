@@ -266,7 +266,61 @@ void testState() {
     parser.parse();
     auto board = parser.board();
 
-    auto state1 = pazusoba::State(board, parser.maxSteps(), 0, 0);
+    std::vector<pazusoba::State> children;
+    auto callback = [&children](const auto& child) {
+        children.push_back(child);
+    };
+
+    fmt::print("=> test children states (0, 0)\n");
+    // (0, 0)
+    auto state1 = pazusoba::State(board, parser.maxSteps(), 0);
+    // digonal moves
+    state1.children(callback, true);
+    assert(children.size() == 3);
+    assert(children[0].currentStep() == 1);
+    assert(children[0].currIndex() == 6);
+    assert(children[0].prevIndex() == 0);
+    assert(children[0].maxStep() == parser.maxSteps());
+    children.clear();
+    // only down and right here
+    state1.children(callback, false);
+    assert(children.size() == 2);
+    assert(children[1].currentStep() == 1);
+    assert(children[1].currIndex() == 1);
+    assert(children[1].prevIndex() == 0);
+    assert(children[1].maxStep() == parser.maxSteps());
+    children.clear();
+
+    fmt::print("=> test children states (3, 3)\n");
+    // (3, 3) in the middle with max 8 valid children states
+    state1 = pazusoba::State(board, parser.maxSteps(), 15);
+    state1.children(callback, true);
+    assert(children.size() == 8);
+    fmt::print("=> validate (3, 3) -> (2, 3)\n");
+    // moving up
+    assert(children[0].currentStep() == 1);
+    assert(children[0].currIndex() == 9);
+    assert(children[0].prevIndex() == 15);
+    assert(children[0].maxStep() == parser.maxSteps());
+    fmt::print("=> validate new board\n");
+    // make sure the board is swapped
+    auto up_board = children[0].board();
+    auto org_board = state1.board();
+    up_board[9] = org_board[15];
+    up_board[15] = org_board[9];
+    up_board[0] = 0;
+    assert(org_board[0] != 0);
+    children.clear();
+
+    state1.children(callback, false);
+    assert(children.size() == 4);
+    fmt::print("=> validate (3, 3) -> (3, 2)\n");
+    // should be left here
+    assert(children[2].currentStep() == 1);
+    assert(children[2].currIndex() == 14);
+    assert(children[2].prevIndex() == 15);
+    assert(children[2].maxStep() == parser.maxSteps());
+    children.clear();
 }
 
 void testBeamSearch() {
