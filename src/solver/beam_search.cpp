@@ -18,4 +18,4 @@ Route BeamSearch::solve() {
     /// TO BE UPDATED
     return Route(0);
 }
-};  // namespace pazusoba
+}  // namespace pazusoba
