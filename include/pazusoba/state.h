@@ -14,9 +14,6 @@
 #include "constant.h"
 
 namespace pazusoba {
-// This should be off by default because it is risky most of the time
-#define ALLOW_DIAGONAL_MOVES true
-
 class State {
     Board _board;
     pint _currIndex = 0;
@@ -34,7 +31,7 @@ public:
     State(const Board& board, pint maxStep, pint curr, pint prev);
     State(const Board& board, pint prev, pint curr);
 
-    void children(const std::function<void(const State&)>&) const;
+    void children(const std::function<void(const State&)>&, bool) const;
     bool stopped() const;
 
     const pint& score() const { return _score; }

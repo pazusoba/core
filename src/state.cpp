@@ -36,7 +36,8 @@ void State::calculateScore() {
     _score = 0;
 }
 
-void State::children(const std::function<void(const State&)>& func) const {
+void State::children(const std::function<void(const State&)>& func,
+                     bool diagonal) const {
     // getting all possible children
 }
 
