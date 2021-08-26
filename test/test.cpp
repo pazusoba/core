@@ -320,7 +320,20 @@ void testState() {
     assert(children[2].currIndex() == 14);
     assert(children[2].prevIndex() == 15);
     assert(children[2].maxStep() == parser.maxSteps());
+
+    fmt::print("=> test max step\n");
+    pazusoba::State maxStepState = children[0];
     children.clear();
+    // start from step 1 here
+    for (int i = 0; i < int(parser.maxSteps()) - 1; ++i) {
+        maxStepState.children(callback, false);
+        maxStepState = children[0];
+        children.clear();
+    }
+    assert(maxStepState.currentStep() == parser.maxSteps());
+    assert(maxStepState.maxStep() == maxStepState.currentStep());
+    maxStepState.children(callback, false);
+    assert(children.size() == 0);
 }
 
 void testBeamSearch() {

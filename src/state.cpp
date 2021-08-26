@@ -15,9 +15,6 @@ State::State(const Board& board,
              pint curr) {
     _currentStep = currStep;
     _maxStep = maxStep;
-    if (stopped())
-        return;
-
     _board = board;
     _prevIndex = prev;
     _currIndex = curr;
@@ -53,6 +50,9 @@ void State::calculateScore() {
 
 void State::children(const std::function<void(const State&)>& f,
                      bool diagonal) const {
+    if (_currentStep == _maxStep)
+        return;
+
     pint column = _board.column();
     pint size = _board.size();
     for (pint i = 0; i < pad::DIRECTION_COUNT; i++) {
@@ -107,10 +107,6 @@ void State::children(const std::function<void(const State&)>& f,
         _newBoard.swap(_currIndex, newIndex);
         f(State(_newBoard, _currentStep + 1, _maxStep, _currIndex, newIndex));
     }
-}
-
-bool State::stopped() const {
-    return _currentStep > _maxStep;
 }
 
 bool State::operator<(const State& a) const {
