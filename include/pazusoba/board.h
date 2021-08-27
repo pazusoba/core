@@ -50,6 +50,10 @@ class Board {
     /// Used for empty reference
     orb _empty = 0;
 
+    // Private methods to erase orbs
+    // Different approaches can be used here
+    void floodfill(pint x, pint y, const orb& orb, bool initial);
+
 public:
     Board() {}
     Board(const board& board);

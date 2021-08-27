@@ -40,8 +40,22 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseOrbs(const std::function<void(const Combo&)>& func) {
-    // How to improve the efficiency here?
+void Board::floodfill(pint x, pint y, const orb& orb, bool initial) {
+    //
+}
+
+void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
+    //
+    for (int i = _row - 1; i >= 0; i--) {
+        for (int j = 0; j < _column; j++) {
+            auto orb = (*this)(i, j);
+            // Ignore empty orbs
+            if (orb == pad::empty)
+                continue;
+
+            floodfill(i, j, orb, true);
+        }
+    }
 }
 
 void Board::moveOrbsDown() {

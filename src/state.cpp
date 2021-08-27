@@ -26,9 +26,11 @@ void State::calculateScore() {
     ComboList list;
     auto func = [&list](const Combo& c) { list.push_back(c); };
 
+    int moveCount = 0;
     temp.eraseOrbs(func);
     while (list.size() > 0) {
         temp.moveOrbsDown();
+        moveCount++;
         temp.eraseOrbs(func);
     }
 
