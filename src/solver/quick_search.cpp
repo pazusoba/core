@@ -9,18 +9,18 @@
 namespace pazusoba {
 Route QuickSearch::solve() {
     std::unordered_map<size_t, bool> visited;
-    StatePriorityQueue pq;
+    std::vector<State> states;
     std::mutex mtx;
-    auto push = [&pq, &mtx](const State& state) {
+    auto push = [&](const State& state) {
         mtx.lock();
-        pq.push(state);
+        states.push_back(state);
         mtx.unlock();
     };
 
     std::vector<std::thread> threads;
     // Save one core for now
     int processor_count = std::thread::hardware_concurrency() - 1;
-    // int processor_count = 0;
+    // processor_count = 0;
     if (processor_count == 0)
         processor_count = 1;
     fmt::print("Using {} threads\n", processor_count);
@@ -30,38 +30,34 @@ Route QuickSearch::solve() {
     const Board& board = _parser.board();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        pq.emplace(board, _parser.maxSteps(), i);
+        states.emplace_back(board, _parser.maxSteps(), i);
     }
 
-    State bestState = pq.top();
-    bool found = false;
+    State bestState = states[0];
     // Use Beam Search starting from step one
-    while (!pq.empty()) {
-        fmt::print("queue size: {}\n", pq.size());
+    while (!states.empty()) {
+        fmt::print("array size: {}\n", states.size());
+
         for (int i = 0; i < processor_count; ++i) {
-            if (found)
-                break;
             threads.emplace_back([&] {
-                if (pq.empty())
+                if (states.empty() || states.size() > _parser.beamSize())
                     return;
-                auto state = pq.top();
+                auto state = states.back();
                 mtx.lock();
-                pq.pop();
-                mtx.unlock();
+                states.pop_back();
                 auto hash = state.hash();
-                if (visited[hash])
+                if (visited[hash]) {
+                    mtx.unlock();
                     return;
-                else
+                } else {
                     visited[hash] = true;
+                }
+                mtx.unlock();
 
                 auto score = state.score();
                 if (score > bestState.score()) {
-                    mtx.lock();
                     bestState = state;
-                    mtx.unlock();
                 }
-                if (score > 180)
-                    found = true;
                 state.children(push, false);
             });
         }

@@ -363,7 +363,7 @@ void testBeamSearch() {
     fmt::print("\n--- Test Search ---\n");
     pazusoba::Timer timer("=> Test Search");
     auto parser =
-        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 5000);
+        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 20, 1000);
     parser.parse();
 
     pazusoba::Timer quick("=> Test Quick Search");
