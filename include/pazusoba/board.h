@@ -18,7 +18,7 @@ namespace pazusoba {
 
 // 7x6
 #define MAX_BOARD_SIZE 42
-#define INDEX_OF(x, y) (x * _column + y);
+#define INDEX_OF(x, y) (x * _column + y)
 // NOTE: if memory is not a concern, use int instead
 typedef unsigned int orb;
 typedef std::array<orb, MAX_BOARD_SIZE> board;
@@ -28,6 +28,8 @@ struct Combo {
     orb info;
     std::vector<pint> loc;
     Combo(const orb& o) : info(o) {}
+
+    bool valid() const { return loc.size() > 0; }
 };
 typedef std::vector<Combo> ComboList;
 
@@ -43,23 +45,25 @@ enum FormatStyle {
 };
 
 class Board {
+    int _visited[MAX_BOARD_SIZE]{0};
     board _board;
     pint _row = 0;
     pint _column = 0;
+    pint _minErase = 0;
     pint _size = 0;
     /// Used for empty reference
     orb _empty = 0;
 
     // Private methods to erase orbs
     // Different approaches can be used here
-    void floodfill(pint x, pint y, const orb& orb, bool initial);
+    void floodfill(Combo& combo, pint x, pint y, const orb& orb, bool initial);
 
 public:
     Board() {}
     Board(const board& board);
 
     /// Set row, column and size of the board
-    void set(pint row, pint column);
+    void set(pint row, pint column, pint minErase);
     void swap(pint, pint);
     void swap(pint, pint, pint, pint);
     void eraseOrbs(const std::function<void(const Combo&)>&);

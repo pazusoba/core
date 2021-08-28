@@ -96,7 +96,7 @@ void Parser::readBoardFrom(const std::string& path) {
     }
 
     boardFile.close();
-    _board.set(row, column);
+    _board.set(row, column, _min_erase);
 }
 
 void Parser::setBoardFrom(const std::string& boardString) {
@@ -120,7 +120,7 @@ void Parser::setBoardFrom(const std::string& boardString) {
             "Parser::setBoardFrom - boardString has a invalid size");
     }
 
-    _board.set(row, column);
+    _board.set(row, column, _min_erase);
 
     for (int i = 0; i < size; i++) {
         char current = boardString[i];

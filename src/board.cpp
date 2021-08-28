@@ -3,14 +3,14 @@
 #include <pazusoba/hash.h>
 
 namespace pazusoba {
-
 Board::Board(const board& board) {
     _board = board;
 }
 
-void Board::set(pint row, pint column) {
+void Board::set(pint row, pint column, pint minErase) {
     _row = row;
     _column = column;
+    _minErase = minErase;
     _size = row * column;
 }
 
@@ -40,20 +40,148 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::floodfill(pint x, pint y, const orb& orb, bool initial) {
-    //
+void Board::floodfill(Combo& combo,
+                      pint x,
+                      pint y,
+                      const orb& orb,
+                      bool initial) {
+    auto index = INDEX_OF(x, y);
+    auto currOrb = (*this)[index];
+    if (currOrb == 0)
+        return;
+    if (currOrb != orb && _visited[index] < 1)
+        return;
+
+    // track num of connected orbs, also include the current orb so start from 1
+    int count = 1;
+    // track all directions
+    int dList[4] = {0, 0, 0, 0};
+    // the min number of connected orbs to consider it as a combo
+    int minConnection = initial ? _minErase : (_minErase >= 3 ? 3 : _minErase);
+
+    // all 4 directions
+    // 0 -> right
+    // 1 -> left
+    // 2 -> down
+    // 3 -> up
+    for (int d = 0; d < 4; d++) {
+        int loop = _row;
+        if (d > 1)
+            loop = _column;
+
+        // start from 1 to look for orbs around
+        for (int i = 1; i < loop; i++) {
+            pint cx = x;
+            pint cy = y;
+            if (d == 0)
+                cy += i;
+            else if (d == 1)
+                cy -= i;
+            else if (d == 2)
+                cx += i;
+            else if (d == 3)
+                cx -= i;
+
+            auto cindex = INDEX_OF(cx, cy);
+            // Make sure this is valid
+            if (cindex >= _size)
+                break;
+            // stop if it doesn't match and it is not visited yet
+            // if visited, it means this orb has the same colour
+            if (_board[cindex] != orb && _visited[cindex] < 1)
+                break;
+
+            dList[d]++;
+            count++;
+        }
+    }
+
+    // more than erase condition
+    if (count >= minConnection) {
+        int start = 0;
+        int end = 2;
+
+        int hCount = dList[0] + dList[1] + 1;
+        int vCount = dList[2] + dList[3] + 1;
+        bool horizontal = hCount >= minConnection;
+        bool vertical = vCount >= minConnection;
+        // this is either L or +
+        if (hCount == 3 && vCount == 3) {
+            horizontal = true;
+            vertical = true;
+        }
+
+        if (!horizontal)
+            start = 1;
+        if (!vertical)
+            end = 1;
+
+        // erase and do flood fill
+        for (int d = start; d < end; d++) {
+            int startCount = -(dList[d * 2 + 1]);
+            int endCount = dList[d * 2] + 1;
+
+            for (int i = startCount; i < endCount; i++) {
+                int cx = x;
+                int cy = y;
+                if (d == 0)
+                    cy += i;
+                else if (d == 1)
+                    cx += i;
+
+                int index = INDEX_OF(cx, cy);
+                if (_visited[index] == 0) {
+                    _board[index] = 0;
+                    combo.loc.emplace_back(index);
+                    _visited[index] = 1;
+                } else {
+                    // shouldn't visit this orb again
+                    _visited[index] = 2;
+                }
+            }
+        }
+
+        for (int d = start; d < end; d++) {
+            int startCount = -(dList[d * 2 + 1]);
+            int endCount = dList[d * 2] + 1;
+            for (int i = startCount; i < endCount; i++) {
+                int cx = x;
+                int cy = y;
+                if (d == 0)
+                    cy += i;
+                else if (d == 1)
+                    cx += i;
+
+                // prevent going to the same orb again
+                if (_visited[(INDEX_OF(cx, cy))] < 2) {
+                    if (d == 0) {
+                        // horizontal so fill vertically
+                        floodfill(combo, cx + 1, cy, orb, false);
+                        floodfill(combo, cx - 1, cy, orb, false);
+                    } else {
+                        floodfill(combo, cx, cy + 1, orb, false);
+                        floodfill(combo, cx, cy - 1, orb, false);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
     //
     for (int i = _row - 1; i >= 0; i--) {
-        for (int j = 0; j < _column; j++) {
+        for (pint j = 0; j < _column; j++) {
             auto orb = (*this)(i, j);
-            // Ignore empty orbs
+            // ignore empty orbs
             if (orb == pad::empty)
                 continue;
 
-            floodfill(i, j, orb, true);
+            Combo combo(orb);
+            floodfill(combo, i, j, orb, true);
+            if (combo.valid()) {
+                f(combo);
+            }
         }
     }
 }
@@ -86,7 +214,7 @@ void Board::moveOrbsDown() {
 
 Board Board::copy() const {
     auto newBoard = Board(_board);
-    newBoard.set(_row, _column);
+    newBoard.set(_row, _column, _minErase);
     return newBoard;
 }
 

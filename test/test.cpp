@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <fmt/core.h>
 #include <pazusoba/core.h>
+#include <future>
 
 #define LOOPS 1000000
 typedef unsigned long long int int64;
@@ -16,6 +17,12 @@ int main() {
     pazusoba::Timer timer("\n=> Test Completed");
     testAll();
     fmt::print("\n--- Test All ---");
+
+    auto timeout = std::async(std::launch::async, [] {
+        fmt::print("\n--- Timeout ---");
+        assert(false);
+    });
+    timeout.wait_for(std::chrono::seconds(1));
 }
 
 void testAll() {
@@ -256,6 +263,21 @@ void testBoard() {
         combo_board.moveOrbsDown();
     }
     moveOrbs.end();
+
+    fmt::print("=> test erase orbs\n");
+    // There are lots of edge cases so need to test it properly
+    parser = pazusoba::Parser("../support/sample_board_65_1.txt", 3, 30, 5000);
+    // TODO: maybe parse should be called automatically???
+    parser.parse();
+    pazusoba::ComboList comboList;
+    auto addCombo = [&comboList](const pazusoba::Combo& combo) {
+        comboList.push_back(combo);
+    };
+    board = parser.board();
+    board.eraseOrbs(addCombo);
+    output = board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
+    // Should erase all orbs
+    assert(output == "                              ");
 }
 
 void testState() {

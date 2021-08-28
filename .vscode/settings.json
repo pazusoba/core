@@ -5,6 +5,8 @@
     "${workspaceFolder}/src/fmt/include",
   ],
   "files.associations": {
+    "future": "cpp",
+    "thread": "cpp",
     "__bit_reference": "cpp",
     "__config": "cpp",
     "__debug": "cpp",
@@ -70,7 +72,6 @@
     "string": "cpp",
     "string_view": "cpp",
     "system_error": "cpp",
-    "thread": "cpp",
     "tuple": "cpp",
     "type_traits": "cpp",
     "typeindex": "cpp",
