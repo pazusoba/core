@@ -36,6 +36,7 @@ public:
           pint curr);
 
     void children(const std::function<void(const State&)>&, bool) const;
+    size_t hash() const { return _board.hash(); }
 
     const pint& score() const { return _score; }
     const Board& board() const { return _board; }
