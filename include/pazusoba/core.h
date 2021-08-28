@@ -15,6 +15,7 @@
 #include "queue.h"
 #include "route.h"
 #include "solver/beam_search.h"
+#include "solver/quick_search.h"
 #include "state.h"
 #include "timer.h"
 

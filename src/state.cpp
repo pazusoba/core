@@ -41,7 +41,7 @@ void State::calculateScore() {
 
     // probably call the profile here to calculate the score
     // can parse the reference down
-    _score = 0;
+    _score = list.size() * 20;
 }
 
 // Prevent code duplication

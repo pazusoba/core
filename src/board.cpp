@@ -179,7 +179,7 @@ void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
 
             Combo combo(orb);
             floodfill(combo, i, j, orb, true);
-            if (combo.valid()) {
+            if (combo.loc.size() >= _minErase) {
                 f(combo);
             }
         }

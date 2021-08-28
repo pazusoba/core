@@ -28,8 +28,6 @@ struct Combo {
     orb info;
     std::vector<pint> loc;
     Combo(const orb& o) : info(o) {}
-
-    bool valid() const { return loc.size() > 0; }
 };
 typedef std::vector<Combo> ComboList;
 

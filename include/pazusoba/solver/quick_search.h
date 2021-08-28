@@ -5,8 +5,8 @@
 // Created by Yiheng Quan on 26/08/2021
 //
 
-#ifndef _BEAM_SEARCH_H_
-#define _BEAM_SEARCH_H_
+#ifndef _QUICK_SEARCH_H_
+#define _QUICK_SEARCH_H_
 
 #include "solver.h"
 
