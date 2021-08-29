@@ -367,9 +367,9 @@ void testBeamSearch() {
     parser.parse();
 
     pazusoba::Timer quick("=> Test Quick Search");
-    auto quickSearch = pazusoba::QuickSearch(parser);
-    quickSearch.solve();
-    quick.end();
+    // auto quickSearch = pazusoba::QuickSearch(parser);
+    // quickSearch.solve();
+    // quick.end();
 
     pazusoba::Timer beam("=> Test Beam Search");
     auto beamSearch = pazusoba::BeamSearch(parser);
