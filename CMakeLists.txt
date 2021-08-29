@@ -7,7 +7,7 @@ project(
     HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
-
+    
 if(MSVC)
     message(FATAL_ERROR "MSVC is not supported. Use `MinGW Makefiles` instead")
 endif()
@@ -20,9 +20,14 @@ set(MAIN_CPP test/pazusoba.cpp)
 set(TEST_CPP test/test.cpp)
 
 # strict compiler warnings
-set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic -pthread)
+set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic)
 set(OPTIMISATION_FLAGS -O2)
 set(DEBUG_COMPILER_FLAGS -g)
+
+# pthread is required for multithreading
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+link_libraries(Threads::Threads)
 
 message(STATUS "Add {fmt} module")
 # add {fmt} module
