@@ -45,4 +45,4 @@ pad::Direction& Route::operator[](pint index) {
 
     return _steps[index];
 }
-};  // namespace pazusoba
+}  // namespace pazusoba

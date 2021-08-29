@@ -119,4 +119,4 @@ void State::children(const std::function<void(const State&)>& f,
 bool State::operator<(const State& a) const {
     return _score < a._score;
 }
-};  // namespace pazusoba
+}  // namespace pazusoba
