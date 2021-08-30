@@ -39,6 +39,10 @@ void State::calculateScore() {
         temp.eraseOrbs(func);
     }
 
+    if (list.size() >= 9) {
+        _score = 0;
+    }
+
     // probably call the profile here to calculate the score
     // can parse the reference down
     _score = list.size() * 20;

@@ -1,3 +1,4 @@
+#include <fmt/core.h>
 #include <pazusoba/constant.h>
 #include <pazusoba/parser.h>
 #include <fstream>
@@ -50,12 +51,29 @@ Parser::Parser(const std::string& boardString,
     this->_beam_size = beamSize;
 }
 
+void Parser::showUsage() {
+    fmt::print(
+        "\nusage: pazusoba [board string] [min erase] [max steps] [max "
+        "beam size]\nboard string\t-- "
+        "eg. RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB\nmin erase\t-- 3 to 5\nmax "
+        "steps\t-- maximum steps before the program stops "
+        "searching\nmax beam size\t-- the width of the search space, "
+        "larger number means slower speed but better results\n\nMore "
+        "at "
+        "https://github.com/HenryQuan/pazusoba\n\n");
+    exit(0);
+}
+
 void Parser::parse() {
     // the board can be the actually board or the path to a local file
     if (_board_string.find(".txt") != std::string::npos) {
         readBoardFrom(_board_string);
     } else {
         setBoardFrom(_board_string);
+    }
+
+    if (DEBUG_MODE) {
+        _board.printBoard(colourful);
     }
 }
 

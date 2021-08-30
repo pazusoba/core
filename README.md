@@ -143,6 +143,15 @@ $ ./a.out assets/sample_board_65.txt 3
 
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
+### DEBUG
+
+lldb can call methods while debugging so it is easier to debug
+
+```
+// print current board
+_board.getFormattedBoard(FormatStyle::dawnglare)
+```
+
 ### Coding Style
 
 I am very free style but I think consistency is important. That's why I think it is time to define the coding style for this project.

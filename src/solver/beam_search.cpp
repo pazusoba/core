@@ -31,8 +31,6 @@ Route BeamSearch::solve() {
     // Save one core for now
     pint processor_count = std::thread::hardware_concurrency();
     // processor_count = 1;
-    if (processor_count == 0)
-        processor_count = 1;
     fmt::print("Using {} threads\n", processor_count);
 
     // Use Beam Search starting from step one
@@ -58,7 +56,8 @@ Route BeamSearch::solve() {
                     if (visited[hash]) {
                         mtx.unlock();
                         // check more since this one is already checked
-                        j -= 1;
+                        // need to consider, this slows down
+                        // j -= 1;
                         continue;
                     } else {
                         visited[hash] = true;

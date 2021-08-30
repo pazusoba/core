@@ -372,7 +372,7 @@ void testBeamSearch() {
     quick.end();
 
     pazusoba::Timer beam("=> Test Beam Search");
-    auto beamSearch = pazusoba::BeamSearch(parser);
-    beamSearch.solve();
+    // auto beamSearch = pazusoba::BeamSearch(parser);
+    // beamSearch.solve();
     beam.end();
 }

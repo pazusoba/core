@@ -9,7 +9,6 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
-#include <fmt/core.h>
 #include <string>
 #include "board.h"
 
@@ -21,18 +20,7 @@ class Parser {
     std::string _board_string;
     Board _board;
 
-    inline void showUsage() {
-        fmt::print(
-            "\nusage: pazusoba [board string] [min erase] [max steps] [max "
-            "beam size]\nboard string\t-- "
-            "eg. RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB\nmin erase\t-- 3 to 5\nmax "
-            "steps\t-- maximum steps before the program stops "
-            "searching\nmax beam size\t-- the width of the search space, "
-            "larger number means slower speed but better results\n\nMore "
-            "at "
-            "https://github.com/HenryQuan/pazusoba\n\n");
-        exit(0);
-    }
+    void showUsage();
 
     /// Read the text from the path and convert it to a board.
     /// This is mainly used for TEST, sample_board_65.txt
