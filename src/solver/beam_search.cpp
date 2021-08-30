@@ -15,7 +15,7 @@ Route BeamSearch::solve() {
     std::deque<State> toVisit;
     auto push = [&](const State& state) {
         mtx.lock();
-        toVisit.push_back(state);
+        toVisit.push_front(state);
         mtx.unlock();
     };
 
@@ -39,7 +39,7 @@ Route BeamSearch::solve() {
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
         for (pint j = 0; j < processor_count; ++j) {
-            threads.emplace_back([&] {
+            threads.emplace_front([&] {
                 for (pint k = 0; k < beamSize; ++k) {
                     mtx.lock();
                     if (pq.empty()) {
