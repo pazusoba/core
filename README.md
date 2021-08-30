@@ -90,7 +90,7 @@ This project was originally developed on Windows 10 with `MinGW`. Later, I also 
 
 ### Setup
 
-On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is not supported for now. On Mac OS and Linux, `g++/clang++` is preferred.
+On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is not supported for now. On Mac OS and Linux, `g++/clang++` is preferred. `Xcode` also works on Mac OS.
 
 #### Requirements
 
@@ -113,7 +113,7 @@ git submodule update --init --recursive
 cmake -B release
 cd release
 make pazusoba_binary
-./release/pazusoba_binary.exe
+.pazusoba_binary.exe
 ```
 
 Add `-DCMAKE_BUILD_TYPE=Debug` to debug or test pazusoba.
@@ -122,8 +122,10 @@ Add `-DCMAKE_BUILD_TYPE=Debug` to debug or test pazusoba.
 cmake -B debug -G -DCMAKE_BUILD_TYPE=Debug
 cd debug
 make test_pazusoba
-./debug/test_pazusoba.exe
+./test_pazusoba.exe
 ```
+
+Alternatively, you can use `make.py`.
 
 ### Build
 

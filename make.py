@@ -4,6 +4,7 @@ A script for generating makefiles from CMakeLists.txt
 """
 
 import os
+import platform
 import sys
 import shutil
 
@@ -11,7 +12,7 @@ import shutil
 def make():
     # simple make
     extra_flags = ""
-    if os.name == "nt":
+    if platform.system() == "Windows":
         # for now, MinGW should be used, MSVC may be supported in the future
         extra_flags = '-G "MinGW Makefiles"'
     os.system("cmake -B release {}".format(extra_flags))
@@ -21,6 +22,7 @@ def make():
 
 
 def clean():
+    shutil.rmtree("build")
     shutil.rmtree("debug")
     shutil.rmtree("release")
 
@@ -29,11 +31,18 @@ def test():
     if not os.path.exists("debug/"):
         make()
 
-    if os.name == "nt":
+    if platform.system() == "Windows":
         # TODO: fix it for Windows
         os.system("cd debug && mingw32.exe test_pazusoba && ./test_pazusoba.exe")
     else:
         os.system("cd debug && make test_pazusoba && ./test_pazusoba")
+
+
+def xcode():
+    if platform.system() == "Darwin":
+        os.system("cmake -B xcode -G Xcode -D CMAKE_BUILD_TYPE=Debug")
+        os.system("cp -r support xcode")
+        os.system("open xcode/pazusoba.xcodeproj")
 
 
 argv = sys.argv
@@ -46,5 +55,7 @@ elif argc == 2:
         test()
     elif option == "clean":
         clean()
+    elif option == "xcode":
+        xcode()
     else:
-        exit("Unknown command - (test, clean) avilable")
+        exit("Unknown command - (test, clean, xcode) avilable")
