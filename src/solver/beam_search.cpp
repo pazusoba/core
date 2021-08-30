@@ -30,7 +30,7 @@ Route BeamSearch::solve() {
     std::deque<std::thread> threads;
     // Save one core for now
     pint processor_count = std::thread::hardware_concurrency();
-    // processor_count = 0;
+    // processor_count = 1;
     if (processor_count == 0)
         processor_count = 1;
     fmt::print("Using {} threads\n", processor_count);
@@ -38,26 +38,31 @@ Route BeamSearch::solve() {
     // Use Beam Search starting from step one
     State bestState = pq.top();
     auto beamSize = _parser.beamSize() / processor_count + 1;
-    for (pint i = 0; i < maxSteps; i++) {
-        fmt::print("step {}\n", i + 1);
-        for (pint j = 0; j < processor_count; j++) {
+    fmt::print("Beam Size {}\n", beamSize);
+    for (pint i = 0; i < maxSteps; ++i) {
+        for (pint j = 0; j < processor_count; ++j) {
             threads.emplace_back([&] {
-                for (pint k = 0; k < beamSize; k++) {
-                    if (pq.empty())
-                        return;
-
+                for (pint k = 0; k < beamSize; ++k) {
                     mtx.lock();
+                    if (pq.empty()) {
+                        mtx.unlock();
+                        return;
+                    }
+
                     auto current = pq.top();
                     pq.pop();
                     mtx.unlock();
 
+                    mtx.lock();
                     auto hash = current.hash();
                     if (visited[hash]) {
+                        mtx.unlock();
                         // check more since this one is already checked
-                        // j -= 1;
+                        j -= 1;
                         continue;
                     } else {
                         visited[hash] = true;
+                        mtx.unlock();
                     }
 
                     current.children(push, false);
@@ -72,8 +77,6 @@ Route BeamSearch::solve() {
         for (const auto& state : toVisit) {
             pq.push(state);
             auto score = state.score();
-            if (score > 0)
-                fmt::print("score {}", score);
             if (score > bestState.score()) {
                 bestState = state;
             }
