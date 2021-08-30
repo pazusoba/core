@@ -84,6 +84,7 @@ Route BeamSearch::solve() {
     }
 
     auto b = bestState.board();
+    fmt::print("Best Score {}\n", bestState.score());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));
     b.printBoard(colourful);
     /// TO BE UPDATED

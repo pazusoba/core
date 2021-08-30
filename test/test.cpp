@@ -11,7 +11,8 @@ void testTimer();
 void testParser();
 void testBoard();
 void testState();
-void testBeamSearch();
+void testBoardErase();
+void testSearch();
 
 int main() {
     pazusoba::Timer timer("\n=> Test Completed");
@@ -31,7 +32,8 @@ void testAll() {
     testParser();
     testBoard();
     testState();
-    testBeamSearch();
+    testBoardErase();
+    testSearch();
 }
 
 void testTimer() {
@@ -359,7 +361,18 @@ void testState() {
     assert(children.size() == 0);
 }
 
-void testBeamSearch() {
+void testBoardErase() {
+    fmt::print("\n--- Test Board Erase ---\n");
+    pazusoba::Timer timer("=> Test Board Erase");
+
+    // This board should be only one combo not 5
+    auto parser = pazusoba::Parser("PHHLBGPRDDRJGJRRHJGRDRHLLPHBHB", 3, 1, 1);
+    parser.parse();
+    auto state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0);
+    assert(state.score() == 20);
+}
+
+void testSearch() {
     fmt::print("\n--- Test Search ---\n");
     pazusoba::Timer timer("=> Test Search");
     auto parser =
