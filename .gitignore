@@ -29,3 +29,6 @@ build/
 debug/
 release/
 xcode/
+
+# trace from instrument
+**/*.trace/
