@@ -82,6 +82,10 @@ void Board::floodfill(Combo& combo,
             else if (d == 3)
                 cx -= i;
 
+            // Need to make sure both indexes are right
+            if (cx < 0 || cy < 0 || cx >= _row || cy >= _column)
+                break;
+
             auto cindex = INDEX_OF(cx, cy);
             // Make sure this is valid
             if (cindex >= _size)
