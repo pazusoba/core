@@ -83,7 +83,9 @@ Route BeamSearch::solve() {
         toVisit.clear();
     }
 
-    fmt::print("best score: {}\n", bestState.score());
+    auto b = bestState.board();
+    fmt::print("{}\n", b.getFormattedBoard(dawnglare));
+    b.printBoard(colourful);
     /// TO BE UPDATED
     return Route(0);
 }

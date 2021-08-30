@@ -15,7 +15,7 @@
 namespace pazusoba {
 class Parser {
     pint _min_erase = 3;
-    pint _max_steps = 30;
+    pint _max_steps = 50;
     pint _beam_size = 5000;
     std::string _board_string;
     Board _board;

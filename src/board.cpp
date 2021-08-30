@@ -190,7 +190,8 @@ void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
     }
 }
 
-void Board::moveOrbsDown() {
+bool Board::moveOrbsDown() {
+    bool moreCombo = false;
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
     for (pint i = 0; i < _column; ++i) {
@@ -201,6 +202,9 @@ void Board::moveOrbsDown() {
             auto index = INDEX_OF(j, i);
             auto orb = (*this)[index];
             if (orb == 0) {
+                if (!moreCombo)
+                    moreCombo = true;
+
                 // Don't override empty index if available
                 if (emptyIndex == -1)
                     emptyIndex = j;
@@ -214,6 +218,7 @@ void Board::moveOrbsDown() {
             }
         }
     }
+    return moreCombo;
 }
 
 Board Board::copy() const {
