@@ -65,7 +65,7 @@ public:
     void swap(pint, pint);
     void swap(pint, pint, pint, pint);
     void eraseOrbs(const std::function<void(const Combo&)>&);
-    bool moveOrbsDown();
+    void moveOrbsDown();
     Board copy() const;
     size_t hash() const;
 

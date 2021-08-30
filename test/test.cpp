@@ -229,7 +229,7 @@ void testBoard() {
     combo_board[29] = 0;
     fmt::print("=> before moving\n");
     combo_board.printBoard(pazusoba::PrintStyle::colourful);
-    assert(combo_board.moveOrbsDown() == true);
+    combo_board.moveOrbsDown();
     fmt::print("=> after moving\n");
     combo_board.printBoard(pazusoba::PrintStyle::colourful);
     // First two rows should be empty

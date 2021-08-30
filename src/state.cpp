@@ -23,20 +23,20 @@ State::State(const Board& board,
 
 void State::calculateScore() {
     ComboList list;
-    bool hasCombo = false;
-    auto func = [&list, &hasCombo](const Combo& c) {
+    bool hasCombo = true;
+    auto func = [&](const Combo& c) {
         list.push_back(c);
         hasCombo = true;
     };
 
     auto temp = _board;
     int moveCount = 0;
-    temp.eraseOrbs(func);
     while (hasCombo) {
-        moveCount++;
         hasCombo = false;
-        temp.moveOrbsDown();
         temp.eraseOrbs(func);
+        temp.moveOrbsDown();
+        if (hasCombo)
+            moveCount++;
     }
 
     if (list.size() >= 9) {
