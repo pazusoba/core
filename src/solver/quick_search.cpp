@@ -11,11 +11,11 @@ Route QuickSearch::solve() {
     std::unordered_map<size_t, bool> visited;
     std::vector<State> states;
     std::mutex mtx;
-    auto push = [&](const State& state) {
-        mtx.lock();
-        states.push_back(state);
-        mtx.unlock();
-    };
+    // auto push = [&](const State& state) {
+    //     mtx.lock();
+    //     states.push_back(state);
+    //     mtx.unlock();
+    // };
 
     std::vector<std::thread> threads;
     // Save one core for now
@@ -58,7 +58,7 @@ Route QuickSearch::solve() {
                 if (score > bestState.score()) {
                     bestState = state;
                 }
-                state.children(push, false);
+                // state.children(push, false);
             });
         }
 

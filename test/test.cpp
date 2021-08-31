@@ -273,11 +273,8 @@ void testBoard() {
     // TODO: maybe parse should be called automatically???
     parser.parse();
     pazusoba::ComboList comboList;
-    auto addCombo = [&comboList](const pazusoba::Combo& combo) {
-        comboList.push_back(combo);
-    };
     board = parser.board();
-    board.eraseOrbs(addCombo);
+    board.eraseOrbs(comboList);
     output = board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
     // Should erase all orbs
     assert(output == "                              ");
@@ -291,16 +288,12 @@ void testState() {
     parser.parse();
     auto board = parser.board();
 
-    std::vector<pazusoba::State> children;
-    auto callback = [&children](const auto& child) {
-        children.push_back(child);
-    };
-
+    std::deque<pazusoba::State> children;
     fmt::print("=> test children states (0, 0)\n");
     // (0, 0)
     auto state1 = pazusoba::State(board, parser.maxSteps(), 0);
     // digonal moves
-    state1.children(callback, true);
+    children = state1.children(true);
     assert(children.size() == 3);
     assert(children[0].currentStep() == 1);
     assert(children[0].currIndex() == 6);
@@ -308,7 +301,7 @@ void testState() {
     assert(children[0].maxStep() == parser.maxSteps());
     children.clear();
     // only down and right here
-    state1.children(callback, false);
+    children = state1.children(false);
     assert(children.size() == 2);
     assert(children[1].currentStep() == 1);
     assert(children[1].currIndex() == 1);
@@ -319,7 +312,7 @@ void testState() {
     fmt::print("=> test children states (3, 3)\n");
     // (3, 3) in the middle with max 8 valid children states
     state1 = pazusoba::State(board, parser.maxSteps(), 15);
-    state1.children(callback, true);
+    children = state1.children(true);
     assert(children.size() == 8);
     fmt::print("=> validate (3, 3) -> (2, 3)\n");
     // moving up
@@ -337,7 +330,7 @@ void testState() {
     assert(org_board[0] != 0);
     children.clear();
 
-    state1.children(callback, false);
+    children = state1.children(false);
     assert(children.size() == 4);
     fmt::print("=> validate (3, 3) -> (3, 2)\n");
     // should be left here
@@ -351,13 +344,13 @@ void testState() {
     children.clear();
     // start from step 1 here
     for (int i = 0; i < int(parser.maxSteps()) - 1; ++i) {
-        maxStepState.children(callback, false);
+        auto children = maxStepState.children(false);
         maxStepState = children[0];
         children.clear();
     }
     assert(maxStepState.currentStep() == parser.maxSteps());
     assert(maxStepState.maxStep() == maxStepState.currentStep());
-    maxStepState.children(callback, false);
+    children = maxStepState.children(false);
     assert(children.size() == 0);
 }
 

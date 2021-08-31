@@ -23,17 +23,13 @@ State::State(const Board& board,
 
 void State::calculateScore() {
     ComboList list;
-    bool hasCombo = true;
-    auto func = [&](const Combo& c) {
-        list.push_back(c);
-        hasCombo = true;
-    };
 
+    bool hasCombo = true;
     auto temp = _board;
     int moveCount = 0;
     while (hasCombo) {
         hasCombo = false;
-        temp.eraseOrbs(func);
+        temp.eraseOrbs(list);
         temp.moveOrbsDown();
         if (hasCombo)
             moveCount++;
@@ -59,11 +55,11 @@ void State::calculateScore() {
     if ((index + 1) % column == 0) \
         continue;
 
-void State::children(const std::function<void(const State&)>& f,
-                     bool diagonal) const {
+std::deque<State> State::children(bool diagonal) const {
     if (_currentStep == _maxStep)
-        return;
+        return {};
 
+    std::deque<State> childrenState;
     pint column = _board.column();
     pint size = _board.size();
     for (pint i = 0; i < pad::DIRECTION_COUNT; i++) {
@@ -116,8 +112,11 @@ void State::children(const std::function<void(const State&)>& f,
 
         auto _newBoard = _board;
         _newBoard.swap(_currIndex, newIndex);
-        f(State(_newBoard, _currentStep + 1, _maxStep, _currIndex, newIndex));
+        childrenState.emplace_front(_newBoard, _currentStep + 1, _maxStep,
+                                    _currIndex, newIndex);
     }
+
+    return childrenState;
 }
 
 bool State::operator<(const State& a) const {

@@ -13,11 +13,6 @@ Route BeamSearch::solve() {
     std::unordered_map<size_t, bool> visited;
     std::mutex mtx;
     std::deque<State> toVisit;
-    auto push = [&](const State& state) {
-        mtx.lock();
-        toVisit.push_front(state);
-        mtx.unlock();
-    };
 
     // setup all the initial states
     auto maxSteps = _parser.maxSteps();
@@ -64,7 +59,12 @@ Route BeamSearch::solve() {
                         mtx.unlock();
                     }
 
-                    current.children(push, false);
+                    auto children = current.children(false);
+                    for (const auto& child : children) {
+                        mtx.lock();
+                        toVisit.push_front(child);
+                        mtx.unlock();
+                    }
                 }
             });
         }

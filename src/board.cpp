@@ -136,7 +136,7 @@ void Board::floodfill(Combo& combo,
                 int index = INDEX_OF(cx, cy);
                 if (_visited[index] == 0) {
                     _board[index] = 0;
-                    combo.loc.emplace_back(index);
+                    combo.loc.emplace_front(index);
                     _visited[index] = 1;
                 } else {
                     // shouldn't visit this orb again
@@ -172,7 +172,7 @@ void Board::floodfill(Combo& combo,
     }
 }
 
-void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
+void Board::eraseOrbs(ComboList& list) {
     //
     for (int i = _row - 1; i >= 0; i--) {
         for (pint j = 0; j < _column; j++) {
@@ -184,7 +184,7 @@ void Board::eraseOrbs(const std::function<void(const Combo&)>& f) {
             Combo combo(orb);
             floodfill(combo, i, j, orb, true);
             if (combo.loc.size() >= _minErase) {
-                f(combo);
+                list.push_front(combo);
             }
         }
     }

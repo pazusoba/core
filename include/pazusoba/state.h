@@ -35,7 +35,7 @@ public:
           pint prev,
           pint curr);
 
-    void children(const std::function<void(const State&)>&, bool) const;
+    std::deque<State> children(bool) const;
     size_t hash() const { return _board.hash(); }
 
     const pint& score() const { return _score; }

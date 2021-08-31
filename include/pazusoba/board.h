@@ -10,8 +10,8 @@
 #define _BOARD_H_
 
 #include <array>
+#include <deque>
 #include <functional>
-#include <vector>
 #include "constant.h"
 
 namespace pazusoba {
@@ -26,10 +26,10 @@ typedef std::array<orb, MAX_BOARD_SIZE> board;
 /// Since Orb is always the same, we can simply store locations here
 struct Combo {
     orb info;
-    std::vector<pint> loc;
+    std::deque<pint> loc;
     Combo(const orb& o) : info(o) {}
 };
-typedef std::vector<Combo> ComboList;
+typedef std::deque<Combo> ComboList;
 
 enum PrintStyle {
     test = 0,   // print it out like sample_board_65.txt
@@ -64,7 +64,7 @@ public:
     void set(pint row, pint column, pint minErase);
     void swap(pint, pint);
     void swap(pint, pint, pint, pint);
-    void eraseOrbs(const std::function<void(const Combo&)>&);
+    void eraseOrbs(ComboList&);
     void moveOrbsDown();
     Board copy() const;
     size_t hash() const;
