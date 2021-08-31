@@ -33,7 +33,7 @@ def test():
 
     if platform.system() == "Windows":
         # TODO: fix it for Windows
-        os.system("cd debug && mingw32.exe test_pazusoba && ./test_pazusoba.exe")
+        os.system("cd debug && mingw32-make.exe test_pazusoba && test_pazusoba.exe")
     else:
         os.system("cd debug && make test_pazusoba && ./test_pazusoba")
 
