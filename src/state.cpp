@@ -112,8 +112,8 @@ std::deque<State> State::children(bool diagonal) const {
 
         auto _newBoard = _board;
         _newBoard.swap(_currIndex, newIndex);
-        childrenState.emplace_front(_newBoard, _currentStep + 1, _maxStep,
-                                    _currIndex, newIndex);
+        childrenState.emplace_back(_newBoard, _currentStep + 1, _maxStep,
+                                   _currIndex, newIndex);
     }
 
     return childrenState;
