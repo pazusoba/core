@@ -394,4 +394,31 @@ void testQueue() {
     for (const auto& l : queue.list()) {
         assert(l.size() == 0);
     }
+
+    // Prepare for states
+    auto parser = pazusoba::Parser("PHHLBGPRDDRJGJRRHJGRDRHLLPHBHB", 3, 1, 1);
+    parser.parse();
+    auto board = parser.board();
+
+    std::vector<std::thread> threads;
+    for (pazusoba::pint i = 0; i < processor_count; i++) {
+        // Copy threadNum to the callback here
+        const auto threadNum = i;
+        threads.emplace_back([threadNum, &queue, &board] {
+            for (int j = 0; j < 10000; j++) {
+                // Test insert without mutex lock
+                queue[threadNum].emplace_back(board, 10, 0);
+            }
+        });
+    }
+
+    // Wait for all threads to finish
+    for (auto& t : threads)
+        t.join();
+    threads.clear();
+
+    // make sure all threads inserted the right number of elements
+    for (const auto& l : queue.list()) {
+        assert(l.size() == 10000);
+    }
 }
