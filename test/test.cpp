@@ -400,14 +400,15 @@ void testQueue() {
     parser.parse();
     auto board = parser.board();
 
+    pazusoba::Timer insert("=> Test Insert");
     std::vector<std::thread> threads;
     for (pazusoba::pint i = 0; i < processor_count; i++) {
         // Copy threadNum to the callback here
         const auto threadNum = i;
         threads.emplace_back([threadNum, &queue, &board] {
-            for (int j = 0; j < 10000; j++) {
+            for (int j = 0; j < 1000; j++) {
                 // Test insert without mutex lock
-                queue[threadNum].emplace_back(board, 10, 0);
+                queue[threadNum].emplace_front(board, 10, 0);
             }
         });
     }
@@ -416,20 +417,28 @@ void testQueue() {
     for (auto& t : threads)
         t.join();
     threads.clear();
+    insert.end();
 
     // make sure all threads inserted the right number of elements
     for (const auto& l : queue.list()) {
-        assert(l.size() == 10000);
+        assert(l.size() == 1000);
     }
-    auto targetSize = 10000 * processor_count;
-    assert(queue.size() == targetSize);
+    auto targetSize = 1000 * processor_count;
 
     queue.group();
+    assert(queue.size() == (int)targetSize);
+
     pazusoba::pint counter = 0;
+    pazusoba::pint score = 0;
+    // This is very slow to complete when there are 60000 states
     while (!queue.empty()) {
-        fmt::print("counter = {}\n", counter);
+        auto state = queue.next();
+        score = state.score();
+        queue.pop();
+        // fmt::print("counter = {}, size = {}, score = {}\n", counter,
+        //            queue.size(), score);
         counter++;
     }
-    fmt::print("counter = {}\n", counter);
+    fmt::print("counter = {}, score = {}\n", counter, score);
     assert(counter == targetSize);
 }

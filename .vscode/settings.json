@@ -80,6 +80,24 @@
     "utility": "cpp",
     "variant": "cpp",
     "vector": "cpp",
-    "format": "cpp"
+    "format": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xhash": "cpp",
+    "xstring": "cpp",
+    "xtree": "cpp",
+    "xutility": "cpp",
+    "concepts": "cpp",
+    "condition_variable": "cpp",
+    "xfacet": "cpp",
+    "xlocbuf": "cpp",
+    "xlocinfo": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xloctime": "cpp",
+    "xmemory": "cpp",
+    "xstddef": "cpp",
+    "xtr1common": "cpp"
   }
 }

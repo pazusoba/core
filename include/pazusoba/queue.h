@@ -23,7 +23,7 @@ public:
 typedef std::priority_queue<State, std::vector<State>, StateCompare>
     StatePriorityQueue;
 
-typedef std::vector<State> StateList;
+typedef std::deque<State> StateList;
 
 /// A special queue for multithreading.
 /// Similar scores will be grouped together.
@@ -34,6 +34,7 @@ class SobaQueue {
 
     // Track the number of states
     int _count = 0;
+    int _currIndex = 9;
     // For now, only consider max 10 combo, we don't have to sort this
     std::array<StateList, 10> _comboList;
 
@@ -53,25 +54,34 @@ public:
         for (const auto& l : _list) {
             for (const auto& s : l) {
                 pint combo = s.score() / 20;
-                _comboList[combo].push_back(s);
+                _comboList[combo].push_front(s);
                 _count++;
             }
         }
     }
 
     bool empty() const { return _count == 0; }
-    State pop() {
-        // Start from highest
-        for (int i = 10; i > 0; i--) {
-            auto list = _comboList[i - 1];
-            if (list.empty())
-                continue;
-            auto last = list.back();
-            list.pop_back();
-            _count--;
-            return last;
+    void pop() {
+        auto list = _comboList[_currIndex];
+        while (list.empty()) {
+            _currIndex--;
+            if (_currIndex < 0)
+                throw std::logic_error(
+                    "Always check empty() first before pop()");
+            list = _comboList[_currIndex];
         }
-        throw std::logic_error("Always check empty() first before pop()");
+        _count--;
+    }
+    State next() {
+        auto list = _comboList[_currIndex];
+        while (list.empty()) {
+            _currIndex--;
+            if (_currIndex < 0)
+                throw std::logic_error(
+                    "Always check empty() first before pop()");
+            list = _comboList[_currIndex];
+        }
+        return list.front();
     }
 
     StateList& operator[](pint index) { return _list[index]; }
