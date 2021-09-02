@@ -33,7 +33,7 @@ class SobaQueue {
     std::vector<StateList> _list;
 
     // Track the number of states
-    pint _count = 0;
+    int _count = 0;
     // For now, only consider max 10 combo, we don't have to sort this
     std::array<StateList, 10> _comboList;
 
@@ -44,8 +44,21 @@ public:
         }
     }
 
-    pint size() const { return _list.size(); }
+    pint threadSize() const { return _list.size(); }
+    int size() const { return _count; }
     const std::vector<StateList>& list() const { return _list; }
+
+    // Group all state based on score
+    void group() {
+        for (const auto& l : _list) {
+            for (const auto& s : l) {
+                pint combo = s.score() / 20;
+                _comboList[combo].push_back(s);
+                _count++;
+            }
+        }
+    }
+
     bool empty() const { return _count == 0; }
     State pop() {
         // Start from highest
@@ -55,8 +68,10 @@ public:
                 continue;
             auto last = list.back();
             list.pop_back();
+            _count--;
             return last;
         }
+        throw std::logic_error("Always check empty() first before pop()");
     }
 
     StateList& operator[](pint index) { return _list[index]; }

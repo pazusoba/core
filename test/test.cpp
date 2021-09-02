@@ -390,7 +390,7 @@ void testQueue() {
     pazusoba::Timer timer("=> Test Queue");
     pazusoba::pint processor_count = std::thread::hardware_concurrency();
     auto queue = pazusoba::SobaQueue(processor_count);
-    assert(queue.size() == processor_count);
+    assert(queue.threadSize() == processor_count);
     for (const auto& l : queue.list()) {
         assert(l.size() == 0);
     }
@@ -421,4 +421,15 @@ void testQueue() {
     for (const auto& l : queue.list()) {
         assert(l.size() == 10000);
     }
+    auto targetSize = 10000 * processor_count;
+    assert(queue.size() == targetSize);
+
+    queue.group();
+    pazusoba::pint counter = 0;
+    while (!queue.empty()) {
+        fmt::print("counter = {}\n", counter);
+        counter++;
+    }
+    fmt::print("counter = {}\n", counter);
+    assert(counter == targetSize);
 }
