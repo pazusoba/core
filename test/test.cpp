@@ -13,6 +13,7 @@ void testBoard();
 void testState();
 void testBoardErase();
 void testSearch();
+void testQueue();
 
 int main() {
     pazusoba::Timer timer("\n=> Test Completed");
@@ -34,6 +35,7 @@ void testAll() {
     testState();
     testBoardErase();
     testSearch();
+    testQueue();
 }
 
 void testTimer() {
@@ -381,4 +383,15 @@ void testSearch() {
     // auto beamSearch = pazusoba::BeamSearch(parser);
     // beamSearch.solve();
     beam.end();
+}
+
+void testQueue() {
+    fmt::print("\n--- Test Queue ---\n");
+    pazusoba::Timer timer("=> Test Queue");
+    pazusoba::pint processor_count = std::thread::hardware_concurrency();
+    auto queue = pazusoba::SobaQueue(processor_count);
+    assert(queue.size() == processor_count);
+    for (const auto& l : queue.list()) {
+        assert(l.size() == 0);
+    }
 }

@@ -22,6 +22,25 @@ public:
 
 typedef std::priority_queue<State, std::vector<State>, StateCompare>
     StatePriorityQueue;
+
+typedef std::vector<State> StateList;
+/// A special queue for multithreading.
+/// Similar scores will be grouped together.
+class SobaQueue {
+    pint _thread;
+    std::vector<StateList> _list;
+
+public:
+    SobaQueue(pint thread) : _thread(thread) {
+        for (pint i = 0; i < thread; i++) {
+            _list.emplace_back(StateList());
+        }
+    }
+
+    pint size() const { return _list.size(); }
+    const std::vector<StateList>& list() const { return _list; }
+    StateList& operator[](pint index) { return _list[index]; }
+};
 }  // namespace pazusoba
 
 #endif
