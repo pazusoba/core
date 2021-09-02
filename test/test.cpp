@@ -386,6 +386,7 @@ void testSearch() {
 }
 
 void testQueue() {
+    const int SIZE = 10000;
     fmt::print("\n--- Test Queue ---\n");
     pazusoba::Timer timer("=> Test Queue");
     pazusoba::pint processor_count = std::thread::hardware_concurrency();
@@ -405,8 +406,8 @@ void testQueue() {
     for (pazusoba::pint i = 0; i < processor_count; i++) {
         // Copy threadNum to the callback here
         const auto threadNum = i;
-        threads.emplace_back([threadNum, &queue, &board] {
-            for (int j = 0; j < 1000; j++) {
+        threads.emplace_back([threadNum, &SIZE, &queue, &board] {
+            for (int j = 0; j < SIZE; j++) {
                 // Test insert without mutex lock
                 queue[threadNum].emplace_front(board, 10, 0);
             }
@@ -421,9 +422,9 @@ void testQueue() {
 
     // make sure all threads inserted the right number of elements
     for (const auto& l : queue.list()) {
-        assert(l.size() == 1000);
+        assert(l.size() == SIZE);
     }
-    auto targetSize = 1000 * processor_count;
+    auto targetSize = SIZE * processor_count;
 
     queue.group();
     assert(queue.size() == (int)targetSize);

@@ -36,7 +36,8 @@ class SobaQueue {
     int _count = 0;
     int _currIndex = 9;
     // For now, only consider max 10 combo, we don't have to sort this
-    std::array<StateList, 10> _comboList;
+    // std::array<StateList, 10> _comboList;
+    StatePriorityQueue _comboList;
 
 public:
     SobaQueue(pint thread) : _thread(thread) {
@@ -53,8 +54,7 @@ public:
     void group() {
         for (const auto& l : _list) {
             for (const auto& s : l) {
-                pint combo = s.score() / 20;
-                _comboList[combo].push_front(s);
+                _comboList.push(s);
                 _count++;
             }
         }
@@ -62,27 +62,10 @@ public:
 
     bool empty() const { return _count == 0; }
     void pop() {
-        auto list = _comboList[_currIndex];
-        while (list.empty()) {
-            _currIndex--;
-            if (_currIndex < 0)
-                throw std::logic_error(
-                    "Always check empty() first before pop()");
-            list = _comboList[_currIndex];
-        }
+        _comboList.pop();
         _count--;
     }
-    State next() {
-        auto list = _comboList[_currIndex];
-        while (list.empty()) {
-            _currIndex--;
-            if (_currIndex < 0)
-                throw std::logic_error(
-                    "Always check empty() first before pop()");
-            list = _comboList[_currIndex];
-        }
-        return list.front();
-    }
+    State next() { return _comboList.top(); }
 
     StateList& operator[](pint index) { return _list[index]; }
 };
