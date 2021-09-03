@@ -1,6 +1,7 @@
 #include <deque>
 #include <iostream>
 #include <queue>
+#include <thread>
 #include <vector>
 #include "../../include/pazusoba/timer.h"
 
@@ -8,6 +9,8 @@
 
 void pointer_test();
 void heap_test();
+
+std::mutex mtx;
 
 struct TEST {
     int a = 0;
@@ -31,13 +34,33 @@ int main() {
 
 void pointer_test() {
     pazusoba::Timer timer("=> pointer");
+    auto thread_count = std::thread::hardware_concurrency();
+    // thread_count = 1;
+
+    std::vector<std::thread> threads;
     std::vector<TEST*> v;
-    for (int i = 0; i < SIZE; ++i) {
-        v.push_back(new TEST);
+
+    int size = SIZE / thread_count;
+    std::cout << "thread_count: " << thread_count << std::endl;
+    std::cout << "size: " << size << std::endl;
+    for (int i = 0; i < thread_count; i++) {
+        threads.emplace_back([&] {
+            for (int j = 0; j < size; ++j) {
+                mtx.lock();
+                v.push_back(new TEST);
+                mtx.unlock();
+            }
+        });
     }
 
+    for (auto& t : threads)
+        t.join();
+    threads.clear();
+
     int sum = 0;
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < SIZE; i++) {
+        if (v[i] == nullptr)
+            continue;
         sum += v[i]->a;
         delete v[i];
     }
@@ -46,10 +69,30 @@ void pointer_test() {
 
 void heap_test() {
     pazusoba::Timer timer("=> heap");
+    auto thread_count = std::thread::hardware_concurrency();
+    // thread_count = 1;
+
+    std::vector<std::thread> threads;
     std::vector<TEST> v;
-    for (int i = 0; i < SIZE; ++i) {
-        v.push_back(TEST());
+
+    int size = SIZE / thread_count;
+    std::cout << "thread_count: " << thread_count << std::endl;
+    std::cout << "size: " << size << std::endl;
+    for (int i = 0; i < thread_count; i++) {
+        threads.emplace_back([&] {
+            for (int j = 0; j < size; ++j) {
+                std::lock_guard<std::mutex> lk(mtx);
+
+                // mtx.lock();
+                v.push_back(TEST());
+                // mtx.unlock();
+            }
+        });
     }
+
+    for (auto& t : threads)
+        t.join();
+    threads.clear();
 
     int sum = 0;
     for (int i = 0; i < SIZE; ++i) {

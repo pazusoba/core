@@ -31,6 +31,7 @@ class State {
     void calculateScore();
 
 public:
+    State() {}
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint curr);
     State(const Board& board,

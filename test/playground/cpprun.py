@@ -9,7 +9,7 @@ if os.path.exists("a.out"):
     os.system("rm a.out")
 if os.path.exists("a.exe"):
     os.system("del a.exe")
-os.system("g++ --std=c++11 {}".format(name))
+os.system("g++ --std=c++11 -g -lpthread {}".format(name))
 if platform.system() == "Windows":
     os.system("a.exe")
 else:
