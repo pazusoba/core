@@ -34,7 +34,7 @@ class SobaQueue {
 
     // Track the number of states
     int _count = 0;
-    int _currIndex = 9;
+    // int _currIndex = 9;
     // For now, only consider max 10 combo, we don't have to sort this
     // std::array<StateList, 10> _comboList;
     StatePriorityQueue _comboList;
@@ -50,13 +50,20 @@ public:
     int size() const { return _count; }
     const std::vector<StateList>& list() const { return _list; }
 
+    void insert(const State& state) {
+        _comboList.push(state);
+        _count++;
+    }
+
     // Group all state based on score
     void group() {
-        for (const auto& l : _list) {
+        for (auto& l : _list) {
             for (const auto& s : l) {
                 _comboList.push(s);
                 _count++;
             }
+            // Clear after grouping all nodes
+            l.clear();
         }
     }
 

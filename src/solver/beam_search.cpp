@@ -8,19 +8,6 @@
 
 namespace pazusoba {
 Route BeamSearch::solve() {
-    const Board& board = _parser.board();
-    StatePriorityQueue pq;
-    std::unordered_map<size_t, bool> visited;
-    std::mutex mtx;
-    std::deque<State> toVisit;
-
-    // setup all the initial states
-    auto maxSteps = _parser.maxSteps();
-    for (pint i = 0; i < board.size(); ++i) {
-        // Need to add 0 for the initial state
-        pq.emplace(board, maxSteps, i);
-    }
-
     // setup multithreading
     std::deque<std::thread> threads;
     // Save one core for now
@@ -28,13 +15,25 @@ Route BeamSearch::solve() {
     // processor_count = 1;
     fmt::print("Using {} threads\n", processor_count);
 
+    const Board& board = _parser.board();
+    SobaQueue pq(processor_count);
+    std::unordered_map<size_t, bool> visited;
+    std::mutex mtx;
+
+    // setup all the initial states
+    auto maxSteps = _parser.maxSteps();
+    for (pint i = 0; i < board.size(); ++i) {
+        // Need to add 0 for the initial state
+        pq.insert(State(board, maxSteps, i));
+    }
+
     // Use Beam Search starting from step one
-    State bestState = pq.top();
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
         for (pint j = 0; j < processor_count; ++j) {
-            threads.emplace_front([&] {
+            const auto thread_id = j;
+            threads.emplace_front([thread_id, &beamSize, &mtx, &pq, &visited] {
                 for (pint k = 0; k < beamSize; ++k) {
                     mtx.lock();
                     if (pq.empty()) {
@@ -42,7 +41,7 @@ Route BeamSearch::solve() {
                         return;
                     }
 
-                    auto current = pq.top();
+                    auto current = pq.next();
                     pq.pop();
                     mtx.unlock();
 
@@ -61,9 +60,7 @@ Route BeamSearch::solve() {
 
                     auto children = current.children(false);
                     for (const auto& child : children) {
-                        mtx.lock();
-                        toVisit.push_front(child);
-                        mtx.unlock();
+                        pq[thread_id].push_front(child);
                     }
                 }
             });
@@ -72,17 +69,10 @@ Route BeamSearch::solve() {
         for (auto& t : threads)
             t.join();
         threads.clear();
-
-        for (const auto& state : toVisit) {
-            pq.push(state);
-            auto score = state.score();
-            if (score > bestState.score()) {
-                bestState = state;
-            }
-        }
-        toVisit.clear();
+        pq.group();
     }
 
+    State bestState = pq.next();
     auto b = bestState.board();
     fmt::print("Best Score {}\n", bestState.score());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));
