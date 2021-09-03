@@ -13,7 +13,7 @@ State::State(const Board& board,
              pint maxStep,
              pint prev,
              pint curr,
-             pint score,
+             int score,
              int countdown) {
     _currentStep = currStep;
     _maxStep = maxStep;
@@ -23,10 +23,10 @@ State::State(const Board& board,
     calculateScore();
 
     // track improvements
-    _improvement = (int)(_score - score);
-    if (_currentStep > maxStep / 4 && _improvement <= 0) {
-        _countdown = countdown - 1;
-    }
+    // _improvement = (int)(_score - score);
+    // if (_currentStep > maxStep / 4 && _improvement <= 0) {
+    //     _countdown = countdown - 1;
+    // }
 }
 
 void State::calculateScore() {
@@ -49,7 +49,29 @@ void State::calculateScore() {
 
     // probably call the profile here to calculate the score
     // can parse the reference down
-    _score = list.size() * 20 + moveCount * 2;
+
+    // Consider the distance between same orbs
+    // TODO: move to profile
+    std::array<std::deque<pint>, pad::ORB_COUNT> info;
+    auto column = _board.column();
+    for (pint i = 0; i < _board.size(); i++) {
+        info[_board[i]].emplace_front(i);
+    }
+    for (const auto& orb : info) {
+        pint distance = 0;
+        for (const auto& l1 : orb) {
+            int r1 = l1 / column;
+            int col1 = l1 % column;
+            for (const auto& l2 : orb) {
+                int r2 = l2 / column;
+                int col2 = l2 % column;
+                distance += abs(r1 - r2) + abs(col1 - col2);
+            }
+        }
+        _score -= distance;
+    }
+
+    _score += list.size() * 100;
 }
 
 // Prevent code duplication

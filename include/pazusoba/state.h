@@ -20,7 +20,7 @@ class State {
     // so that it doesn't go backwards
     pint _prevIndex = 0;
 
-    pint _score = 0;
+    int _score = 0;
     pint _currentStep = 0;
     pint _maxStep = 0;
 
@@ -39,7 +39,7 @@ public:
           pint maxStep,
           pint prev,
           pint curr,
-          pint score,
+          int score,
           int countdown);
 
     std::deque<State> children(bool) const;
@@ -47,7 +47,7 @@ public:
     bool shouldCutOff() const { return _countdown <= 0; }
 
     const int& improvement() const { return _improvement; }
-    const pint& score() const { return _score; }
+    const int& score() const { return _score; }
     const Board& board() const { return _board; }
     const pint& currentStep() const { return _currentStep; }
     const pint& currIndex() const { return _currIndex; }
