@@ -90,7 +90,7 @@ This project was originally developed on Windows 10 with `MinGW`. Later, I also 
 
 ### Setup
 
-On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is not supported for now. On Mac OS and Linux, `g++/clang++` is preferred. `Xcode` also works on Mac OS.
+On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is also supported but remember to add `--config` when building. On Mac OS and Linux, `g++/clang++` is preferred. `Xcode` also works on Mac OS.
 
 #### Requirements
 
@@ -169,16 +169,16 @@ I am very free style but I think consistency is important. That's why I think it
 ## Benchmark
 
 Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000. This might not be accurate. Use it as a reference.
-| Version | A12Z Bionic | i5-9400 | Note |
+| Version | A12Z Bionic | i5-9400 |         Note          |
 | :-----: | :---------: | :-----: | :-------------------: |
-| 0.1α | 213.54s | 110.34s | Proof of Concept |
-| 0.2α | 92.46s | 39.97s | General Improvement |
-| 0.3α | 12.06s | 10.51s | Compiler Optimisation |
-| 0.4α | 2.79s | 2.15s | Multi-Threading |
-| 0.5α | 3.06s | 1.79s | Profile & OpenCV |
-| 0.6β | 3.35s | 2.04s | Automation |
-| 0.7.1β | 1.71s | 0.91s | General Improvement |
-| 0.7.5β | - | - | Full Automation |
+|  0.1α   |   213.54s   | 110.34s |   Proof of Concept    |
+|  0.2α   |   92.46s    | 39.97s  |  General Improvement  |
+|  0.3α   |   12.06s    | 10.51s  | Compiler Optimisation |
+|  0.4α   |    2.79s    |  2.15s  |    Multi-Threading    |
+|  0.5α   |    3.06s    |  1.79s  |   Profile & OpenCV    |
+|  0.6β   |    3.35s    |  2.04s  |      Automation       |
+| 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
+| 0.7.5β  |      -      |    -    |    Full Automation    |
 
 ## QT (Deprecated)
 

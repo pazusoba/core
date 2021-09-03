@@ -44,7 +44,6 @@ def xcode():
         os.system("cp -r support xcode")
         os.system("open xcode/pazusoba.xcodeproj")
 
-
 argv = sys.argv
 argc = len(argv)
 if argc <= 1:

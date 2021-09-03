@@ -7,10 +7,6 @@ project(
     HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
-    
-if(MSVC)
-    message(FATAL_ERROR "MSVC is not supported. Use `MinGW Makefiles` instead")
-endif()
 
 # TODO: is C++17 required excpept for the nested namespace?
 set(CMAKE_CXX_STANDARD 17)
@@ -20,9 +16,15 @@ set(MAIN_CPP test/pazusoba.cpp)
 set(TEST_CPP test/test.cpp)
 
 # strict compiler warnings
-set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic)
-set(OPTIMISATION_FLAGS -O2)
-set(DEBUG_COMPILER_FLAGS -g)
+if(MSVC)
+    set(GNU_COMPILER_FLAGS -W4)
+    set(OPTIMISATION_FLAGS -O2)
+    set(DEBUG_COMPILER_FLAGS -g)
+else()
+    set(GNU_COMPILER_FLAGS -Wall -Wextra -pedantic)
+    set(OPTIMISATION_FLAGS -O2)
+    set(DEBUG_COMPILER_FLAGS -g)
+endif()
 
 # pthread is required for multithreading
 set(THREADS_PREFER_PTHREAD_FLAG ON)
