@@ -22,10 +22,13 @@ def make():
 
 
 def clean():
-    shutil.rmtree("build")
-    shutil.rmtree("debug")
-    shutil.rmtree("release")
+    _clean("build")
+    _clean("debug")
+    _clean("release")
 
+def _clean(folder: str):
+    if os.path.exists(folder):
+        shutil.rmtree(folder)
 
 def test():
     if not os.path.exists("debug/"):
