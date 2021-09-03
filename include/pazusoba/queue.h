@@ -29,36 +29,37 @@ typedef std::priority_queue<State, std::vector<State>, StateCompare>
 template <class T>
 class SobaQueue {
     pint _thread;
-    std::vector<std::deque<T>> _list;
+    std::vector<std::deque<T>> _threadList;
+    std::vector<std::deque<T>> _queueList;
 
     // Track the number of states
     int _count = 0;
     // int _currIndex = 9;
     // For now, only consider max 10 combo, we don't have to sort this
     // std::array<StateList, 10> _comboList;
-    std::priority_queue<T, std::vector<T>, StateCompare> _comboList;
+    std::priority_queue<T, std::vector<T>, StateCompare> _queue;
 
 public:
     SobaQueue(pint thread) : _thread(thread) {
         for (pint i = 0; i < thread; i++) {
-            _list.emplace_back(std::deque<T>());
+            _threadList.emplace_back(std::deque<T>());
         }
     }
 
-    pint threadSize() const { return _list.size(); }
+    pint threadSize() const { return _threadList.size(); }
     int size() const { return _count; }
-    const std::vector<std::deque<T>> list() const { return _list; }
+    const std::vector<std::deque<T>> list() const { return _threadList; }
 
-    void insert(const State& state) {
-        _comboList.push(state);
+    void insert(const T& state) {
+        _queue.push(state);
         _count++;
     }
 
     // Group all state based on score
     void group() {
-        for (auto& l : _list) {
+        for (auto& l : _threadList) {
             for (const auto& s : l) {
-                _comboList.push(s);
+                _queue.push(s);
                 _count++;
             }
             // Clear after grouping all nodes
@@ -68,12 +69,12 @@ public:
 
     bool empty() const { return _count == 0; }
     void pop() {
-        _comboList.pop();
+        _queue.pop();
         _count--;
     }
-    T next() { return _comboList.top(); }
+    T next() { return _queue.top(); }
 
-    std::deque<T>& operator[](pint index) { return _list[index]; }
+    std::deque<T>& operator[](pint index) { return _threadList[index]; }
 };
 }  // namespace pazusoba
 
