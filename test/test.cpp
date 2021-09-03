@@ -387,11 +387,13 @@ void testSearch() {
 }
 
 void testQueue() {
-    const int SIZE = 10000;
+    const int SIZE = 50000;
     fmt::print("\n--- Test Queue ---\n");
     pazusoba::Timer timer("=> Test Queue");
     pazusoba::pint processor_count = std::thread::hardware_concurrency();
-    auto queue = pazusoba::SobaQueue(processor_count);
+    // processor_count = 1;
+    fmt::print("=> processor count: {}\n", processor_count);
+    auto queue = pazusoba::SobaQueue<pazusoba::State>(processor_count);
     assert(queue.threadSize() == processor_count);
     for (const auto& l : queue.list()) {
         assert(l.size() == 0);
@@ -404,11 +406,12 @@ void testQueue() {
 
     pazusoba::Timer insert("=> Test Insert");
     std::vector<std::thread> threads;
+    auto thread_size = SIZE / processor_count + 1;
     for (pazusoba::pint i = 0; i < processor_count; i++) {
         // Copy threadNum to the callback here
         const auto threadNum = i;
-        threads.emplace_back([threadNum, &SIZE, &queue, &board] {
-            for (int j = 0; j < SIZE; j++) {
+        threads.emplace_back([threadNum, thread_size, &queue, &board] {
+            for (unsigned int j = 0; j < thread_size; j++) {
                 // Test insert without mutex lock
                 queue[threadNum].emplace_front(board, 10, 0);
             }
@@ -419,13 +422,16 @@ void testQueue() {
     for (auto& t : threads)
         t.join();
     threads.clear();
+
+    // 24 threads, 4ms
+    // 1 thread, 20ms, it is 5 times faster
     insert.end();
 
     // make sure all threads inserted the right number of elements
     for (const auto& l : queue.list()) {
-        assert(l.size() == SIZE);
+        assert(l.size() == thread_size);
     }
-    auto targetSize = SIZE * processor_count;
+    auto targetSize = thread_size * processor_count;
 
     queue.group();
     assert(queue.size() == (int)targetSize);

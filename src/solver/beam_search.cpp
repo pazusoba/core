@@ -16,7 +16,7 @@ Route BeamSearch::solve() {
     fmt::print("Using {} threads\n", processor_count);
 
     const Board& board = _parser.board();
-    SobaQueue pq(processor_count);
+    SobaQueue<State> pq(processor_count);
     std::unordered_map<size_t, bool> visited;
     std::mutex mtx;
 
