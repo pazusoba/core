@@ -45,6 +45,10 @@ Route BeamSearch::solve() {
                     pq.pop();
                     mtx.unlock();
 
+                    if (current.shouldCutOff()) {
+                        continue;
+                    }
+
                     mtx.lock();
                     auto hash = current.hash();
                     if (visited[hash]) {

@@ -24,6 +24,10 @@ class State {
     pint _currentStep = 0;
     pint _maxStep = 0;
 
+    // this decides if we cut off this state
+    int _improvement = 0;
+    int _countdown = 10;
+
     void calculateScore();
 
 public:
@@ -33,11 +37,15 @@ public:
           pint currStep,
           pint maxStep,
           pint prev,
-          pint curr);
+          pint curr,
+          pint score,
+          int countdown);
 
     std::deque<State> children(bool) const;
     size_t hash() const { return _board.hash(); }
+    bool shouldCutOff() const { return _countdown <= 0; }
 
+    const int& improvement() const { return _improvement; }
     const pint& score() const { return _score; }
     const Board& board() const { return _board; }
     const pint& currentStep() const { return _currentStep; }

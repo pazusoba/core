@@ -363,7 +363,8 @@ void testBoardErase() {
     // This board should be only one combo not 5
     auto parser = pazusoba::Parser("PHHLBGPRDDRJGJRRHJGRDRHLLPHBHB", 3, 1, 1);
     parser.parse();
-    auto state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0);
+    auto state =
+        pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
     // assert(state.score() == 20);
 }
 

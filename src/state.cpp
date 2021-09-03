@@ -12,13 +12,21 @@ State::State(const Board& board,
              pint currStep,
              pint maxStep,
              pint prev,
-             pint curr) {
+             pint curr,
+             pint score,
+             int countdown) {
     _currentStep = currStep;
     _maxStep = maxStep;
     _board = board;
     _prevIndex = prev;
     _currIndex = curr;
     calculateScore();
+
+    // track improvements
+    _improvement = (int)(_score - score);
+    if (_currentStep > maxStep / 4 && _improvement <= 0) {
+        _countdown = countdown - 1;
+    }
 }
 
 void State::calculateScore() {
@@ -41,7 +49,7 @@ void State::calculateScore() {
 
     // probably call the profile here to calculate the score
     // can parse the reference down
-    _score = list.size() * 20;
+    _score = list.size() * 20 + moveCount * 2;
 }
 
 // Prevent code duplication
@@ -113,7 +121,7 @@ std::deque<State> State::children(bool diagonal) const {
         auto _newBoard = _board;
         _newBoard.swap(_currIndex, newIndex);
         childrenState.emplace_back(_newBoard, _currentStep + 1, _maxStep,
-                                   _currIndex, newIndex);
+                                   _currIndex, newIndex, _score, _countdown);
     }
 
     return childrenState;
