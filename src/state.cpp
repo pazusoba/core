@@ -1,3 +1,4 @@
+#include <fmt/core.h>
 #include <pazusoba/state.h>
 
 namespace pazusoba {
@@ -46,6 +47,19 @@ void State::calculateScore() {
     if (list.size() >= 9) {
         _score = 0;
     }
+
+    // Show the combo list and original board
+    // _board.printBoard(colourful);
+    // auto col = _board.column();
+    // for (const auto& c : list) {
+    //     fmt::print("orb: {}\n", pad::ORB_NAME[c.info]);
+    //     for (const auto& loc : c.loc) {
+    //         auto x = loc / col + 1;
+    //         auto y = loc % col + 1;
+    //         fmt::print("({}, {}) ", x, y);
+    //     }
+    //     fmt::print("\n");
+    // }
 
     // probably call the profile here to calculate the score
     // can parse the reference down

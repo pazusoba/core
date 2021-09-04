@@ -365,7 +365,7 @@ void testBoardErase() {
     parser.parse();
     auto state =
         pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
-    // assert(state.score() == 20);
+    assert(state.score() == 20);
 }
 
 void testSearch() {
@@ -438,7 +438,6 @@ void testQueue() {
 
     pazusoba::pint counter = 0;
     pazusoba::pint score = 0;
-    // This is very slow to complete when there are 60000 states
     while (!queue.empty()) {
         auto state = queue.next();
         score = state.score();
