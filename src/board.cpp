@@ -53,24 +53,24 @@ void Board::floodfill(Combo& combo,
         return;
 
     // track num of connected orbs, also include the current orb so start from 1
-    int count = 1;
+    pint count = 1;
     // track all directions
-    int dList[4] = {0, 0, 0, 0};
+    pint dList[4] = {0, 0, 0, 0};
     // the min number of connected orbs to consider it as a combo
-    int minConnection = initial ? _minErase : (_minErase >= 3 ? 3 : _minErase);
+    pint minConnection = initial ? _minErase : (_minErase >= 3 ? 3 : _minErase);
 
     // all 4 directions
     // 0 -> right
     // 1 -> left
     // 2 -> down
     // 3 -> up
-    for (int d = 0; d < 4; d++) {
-        int loop = _row;
+    for (pint d = 0; d < 4; d++) {
+        pint loop = _row;
         if (d > 1)
             loop = _column;
 
         // start from 1 to look for orbs around
-        for (int i = 1; i < loop; i++) {
+        for (pint i = 1; i < loop; i++) {
             pint cx = x;
             pint cy = y;
             if (d == 0)
@@ -102,11 +102,11 @@ void Board::floodfill(Combo& combo,
 
     // more than erase condition
     if (count >= minConnection) {
-        int start = 0;
-        int end = 2;
+        pint start = 0;
+        pint end = 2;
 
-        int hCount = dList[0] + dList[1] + 1;
-        int vCount = dList[2] + dList[3] + 1;
+        pint hCount = dList[0] + dList[1] + 1;
+        pint vCount = dList[2] + dList[3] + 1;
         bool horizontal = hCount >= minConnection;
         bool vertical = vCount >= minConnection;
         // this is either L or +
@@ -121,11 +121,11 @@ void Board::floodfill(Combo& combo,
             end = 1;
 
         // erase and do flood fill
-        for (int d = start; d < end; d++) {
-            int startCount = -(dList[d * 2 + 1]);
-            int endCount = dList[d * 2] + 1;
+        for (pint d = start; d < end; d++) {
+            pint startCount = -(dList[d * 2 + 1]);
+            pint endCount = dList[d * 2] + 1;
 
-            for (int i = startCount; i < endCount; i++) {
+            for (pint i = startCount; i < endCount; i++) {
                 int cx = x;
                 int cy = y;
                 if (d == 0)
@@ -145,12 +145,12 @@ void Board::floodfill(Combo& combo,
             }
         }
 
-        for (int d = start; d < end; d++) {
-            int startCount = -(dList[d * 2 + 1]);
-            int endCount = dList[d * 2] + 1;
-            for (int i = startCount; i < endCount; i++) {
-                int cx = x;
-                int cy = y;
+        for (pint d = start; d < end; d++) {
+            pint startCount = -(dList[d * 2 + 1]);
+            pint endCount = dList[d * 2] + 1;
+            for (pint i = startCount; i < endCount; i++) {
+                pint cx = x;
+                pint cy = y;
                 if (d == 0)
                     cy += i;
                 else if (d == 1)
