@@ -74,8 +74,7 @@ Route BeamSearch::solve() {
                         }
                         mtx.unlock();
 
-                        auto children = current.children(false);
-                        for (const auto& child : children) {
+                        for (const auto& child : current.children(false)) {
                             pq[thread_id].push_front(child);
                         }
                     }
@@ -94,6 +93,7 @@ Route BeamSearch::solve() {
     fmt::print("Steps {}\n", bestState.currentStep());
     fmt::print("Combo {}\n", bestState.combo());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));
+    bestState.route().printRoute();
     b.printBoard(colourful);
     /// TO BE UPDATED
     return Route(0);

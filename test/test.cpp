@@ -382,15 +382,13 @@ void testState() {
     fmt::print("=> test going down 5 steps\n");
     auto state5 = pazusoba::State(board, parser.maxSteps(), 14);
     int counter = 0;
-    for (const auto& state : state5.allChildren(5, false)) {
+    for (auto& state : state5.allChildren(5, false)) {
         auto combo = state.combo();
         counter++;
-        // if (combo > 0) {
-        //     state.route().printRoute();
-        //     fmt::print("score - {} | combo - {}\n", state.score(), combo);
-        //     fmt::print("{}\n", state.board().getFormattedBoard(
-        //                            pazusoba::FormatStyle::dawnglare));
-        // }
+        state.route().printRoute();
+        fmt::print("score - {} | combo - {}\n", state.score(), combo);
+        fmt::print("{}\n", state.board().getFormattedBoard(
+                               pazusoba::FormatStyle::dawnglare));
     }
     fmt::print("counter: {}\n", counter);
 }

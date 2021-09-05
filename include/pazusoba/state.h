@@ -59,7 +59,7 @@ public:
     const pint& currIndex() const { return _currIndex; }
     const pint& prevIndex() const { return _prevIndex; }
     const pint& maxStep() const { return _maxStep; }
-    const Route& route() const { return _route; }
+    Route& route() { return _route; }
 
     bool operator<(const State&) const;
 };
