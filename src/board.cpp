@@ -40,20 +40,51 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
+void Board::eraseCombo(EraseInfo* eraseInfo, Combo& combo, pint x, pint y) {
+    // assume this index is valid
+    auto orb_index = INDEX_OF(x, y);
+    auto orb = (*this)[orb_index];
+    auto queue = std::deque<pint>();
+    queue.emplace_front(orb_index);
+
+    while (queue.empty() == false) {
+        // Check vertically from x
+        bool vertical = true;
+        while (vertical) {
+            pint x_up = x - 1;
+            pint x_down = x + 1;
+            if (x_up < _row) {
+            }
+            if (x_down < _row) {
+            }
+        }
+
+        // Check horizontally from y
+        bool horizontal = true;
+        while (horizontal) {
+        }
+    }
+}
+
 void Board::eraseOrbs(ComboList& list) {
-    for (pint i = 0; i < _row; i++) {
-        for (pint j = 0; j < _column; j++) {
-            auto orb = (*this)(i, j);
+    EraseInfo* eraseInfo = new EraseInfo[_size];
+
+    for (pint x = 0; x < _row; x++) {
+        for (pint y = 0; y < _column; y++) {
+            auto orb = (*this)(x, y);
             // ignore empty orbs
             if (orb == pad::empty)
                 continue;
 
             Combo combo(orb);
+            eraseCombo(eraseInfo, combo, x, y);
             if (combo.loc.size() >= _minErase) {
                 list.push_front(combo);
             }
         }
     }
+
+    delete[] eraseInfo;
 }
 
 void Board::moveOrbsDown() {

@@ -43,16 +43,21 @@ enum FormatStyle {
 };
 
 class Board {
+    struct EraseInfo {
+        orb info;
+        bool vertical;
+    };
+
     int _visited[MAX_BOARD_SIZE]{0};
     board _board;
-    /// This is used to fill erased orbs
-    board _fillBoard{};
     pint _row = 0;
     pint _column = 0;
     pint _minErase = 0;
     pint _size = 0;
     /// Used for empty reference
     orb _empty = 0;
+
+    void eraseCombo(EraseInfo*, Combo&, pint, pint);
 
 public:
     Board() {}
