@@ -40,44 +40,109 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseCombo(EraseInfo* eraseInfo, Combo& combo, pint x, pint y) {
+void Board::eraseCombo(bool* visited, Combo& combo, pint ox, pint oy) {
     // assume this index is valid
-    auto orb_index = INDEX_OF(x, y);
+    auto orb_index = INDEX_OF(ox, oy);
     auto orb = (*this)[orb_index];
     auto queue = std::deque<pint>();
     queue.emplace_front(orb_index);
 
-    while (!queue.empty()) {
-        // Check vertically from x
-        pint vCount = 0;
+    // TODO: Use the erase list to know if we need to erase it
 
+    while (!queue.empty()) {
+        auto currIndex = queue.front();
+        queue.pop_front();
+        if (_visited[currIndex] > 0)
+            continue;
+        pint x = currIndex % _column;
+        pint y = currIndex / _column;
+
+        // Check vertically from x
+        // go up from x
         bool vup = true;
+        pint vupIndex = x;
         while (vup) {
-            //
+            pint cx = vupIndex - 1;
+            if (cx >= _row) {
+                vup = false;
+            } else if ((*this)(cx, y) == orb) {
+                vupIndex--;
+            } else {
+                vup = false;
+            }
+        }
+        // go down from x
+        bool vdown = true;
+        pint vdownIndex = x;
+        while (vdown) {
+            pint cx = vdownIndex + 1;
+            if (cx >= _row) {
+                vdown = false;
+            } else if ((*this)(cx, y) == orb) {
+                vdownIndex++;
+            } else {
+                vdown = false;
+            }
         }
 
-        bool vdown = true;
-        while (vdown) {
-            //
+        // as long as three orbs are connected, it can be erased
+        // min erase doesn't matter at all here
+        if (vdownIndex - vupIndex >= 2) {
+            for (pint i = vupIndex; i <= vdownIndex; i++) {
+                auto currIndex = INDEX_OF(i, y);
+                combo.loc.emplace_front(currIndex);
+                _board[currIndex] = 0;
+                visited[currIndex] = true;
+                // to be visited
+                if (i != x)
+                    queue.emplace_front(currIndex);
+            }
         }
 
         // Check horizontally from y
-        pint hCount = 0;
-
-        bool hup = true;
-        while (hup) {
-            //
+        // go left from y
+        bool hleft = true;
+        pint hleftIndex = y;
+        while (hleft) {
+            pint cy = hleftIndex - 1;
+            if (cy >= _column) {
+                hleft = false;
+            } else if ((*this)(x, cy) == orb) {
+                hleftIndex--;
+            } else {
+                hleft = false;
+            }
+        }
+        // go right from y
+        bool hright = true;
+        pint hrightIndex = y;
+        while (hright) {
+            pint cy = hrightIndex + 1;
+            if (cy >= _column) {
+                hright = false;
+            } else if ((*this)(x, cy) == orb) {
+                hrightIndex++;
+            } else {
+                hright = false;
+            }
         }
 
-        bool hdown = true;
-        while (hdown) {
-            //
+        if (hrightIndex - hleftIndex >= 2) {
+            for (pint i = hleftIndex; i <= hrightIndex; i++) {
+                auto currIndex = INDEX_OF(x, i);
+                combo.loc.emplace_front(currIndex);
+                _board[currIndex] = 0;
+                visited[currIndex] = true;
+                // to be visited
+                if (i != y)
+                    queue.emplace_front(currIndex);
+            }
         }
     }
 }
 
 void Board::eraseOrbs(ComboList& list) {
-    EraseInfo* eraseInfo = new EraseInfo[_size];
+    bool* visited = new bool[_size];
 
     for (pint x = 0; x < _row; x++) {
         for (pint y = 0; y < _column; y++) {
@@ -87,14 +152,14 @@ void Board::eraseOrbs(ComboList& list) {
                 continue;
 
             Combo combo(orb);
-            eraseCombo(eraseInfo, combo, x, y);
+            eraseCombo(visited, combo, x, y);
             if (combo.loc.size() >= _minErase) {
                 list.push_front(combo);
             }
         }
     }
 
-    delete[] eraseInfo;
+    delete[] visited;
 }
 
 void Board::moveOrbsDown() {

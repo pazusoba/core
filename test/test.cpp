@@ -277,6 +277,9 @@ void testBoard() {
     pazusoba::ComboList comboList;
     board = parser.board();
     board.eraseOrbs(comboList);
+    assert(comboList.size() == 1);
+    assert(comboList[0].loc.size() == 30);
+    board.printBoard(pazusoba::PrintStyle::colourful);
     output = board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
     // Should erase all orbs
     assert(output == "                              ");

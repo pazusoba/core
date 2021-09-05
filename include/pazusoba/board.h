@@ -43,11 +43,6 @@ enum FormatStyle {
 };
 
 class Board {
-    struct EraseInfo {
-        orb info = 0;
-        bool vertical;
-    };
-
     int _visited[MAX_BOARD_SIZE]{0};
     board _board;
     pint _row = 0;
@@ -57,7 +52,7 @@ class Board {
     /// Used for empty reference
     orb _empty = 0;
 
-    void eraseCombo(EraseInfo*, Combo&, pint, pint);
+    void eraseCombo(bool*, Combo&, pint, pint);
 
 public:
     Board() {}
