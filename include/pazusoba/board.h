@@ -44,7 +44,7 @@ enum FormatStyle {
 
 class Board {
     struct EraseInfo {
-        orb info;
+        orb info = 0;
         bool vertical;
     };
 

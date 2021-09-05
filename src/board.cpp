@@ -47,21 +47,31 @@ void Board::eraseCombo(EraseInfo* eraseInfo, Combo& combo, pint x, pint y) {
     auto queue = std::deque<pint>();
     queue.emplace_front(orb_index);
 
-    while (queue.empty() == false) {
+    while (!queue.empty()) {
         // Check vertically from x
-        bool vertical = true;
-        while (vertical) {
-            pint x_up = x - 1;
-            pint x_down = x + 1;
-            if (x_up < _row) {
-            }
-            if (x_down < _row) {
-            }
+        pint vCount = 0;
+
+        bool vup = true;
+        while (vup) {
+            //
+        }
+
+        bool vdown = true;
+        while (vdown) {
+            //
         }
 
         // Check horizontally from y
-        bool horizontal = true;
-        while (horizontal) {
+        pint hCount = 0;
+
+        bool hup = true;
+        while (hup) {
+            //
+        }
+
+        bool hdown = true;
+        while (hdown) {
+            //
         }
     }
 }
