@@ -15,7 +15,6 @@
 #include <set>
 #include "constant.h"
 
-
 namespace pazusoba {
 // 7x6
 #define MAX_BOARD_SIZE 42
@@ -44,6 +43,10 @@ enum FormatStyle {
 };
 
 class Board {
+    struct VisitedIndex {
+        bool visited = false;
+    };
+
     board _board;
     pint _row = 0;
     pint _column = 0;
@@ -51,9 +54,8 @@ class Board {
     pint _size = 0;
     /// Used for empty reference
     orb _empty = 0;
-    bool _visited[MAX_BOARD_SIZE]{false};
 
-    void eraseCombo(Combo&, pint, pint);
+    void eraseCombo(VisitedIndex*, Combo&, pint, pint);
 
 public:
     Board() {}

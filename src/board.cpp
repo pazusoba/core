@@ -40,7 +40,7 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
+void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = (*this)[orb_index];
@@ -52,10 +52,10 @@ void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
     while (!queue.empty()) {
         auto currIndex = queue.front();
         queue.pop_front();
-        if (_visited[currIndex])
+        if (visited[currIndex].visited)
             continue;
         else
-            _visited[currIndex] = true;
+            visited[currIndex].visited = true;
 
         pint x = currIndex / _column;
         pint y = currIndex % _column;
@@ -150,6 +150,7 @@ void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
 }
 
 void Board::eraseOrbs(ComboList& list) {
+    VisitedIndex* erased = new VisitedIndex[_size];
     for (pint x = 0; x < _row; x++) {
         for (pint y = 0; y < _column; y++) {
             auto orb = (*this)(x, y);
@@ -158,12 +159,13 @@ void Board::eraseOrbs(ComboList& list) {
                 continue;
 
             Combo combo(orb);
-            eraseCombo(combo, x, y);
+            eraseCombo(erased, combo, x, y);
             if (combo.loc.size() >= _minErase) {
                 list.push_front(combo);
             }
         }
     }
+    delete[] erased;
 }
 
 void Board::moveOrbsDown() {

@@ -33,19 +33,20 @@ State::State(const Board& board,
 void State::calculateScore() {
     ComboList list;
 
-    bool hasCombo = true;
-    auto temp = _board;
+    pint combo = 0;
     int moveCount = 0;
-    while (hasCombo) {
-        hasCombo = false;
+    auto temp = _board;
+    while (true) {
         temp.eraseOrbs(list);
-        temp.moveOrbsDown();
-        if (hasCombo)
+        pint comboCount = list.size();
+        // Check if there are more combo
+        if (comboCount > combo) {
+            temp.moveOrbsDown();
+            combo = comboCount;
             moveCount++;
-    }
-
-    if (list.size() >= 9) {
-        _score = 0;
+        } else {
+            break;
+        }
     }
 
     // Show the combo list and original board

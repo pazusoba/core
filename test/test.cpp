@@ -290,13 +290,19 @@ void testBoard() {
     pazusoba::ComboList comboList;
     board = parser.board();
     board.eraseOrbs(comboList);
-    printComboList(comboList);
     assert(comboList.size() == 1);
     assert(comboList[0].loc.size() == 30);
     board.printBoard(pazusoba::PrintStyle::colourful);
     output = board.getFormattedBoard(pazusoba::FormatStyle::dawnglare);
     // Should erase all orbs
     assert(output == "                              ");
+
+    comboList.clear();
+    parser = pazusoba::Parser("BRRRDDBRHRRRBBGLLLRBGRRHRBGHHR", 3, 30, 5000);
+    parser.parse();
+    board = parser.board();
+    board.eraseOrbs(comboList);
+    assert(comboList.size() == 4);
 }
 
 void testState() {
@@ -389,6 +395,12 @@ void testBoardErase() {
     parser.parse();
     state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
     assert(state.combo() == 3);
+
+    // 6 combo
+    parser = pazusoba::Parser("BRRRDDBRHRRRBBGLLLRBGRRHRBGHHR", 3, 1, 1);
+    parser.parse();
+    state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
+    assert(state.combo() == 6);
 }
 
 void testSearch() {
