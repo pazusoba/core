@@ -32,14 +32,13 @@ Route BeamSearch::solve() {
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
-        for (pint j = 0; j < processor_count; ++j) {
+        for (pint thread = 0; thread < processor_count; ++thread) {
             if (pq.empty()) {
                 break;
             }
 
-            const auto thread_id = j;
             threads.emplace_front(
-                [thread_id, &bestState, &beamSize, &mtx, &pq, &visited] {
+                [thread, &bestState, &beamSize, &mtx, &pq, &visited] {
                     for (pint k = 0; k < beamSize; ++k) {
                         mtx.lock();
                         if (pq.empty()) {
@@ -55,11 +54,11 @@ Route BeamSearch::solve() {
                             continue;
                         }
 
+                        mtx.lock();
                         if (current.score() > bestState.score()) {
-                            mtx.lock();
                             bestState = current;
-                            mtx.unlock();
                         }
+                        mtx.unlock();
 
                         auto hash = current.hash();
                         mtx.lock();
@@ -75,7 +74,7 @@ Route BeamSearch::solve() {
                         mtx.unlock();
 
                         for (const auto& child : current.children(false)) {
-                            pq[thread_id].push_front(child);
+                            pq[thread].push_front(child);
                         }
                     }
                 });
@@ -89,9 +88,9 @@ Route BeamSearch::solve() {
     }
 
     auto b = bestState.board();
-    fmt::print("Best Score {}\n", bestState.score());
-    fmt::print("Steps {}\n", bestState.currentStep());
-    fmt::print("Combo {}\n", bestState.combo());
+    fmt::print("Best Score - {}\n", bestState.score());
+    fmt::print("Steps - {}\n", bestState.currentStep());
+    fmt::print("Combo - {}\n", bestState.combo());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));
     bestState.route().printRoute();
     bestState.route().writeToDisk();

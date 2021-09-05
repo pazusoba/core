@@ -198,6 +198,10 @@ std::deque<State> State::allChildren(pint step, bool diagonal) {
 }
 
 bool State::operator<(const State& a) const {
-    return _score < a._score;
+    // <= is important here, < shouldn't be used
+    if (_score == a._score) {
+        return _currentStep <= a._currentStep;
+    }
+    return _score <= a._score;
 }
 }  // namespace pazusoba
