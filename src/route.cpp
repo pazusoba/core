@@ -1,48 +1,57 @@
 #include <fmt/core.h>
 #include <pazusoba/route.h>
+#include <cstdio>
 
 namespace pazusoba {
-void Route::addNextStep(pad::Direction direction) {
-    if (_totalSteps == MAX_STEPS)
-        throw std::out_of_range(
-            fmt::format("pazusoba::Route exceeded max steps {}", MAX_STEPS));
-
-    _steps[_totalSteps] = direction;
+void Route::addNextStep(pint index) {
+    _list.emplace_back(index);
     _totalSteps += 1;
 }
 
 void Route::printRoute() {
-    fmt::print("{} -", _totalSteps);
+    fmt::print("{} step(s) -", _totalSteps);
     for (pint i = 0; i < _totalSteps; i++) {
-        fmt::print("{} ", pad::DIRECTION_STRING[_steps[i]]);
+        fmt::print("{}, ", _list[i]);
     }
-    fmt::print("\n");
+    fmt::print("END\n");
 }
 
 void Route::writeToDisk() {
-    // Based on the first location, work out everything
-    // TODO: maybe simply save the current index instead??
-    // The route doesn't need to knwo about row and column
-    // This can be calculated from the python side?
-    // Row and Column should be included?
+    // 1,1|1,2|... the same format as before
+    // we can optimise it first before writing
+    shorten();
+
+    // fmt/os doesn't compile on Windows
+    FILE* path = fopen("path.pazusoba", "w");
+    for (pint i = 0; i < _totalSteps; i++) {
+        auto index = _list[i];
+        auto x = index / _column;
+        auto y = index % _column;
+        fprintf(path, "%d,%d|", x, y);
+    }
+
+    fclose(path);
 }
 
 void Route::goGack(pint steps) {
     if (steps > _totalSteps)
         throw std::logic_error("pazusoba::Board goBack too many steps");
-    _totalSteps -= steps;
+    for (pint i = 0; i < steps; i++) {
+        _list.pop_back();
+        _totalSteps--;
+    }
 }
 
 void Route::shorten() {
     //
 }
 
-pad::Direction& Route::operator[](pint index) {
+pint& Route::operator[](pint index) {
     if (index >= _totalSteps)
         throw std::out_of_range(
             fmt::format("pazusoba::Route index {} out of range {}", index,
                         _totalSteps - 1));
 
-    return _steps[index];
+    return _list[index];
 }
 }  // namespace pazusoba

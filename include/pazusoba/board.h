@@ -11,7 +11,6 @@
 
 #include <array>
 #include <deque>
-#include <functional>
 #include <set>
 #include "constant.h"
 

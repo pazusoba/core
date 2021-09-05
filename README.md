@@ -179,6 +179,7 @@ Binaries are compiled locally and overall time are used based on the same board,
 |  0.6β   |    3.35s    |  2.04s  |      Automation       |
 | 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
 | 0.7.5β  |      -      |    -    |    Full Automation    |
+|  0.8γ   |      -      |  0.77s  |        Rework         |
 
 ## QT (Deprecated)
 

@@ -7,6 +7,7 @@ State::State(const Board& board, pint maxStep, pint curr) {
     _currentStep = 0;
     _board = board;
     _currIndex = curr;
+    _route = Route(_board.column());
 }
 
 State::State(const Board& board,
@@ -16,11 +17,18 @@ State::State(const Board& board,
              pint curr,
              int score,
              int countdown) {
+    if (currStep > maxStep) {
+        return;
+    }
+
     _currentStep = currStep;
     _maxStep = maxStep;
     _board = board;
     _prevIndex = prev;
     _currIndex = curr;
+    // Parent should pass the route down here so need to make a copy
+    _route = Route(_board.column());
+
     calculateScore();
 
     // track improvements

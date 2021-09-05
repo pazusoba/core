@@ -8,16 +8,14 @@
 #ifndef _ROUTE_H_
 #define _ROUTE_H_
 
-#include <array>
+#include <vector>
 /// TODO: Remove cstdlib and ctime
 #include <cstdlib>
 #include <ctime>
 #include "constant.h"
 
 namespace pazusoba {
-
-#define MAX_STEPS 100
-typedef std::array<pad::Direction, MAX_STEPS> StepList;
+typedef std::vector<pint> StepList;
 
 /// TO BE CONSIDERED: this is passed to python
 struct CRoute {
@@ -27,18 +25,16 @@ struct CRoute {
     int size = 0;
 };
 
-// TODO: is it necessary to
 class Route {
-    StepList _steps;
+    std::vector<pint> _list;
     pint _totalSteps = 0;
-    pint _startingLocation;
+    pint _column = 0;
 
 public:
-    /// Pass in the starting location so that
-    /// the correct route can be writen properly
-    Route(pint loc) : _startingLocation(loc) {}
+    Route() {}
+    Route(pint column) : _column(column) {}
 
-    void addNextStep(pad::Direction);
+    void addNextStep(pint);
     void printRoute();
     /// Legacy support, python can read the step list directly
     void writeToDisk();
@@ -62,10 +58,10 @@ public:
         return routes;
     }
 
-    const StepList& steps() const { return _steps; }
+    const StepList& list() const { return _list; }
     const pint& totalSteps() const { return _totalSteps; }
 
-    pad::Direction& operator[](pint index);
+    pint& operator[](pint index);
 };
 }  // namespace pazusoba
 

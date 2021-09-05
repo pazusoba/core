@@ -9,9 +9,9 @@
 #ifndef _STATE_H_
 #define _STATE_H_
 
-#include <functional>
 #include "board.h"
 #include "constant.h"
+#include "route.h"
 
 namespace pazusoba {
 class State {
@@ -19,6 +19,7 @@ class State {
     pint _currIndex = 0;
     // so that it doesn't go backwards
     pint _prevIndex = 0;
+    Route _route;
 
     int _score = 0;
     pint _combo = 0;
@@ -32,7 +33,6 @@ class State {
     void calculateScore();
 
 public:
-    State() {}
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint curr);
     State(const Board& board,
