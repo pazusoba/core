@@ -57,8 +57,8 @@ void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
         else
             _visited[currIndex] = true;
 
-        pint x = currIndex % _column;
-        pint y = currIndex / _column;
+        pint x = currIndex / _column;
+        pint y = currIndex % _column;
 
         // Check vertically from x
         // go up from x
@@ -90,14 +90,19 @@ void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
 
         // as long as three orbs are connected, it can be erased
         // min erase doesn't matter at all here
-        if (vdownIndex - vupIndex >= 2) {
-            for (pint i = vupIndex; i <= vdownIndex; i++) {
-                auto currIndex = INDEX_OF(i, y);
-                combo.loc.emplace_front(currIndex);
+        bool vErase = vdownIndex - vupIndex >= 2;
+        for (pint i = vupIndex; i <= vdownIndex; i++) {
+            auto currIndex = INDEX_OF(i, y);
+            if (vErase) {
+                // add this location and clear the orb
+                combo.loc.insert(currIndex);
                 _board[currIndex] = 0;
                 // to be visited
                 if (i != x)
                     queue.emplace_front(currIndex);
+            } else {
+                // simply go and visit it
+                queue.emplace_front(currIndex);
             }
         }
 
@@ -129,14 +134,16 @@ void Board::eraseCombo(Combo& combo, pint ox, pint oy) {
             }
         }
 
-        if (hrightIndex - hleftIndex >= 2) {
-            for (pint i = hleftIndex; i <= hrightIndex; i++) {
-                auto currIndex = INDEX_OF(x, i);
-                combo.loc.emplace_front(currIndex);
+        bool hErase = hrightIndex - hleftIndex >= 2;
+        for (pint i = hleftIndex; i <= hrightIndex; i++) {
+            auto currIndex = INDEX_OF(x, i);
+            if (hErase) {
+                combo.loc.insert(currIndex);
                 _board[currIndex] = 0;
-                // to be visited
                 if (i != y)
                     queue.emplace_front(currIndex);
+            } else {
+                queue.emplace_front(currIndex);
             }
         }
     }

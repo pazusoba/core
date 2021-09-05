@@ -6,6 +6,8 @@
 #define LOOPS 1000000
 typedef unsigned long long int int64;
 
+void printComboList(pazusoba::ComboList&);
+
 void testAll();
 void testTimer();
 void testParser();
@@ -14,6 +16,17 @@ void testState();
 void testBoardErase();
 void testSearch();
 void testQueue();
+
+void printComboList(pazusoba::ComboList& list) {
+    for (const auto& combo : list) {
+        fmt::print("{}({}) - ", pazusoba::pad::ORB_NAME[combo.info],
+                   combo.loc.size());
+        for (const auto& loc : combo.loc) {
+            fmt::print("{} ", loc);
+        }
+        fmt::print("\n");
+    }
+}
 
 int main() {
     pazusoba::Timer timer("\n=> Test Completed");
@@ -277,6 +290,7 @@ void testBoard() {
     pazusoba::ComboList comboList;
     board = parser.board();
     board.eraseOrbs(comboList);
+    printComboList(comboList);
     assert(comboList.size() == 1);
     assert(comboList[0].loc.size() == 30);
     board.printBoard(pazusoba::PrintStyle::colourful);

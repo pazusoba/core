@@ -12,7 +12,9 @@
 #include <array>
 #include <deque>
 #include <functional>
+#include <set>
 #include "constant.h"
+
 
 namespace pazusoba {
 // 7x6
@@ -25,7 +27,7 @@ typedef std::array<orb, MAX_BOARD_SIZE> board;
 /// Since Orb is always the same, we can simply store locations here
 struct Combo {
     orb info;
-    std::deque<pint> loc;
+    std::set<pint> loc;
     Combo(const orb& o) : info(o) {}
 };
 typedef std::deque<Combo> ComboList;
