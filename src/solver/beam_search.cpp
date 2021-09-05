@@ -27,47 +27,53 @@ Route BeamSearch::solve() {
         pq.insert(State(board, maxSteps, i));
     }
 
+    State bestState = pq.next();
     // Use Beam Search starting from step one
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
         for (pint j = 0; j < processor_count; ++j) {
             const auto thread_id = j;
-            threads.emplace_front([thread_id, &beamSize, &mtx, &pq, &visited] {
-                for (pint k = 0; k < beamSize; ++k) {
-                    mtx.lock();
-                    if (pq.empty()) {
+            threads.emplace_front(
+                [thread_id, &bestState, &beamSize, &mtx, &pq, &visited] {
+                    for (pint k = 0; k < beamSize; ++k) {
+                        mtx.lock();
+                        if (pq.empty()) {
+                            mtx.unlock();
+                            return;
+                        }
+
+                        auto current = pq.next();
+                        pq.pop();
                         mtx.unlock();
-                        return;
-                    }
 
-                    auto current = pq.next();
-                    pq.pop();
-                    mtx.unlock();
+                        if (current.shouldCutOff()) {
+                            continue;
+                        }
 
-                    if (current.shouldCutOff()) {
-                        continue;
-                    }
+                        mtx.lock();
+                        if (current.score() > bestState.score()) {
+                            bestState = current;
+                        }
 
-                    mtx.lock();
-                    auto hash = current.hash();
-                    if (visited[hash]) {
-                        mtx.unlock();
-                        // check more since this one is already checked
-                        // need to consider, this slows down
-                        // j -= 1;
-                        continue;
-                    } else {
-                        visited[hash] = true;
-                        mtx.unlock();
-                    }
+                        auto hash = current.hash();
+                        if (visited[hash]) {
+                            mtx.unlock();
+                            // check more since this one is already checked
+                            // need to consider, this slows down
+                            // j -= 1;
+                            continue;
+                        } else {
+                            visited[hash] = true;
+                            mtx.unlock();
+                        }
 
-                    auto children = current.children(false);
-                    for (const auto& child : children) {
-                        pq[thread_id].push_front(child);
+                        auto children = current.children(false);
+                        for (const auto& child : children) {
+                            pq[thread_id].push_front(child);
+                        }
                     }
-                }
-            });
+                });
         }
 
         for (auto& t : threads)
@@ -76,7 +82,6 @@ Route BeamSearch::solve() {
         pq.group();
     }
 
-    State bestState = pq.next();
     auto b = bestState.board();
     fmt::print("Best Score {}\n", bestState.score());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));

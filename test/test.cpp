@@ -14,8 +14,8 @@ void testParser();
 void testBoard();
 void testState();
 void testBoardErase();
-void testSearch();
 void testQueue();
+void testSearch();
 
 void printComboList(pazusoba::ComboList& list) {
     for (const auto& combo : list) {
@@ -47,8 +47,8 @@ void testAll() {
     testBoard();
     testState();
     testBoardErase();
-    testSearch();
     testQueue();
+    testSearch();
 }
 
 void testTimer() {
@@ -403,24 +403,6 @@ void testBoardErase() {
     assert(state.combo() == 6);
 }
 
-void testSearch() {
-    fmt::print("\n--- Test Search ---\n");
-    pazusoba::Timer timer("=> Test Search");
-    auto parser =
-        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 5000);
-    parser.parse();
-
-    pazusoba::Timer quick("=> Test Quick Search");
-    auto quickSearch = pazusoba::QuickSearch(parser);
-    quickSearch.solve();
-    quick.end();
-
-    pazusoba::Timer beam("=> Test Beam Search");
-    auto beamSearch = pazusoba::BeamSearch(parser);
-    beamSearch.solve();
-    beam.end();
-}
-
 void testQueue() {
     const int SIZE = 50000;
     fmt::print("\n--- Test Queue ---\n");
@@ -483,4 +465,22 @@ void testQueue() {
     }
     fmt::print("counter = {}, score = {}\n", counter, score);
     assert(counter == targetSize);
+}
+
+void testSearch() {
+    fmt::print("\n--- Test Search ---\n");
+    pazusoba::Timer timer("=> Test Search");
+    auto parser =
+        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 5000);
+    parser.parse();
+
+    pazusoba::Timer quick("=> Test Quick Search");
+    auto quickSearch = pazusoba::QuickSearch(parser);
+    quickSearch.solve();
+    quick.end();
+
+    pazusoba::Timer beam("=> Test Beam Search");
+    auto beamSearch = pazusoba::BeamSearch(parser);
+    beamSearch.solve();
+    beam.end();
 }
