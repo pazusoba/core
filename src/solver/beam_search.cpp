@@ -32,7 +32,12 @@ Route BeamSearch::solve() {
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
+        fmt::print("Step {}\n", i);
         for (pint j = 0; j < processor_count; ++j) {
+            if (pq.empty()) {
+                break;
+            }
+
             const auto thread_id = j;
             threads.emplace_front(
                 [thread_id, &bestState, &beamSize, &mtx, &pq, &visited] {
@@ -51,19 +56,20 @@ Route BeamSearch::solve() {
                             continue;
                         }
 
-                        mtx.lock();
                         if (current.score() > bestState.score()) {
+                            mtx.lock();
                             bestState = current;
+                            mtx.unlock();
                         }
 
                         auto hash = current.hash();
                         if (visited[hash]) {
-                            mtx.unlock();
                             // check more since this one is already checked
                             // need to consider, this slows down
-                            // j -= 1;
+                            // k -= 1;
                             continue;
                         } else {
+                            mtx.lock();
                             visited[hash] = true;
                             mtx.unlock();
                         }
@@ -79,7 +85,9 @@ Route BeamSearch::solve() {
         for (auto& t : threads)
             t.join();
         threads.clear();
+
         pq.group();
+        // fmt::print("Step {}, join\n", i);
     }
 
     auto b = bestState.board();
