@@ -91,7 +91,7 @@ void State::calculateScore() {
     }
     // move orbs closer Y
     for (const auto& info : orbInfo) {
-        _score -= (info.max - info.min) * 3;
+        _score -= (info.max - info.min) * 4;
     }
 
     auto minErase = _board.minErase();
@@ -101,6 +101,7 @@ void State::calculateScore() {
 
     _combo = list.size();
     _score += _combo * 20;
+    // _score += moveCount * 2;
 }
 
 // Prevent code duplication
