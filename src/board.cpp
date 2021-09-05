@@ -173,8 +173,7 @@ void Board::floodfill(Combo& combo,
 }
 
 void Board::eraseOrbs(ComboList& list) {
-    //
-    for (int i = _row - 1; i >= 0; i--) {
+    for (pint i = 0; i < _row; i++) {
         for (pint j = 0; j < _column; j++) {
             auto orb = (*this)(i, j);
             // ignore empty orbs
@@ -281,6 +280,8 @@ orb& Board::operator[](pint index) {
     return _board[index];
 }
 
+// This is right because x and y are both unsigned
+// so we don't need to handle negative values
 orb& Board::operator()(pint x, pint y) {
     auto index = INDEX_OF(x, y);
     return (*this)[index];

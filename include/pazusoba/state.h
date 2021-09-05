@@ -21,6 +21,7 @@ class State {
     pint _prevIndex = 0;
 
     int _score = 0;
+    pint _combo = 0;
     pint _currentStep = 0;
     pint _maxStep = 0;
 
@@ -48,6 +49,7 @@ public:
 
     const int& improvement() const { return _improvement; }
     const int& score() const { return _score; }
+    const pint& combo() const { return _combo; }
     const Board& board() const { return _board; }
     const pint& currentStep() const { return _currentStep; }
     const pint& currIndex() const { return _currIndex; }

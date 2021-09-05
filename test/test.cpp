@@ -365,7 +365,13 @@ void testBoardErase() {
     parser.parse();
     auto state =
         pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
-    assert(state.score() == 20);
+    assert(state.combo() == 1);
+
+    // This is only 3 combo not 4
+    parser = pazusoba::Parser("PHLHGJPRDDRJGJRBBBGRRRLHLPDHHH", 3, 1, 1);
+    parser.parse();
+    state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
+    assert(state.combo() == 3);
 }
 
 void testSearch() {
@@ -376,13 +382,13 @@ void testSearch() {
     parser.parse();
 
     pazusoba::Timer quick("=> Test Quick Search");
-    // auto quickSearch = pazusoba::QuickSearch(parser);
-    // quickSearch.solve();
+    auto quickSearch = pazusoba::QuickSearch(parser);
+    quickSearch.solve();
     quick.end();
 
     pazusoba::Timer beam("=> Test Beam Search");
-    // auto beamSearch = pazusoba::BeamSearch(parser);
-    // beamSearch.solve();
+    auto beamSearch = pazusoba::BeamSearch(parser);
+    beamSearch.solve();
     beam.end();
 }
 

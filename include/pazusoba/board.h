@@ -45,6 +45,8 @@ enum FormatStyle {
 class Board {
     int _visited[MAX_BOARD_SIZE]{0};
     board _board;
+    /// This is used to fill erased orbs
+    board _fillBoard{};
     pint _row = 0;
     pint _column = 0;
     pint _minErase = 0;

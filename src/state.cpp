@@ -66,26 +66,28 @@ void State::calculateScore() {
 
     // Consider the distance between same orbs
     // TODO: move to profile
-    std::array<std::deque<pint>, pad::ORB_COUNT> info;
-    auto column = _board.column();
-    for (pint i = 0; i < _board.size(); i++) {
-        info[_board[i]].emplace_front(i);
-    }
-    for (const auto& orb : info) {
-        pint distance = 0;
-        for (const auto& l1 : orb) {
-            int r1 = l1 / column;
-            int col1 = l1 % column;
-            for (const auto& l2 : orb) {
-                int r2 = l2 / column;
-                int col2 = l2 % column;
-                distance += abs(r1 - r2) + abs(col1 - col2);
-            }
-        }
-        _score -= distance;
-    }
+    // std::array<std::deque<pint>, pad::ORB_COUNT> info;
+    // auto column = _board.column();
+    // for (pint i = 0; i < _board.size(); i++) {
+    //     info[_board[i]].emplace_front(i);
+    // }
 
-    _score += list.size() * 100;
+    // for (const auto& orb : info) {
+    //     pint distance = 0;
+    //     for (const auto& l1 : orb) {
+    //         int r1 = l1 / column;
+    //         int col1 = l1 % column;
+    //         for (const auto& l2 : orb) {
+    //             int r2 = l2 / column;
+    //             int col2 = l2 % column;
+    //             distance += abs(r1 - r2) + abs(col1 - col2);
+    //         }
+    //     }
+    //     _score -= distance;
+    // }
+
+    _combo = list.size();
+    _score += _combo * 100;
 }
 
 // Prevent code duplication
