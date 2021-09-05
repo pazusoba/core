@@ -16,6 +16,8 @@
 namespace pazusoba {
 class State {
     Board _board;
+    Board _erased;
+
     pint _currIndex = 0;
     // so that it doesn't go backwards
     pint _prevIndex = 0;

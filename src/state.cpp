@@ -6,6 +6,7 @@ State::State(const Board& board, pint maxStep, pint curr) {
     _maxStep = maxStep;
     _currentStep = 0;
     _board = board;
+    _erased = board;
     _currIndex = curr;
     _route = Route(_board.column());
     _route.addNextStep(_currIndex);
@@ -26,6 +27,7 @@ State::State(const Board& board,
     _currentStep = currStep;
     _maxStep = maxStep;
     _board = board;
+    _erased = board;
     _prevIndex = prev;
     _currIndex = curr;
     // Parent should pass the route down here so need to make a copy
@@ -46,13 +48,12 @@ void State::calculateScore() {
 
     pint combo = 0;
     int moveCount = 0;
-    auto temp = _board;
     while (true) {
-        temp.eraseOrbs(list);
+        _erased.eraseOrbs(list);
         pint comboCount = list.size();
         // Check if there are more combo
         if (comboCount > combo) {
-            temp.moveOrbsDown();
+            _erased.moveOrbsDown();
             combo = comboCount;
             moveCount++;
         } else {
@@ -93,8 +94,13 @@ void State::calculateScore() {
         _score -= (info.max - info.min) * 3;
     }
 
+    auto minErase = _board.minErase();
+    for (const auto& c : list) {
+        _score -= (c.loc.size() - minErase) * 10;
+    }
+
     _combo = list.size();
-    _score += _combo * 10;
+    _score += _combo * 20;
 }
 
 // Prevent code duplication
