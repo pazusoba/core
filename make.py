@@ -40,6 +40,15 @@ def test():
     else:
         os.system("cd debug && make test_pazusoba && ./test_pazusoba")
 
+def binary():
+    if not os.path.exists("release/"):
+        make()
+
+    if platform.system() == "Windows":
+        # TODO: fix it for Windows
+        os.system("cd release && mingw32-make.exe pazusoba_binary")
+    else:
+        os.system("cd release && make pazusoba_binary")
 
 def xcode():
     if platform.system() == "Darwin":
@@ -59,5 +68,7 @@ elif argc == 2:
         clean()
     elif option == "xcode":
         xcode()
+    elif option == "binary":
+        binary()
     else:
-        exit("Unknown command - (test, clean, xcode) avilable")
+        exit("Unknown command - (test, clean, xcode, binary) avilable")
