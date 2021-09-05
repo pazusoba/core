@@ -81,6 +81,10 @@ const char* const ORB_WEB_NAME[ORB_COUNT] = {" ", "R", "B", "G", "L", "D", "H",
 const char* const ORB_WEB_MAKER_NAME[ORB_COUNT] = {
     " ", "0", "2", "1", "3", "4", "5", "6", "", "7", "", "", "", ""};
 
+// Match names  https://padopt.macboy.me/ uses
+const char* const ORB_WEB_PADOPT_NAME[ORB_COUNT] = {
+    ".", "0", "1", "2", "3", "4", "5", "8", ".", "6", "7", ".", ".", "."};
+
 /// Weight of orbs (some are more important than others)
 const int ORB_WEIGHT[ORB_COUNT] = {0,  10, 10, 10, 10, 10, 30,
                                    10, 50, 5,  2,  0,  0,  0};

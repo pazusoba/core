@@ -377,6 +377,22 @@ void testState() {
     assert(maxStepState.maxStep() == maxStepState.currentStep());
     children = maxStepState.children(false);
     assert(children.size() == 0);
+    children.clear();
+
+    fmt::print("=> test going down 5 steps\n");
+    auto state5 = pazusoba::State(board, parser.maxSteps(), 14);
+    int counter = 0;
+    for (const auto& state : state5.allChildren(5, false)) {
+        auto combo = state.combo();
+        counter++;
+        // if (combo > 0) {
+        //     state.route().printRoute();
+        //     fmt::print("score - {} | combo - {}\n", state.score(), combo);
+        //     fmt::print("{}\n", state.board().getFormattedBoard(
+        //                            pazusoba::FormatStyle::dawnglare));
+        // }
+    }
+    fmt::print("counter: {}\n", counter);
 }
 
 void testBoardErase() {
@@ -386,20 +402,23 @@ void testBoardErase() {
     // This board should be only one combo not 5
     auto parser = pazusoba::Parser("PHHLBGPRDDRJGJRRHJGRDRHLLPHBHB", 3, 1, 1);
     parser.parse();
-    auto state =
-        pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
+    auto route = pazusoba::Route(parser.column());
+    auto state = pazusoba::State(parser.board(), route, 0, parser.maxSteps(), 0,
+                                 0, 0, 5);
     assert(state.combo() == 1);
 
     // This is only 3 combo not 4
     parser = pazusoba::Parser("PHLHGJPRDDRJGJRBBBGRRRLHLPDHHH", 3, 1, 1);
     parser.parse();
-    state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
+    state = pazusoba::State(parser.board(), route, 0, parser.maxSteps(), 0, 0,
+                            0, 5);
     assert(state.combo() == 3);
 
     // 6 combo
     parser = pazusoba::Parser("BRRRDDBRHRRRBBGLLLRBGRRHRBGHHR", 3, 1, 1);
     parser.parse();
-    state = pazusoba::State(parser.board(), 0, parser.maxSteps(), 0, 0, 0, 5);
+    state = pazusoba::State(parser.board(), route, 0, parser.maxSteps(), 0, 0,
+                            0, 5);
     assert(state.combo() == 6);
 }
 
@@ -473,6 +492,8 @@ void testSearch() {
     auto parser =
         pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 5000);
     parser.parse();
+    fmt::print("=> board: {}\n",
+               parser.board().getFormattedBoard(pazusoba::FormatStyle::padopt));
 
     pazusoba::Timer quick("=> Test Quick Search");
     auto quickSearch = pazusoba::QuickSearch(parser);

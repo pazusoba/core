@@ -87,7 +87,6 @@ Route BeamSearch::solve() {
         threads.clear();
 
         pq.group();
-        // fmt::print("Step {}, join\n", i);
     }
 
     auto b = bestState.board();

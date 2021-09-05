@@ -8,9 +8,11 @@ State::State(const Board& board, pint maxStep, pint curr) {
     _board = board;
     _currIndex = curr;
     _route = Route(_board.column());
+    _route.addNextStep(_currIndex);
 }
 
 State::State(const Board& board,
+             const Route& route,
              pint currStep,
              pint maxStep,
              pint prev,
@@ -27,7 +29,7 @@ State::State(const Board& board,
     _prevIndex = prev;
     _currIndex = curr;
     // Parent should pass the route down here so need to make a copy
-    _route = Route(_board.column());
+    _route = route;
 
     calculateScore();
 
@@ -40,6 +42,7 @@ State::State(const Board& board,
 
 void State::calculateScore() {
     ComboList list;
+    _score = 0;
 
     pint combo = 0;
     int moveCount = 0;
@@ -70,25 +73,28 @@ void State::calculateScore() {
     //     fmt::print("\n");
     // }
 
-    auto row = _board.row();
     auto column = _board.column();
-    for (pint i = 0; i < row; i++) {
-        for (pint j = 0; j < column; j++) {
-            auto orb = _board(i, j);
-            if (orb == _board(i + 1, j))
-                _score += 2;
-            else if (orb == _board(i - 1, j))
-                _score += 2;
-            else if (orb == _board(i, j + 1))
-                _score += 2;
-            else if (orb == _board(i, j - 1))
-                _score += 2;
-        }
+    struct OrbDist {
+        pint max = 0;
+        pint min = 0;
+    };
+    std::array<OrbDist, pad::ORB_COUNT> orbInfo;
+    for (pint i = 0; i < _board.size(); i++) {
+        auto orb = _board[i];
+        auto y = i % column;
+        auto info = orbInfo[orb];
+        if (y > info.max)
+            orbInfo[orb].max = y;
+        else if (y < info.min)
+            orbInfo[orb].min = y;
+    }
+    // move orbs closer Y
+    for (const auto& info : orbInfo) {
+        _score -= (info.max - info.min) * 3;
     }
 
     _combo = list.size();
-    _score += _combo * 50;
-    _score -= moveCount * 50;
+    _score += _combo * 10;
 }
 
 // Prevent code duplication
@@ -102,7 +108,7 @@ void State::calculateScore() {
     if ((index + 1) % column == 0) \
         continue;
 
-std::deque<State> State::children(bool diagonal) const {
+std::deque<State> State::children(bool diagonal) {
     if (_currentStep == _maxStep)
         return {};
 
@@ -157,10 +163,35 @@ std::deque<State> State::children(bool diagonal) const {
                 break;
         }
 
+        // Don't go back to the previous state
+        if (newIndex == _prevIndex)
+            continue;
+
         auto _newBoard = _board;
         _newBoard.swap(_currIndex, newIndex);
-        childrenState.emplace_back(_newBoard, _currentStep + 1, _maxStep,
-                                   _currIndex, newIndex, _score, _countdown);
+        auto _newRoute = _route;
+        _newRoute.addNextStep(newIndex);
+        childrenState.emplace_back(_newBoard, _newRoute, _currentStep + 1,
+                                   _maxStep, _currIndex, newIndex, _score,
+                                   _countdown);
+    }
+
+    return childrenState;
+}
+
+std::deque<State> State::allChildren(pint step, bool diagonal) {
+    std::deque<State> childrenState;
+    childrenState.push_front(*this);
+    for (pint i = 0; i < step; i++) {
+        std::deque<State> temp;
+        while (!childrenState.empty()) {
+            auto current = childrenState.front();
+            childrenState.pop_front();
+            for (const auto& state : current.children(diagonal)) {
+                temp.push_back(state);
+            }
+        }
+        childrenState = temp;
     }
 
     return childrenState;

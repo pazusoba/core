@@ -240,12 +240,14 @@ std::string Board::getFormattedBoard(FormatStyle style) const {
     for (pint i = 0; i < _size; i++) {
         auto orb = pint(_board[i]);
         switch (style) {
-            case FormatStyle::dawnglare:
+            case dawnglare:
                 boardString += pad::ORB_WEB_NAME[orb];
                 break;
-            case FormatStyle::serizawa:
+            case serizawa:
                 boardString += pad::ORB_WEB_MAKER_NAME[orb];
                 break;
+            case padopt:
+                boardString += pad::ORB_WEB_PADOPT_NAME[orb];
         }
     }
     return boardString;

@@ -21,7 +21,8 @@ class State {
     pint _prevIndex = 0;
     Route _route;
 
-    int _score = 0;
+    // if negative is allowed, the initial score must be low
+    int _score = -9999;
     pint _combo = 0;
     pint _currentStep = 0;
     pint _maxStep = 0;
@@ -36,6 +37,7 @@ public:
     /// This is only used in the initial state
     State(const Board& board, pint maxStep, pint curr);
     State(const Board& board,
+          const Route& route,
           pint currStep,
           pint maxStep,
           pint prev,
@@ -43,7 +45,9 @@ public:
           int score,
           int countdown);
 
-    std::deque<State> children(bool) const;
+    std::deque<State> children(bool);
+    // Return a list of all possible states in certain steps
+    std::deque<State> allChildren(pint, bool);
     size_t hash() const { return _board.hash(); }
     bool shouldCutOff() const { return _countdown <= 0; }
 
@@ -55,6 +59,7 @@ public:
     const pint& currIndex() const { return _currIndex; }
     const pint& prevIndex() const { return _prevIndex; }
     const pint& maxStep() const { return _maxStep; }
+    const Route& route() const { return _route; }
 
     bool operator<(const State&) const;
 };

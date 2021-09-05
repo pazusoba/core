@@ -35,7 +35,7 @@ public:
     Route(pint column) : _column(column) {}
 
     void addNextStep(pint);
-    void printRoute();
+    void printRoute() const;
     /// Legacy support, python can read the step list directly
     void writeToDisk();
     /// Go back steps for rewind

@@ -39,6 +39,7 @@ enum PrintStyle {
 enum FormatStyle {
     dawnglare = 0,  // letters used in dawnglare
     serizawa,       // string used in puzzdra_theory_maker style
+    padopt,         // string used in padopt style
 };
 
 class Board {

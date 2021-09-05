@@ -8,10 +8,14 @@ void Route::addNextStep(pint index) {
     _totalSteps += 1;
 }
 
-void Route::printRoute() {
-    fmt::print("{} step(s) -", _totalSteps);
+void Route::printRoute() const {
+    // This includes the initial step
+    fmt::print("{} step(s) - ", _totalSteps - 1);
     for (pint i = 0; i < _totalSteps; i++) {
-        fmt::print("{}, ", _list[i]);
+        auto index = _list[i];
+        auto x = index / _column;
+        auto y = index % _column;
+        fmt::print("({}, {}) -> ", x, y);
     }
     fmt::print("END\n");
 }
