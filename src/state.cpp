@@ -62,24 +62,25 @@ void State::calculateScore() {
     //     fmt::print("\n");
     // }
 
-    // auto row = _board.row();
-    // auto column = _board.column();
-    // for (pint i = 0; i < row; i++) {
-    //     for (pint j = 0; j < column; j++) {
-    //         auto orb = _board(i, j);
-    //         if (orb == _board(i + 1, j))
-    //             _score += 2;
-    //         else if (orb == _board(i - 1, j))
-    //             _score += 2;
-    //         else if (orb == _board(i, j + 1))
-    //             _score += 2;
-    //         else if (orb == _board(i, j - 1))
-    //             _score += 2;
-    //     }
-    // }
+    auto row = _board.row();
+    auto column = _board.column();
+    for (pint i = 0; i < row; i++) {
+        for (pint j = 0; j < column; j++) {
+            auto orb = _board(i, j);
+            if (orb == _board(i + 1, j))
+                _score += 2;
+            else if (orb == _board(i - 1, j))
+                _score += 2;
+            else if (orb == _board(i, j + 1))
+                _score += 2;
+            else if (orb == _board(i, j - 1))
+                _score += 2;
+        }
+    }
 
     _combo = list.size();
-    _score += _combo * 100;
+    _score += _combo * 50;
+    _score -= moveCount * 50;
 }
 
 // Prevent code duplication

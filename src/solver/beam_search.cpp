@@ -32,7 +32,6 @@ Route BeamSearch::solve() {
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
-        fmt::print("Step {}\n", i);
         for (pint j = 0; j < processor_count; ++j) {
             if (pq.empty()) {
                 break;
@@ -63,16 +62,17 @@ Route BeamSearch::solve() {
                         }
 
                         auto hash = current.hash();
+                        mtx.lock();
                         if (visited[hash]) {
+                            mtx.unlock();
                             // check more since this one is already checked
                             // need to consider, this slows down
                             // k -= 1;
                             continue;
                         } else {
-                            mtx.lock();
                             visited[hash] = true;
-                            mtx.unlock();
                         }
+                        mtx.unlock();
 
                         auto children = current.children(false);
                         for (const auto& child : children) {
@@ -92,6 +92,8 @@ Route BeamSearch::solve() {
 
     auto b = bestState.board();
     fmt::print("Best Score {}\n", bestState.score());
+    fmt::print("Steps {}\n", bestState.currentStep());
+    fmt::print("Combo {}\n", bestState.combo());
     fmt::print("{}\n", b.getFormattedBoard(dawnglare));
     b.printBoard(colourful);
     /// TO BE UPDATED
