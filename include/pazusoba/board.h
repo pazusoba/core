@@ -15,7 +15,6 @@
 #include "constant.h"
 
 namespace pazusoba {
-
 // 7x6
 #define MAX_BOARD_SIZE 42
 #define INDEX_OF(x, y) (x * _column + y)
@@ -43,7 +42,6 @@ enum FormatStyle {
 };
 
 class Board {
-    int _visited[MAX_BOARD_SIZE]{0};
     board _board;
     pint _row = 0;
     pint _column = 0;
@@ -51,8 +49,9 @@ class Board {
     pint _size = 0;
     /// Used for empty reference
     orb _empty = 0;
+    bool _visited[MAX_BOARD_SIZE]{false};
 
-    void eraseCombo(bool*, Combo&, pint, pint);
+    void eraseCombo(Combo&, pint, pint);
 
 public:
     Board() {}
