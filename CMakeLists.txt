@@ -63,7 +63,7 @@ if(${build_type} STREQUAL "release")
     # pazuauto
     add_executable(
         pazuauto
-        ${MAIN_CPP}
+        SHARED
         ${PAZUSOBA_SOURCES}
     )
 
