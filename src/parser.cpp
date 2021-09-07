@@ -75,10 +75,6 @@ void Parser::parse() {
     } else {
         setBoardFrom(_board_string);
     }
-
-    if (DEBUG_MODE) {
-        _board.printBoard(colourful);
-    }
 }
 
 void Parser::readBoardFrom(const std::string& path) {
