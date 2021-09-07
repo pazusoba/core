@@ -7,7 +7,7 @@
 
 extern "C" {
 namespace pazusoba {
-CRoute* solve(int argc, char* argv[]) {
+CRoute* beamSearch(int argc, char* argv[]) {
     fmt::print("Calling solve from shared library\n");
     for (int i = 0; i < argc; i++) {
         fmt::print("argv[{}] = {}\n", i, argv[i]);
@@ -16,7 +16,8 @@ CRoute* solve(int argc, char* argv[]) {
     auto parser = pazusoba::Parser(argc, argv);
     parser.parse();
     auto search = pazusoba::BeamSearch(parser);
-    return search.solve().toCRouteList();
+    auto route = search.solve();
+    return route.exportedRoute();
 }
 
 void freeRoute(CRoute* list) {

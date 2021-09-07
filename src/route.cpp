@@ -50,6 +50,19 @@ void Route::shorten() {
     //
 }
 
+CRoute* Route::exportedRoute() {
+    auto route = new CRoute[_totalSteps];
+    for (pint i = 0; i < _totalSteps; i++) {
+        auto index = _list[i];
+        route[i].x = index / _column;
+        route[i].y = index % _column;
+        // This is for python to know when to stop
+        if (i == 0)
+            route[i].size = _totalSteps;
+    }
+    return route;
+}
+
 pint& Route::operator[](pint index) {
     if (index >= _totalSteps)
         throw std::out_of_range(
