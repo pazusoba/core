@@ -51,6 +51,10 @@ Parser::Parser(const std::string& boardString,
     this->_beam_size = beamSize;
 }
 
+Parser::Parser(const std::string& boardString) {
+    _board_string = boardString;
+}
+
 void Parser::showUsage() {
     fmt::print(
         "\nusage: pazusoba [board string] [min erase] [max steps] [max "

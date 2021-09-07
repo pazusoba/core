@@ -31,6 +31,7 @@ class Parser {
 public:
     Parser(int argc, char* argv[]);
     Parser(const std::string&, pint, pint, pint);
+    Parser(const std::string&);
     void parse();
 
     // Getters

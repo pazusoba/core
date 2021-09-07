@@ -19,7 +19,8 @@ State::State(const Board& board,
              pint prev,
              pint curr,
              int score,
-             int countdown) {
+             int countdown,
+             bool compute) {
     if (currStep > maxStep) {
         return;
     }
@@ -33,7 +34,8 @@ State::State(const Board& board,
     // Parent should pass the route down here so need to make a copy
     _route = route;
 
-    calculateScore();
+    if (compute)
+        computeScore();
 
     // track improvements
     // _improvement = (int)(_score - score);
@@ -42,7 +44,7 @@ State::State(const Board& board,
     // }
 }
 
-void State::calculateScore() {
+void State::computeScore() {
     ComboList list;
     _score = 0;
 
@@ -115,7 +117,7 @@ void State::calculateScore() {
     if ((index + 1) % column == 0) \
         continue;
 
-std::deque<State> State::children(bool diagonal) {
+std::deque<State> State::children(bool diagonal, bool compute) {
     if (_currentStep == _maxStep)
         return {};
 
@@ -180,7 +182,7 @@ std::deque<State> State::children(bool diagonal) {
         _newRoute.addNextStep(newIndex);
         childrenState.emplace_back(_newBoard, _newRoute, _currentStep + 1,
                                    _maxStep, _currIndex, newIndex, _score,
-                                   _countdown);
+                                   _countdown, compute);
     }
 
     return childrenState;
@@ -194,7 +196,11 @@ std::deque<State> State::allChildren(pint step, bool diagonal) {
         while (!childrenState.empty()) {
             auto current = childrenState.front();
             childrenState.pop_front();
-            for (const auto& state : current.children(diagonal)) {
+
+            // Only compute in the last step,
+            // maybe compute shouldn't be in the constructor
+            for (const auto& state :
+                 current.children(diagonal, i == step - 1)) {
                 temp.push_back(state);
             }
         }

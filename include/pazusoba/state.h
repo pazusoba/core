@@ -33,7 +33,7 @@ class State {
     int _improvement = 0;
     int _countdown = 10;
 
-    void calculateScore();
+    void computeScore();
 
 public:
     /// This is only used in the initial state
@@ -45,9 +45,10 @@ public:
           pint prev,
           pint curr,
           int score,
-          int countdown);
+          int countdown,
+          bool compute = true);
 
-    std::deque<State> children(bool);
+    std::deque<State> children(bool, bool compute = true);
     // Return a list of all possible states in certain steps
     std::deque<State> allChildren(pint, bool);
     size_t hash() const { return _board.hash(); }
