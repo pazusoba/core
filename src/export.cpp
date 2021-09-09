@@ -33,12 +33,13 @@ void freeRoute(CRoute* list) {
 ///
 /// COMBO
 ///
-int findMaxCombo(std::string board, pint step) {
-    auto parser = Parser(board, 3, step, 0);
+int findMaxCombo(char* board, pint step) {
+    auto board_string = std::string(board);
+    auto parser = Parser(board_string, 3, step, 0);
     parser.parse();
 
     pint maxCombo = 0;
-    for (pint i = 0; i < board.size(); ++i) {
+    for (pint i = 0; i < board_string.size(); ++i) {
         // Searching from every orb
         auto state = State(parser.board(), step, i);
         for (const auto& child : state.allChildren(step, false)) {
