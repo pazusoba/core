@@ -11,6 +11,7 @@
 
 #include "board.h"
 #include "constant.h"
+#include "hash.h"
 #include "route.h"
 
 namespace pazusoba {
@@ -51,7 +52,9 @@ public:
     std::deque<State> children(bool, bool compute = true);
     // Return a list of all possible states in certain steps
     std::deque<State> allChildren(pint, bool);
-    size_t hash() const { return _board.hash(); }
+    size_t hash() const {
+        return hash::djb2_hash_shift(_board.hash(), int(_prevIndex));
+    }
     bool shouldCutOff() const { return _countdown <= 0; }
 
     const int& improvement() const { return _improvement; }

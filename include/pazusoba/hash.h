@@ -10,7 +10,8 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
-namespace pazusoba::hash {
+namespace pazusoba {
+namespace hash {
 inline size_t djb2_hash(const unsigned char* str) {
     size_t hash = 5381;
     int c;
@@ -21,6 +22,10 @@ inline size_t djb2_hash(const unsigned char* str) {
     }
 
     return hash;
+}
+
+inline size_t djb2_hash_shift(size_t hash, int c) {
+    return ((hash << 5) + hash) + c;
 }
 
 inline size_t sdbm_hash(const unsigned char* str) {
@@ -34,6 +39,11 @@ inline size_t sdbm_hash(const unsigned char* str) {
 
     return hash;
 }
-}  // namespace pazusoba::hash
+
+inline size_t sdbm_hash_shift(size_t hash, int c) {
+    return c + (hash << 6) + (hash << 16) - hash;
+}
+}  // namespace hash
+}  // namespace pazusoba
 
 #endif
