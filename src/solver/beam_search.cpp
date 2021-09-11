@@ -95,7 +95,6 @@ Route BeamSearch::solve() {
     bestState.route().printRoute();
     bestState.route().writeToDisk();
     b.printBoard(colourful);
-    /// TO BE UPDATED
-    return Route(0);
+    return bestState.route();
 }
 }  // namespace pazusoba
