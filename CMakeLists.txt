@@ -4,7 +4,8 @@ project(
     pazusoba
     VERSION 0.8.0
     LANGUAGES CXX
-    HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
+    # This is not support until CMake 3.12
+    # HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
 
