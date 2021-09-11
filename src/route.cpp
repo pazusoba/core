@@ -27,14 +27,18 @@ void Route::writeToDisk() {
 
     // fmt/os doesn't compile on Windows
     FILE* path = fopen("path.pazusoba", "w");
-    for (pint i = 0; i < _totalSteps; i++) {
-        auto index = _list[i];
-        auto x = index / _column;
-        auto y = index % _column;
-        fprintf(path, "%d,%d|", x, y);
-    }
+    // consider cases where the program doesn't have
+    // the permission to write to disk, like Android
+    if (path != nullptr) {
+        for (pint i = 0; i < _totalSteps; i++) {
+            auto index = _list[i];
+            auto x = index / _column;
+            auto y = index % _column;
+            fprintf(path, "%d,%d|", x, y);
+        }
 
-    fclose(path);
+        fclose(path);
+    }
 }
 
 void Route::goGack(pint steps) {
