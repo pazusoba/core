@@ -19,8 +19,8 @@ CRoute* beamSearch(int argc, char* argv[]) {
     auto parser = Parser(argc, argv);
     parser.parse();
     auto search = BeamSearch(parser);
-    auto route = search.solve();
-    return route.exportedRoute();
+    auto state = search.solve();
+    return state.route().exportedRoute();
 }
 
 void freeRoute(CRoute* list) {

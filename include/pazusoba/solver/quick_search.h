@@ -14,7 +14,7 @@ namespace pazusoba {
 class QuickSearch : public Solver {
 public:
     QuickSearch(const Parser& parser) : Solver(parser) {}
-    Route solve();
+    State solve();
 };
 }  // namespace pazusoba
 

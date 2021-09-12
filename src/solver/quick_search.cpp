@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 namespace pazusoba {
-Route QuickSearch::solve() {
+State QuickSearch::solve() {
     std::unordered_map<size_t, bool> visited;
     std::vector<State> states;
     std::mutex mtx;
@@ -68,8 +68,6 @@ Route QuickSearch::solve() {
     }
 
     fmt::print("{}\n", bestState.score());
-
-    /// TO BE UPDATED
-    return Route(0);
+    return bestState;
 }
 }  // namespace pazusoba

@@ -9,7 +9,7 @@
 #define _SOLVER_H_
 
 #include "../parser.h"
-#include "../route.h"
+#include "../state.h"
 
 namespace pazusoba {
 class Solver {
@@ -21,7 +21,7 @@ public:
     virtual ~Solver() = default;
 
     /// Return a single route
-    virtual Route solve() = 0;
+    virtual State solve() = 0;
 };
 }  // namespace pazusoba
 

@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 namespace pazusoba {
-Route BeamSearch::solve() {
+State BeamSearch::solve() {
     // setup multithreading
     std::deque<std::thread> threads;
     // Save one core for now
@@ -95,6 +95,6 @@ Route BeamSearch::solve() {
     bestState.route().printRoute();
     bestState.route().writeToDisk();
     b.printBoard(colourful);
-    return bestState.route();
+    return bestState;
 }
 }  // namespace pazusoba
