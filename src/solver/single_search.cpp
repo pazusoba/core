@@ -2,7 +2,6 @@
 #include <pazusoba/queue.h>
 #include <pazusoba/solver/single_search.h>
 #include <pazusoba/state.h>
-#include <mutex>
 #include <unordered_map>
 
 namespace pazusoba {
@@ -39,7 +38,7 @@ State SingleSearch::solve() {
                 continue;
             }
 
-            if (current->score() > bestState.score()) {
+            if (current->combo() > bestState.combo()) {
                 bestState = *current;
             }
 
@@ -54,7 +53,7 @@ State SingleSearch::solve() {
             }
 
             for (const auto& child : current->children(false)) {
-                pq[0].push_front(child);
+                pq.insert(child);
             }
             delete current;
 

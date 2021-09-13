@@ -8,6 +8,7 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
+#include <mutex>
 #include <queue>
 #include "state.h"
 
@@ -28,6 +29,7 @@ class SobaQueue {
     pint _thread;
     std::vector<std::deque<T>> _threadList;
     std::vector<std::deque<T>> _queueList;
+    std::mutex _mtx;
 
     // Track the number of states
     // int _currIndex = 9;
@@ -47,6 +49,17 @@ public:
     const std::vector<std::deque<T>> list() const { return _threadList; }
 
     void insert(const T& state) { _queue.push(state); }
+    void push(T state, pint thread) {
+        if (_thread <= 1) {
+            _queue.push(state);
+        } else if (_mtx.try_lock()) {
+            _queue.push(state);
+            _mtx.unlock();
+        } else {
+            // insert to the list first
+            _threadList[thread].push_front(state);
+        }
+    }
 
     // Group all state based on score
     void group() {

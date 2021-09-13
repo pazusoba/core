@@ -75,6 +75,8 @@ State BeamSearch::solve() {
 
                         for (const auto& child : current->children(false)) {
                             pq[thread].push_front(child);
+                            // This is not safe yet
+                            // pq.push(child, thread);
                         }
                         delete current;
                     }

@@ -103,7 +103,7 @@ void State::computeScore() {
 
     _combo = list.size();
     _score += _combo * 20;
-    // _score += moveCount * 2;
+//     _score += moveCount * 2;
 }
 
 // Prevent code duplication
