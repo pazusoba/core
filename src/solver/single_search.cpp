@@ -27,10 +27,10 @@ State SingleSearch::solve() {
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
+        // fmt::print("Step {}\n", i + 1);
         for (pint j = 0; j < beamSize; ++j) {
-            if (pq.empty()) {
+            if (pq.empty())
                 break;
-            }
 
             auto current = pq.next();
             pq.pop();
