@@ -11,17 +11,17 @@ State SingleSearch::solve() {
     fmt::print("Using {} threads\n", processor_count);
 
     const Board& board = _parser.board();
-    SobaQueue<State*> pq(processor_count);
+    std::priority_queue<State*, std::vector<State*>, QueueCompare> pq;
     std::unordered_map<size_t, bool> visited;
 
     // setup all the initial states
     auto maxSteps = _parser.maxSteps();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        pq.insert(new State(board, maxSteps, i));
+        pq.push(new State(board, maxSteps, i));
     }
 
-    State bestState = *pq.next();
+    State bestState = *pq.top();
     // Use Beam Search starting from step one
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
@@ -31,10 +31,11 @@ State SingleSearch::solve() {
             if (pq.empty())
                 break;
 
-            auto current = pq.next();
+            auto current = pq.top();
             pq.pop();
 
             if (current->shouldCutOff()) {
+                delete current;
                 continue;
             }
 
@@ -47,17 +48,16 @@ State SingleSearch::solve() {
                 // check more since this one is already checked
                 // need to consider, this slows down
                 // k -= 1;
+                delete current;
                 continue;
             } else {
                 visited[hash] = true;
             }
 
-            for (const auto& child : current->children(false)) {
-                pq.insert(child);
+            for (const auto child : current->children(false)) {
+                pq.push(child);
             }
             delete current;
-
-            pq.group();
         }
     }
 
