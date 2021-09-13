@@ -16,7 +16,7 @@ State BeamSearch::solve() {
     fmt::print("Using {} threads\n", processor_count);
 
     const Board& board = _parser.board();
-    SobaQueue<State*> pq(processor_count);
+    SobaQueue<State> pq(processor_count);
     std::unordered_map<size_t, bool> visited;
     std::mutex mtx;
 
@@ -24,10 +24,10 @@ State BeamSearch::solve() {
     auto maxSteps = _parser.maxSteps();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        pq.insert(new State(board, maxSteps, i));
+        pq.insert(State(board, maxSteps, i));
     }
 
-    State bestState = *pq.next();
+    State bestState = pq.next();
     // Use Beam Search starting from step one
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
@@ -50,17 +50,17 @@ State BeamSearch::solve() {
                         pq.pop();
                         mtx.unlock();
 
-                        if (current->shouldCutOff()) {
+                        if (current.shouldCutOff()) {
                             continue;
                         }
 
                         mtx.lock();
-                        if (current->score() > bestState.score()) {
-                            bestState = *current;
+                        if (current.score() > bestState.score()) {
+                            bestState = current;
                         }
                         mtx.unlock();
 
-                        auto hash = current->hash();
+                        auto hash = current.hash();
                         mtx.lock();
                         if (visited[hash]) {
                             mtx.unlock();
@@ -73,12 +73,11 @@ State BeamSearch::solve() {
                         }
                         mtx.unlock();
 
-                        for (const auto& child : current->children(false)) {
-                            pq[thread].push_front(child);
+                        for (const auto& child : current.children(false)) {
+                            pq[thread].push_front(*child);
                             // This is not safe yet
                             // pq.push(child, thread);
                         }
-                        delete current;
                     }
                 });
         }
