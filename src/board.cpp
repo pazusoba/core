@@ -168,6 +168,7 @@ void Board::eraseOrbs(ComboList& list) {
             }
         }
     }
+
     delete[] erased;
 }
 

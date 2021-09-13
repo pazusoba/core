@@ -38,7 +38,7 @@ State SingleSearch::solve() {
                 continue;
             }
 
-            if (current->combo() > bestState.combo()) {
+            if (current->score() > bestState.score()) {
                 bestState = *current;
             }
 

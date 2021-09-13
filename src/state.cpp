@@ -49,7 +49,7 @@ void State::computeScore() {
     _score = 0;
 
     pint combo = 0;
-    int moveCount = 0;
+    pint moveCount = 0;
     while (true) {
         _erased.eraseOrbs(list);
         pint comboCount = list.size();
