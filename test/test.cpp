@@ -313,25 +313,25 @@ void testState() {
     parser.parse();
     auto board = parser.board();
 
-    std::deque<pazusoba::State> children;
+    std::deque<pazusoba::State*> children;
     fmt::print("=> test children states (0, 0)\n");
     // (0, 0)
     auto state1 = pazusoba::State(board, parser.maxSteps(), 0);
     // digonal moves
     children = state1.children(true);
     assert(children.size() == 3);
-    assert(children[0].currentStep() == 1);
-    assert(children[0].currIndex() == 6);
-    assert(children[0].prevIndex() == 0);
-    assert(children[0].maxStep() == parser.maxSteps());
+    assert(children[0]->currentStep() == 1);
+    assert(children[0]->currIndex() == 6);
+    assert(children[0]->prevIndex() == 0);
+    assert(children[0]->maxStep() == parser.maxSteps());
     children.clear();
     // only down and right here
     children = state1.children(false);
     assert(children.size() == 2);
-    assert(children[1].currentStep() == 1);
-    assert(children[1].currIndex() == 1);
-    assert(children[1].prevIndex() == 0);
-    assert(children[1].maxStep() == parser.maxSteps());
+    assert(children[1]->currentStep() == 1);
+    assert(children[1]->currIndex() == 1);
+    assert(children[1]->prevIndex() == 0);
+    assert(children[1]->maxStep() == parser.maxSteps());
     children.clear();
 
     fmt::print("=> test children states (3, 3)\n");
@@ -341,13 +341,13 @@ void testState() {
     assert(children.size() == 8);
     fmt::print("=> validate (3, 3) -> (2, 3)\n");
     // moving up
-    assert(children[0].currentStep() == 1);
-    assert(children[0].currIndex() == 9);
-    assert(children[0].prevIndex() == 15);
-    assert(children[0].maxStep() == parser.maxSteps());
+    assert(children[0]->currentStep() == 1);
+    assert(children[0]->currIndex() == 9);
+    assert(children[0]->prevIndex() == 15);
+    assert(children[0]->maxStep() == parser.maxSteps());
     fmt::print("=> validate new board\n");
     // make sure the board is swapped
-    auto up_board = children[0].board();
+    auto up_board = children[0]->board();
     auto org_board = state1.board();
     up_board[9] = org_board[15];
     up_board[15] = org_board[9];
@@ -359,23 +359,23 @@ void testState() {
     assert(children.size() == 4);
     fmt::print("=> validate (3, 3) -> (3, 2)\n");
     // should be left here
-    assert(children[2].currentStep() == 1);
-    assert(children[2].currIndex() == 14);
-    assert(children[2].prevIndex() == 15);
-    assert(children[2].maxStep() == parser.maxSteps());
+    assert(children[2]->currentStep() == 1);
+    assert(children[2]->currIndex() == 14);
+    assert(children[2]->prevIndex() == 15);
+    assert(children[2]->maxStep() == parser.maxSteps());
 
     fmt::print("=> test max step\n");
-    pazusoba::State maxStepState = children[0];
+    pazusoba::State* maxStepState = children[0];
     children.clear();
     // start from step 1 here
     for (int i = 0; i < int(parser.maxSteps()) - 1; ++i) {
-        auto children = maxStepState.children(false);
+        auto children = maxStepState->children(false);
         maxStepState = children[0];
         children.clear();
     }
-    assert(maxStepState.currentStep() == parser.maxSteps());
-    assert(maxStepState.maxStep() == maxStepState.currentStep());
-    children = maxStepState.children(false);
+    assert(maxStepState->currentStep() == parser.maxSteps());
+    assert(maxStepState->maxStep() == maxStepState->currentStep());
+    children = maxStepState->children(false);
     assert(children.size() == 0);
     children.clear();
 
@@ -383,11 +383,11 @@ void testState() {
     auto state5 = pazusoba::State(board, parser.maxSteps(), 14);
     int counter = 0;
     for (auto& state : state5.allChildren(5, false)) {
-        auto combo = state.combo();
+        auto combo = state->combo();
         counter++;
-        state.route().printRoute();
-        fmt::print("score - {} | combo - {}\n", state.score(), combo);
-        fmt::print("{}\n", state.board().getFormattedBoard(
+        state->route().printRoute();
+        fmt::print("score - {} | combo - {}\n", state->score(), combo);
+        fmt::print("{}\n", state->board().getFormattedBoard(
                                pazusoba::FormatStyle::dawnglare));
     }
     fmt::print("counter: {}\n", counter);

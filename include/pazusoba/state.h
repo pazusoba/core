@@ -49,9 +49,9 @@ public:
           int countdown,
           bool compute = true);
 
-    std::deque<State> children(bool, bool compute = true);
+    std::deque<State*> children(bool, bool compute = true);
     // Return a list of all possible states in certain steps
-    std::deque<State> allChildren(pint, bool);
+    std::deque<State*> allChildren(pint, bool);
     size_t hash() const {
         auto prev = hash::djb2_hash_shift(_board.hash(), int(_prevIndex));
         return hash::djb2_hash_shift(prev, int(_currIndex));

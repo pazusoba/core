@@ -117,11 +117,11 @@ void State::computeScore() {
     if ((index + 1) % column == 0) \
         continue;
 
-std::deque<State> State::children(bool diagonal, bool compute) {
+std::deque<State*> State::children(bool diagonal, bool compute) {
     if (_currentStep == _maxStep)
         return {};
 
-    std::deque<State> childrenState;
+    std::deque<State*> childrenState;
     pint column = _board.column();
     pint size = _board.size();
     for (pint i = 0; i < pad::DIRECTION_COUNT; i++) {
@@ -180,19 +180,19 @@ std::deque<State> State::children(bool diagonal, bool compute) {
         _newBoard.swap(_currIndex, newIndex);
         auto _newRoute = _route;
         _newRoute.addNextStep(newIndex);
-        childrenState.emplace_back(_newBoard, _newRoute, _currentStep + 1,
-                                   _maxStep, _currIndex, newIndex, _score,
-                                   _countdown, compute);
+        childrenState.push_back(
+            new State(_newBoard, _newRoute, _currentStep + 1, _maxStep,
+                      _currIndex, newIndex, _score, _countdown, compute));
     }
 
     return childrenState;
 }
 
-std::deque<State> State::allChildren(pint step, bool diagonal) {
-    std::deque<State> childrenState;
-    childrenState.push_front(*this);
+std::deque<State*> State::allChildren(pint step, bool diagonal) {
+    std::deque<State*> childrenState;
+    childrenState.push_front(this);
     for (pint i = 0; i < step; i++) {
-        std::deque<State> temp;
+        std::deque<State*> temp;
         while (!childrenState.empty()) {
             auto current = childrenState.front();
             childrenState.pop_front();
@@ -200,7 +200,7 @@ std::deque<State> State::allChildren(pint step, bool diagonal) {
             // Only compute in the last step,
             // maybe compute shouldn't be in the constructor
             for (const auto& state :
-                 current.children(diagonal, i == step - 1)) {
+                 current->children(diagonal, i == step - 1)) {
                 temp.push_back(state);
             }
         }

@@ -43,9 +43,10 @@ int findMaxCombo(char* board, pint step) {
         // Searching from every orb
         auto state = State(parser.board(), step, i);
         for (const auto& child : state.allChildren(step, false)) {
-            auto combo = child.combo();
+            auto combo = child->combo();
             if (combo > maxCombo)
                 maxCombo = combo;
+            delete child;
         }
     }
     return maxCombo;
