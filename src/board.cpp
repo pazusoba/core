@@ -40,14 +40,15 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
+void Board::eraseCombo(VisitedIndex* visited,
+                       std::deque<pint>& queue,
+                       Combo& combo,
+                       pint ox,
+                       pint oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = (*this)[orb_index];
-    auto queue = std::deque<pint>();
     queue.emplace_front(orb_index);
-
-    // TODO: Use the erase list to know if we need to erase it
 
     while (!queue.empty()) {
         auto currIndex = queue.front();
@@ -151,6 +152,8 @@ void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
 
 void Board::eraseOrbs(ComboList& list) {
     VisitedIndex* erased = new VisitedIndex[_size];
+    auto queue = std::deque<pint>();
+
     for (pint x = 0; x < _row; x++) {
         for (pint y = 0; y < _column; y++) {
             auto orb = (*this)(x, y);
@@ -159,7 +162,7 @@ void Board::eraseOrbs(ComboList& list) {
                 continue;
 
             Combo combo(orb);
-            eraseCombo(erased, combo, x, y);
+            eraseCombo(erased, queue, combo, x, y);
             if (combo.loc.size() >= _minErase) {
                 list.push_front(combo);
             }
