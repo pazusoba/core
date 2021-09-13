@@ -25,6 +25,7 @@ def clean():
     _clean("build")
     _clean("debug")
     _clean("release")
+    _clean("xcode")
 
 def _clean(folder: str):
     if os.path.exists(folder):
