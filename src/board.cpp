@@ -44,6 +44,7 @@ void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = (*this)[orb_index];
+    // should reduce the time, this function is called but how?
     _queue.emplace_front(orb_index);  // 25%
 
     while (!_queue.empty()) {
@@ -55,7 +56,8 @@ void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
             visited[currIndex].visited = true;
 
         pint x = currIndex / _column;
-        pint y = currIndex % _column;
+        // pint y = currIndex % _column;
+        pint y = currIndex - x * _column;
 
         // Check vertically from x
         // go up from x
