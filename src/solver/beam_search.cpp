@@ -57,23 +57,23 @@ State BeamSearch::solve() {
                         }
 
                         mtx.lock();
-                        if (current.score() > bestState.score()) {
+                        if (current.combo() > bestState.combo()) {
                             bestState = current;
                         }
                         mtx.unlock();
 
-                        auto hash = current.hash();
-                        mtx.lock();
-                        if (visited[hash]) {
-                            mtx.unlock();
-                            // check more since this one is already checked
-                            // need to consider, this slows down
-                            // k -= 1;
-                            continue;
-                        } else {
-                            visited[hash] = true;
-                        }
-                        mtx.unlock();
+                        // auto hash = current.hash();
+                        // mtx.lock();
+                        // if (visited[hash]) {
+                        //     mtx.unlock();
+                        //     // check more since this one is already checked
+                        //     // need to consider, this slows down
+                        //     // k -= 1;
+                        //     continue;
+                        // } else {
+                        //     visited[hash] = true;
+                        // }
+                        // mtx.unlock();
 
                         for (const auto& child : current.children(false)) {
                             pq[thread].push_front(*child);
