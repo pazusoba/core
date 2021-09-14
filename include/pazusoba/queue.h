@@ -62,7 +62,7 @@ public:
     }
 
     // Group all state based on score
-    void group() {
+    void group(pint size) {
         for (auto& l : _threadList) {
             for (const auto& s : l) {
                 _queue.push(s);
@@ -70,6 +70,18 @@ public:
             // Clear after grouping all nodes
             l.clear();
         }
+        
+        // This will be super slow
+        auto newQueue = std::priority_queue<T, std::vector<T>, QueueCompare>();
+        for (pint i = 0; i < size; i++) {
+            if (_queue.empty())
+                break;
+            auto top = _queue.top();
+            _queue.pop();
+            newQueue.push(top);
+        }
+        
+        _queue = newQueue;
     }
 
     bool empty() const { return _queue.empty(); }

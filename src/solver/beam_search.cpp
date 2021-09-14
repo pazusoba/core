@@ -29,9 +29,11 @@ State BeamSearch::solve() {
 
     State bestState = pq.next();
     // Use Beam Search starting from step one
-    auto beamSize = _parser.beamSize() / processor_count + 1;
+    auto fullBeamSize = _parser.beamSize();
+    auto beamSize = fullBeamSize / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
+        fmt::print("Step {}, Size {}\n", i + 1, pq.size());
         for (pint thread = 0; thread < processor_count; ++thread) {
             if (pq.empty()) {
                 break;
@@ -86,7 +88,7 @@ State BeamSearch::solve() {
             t.join();
         threads.clear();
 
-        pq.group();
+        pq.group(fullBeamSize);
     }
 
     auto b = bestState.board();
