@@ -11,7 +11,7 @@ State SingleSearch::solve() {
     fmt::print("Using {} threads\n", processor_count);
 
     const Board& board = _parser.board();
-    typedef std::priority_queue<State, std::vector<State>, QueueCompare>
+    typedef std::priority_queue<State*, std::vector<State*>, PointerCompare>
         SingleQueue;
     // use two queues to swap around
     SingleQueue first;
@@ -22,10 +22,10 @@ State SingleSearch::solve() {
     auto maxSteps = _parser.maxSteps();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        first.push(State(board, maxSteps, i));
+        first.push(new State(board, maxSteps, i));
     }
 
-    State bestState = first.top();
+    State bestState = *first.top();
     // Use Beam Search starting from step one
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
@@ -39,15 +39,15 @@ State SingleSearch::solve() {
             auto current = curr.top();
             curr.pop();
 
-            if (current.shouldCutOff()) {
+            if (current->shouldCutOff()) {
                 continue;
             }
 
-            if (current.combo() > bestState.combo()) {
-                bestState = current;
+            if (current->combo() > bestState.combo()) {
+                bestState = *current;
             }
 
-            auto hash = current.hash();
+            auto hash = current->hash();
             if (visited[hash]) {
                 // check more since this one is already checked
                 // need to consider, this slows down
@@ -57,9 +57,9 @@ State SingleSearch::solve() {
                 visited[hash] = true;
             }
 
-            auto children = current.children(false);
+            auto children = current->children(false);
             for (const auto child : children) {
-                next.push(*child);
+                next.push(child);
             }
         }
 

@@ -13,11 +13,19 @@
 #include "state.h"
 
 namespace pazusoba {
-class QueueCompare {
+class ValueCompare {
 public:
     template <typename T>
     bool operator()(const T a, const T b) {
         return a < b;
+    }
+};
+
+class PointerCompare {
+public:
+    template <typename T>
+    bool operator()(const T* a, const T* b) {
+        return *a < *b;
     }
 };
 
@@ -35,7 +43,7 @@ class SobaQueue {
     // int _currIndex = 9;
     // For now, only consider max 10 combo, we don't have to sort this
     // std::array<StateList, 10> _comboList;
-    std::priority_queue<T, std::vector<T>, QueueCompare> _queue;
+    std::priority_queue<T, std::vector<T>, ValueCompare> _queue;
 
 public:
     SobaQueue(pint thread) : _thread(thread) {
@@ -70,9 +78,9 @@ public:
             // Clear after grouping all nodes
             l.clear();
         }
-        
+
         // This will be super slow
-        auto newQueue = std::priority_queue<T, std::vector<T>, QueueCompare>();
+        auto newQueue = std::priority_queue<T, std::vector<T>, ValueCompare>();
         for (pint i = 0; i < size; i++) {
             if (_queue.empty())
                 break;
@@ -80,7 +88,7 @@ public:
             _queue.pop();
             newQueue.push(top);
         }
-        
+
         _queue = newQueue;
     }
 
