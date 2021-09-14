@@ -11,10 +11,10 @@ int main(int argc, char* argv[]) {
     pazusoba::Timer t("=> pazusoba");
     // this should find 8 combo
     auto parser =
-        pazusoba::Parser("BGGDRDLBBHLGBGRDLBLDDRRRLGRBLH", 3, 50, 5000);
-    auto parser = pazusoba::Parser(argc, argv);
+        pazusoba::Parser("RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 50, 5000);
+//    auto parser = pazusoba::Parser(argc, argv);
     parser.parse();
-    auto solver = pazusoba::SingleSearch(parser);
+    auto solver = pazusoba::BeamSearch(parser);
     solver.solve();
     return 0;
 }

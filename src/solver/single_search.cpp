@@ -11,28 +11,33 @@ State SingleSearch::solve() {
     fmt::print("Using {} threads\n", processor_count);
 
     const Board& board = _parser.board();
-    std::priority_queue<State*, std::vector<State*>, QueueCompare> pq;
+    typedef std::priority_queue<State*, std::vector<State*>, QueueCompare>
+        SingleQueue;
+    // use two queues to swap around
+    SingleQueue first;
+    SingleQueue second;
     std::unordered_map<size_t, bool> visited;
 
     // setup all the initial states
     auto maxSteps = _parser.maxSteps();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        pq.push(new State(board, maxSteps, i));
+        first.push(new State(board, maxSteps, i));
     }
 
-    State bestState = *pq.top();
+    State bestState = *first.top();
     // Use Beam Search starting from step one
     auto beamSize = _parser.beamSize() / processor_count + 1;
     fmt::print("Beam Size {}\n", beamSize);
     for (pint i = 0; i < maxSteps; ++i) {
-        // fmt::print("Step {}\n", i + 1);
+        auto& curr = i % 2 == 0 ? first : second;
+        auto& next = i % 2 == 0 ? second : first;
         for (pint j = 0; j < beamSize; ++j) {
-            if (pq.empty())
+            if (curr.empty())
                 break;
 
-            auto current = pq.top();
-            pq.pop();
+            auto current = curr.top();
+            curr.pop();
 
             if (current->shouldCutOff()) {
                 delete current;
@@ -54,11 +59,19 @@ State SingleSearch::solve() {
                 visited[hash] = true;
             }
 
-            for (const auto child : current->children(false)) {
-                pq.push(child);
+            auto children = current->children(false);
+            for (const auto child : children) {
+                next.push(child);
             }
             delete current;
         }
+        
+        // reset
+        while (!curr.empty()) {
+            auto state = curr.top();
+            curr.pop();
+            delete state;
+        }        
     }
 
     auto b = bestState.board();
