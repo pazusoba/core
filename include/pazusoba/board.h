@@ -12,6 +12,7 @@
 #include <array>
 #include <deque>
 #include <set>
+#include <vector>
 #include "constant.h"
 
 namespace pazusoba {
@@ -28,7 +29,7 @@ struct Combo {
     std::set<pint> loc;
     Combo(const orb& o) : info(o) {}
 };
-typedef std::deque<Combo> ComboList;
+typedef std::vector<Combo> ComboList;
 
 enum PrintStyle {
     test = 0,   // print it out like sample_board_65.txt
@@ -55,7 +56,6 @@ class Board {
     /// Used for empty reference
     orb _empty = 0;
     std::deque<pint> _queue;
-
     void eraseCombo(VisitedIndex*, Combo&, pint, pint);
 
 public:

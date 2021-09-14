@@ -161,7 +161,7 @@ void Board::eraseOrbs(ComboList& list) {
             // the speed very significantly
             eraseCombo(erased, combo, x, y);
             if (combo.loc.size() >= _minErase) {
-                list.push_front(combo);  // 24% here, can be optimized
+                list.push_back(combo);  // 24% here, can be optimized
                 // maybe a callback not sure how
             }
         }
