@@ -40,19 +40,15 @@ void Board::swap(pint one1, pint one2, pint two1, pint two2) {
     (*this)(two1, two2) = temp;
 }
 
-void Board::eraseCombo(VisitedIndex* visited,
-                       std::deque<pint>& queue,
-                       Combo& combo,
-                       pint ox,
-                       pint oy) {
+void Board::eraseCombo(VisitedIndex* visited, Combo& combo, pint ox, pint oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = (*this)[orb_index];
-    queue.emplace_front(orb_index);
+    _queue.emplace_front(orb_index);  // 25%
 
-    while (!queue.empty()) {
-        auto currIndex = queue.front();
-        queue.pop_front();
+    while (!_queue.empty()) {
+        auto currIndex = _queue.front();
+        _queue.pop_front();
         if (visited[currIndex].visited)
             continue;
         else
@@ -96,14 +92,14 @@ void Board::eraseCombo(VisitedIndex* visited,
             auto currIndex = INDEX_OF(i, y);
             if (vErase) {
                 // add this location and clear the orb
-                combo.loc.insert(currIndex);
+                combo.loc.insert(currIndex);  // 7.8%
                 _board[currIndex] = 0;
                 // to be visited
                 if (i != x)
-                    queue.emplace_front(currIndex);
+                    _queue.emplace_front(currIndex);
             } else {
                 // simply go and visit it
-                queue.emplace_front(currIndex);
+                _queue.emplace_front(currIndex);
             }
         }
 
@@ -139,12 +135,12 @@ void Board::eraseCombo(VisitedIndex* visited,
         for (pint i = hleftIndex; i <= hrightIndex; i++) {
             auto currIndex = INDEX_OF(x, i);
             if (hErase) {
-                combo.loc.insert(currIndex);
+                combo.loc.insert(currIndex);  // 7.8%
                 _board[currIndex] = 0;
                 if (i != y)
-                    queue.emplace_front(currIndex);
+                    _queue.emplace_front(currIndex);
             } else {
-                queue.emplace_front(currIndex);
+                _queue.emplace_front(currIndex);
             }
         }
     }
@@ -152,7 +148,6 @@ void Board::eraseCombo(VisitedIndex* visited,
 
 void Board::eraseOrbs(ComboList& list) {
     VisitedIndex* erased = new VisitedIndex[_size];
-    auto queue = std::deque<pint>();
 
     for (pint x = 0; x < _row; x++) {
         for (pint y = 0; y < _column; y++) {
@@ -162,9 +157,12 @@ void Board::eraseOrbs(ComboList& list) {
                 continue;
 
             Combo combo(orb);
-            eraseCombo(erased, queue, combo, x, y);
+            // 58%, can be optimised, improving eraseCombo can increase
+            // the speed very significantly
+            eraseCombo(erased, combo, x, y);
             if (combo.loc.size() >= _minErase) {
-                list.push_front(combo);
+                list.push_front(combo);  // 24% here, can be optimized
+                // maybe a callback not sure how
             }
         }
     }

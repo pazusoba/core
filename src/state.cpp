@@ -45,7 +45,7 @@ State::State(const Board& board,
 }
 
 void State::computeScore() {
-    ComboList list;
+    ComboList list;  // TODO: 515ms here, destructor is slow
     _score = 0;
 
     pint combo = 0;
@@ -103,7 +103,7 @@ void State::computeScore() {
 
     _combo = list.size();
     _score += _combo * 20;
-//     _score += moveCount * 2;
+    //     _score += moveCount * 2;
 }
 
 // Prevent code duplication

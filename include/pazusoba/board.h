@@ -54,8 +54,9 @@ class Board {
     pint _size = 0;
     /// Used for empty reference
     orb _empty = 0;
+    std::deque<pint> _queue;
 
-    void eraseCombo(VisitedIndex*, std::deque<pint>&, Combo&, pint, pint);
+    void eraseCombo(VisitedIndex*, Combo&, pint, pint);
 
 public:
     Board() {}
