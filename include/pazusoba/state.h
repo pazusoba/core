@@ -69,6 +69,7 @@ public:
     Route& route() { return _route; }
 
     bool operator<(const State&) const;
+    bool operator>(const State&) const;
 };
 }  // namespace pazusoba
 

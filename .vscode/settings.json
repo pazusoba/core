@@ -99,6 +99,7 @@
     "xmemory": "cpp",
     "xstddef": "cpp",
     "xtr1common": "cpp",
-    "version": "cpp"
+    "version": "cpp",
+    "filesystem": "cpp"
   }
 }

@@ -27,9 +27,11 @@ def clean():
     _clean("release")
     _clean("xcode")
 
+
 def _clean(folder: str):
     if os.path.exists(folder):
         shutil.rmtree(folder)
+
 
 def test():
     if not os.path.exists("debug/"):
@@ -41,6 +43,7 @@ def test():
     else:
         os.system("cd debug && make test_pazusoba && ./test_pazusoba")
 
+
 def binary():
     if not os.path.exists("release/"):
         make()
@@ -51,11 +54,13 @@ def binary():
     else:
         os.system("cd release && make pazusoba_binary")
 
+
 def xcode():
     if platform.system() == "Darwin":
         os.system("cmake -B xcode -G Xcode -D CMAKE_BUILD_TYPE=Debug")
         os.system("cp -r support xcode")
         os.system("open xcode/pazusoba.xcodeproj")
+
 
 argv = sys.argv
 argc = len(argv)

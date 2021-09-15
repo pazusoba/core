@@ -1,73 +1,108 @@
 #include <fmt/core.h>
+#include <pazusoba/constant.h>
 #include <pazusoba/queue.h>
 #include <pazusoba/solver/quick_search.h>
 #include <pazusoba/state.h>
-#include <mutex>
-#include <thread>
+#include <algorithm>
 #include <unordered_map>
 
 namespace pazusoba {
+pint QuickSearch::scan() {
+    pint info[pad::ORB_COUNT] = {0};
+    auto board = _parser.board();
+    for (pint i = 0; i < board.size(); i++) {
+        info[board[i]]++;
+    }
+
+    pint combo = 0;
+    for (int i = 0; i < pad::ORB_COUNT; i++) {
+        combo += info[i] / 3;
+    }
+    return combo;
+}
+
 State QuickSearch::solve() {
+    typedef std::priority_queue<State, std::vector<State>, ValueCompare>
+        QuickQueue;
     std::unordered_map<size_t, bool> visited;
     std::vector<State> states;
-    std::mutex mtx;
-    // auto push = [&](const State& state) {
-    //     mtx.lock();
-    //     states.push_back(state);
-    //     mtx.unlock();
-    // };
+    QuickQueue queue;
 
-    std::vector<std::thread> threads;
-    // Save one core for now
-    int processor_count = std::thread::hardware_concurrency() - 1;
-    // processor_count = 0;
-    if (processor_count == 0)
-        processor_count = 1;
-    fmt::print("Using {} threads\n", processor_count);
-    threads.reserve(processor_count);
+    // reserve enough space for all states
+    auto beamSize = _parser.beamSize();
+    states.reserve(beamSize * 4);
+
+    pint maxCombo = scan();
+    fmt::print("Max combo - {}\n", maxCombo);
 
     // setup all the initial states
     const Board& board = _parser.board();
     for (pint i = 0; i < board.size(); ++i) {
         // Need to add 0 for the initial state
-        states.emplace_back(board, _parser.maxSteps(), i);
+        queue.emplace(board, _parser.maxSteps(), i);
     }
 
     State bestState = states[0];
+    auto maxStep = _parser.maxSteps();
+    pint lastImprovement = 0;
     // Use Beam Search starting from step one
-    while (!states.empty()) {
-        fmt::print("array size: {}\n", states.size());
+    for (pint i = 0; i < maxStep; i++) {
+        // No improvement for a while, stop
+        for (pint j = 0; j < beamSize; j++) {
+            // Simply insert everything
+            if (queue.empty())
+                break;
 
-        for (int i = 0; i < processor_count; ++i) {
-            threads.emplace_back([&] {
-                if (states.empty() || states.size() > _parser.beamSize())
-                    return;
-                auto state = states.back();
-                mtx.lock();
-                states.pop_back();
-                auto hash = state.hash();
-                if (visited[hash]) {
-                    mtx.unlock();
-                    return;
-                } else {
-                    visited[hash] = true;
-                }
-                mtx.unlock();
+            auto current = queue.top();
+            queue.pop();
 
-                auto score = state.score();
-                if (score > bestState.score()) {
-                    bestState = state;
-                }
-                // state.children(push, false);
-            });
+            if (current.combo() >= maxCombo) {
+                auto b = current.board();
+                fmt::print("Best Score - {}\n", current.score());
+                fmt::print("Steps - {}\n", current.currentStep());
+                fmt::print("Combo - {}\n", current.combo());
+                fmt::print("{}\n", b.getFormattedBoard(dawnglare));
+                current.route().printRoute();
+                current.route().writeToDisk();
+                b.printBoard(colourful);
+                return current;
+            }
+
+            auto hash = current.hash();
+            if (visited[hash]) {
+                continue;
+            } else {
+                visited[hash] = true;
+            }
+
+            if (current.combo() > bestState.combo()) {
+                bestState = current;
+                lastImprovement = i;
+            }
+
+            // Generate all the next states
+            for (const auto state : current.children(false)) {
+                states.push_back(*state);
+            }
         }
 
-        for (auto& t : threads)
-            t.join();
-        threads.clear();
+        std::sort(states.begin(), states.end(), greater());
+
+        for (pint j = 0; j < beamSize; j++) {
+            queue.emplace(states[j]);
+        }
+
+        states.clear();
     }
 
-    fmt::print("{}\n", bestState.score());
+    auto b = bestState.board();
+    fmt::print("Best Score - {}\n", bestState.score());
+    fmt::print("Steps - {}\n", bestState.currentStep());
+    fmt::print("Combo - {}\n", bestState.combo());
+    fmt::print("{}\n", b.getFormattedBoard(dawnglare));
+    bestState.route().printRoute();
+    bestState.route().writeToDisk();
+    b.printBoard(colourful);
     return bestState;
 }
 }  // namespace pazusoba
