@@ -98,7 +98,7 @@ void State::computeScore() {
 
     auto minErase = _board.minErase();
     for (const auto& c : list) {
-        _score -= (c.loc.size() - minErase) * 10;
+        _score -= (c.loc.size() - minErase) * 20;
     }
 
     _combo = list.size();

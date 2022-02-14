@@ -25,7 +25,7 @@ endif
 # flto - linking
 OPTIMISATION=-O3 -flto -pthread -lpthread
 # shared arguments
-GCC=g++ -Wall -Werror
+GCC=g++  --std=c++11
 # GCC=g++ -Wall -Wextra -pedantic
 SHARED=-shared -fPIC
 
