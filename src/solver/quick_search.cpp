@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 namespace pazusoba {
+
 pint QuickSearch::scan() {
     pint info[pad::ORB_COUNT] = {0};
     auto board = _parser.board();
@@ -45,13 +46,15 @@ State QuickSearch::solve() {
     State bestState = states[0];
     auto maxStep = _parser.maxSteps();
     pint lastImprovement = 0;
+#pragma omp declare reduction (merge : std::vector<State> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
     // Use Beam Search starting from step one
+#pragma omp parallel for reduction(merge : states) shared(queue)
     for (pint i = 0; i < maxStep; i++) {
         // No improvement for a while, stop
         for (pint j = 0; j < beamSize; j++) {
             // Simply insert everything
             if (queue.empty())
-                break;
+                j = beamSize;
 
             auto current = queue.top();
             queue.pop();
@@ -65,7 +68,6 @@ State QuickSearch::solve() {
                 current.route().printRoute();
                 current.route().writeToDisk();
                 b.printBoard(colourful);
-                return current;
             }
 
             auto hash = current.hash();
