@@ -32,6 +32,10 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 link_libraries(Threads::Threads)
 
+# openmp for better multithreading
+find_package(OpenMP REQUIRED)
+link_libraries(OpenMP::OpenMP_CXX)
+
 message(STATUS "Add {fmt} module")
 # add {fmt} module
 add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
