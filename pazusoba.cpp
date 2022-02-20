@@ -2,7 +2,8 @@
 // Try to improve the performance of the solver while being flexible enough
 
 // Compile with
-// g++ pazusoba.cpp -std=c++11 -O2 -o pazusoba
+// mac: clang++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
+// windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
 #include <array>
 #include <iostream>
@@ -31,16 +32,28 @@ std::array<orb, ORB_COUNT> ORB_COUNTER;
 
 void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
-int calc_max_combo(const std::array<orb, ORB_COUNT>&, int, int);
+const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
+                         const int,
+                         const int);
 void parse_args(int argc, char* argv[]);
-void usage();
+const void usage();
 
 int main(int argc, char* argv[]) {
     parse_args(argc, argv);
+    explore();
     return 0;
 }
 
-void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
+void explore() {
+    int i = 0;
+#pragma omp parallel for reduction(+ : i)
+    for (int j = 0; j < 1000000; j++) {
+        i++;
+    }
+    printf("%d\n", i);
+}
+
+const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
         printf("%c", ORB_WEB_NAME[board[i]]);
@@ -48,9 +61,9 @@ void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("\n");
 }
 
-int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
-                   int size,
-                   int min_erase) {
+const int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
+                         const int size,
+                         const int min_erase) {
     // at least one combo when the board has only one orb
     int max_combo = 0;
     int threshold = size / 2;
@@ -58,6 +71,9 @@ int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
         int combo = count / min_erase;
         // based on my experience, it is not possible to do more combo
         // if one colour has more than half the board
+        // the max combo needs to be reduced by 2 times
+        // RRRRRRRRRRRRRRRRRRRRRRRRGGGBBB can do max 4 combos naively
+        // this is because R is taking up too much spaces
         // MAX_COMBO might not be 100% correct but it's a good reference
         if (count > threshold) {
             int extra_combo = (count - threshold) * 2 / min_erase;
@@ -117,6 +133,7 @@ void parse_args(int argc, char* argv[]) {
             }
             BOARD_SIZE = board_size;
 
+            // setup the board here by finding the orb using the string
             for (int i = 0; i < board_size; i++) {
                 char orb_char = board_string[i];
                 // find the orb name from ORB_WEB_NAME and make it a number
@@ -165,7 +182,7 @@ void parse_args(int argc, char* argv[]) {
     printf("====================================\n");
 }
 
-void usage() {
+const void usage() {
     printf(
         "\nusage: pazusoba [board string] [min erase] [max steps] [max "
         "beam size]\nboard string\t-- "
