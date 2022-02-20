@@ -5,8 +5,11 @@
 // mac: clang++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 // windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
+#include <omp.h>
 #include <array>
 #include <iostream>
+#include <queue>
+#include <vector>
 
 namespace pazusoba {
 #define MAX_DEPTH 150
@@ -18,9 +21,12 @@ namespace pazusoba {
 const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
                                       'J', ' ', 'P', ' ', ' ', ' ', ' '};
 
-typedef unsigned char orb;
+typedef unsigned char orb, tiny;
 
-struct state {};
+struct state {
+    tiny combo;
+    int operator>(const state& other) const { return combo > other.combo; }
+};
 
 ///
 /// global variables, they shouldn't be changed outside parse_args()
@@ -49,7 +55,43 @@ const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
 void parse_args(int argc, char* argv[]);
 const void usage();
 
-void explore() {}
+void explore() {
+    // setup the state, non blocking
+    std::vector<state> look;
+    look.reserve(BEAM_SIZE);
+    // insert to temp, sort and copy back to look
+    std::vector<state> temp;
+    temp.reserve(BEAM_SIZE * 3);
+
+    for (int i = 0; i < MAX_DEPTH; i++) {
+#pragma omp parallel for
+        for (int j = 0; j < BEAM_SIZE; j++) {
+            const state& curr = look[j];
+            // go to next state from current state, no going back
+            state copy = curr;
+            temp[j * 3] = copy;
+            state copy2 = curr;
+            temp[j * 3 + 1] = copy;
+            state copy3 = curr;
+            temp[j * 3 + 2] = copy;
+        }
+
+        printf("Depth %d - sorting\n", i);
+        // sorting
+        std::sort(temp.begin(),
+                  temp.begin() + (BEAM_SIZE * 3 - 1) * sizeof(state),
+                  std::greater<state>());
+
+        // test only, make sure better scores are on the top
+        for (int i = 0; i < 10; i++) {
+            printf("%d: %d\n", i, temp[i].combo);
+        }
+
+        // copy data over, use memcpy to speed up if needed
+        std::copy(temp.begin(), temp.begin() + (BEAM_SIZE - 1) * sizeof(state),
+                  look.begin());
+    }
+}
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("board: ");
