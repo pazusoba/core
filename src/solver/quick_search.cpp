@@ -46,9 +46,7 @@ State QuickSearch::solve() {
     State bestState = states[0];
     auto maxStep = _parser.maxSteps();
     pint lastImprovement = 0;
-#pragma omp declare reduction (merge : std::vector<State> : omp_out.insert(omp_out.end(), omp_in.begin(), omp_in.end()))
     // Use Beam Search starting from step one
-#pragma omp parallel for reduction(merge : states) shared(queue)
     for (pint i = 0; i < maxStep; i++) {
         // No improvement for a while, stop
         for (pint j = 0; j < beamSize; j++) {
