@@ -47,7 +47,7 @@ void testAll() {
     testBoard();
     testState();
     testBoardErase();
-    testQueue();
+    // testQueue();
     testSearch();
 }
 
@@ -467,7 +467,7 @@ void testQueue() {
     }
     auto targetSize = thread_size * processor_count;
 
-    queue.group();
+    // queue.group();
     assert(queue.size() == (int)targetSize);
 
     pazusoba::pint counter = 0;
