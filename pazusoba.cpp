@@ -24,11 +24,14 @@ int SEARCH_DEPTH = 100;
 int BEAM_SIZE = 5000;
 int ROW, COLUMN;
 int MAX_COMBO;
+int BOARD_SIZE;
 std::array<orb, MAX_BOARD_LENGTH> BOARD;
 // count the number of each orb to calculate the max combo (not 100% correct)
 std::array<orb, ORB_COUNT> ORB_COUNTER;
 
-void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board);
+void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
+// A naive way to approach max combo, mostly accurate unless it is two colour
+int calc_max_combo(const std::array<orb, ORB_COUNT>&, int);
 void parse_args(int argc, char* argv[]);
 void usage();
 
@@ -43,6 +46,27 @@ void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
         printf("%c", ORB_WEB_NAME[board[i]]);
     }
     printf("\n");
+}
+
+int calc_max_combo(const std::array<orb, ORB_COUNT>& counter, int size) {
+    // at least one combo when the board has only one orb
+    int max_combo = 0;
+    int threshold = size / 2;
+    for (const auto& count : ORB_COUNTER) {
+        int combo = count / MIN_ERASE;
+        // based on my experience, it is not possible to do more combo
+        // if one colour has more than half the board
+        // MAX_COMBO might not be 100% correct but it's a good reference
+        if (count > threshold) {
+            int extra_combo = (count - threshold) * 2 / MIN_ERASE;
+            combo -= extra_combo;
+        }
+        max_combo += combo;
+    }
+
+    if (max_combo == 0)
+        return 1;
+    return max_combo;
 }
 
 void parse_args(int argc, char* argv[]) {
@@ -71,6 +95,7 @@ void parse_args(int argc, char* argv[]) {
             printf("=============== INFO ===============\n");
             auto board_string = argv[1];
             int board_size = strlen(board_string);
+
             // there are only 3 fixed size board -> 20, 30 or 42
             if (board_size > MAX_BOARD_LENGTH) {
                 printf("Board string is too long\n");
@@ -88,8 +113,8 @@ void parse_args(int argc, char* argv[]) {
                 printf("Unsupported board size - %d\n", board_size);
                 exit(1);
             }
+            BOARD_SIZE = board_size;
 
-            printf("board size: %d\n", board_size);
             for (int i = 0; i < board_size; i++) {
                 char orb_char = board_string[i];
                 // find the orb name from ORB_WEB_NAME and make it a number
@@ -110,20 +135,7 @@ void parse_args(int argc, char* argv[]) {
                 }
             }
 
-            int max_combo = 0;
-            int threshold = board_size / 2;
-            for (const auto& count : ORB_COUNTER) {
-                int combo = count / MIN_ERASE;
-                // based on my experience, it is not possible to do more combo
-                // if one colour has more than half the board
-                // MAX_COMBO might not be 100% correct but it's a good reference
-                if (combo > threshold) {
-                    int extra_combo = (threshold - count) / MIN_ERASE;
-                    combo -= extra_combo;
-                }
-                max_combo += combo;
-            }
-            MAX_COMBO = max_combo;
+            MAX_COMBO = calc_max_combo(ORB_COUNTER, board_size);
         }
     }
 
@@ -141,8 +153,9 @@ void parse_args(int argc, char* argv[]) {
         BEAM_SIZE = beam_size;
     }
 
-    printf("row x column: %d x %d\n", ROW, COLUMN);
     print_board(BOARD);
+    printf("board size: %d\n", BOARD_SIZE);
+    printf("row x column: %d x %d\n", ROW, COLUMN);
     printf("min_erase: %d\n", MIN_ERASE);
     printf("max_combo: %d\n", MAX_COMBO);
     printf("search_depth: %d\n", SEARCH_DEPTH);
