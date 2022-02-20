@@ -6,7 +6,9 @@
 // windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
 #include <omp.h>
+#include <algorithm>
 #include <array>
+#include <cstring>
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -24,8 +26,16 @@ const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
 typedef unsigned char orb, tiny;
 
 struct state {
-    tiny combo;
-    int operator>(const state& other) const { return combo > other.combo; }
+    // optional board here, but it is will slown down things
+    tiny combo = 0;
+    unsigned short int score = -1;
+    tiny begin = -1;
+    tiny prev = -1;
+    // 64 bits can store 21 steps 4 + 3 * 20
+    // if we don't include diagonals,
+    // 64 bits can store 31 steps 3 + 2 * 30
+    long long int steps[MAX_DEPTH / 21 + 1];
+    int operator>(const state& other) const { return score > other.score; }
 };
 
 ///
@@ -62,19 +72,34 @@ void explore() {
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
     temp.reserve(BEAM_SIZE * 3);
-
+    state best_state;
+    bool found_max_combo = false;
     for (int i = 0; i < MAX_DEPTH; i++) {
 #pragma omp parallel for
         for (int j = 0; j < BEAM_SIZE; j++) {
+            if (found_max_combo)
+                continue;
+
             const state& curr = look[j];
+            if (curr.combo >= MAX_COMBO) {
+                best_state = curr;
+                found_max_combo = true;
+            }
             // go to next state from current state, no going back
             state copy = curr;
+            if (i > 55)
+                copy.combo = 10;
             temp[j * 3] = copy;
             state copy2 = curr;
             temp[j * 3 + 1] = copy;
             state copy3 = curr;
             temp[j * 3 + 2] = copy;
         }
+
+        // break out as soon as max combo or target is found
+        // TODO: this should be the target
+        if (found_max_combo)
+            break;
 
         printf("Depth %d - sorting\n", i);
         // sorting
@@ -83,14 +108,16 @@ void explore() {
                   std::greater<state>());
 
         // test only, make sure better scores are on the top
-        for (int i = 0; i < 10; i++) {
-            printf("%d: %d\n", i, temp[i].combo);
-        }
+        // for (int i = 0; i < 10; i++) {
+        //     printf("%d: %d\n", i, temp[i].combo);
+        // }
 
         // copy data over, use memcpy to speed up if needed
         std::copy(temp.begin(), temp.begin() + (BEAM_SIZE - 1) * sizeof(state),
                   look.begin());
     }
+
+    printf("best score: %d\n", best_state.combo);
 }
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
