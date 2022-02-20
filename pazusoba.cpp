@@ -31,7 +31,7 @@ std::array<orb, ORB_COUNT> ORB_COUNTER;
 
 void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
-int calc_max_combo(const std::array<orb, ORB_COUNT>&, int);
+int calc_max_combo(const std::array<orb, ORB_COUNT>&, int, int);
 void parse_args(int argc, char* argv[]);
 void usage();
 
@@ -48,17 +48,19 @@ void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("\n");
 }
 
-int calc_max_combo(const std::array<orb, ORB_COUNT>& counter, int size) {
+int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
+                   int size,
+                   int min_erase) {
     // at least one combo when the board has only one orb
     int max_combo = 0;
     int threshold = size / 2;
-    for (const auto& count : ORB_COUNTER) {
-        int combo = count / MIN_ERASE;
+    for (const auto& count : counter) {
+        int combo = count / min_erase;
         // based on my experience, it is not possible to do more combo
         // if one colour has more than half the board
         // MAX_COMBO might not be 100% correct but it's a good reference
         if (count > threshold) {
-            int extra_combo = (count - threshold) * 2 / MIN_ERASE;
+            int extra_combo = (count - threshold) * 2 / min_erase;
             combo -= extra_combo;
         }
         max_combo += combo;
@@ -135,7 +137,7 @@ void parse_args(int argc, char* argv[]) {
                 }
             }
 
-            MAX_COMBO = calc_max_combo(ORB_COUNTER, board_size);
+            MAX_COMBO = calc_max_combo(ORB_COUNTER, BOARD_SIZE, MIN_ERASE);
         }
     }
 
