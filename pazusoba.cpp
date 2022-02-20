@@ -8,6 +8,7 @@
 #include <array>
 #include <iostream>
 
+namespace pazusoba {
 #define MAX_DEPTH 150
 #define MIN_BEAM_SIZE 1000
 #define MAX_BOARD_LENGTH 42
@@ -19,7 +20,11 @@ const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
 
 typedef unsigned char orb;
 
-// global variables, they shouldn't be changed once set
+struct state {};
+
+///
+/// global variables, they shouldn't be changed outside parse_args()
+///
 int MIN_ERASE = 3;
 int SEARCH_DEPTH = 100;
 int BEAM_SIZE = 5000;
@@ -30,7 +35,13 @@ std::array<orb, MAX_BOARD_LENGTH> BOARD;
 // count the number of each orb to calculate the max combo (not 100% correct)
 std::array<orb, ORB_COUNT> ORB_COUNTER;
 
-void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
+///
+/// const marks the function pure and testable
+///
+
+// find the best possible move by exploring the board
+void explore();
+const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
                          const int,
@@ -38,20 +49,7 @@ const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
 void parse_args(int argc, char* argv[]);
 const void usage();
 
-int main(int argc, char* argv[]) {
-    parse_args(argc, argv);
-    explore();
-    return 0;
-}
-
-void explore() {
-    int i = 0;
-#pragma omp parallel for reduction(+ : i)
-    for (int j = 0; j < 1000000; j++) {
-        i++;
-    }
-    printf("%d\n", i);
-}
+void explore() {}
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("board: ");
@@ -192,4 +190,11 @@ const void usage() {
         "larger number means slower speed but better results\n\nMore "
         "at https://github.com/HenryQuan/pazusoba\n\n");
     exit(0);
+}
+};  // namespace pazusoba
+
+int main(int argc, char* argv[]) {
+    pazusoba::parse_args(argc, argv);
+    pazusoba::explore();
+    return 0;
 }
