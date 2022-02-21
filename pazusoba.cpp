@@ -32,17 +32,11 @@ struct state {
     tiny begin = -1;
     tiny prev = -1;
     tiny step = 0;
-    unsigned int id = 0;
     // 64 bits can store 21 steps 4 + 3 * 20
     // if we don't include diagonals,
     // 64 bits can store 31 steps 3 + 2 * 30
-    long long int steps[MAX_DEPTH / 21 + 1];
-    int operator>(const state& other) const {
-        // TODO: this is a problem for sort
-        if (score == other.score)
-            return id < other.id;
-        return score > other.score;
-    }
+    std::array<long long int, MAX_DEPTH / 21 + 1> route;
+    int operator>(const state& other) const { return score > other.score; }
 };
 
 ///
@@ -76,10 +70,13 @@ const void usage();
 void explore() {
     // setup the state, non blocking
     std::vector<state> look;
-    look.reserve(BEAM_SIZE);
+    look.resize(BEAM_SIZE);
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
-    temp.reserve(BEAM_SIZE * 3);
+    temp.resize(BEAM_SIZE * 3);
+    // TODO: using array can definitely things a lot because the vector needs to
+    // write a lot of useless data before using it, reverse is better but the
+    // address calculation can be tricky
 
     state best_state;
     bool found_max_combo = false;
@@ -101,14 +98,11 @@ void explore() {
             state copy = curr;
             if (i > 55)
                 copy.combo = 10;
-            copy.id = j * 3;
             temp[j * 3] = copy;
             state copy2 = curr;
             copy2.score = i;
-            copy2.id = j * 3 + 1;
             temp[j * 3 + 1] = copy2;
             state copy3 = curr;
-            copy3.id = j * 3 + 2;
             copy3.score = i * 2;
             temp[j * 3 + 2] = copy3;
         }
@@ -119,20 +113,19 @@ void explore() {
             break;
 
         printf("Depth %d - sorting\n", i);
-        // test only, make sure better scores are on the top
-        for (int i = 0; i < 10; i++) {
-            // printf("%d: %d\n", i, temp[i].score);
-            printf("%d: %d\n", i, temp[i].id);
-        }
 
         // sorting
-        std::sort(temp.begin(),
-                  temp.begin() + (BEAM_SIZE * 3 - 1) * sizeof(state),
-                  std::greater<state>());
+        auto begin = temp.begin();
+        auto end = temp.end();
+        std::sort(begin, end, std::greater<state>());
+        // test only, make sure better scores are on the top
+        // for (int i = 0; i < 10; i++) {
+        //     printf("%d: %d\n", i, temp[i].score);
+        // }
 
-        // copy data over, use memcpy to speed up if needed
-        std::copy(temp.begin(), temp.begin() + (BEAM_SIZE - 1) * sizeof(state),
-                  look.begin());
+        // (end - begin) gets the size of the vector, divide by 3 to get the
+        // number of states we consider in the next step
+        std::copy(begin, begin + (end - begin) / 3, look.begin());
     }
 
     printf("best score: %d\n", best_state.combo);
