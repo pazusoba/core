@@ -17,25 +17,42 @@ namespace pazusoba {
 #define MAX_DEPTH 150
 #define MIN_BEAM_SIZE 1000
 #define MAX_BOARD_LENGTH 42
+
 #define ORB_COUNT 14
+#define DIRECTION_COUNT 8
+
+typedef unsigned char orb, tiny;
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
 const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
                                       'J', ' ', 'P', ' ', ' ', ' ', ' '};
 
-typedef unsigned char orb, tiny;
+// initalise after board size is decided
+tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
+/// All 8 possible directions
+enum DIRECTIONS {
+    up = 0,
+    down,
+    left,
+    right,
+    // after right, all moves are diagonal
+    up_left,
+    up_right,
+    down_left,
+    down_right
+};
 
 struct state {
     // optional board here, but it is will slown down things
-    tiny combo = 0;
-    short int score = 0;
-    tiny begin = -1;
-    tiny prev = -1;
+    tiny combo;
+    tiny begin;
+    tiny prev;
     tiny step = 0;
+    short int score;
     // 64 bits can store 21 steps 4 + 3 * 20
     // if we don't include diagonals,
     // 64 bits can store 31 steps 3 + 2 * 30
-    std::array<long long int, MAX_DEPTH / 21 + 1> route;
+    std::array<long long int, MAX_DEPTH / 21 + 1> route{0};
     int operator>(const state& other) const { return score > other.score; }
 };
 
@@ -58,7 +75,11 @@ std::array<orb, ORB_COUNT> ORB_COUNTER;
 
 // find the best possible move by exploring the board
 void explore();
-inline void expand();
+// expand current state to all possible next moves
+inline void expand(const std::array<orb, MAX_BOARD_LENGTH>&,
+                   const state&,
+                   const std::vector<state>&,
+                   int);
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
@@ -81,9 +102,15 @@ void explore() {
     state best_state;
     bool found_max_combo = false;
 
-    // setup the initial step
+    // assign all possible states to look
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        state curr;
+        curr.begin = i;
+        look[i] = curr;
+    }
 
-    for (int i = 1; i < MAX_DEPTH; i++) {
+    // beam search with openmp
+    for (int i = 1; i < SEARCH_DEPTH; i++) {
 #pragma omp parallel for
         for (int j = 0; j < BEAM_SIZE; j++) {
             if (found_max_combo)
@@ -94,17 +121,8 @@ void explore() {
                 best_state = curr;
                 found_max_combo = true;
             }
-            // go to next state from current state, no going back
-            state copy = curr;
-            if (i > 55)
-                copy.combo = 10;
-            temp[j * 3] = copy;
-            state copy2 = curr;
-            copy2.score = i;
-            temp[j * 3 + 1] = copy2;
-            state copy3 = curr;
-            copy3.score = i * 2;
-            temp[j * 3 + 2] = copy3;
+
+            expand(BOARD, curr, temp, j);
         }
 
         // break out as soon as max combo or target is found
@@ -112,7 +130,8 @@ void explore() {
         if (found_max_combo)
             break;
 
-        printf("Depth %d - sorting\n", i);
+        // printf("%d... ", i);
+        printf("Depth %d - sorting\n", i + 1);
 
         // sorting
         auto begin = temp.begin();
@@ -131,7 +150,38 @@ void explore() {
     printf("best score: %d\n", best_state.combo);
 }
 
-inline void expand() {}
+inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
+                   const state& current,
+                   const std::vector<state>& states,
+                   int loc) {
+    auto step = current.step;
+    auto prev = step == 0 ? current.begin : current.prev;
+
+    for (int i = 0; i < DIRECTION_COUNT; i++) {
+        if (i > 3)
+            break;
+        switch (i) {
+            case up:
+                break;
+            case down:
+                break;
+            case left:
+                break;
+            case right:
+                break;
+            case up_left:
+                break;
+            case up_right:
+                break;
+            case down_left:
+                break;
+            case down_right:
+                break;
+            default:
+                break;
+        }
+    }
+}
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("board: ");
@@ -212,6 +262,16 @@ void parse_args(int argc, char* argv[]) {
                 exit(1);
             }
             BOARD_SIZE = board_size;
+
+            // set up DIRECTION_ADJUSTMENTS
+            DIRECTION_ADJUSTMENTS[0] = -COLUMN;
+            DIRECTION_ADJUSTMENTS[1] = COLUMN;
+            DIRECTION_ADJUSTMENTS[2] = -1;
+            DIRECTION_ADJUSTMENTS[3] = 1;
+            DIRECTION_ADJUSTMENTS[4] = -COLUMN - 1;
+            DIRECTION_ADJUSTMENTS[5] = -COLUMN + 1;
+            DIRECTION_ADJUSTMENTS[6] = COLUMN - 1;
+            DIRECTION_ADJUSTMENTS[7] = COLUMN + 1;
 
             // setup the board here by finding the orb using the string
             for (int i = 0; i < board_size; i++) {
