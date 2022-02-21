@@ -28,14 +28,21 @@ typedef unsigned char orb, tiny;
 struct state {
     // optional board here, but it is will slown down things
     tiny combo = 0;
-    unsigned short int score = -1;
+    short int score = 0;
     tiny begin = -1;
     tiny prev = -1;
+    tiny step = 0;
+    unsigned int id = 0;
     // 64 bits can store 21 steps 4 + 3 * 20
     // if we don't include diagonals,
     // 64 bits can store 31 steps 3 + 2 * 30
     long long int steps[MAX_DEPTH / 21 + 1];
-    int operator>(const state& other) const { return score > other.score; }
+    int operator>(const state& other) const {
+        // TODO: this is a problem for sort
+        if (score == other.score)
+            return id < other.id;
+        return score > other.score;
+    }
 };
 
 ///
@@ -57,6 +64,7 @@ std::array<orb, ORB_COUNT> ORB_COUNTER;
 
 // find the best possible move by exploring the board
 void explore();
+inline void expand();
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
@@ -72,9 +80,13 @@ void explore() {
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
     temp.reserve(BEAM_SIZE * 3);
+
     state best_state;
     bool found_max_combo = false;
-    for (int i = 0; i < MAX_DEPTH; i++) {
+
+    // setup the initial step
+
+    for (int i = 1; i < MAX_DEPTH; i++) {
 #pragma omp parallel for
         for (int j = 0; j < BEAM_SIZE; j++) {
             if (found_max_combo)
@@ -89,11 +101,16 @@ void explore() {
             state copy = curr;
             if (i > 55)
                 copy.combo = 10;
+            copy.id = j * 3;
             temp[j * 3] = copy;
             state copy2 = curr;
-            temp[j * 3 + 1] = copy;
+            copy2.score = i;
+            copy2.id = j * 3 + 1;
+            temp[j * 3 + 1] = copy2;
             state copy3 = curr;
-            temp[j * 3 + 2] = copy;
+            copy3.id = j * 3 + 2;
+            copy3.score = i * 2;
+            temp[j * 3 + 2] = copy3;
         }
 
         // break out as soon as max combo or target is found
@@ -102,15 +119,16 @@ void explore() {
             break;
 
         printf("Depth %d - sorting\n", i);
+        // test only, make sure better scores are on the top
+        for (int i = 0; i < 10; i++) {
+            // printf("%d: %d\n", i, temp[i].score);
+            printf("%d: %d\n", i, temp[i].id);
+        }
+
         // sorting
         std::sort(temp.begin(),
                   temp.begin() + (BEAM_SIZE * 3 - 1) * sizeof(state),
                   std::greater<state>());
-
-        // test only, make sure better scores are on the top
-        // for (int i = 0; i < 10; i++) {
-        //     printf("%d: %d\n", i, temp[i].combo);
-        // }
 
         // copy data over, use memcpy to speed up if needed
         std::copy(temp.begin(), temp.begin() + (BEAM_SIZE - 1) * sizeof(state),
@@ -119,6 +137,8 @@ void explore() {
 
     printf("best score: %d\n", best_state.combo);
 }
+
+inline void expand() {}
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
     printf("board: ");
