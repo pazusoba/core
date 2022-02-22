@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 #include <queue>
+#include <set>
 #include <vector>
 
 namespace pazusoba {
@@ -71,6 +72,14 @@ struct orb_distance {
     tiny max = 0;
 };
 
+// TODO: can be updated
+struct Combo {
+    orb info;
+    std::set<tiny> loc;
+    Combo(const orb& o) : info(o) {}
+};
+typedef std::vector<Combo> ComboList;
+
 ///
 /// global variables, they shouldn't be changed outside parse_args()
 ///
@@ -97,6 +106,10 @@ inline void expand(const std::array<orb, MAX_BOARD_LENGTH>&,
                    int);
 // erase the board, count the combo and calculate the score
 inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>&, state&);
+// TODO: can be improved
+void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>&, Combo&, tiny, tiny);
+void erase_orbs(ComboList&);
+void move_orbs_down();
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
@@ -252,7 +265,183 @@ inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
     }
 
     // erase the board and find out the combo number
-    new_state.score = score;
+    ComboList list;  // TODO: 515ms here, destructor is slow
+
+    tiny combo = 0;
+    tiny moveCount = 0;
+    while (true) {
+        _erased.eraseOrbs(list);
+        tiny comboCount = list.size();
+        // Check if there are more combo
+        if (comboCount > combo) {
+            _erased.moveOrbsDown();
+            combo = comboCount;
+            moveCount++;
+        } else {
+            break;
+        }
+    }
+    combo = list.size();
+    new_state.score = score + (combo * 20);
+}
+
+void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
+                 Combo& combo,
+                 tiny ox,
+                 tiny oy) {
+    // assume this index is valid
+    auto orb_index = INDEX_OF(ox, oy);
+    auto orb = (*this)[orb_index];
+    // should reduce the time, this function is called but how?
+    _queue.emplace_front(orb_index);  // 25%
+
+    while (!_queue.empty()) {
+        auto currIndex = _queue.front();
+        _queue.pop_front();
+        if (visited[currIndex].visited)
+            continue;
+        else
+            visited[currIndex].visited = 1;
+
+        tiny x = currIndex / COLUMN;
+        // tiny y = currIndex % COLUMN;
+        tiny y = currIndex - x * COLUMN;
+
+        // Check vertically from x
+        // go up from x
+        bool vup = true;
+        tiny vupIndex = x;
+        while (vup) {
+            tiny cx = vupIndex - 1;
+            if (cx >= ROW) {
+                vup = false;
+            } else if ((*this)(cx, y) == orb) {
+                vupIndex--;
+            } else {
+                vup = false;
+            }
+        }
+        // go down from x
+        bool vdown = true;
+        tiny vdownIndex = x;
+        while (vdown) {
+            tiny cx = vdownIndex + 1;
+            if (cx >= ROW) {
+                vdown = false;
+            } else if ((*this)(cx, y) == orb) {
+                vdownIndex++;
+            } else {
+                vdown = false;
+            }
+        }
+
+        // as long as three orbs are connected, it can be erased
+        // min erase doesn't matter at all here
+        bool vErase = vdownIndex - vupIndex >= 2;
+        for (tiny i = vupIndex; i <= vdownIndex; i++) {
+            auto currIndex = INDEX_OF(i, y);
+            if (vErase) {
+                // add this location and clear the orb
+                combo.loc.insert(currIndex);  // 7.8%
+                _board[currIndex] = 0;
+                // to be visited
+                if (i != x)
+                    _queue.emplace_front(currIndex);
+            } else {
+                // simply go and visit it
+                _queue.emplace_front(currIndex);
+            }
+        }
+
+        // Check horizontally from y
+        // go left from y
+        bool hleft = true;
+        tiny hleftIndex = y;
+        while (hleft) {
+            tiny cy = hleftIndex - 1;
+            if (cy >= COLUMN) {
+                hleft = false;
+            } else if ((*this)(x, cy) == orb) {
+                hleftIndex--;
+            } else {
+                hleft = false;
+            }
+        }
+        // go right from y
+        bool hright = true;
+        tiny hrightIndex = y;
+        while (hright) {
+            tiny cy = hrightIndex + 1;
+            if (cy >= COLUMN) {
+                hright = false;
+            } else if ((*this)(x, cy) == orb) {
+                hrightIndex++;
+            } else {
+                hright = false;
+            }
+        }
+
+        bool hErase = hrightIndex - hleftIndex >= 2;
+        for (tiny i = hleftIndex; i <= hrightIndex; i++) {
+            auto currIndex = INDEX_OF(x, i);
+            if (hErase) {
+                combo.loc.insert(currIndex);  // 7.8%
+                _board[currIndex] = 0;
+                if (i != y)
+                    _queue.emplace_front(currIndex);
+            } else {
+                _queue.emplace_front(currIndex);
+            }
+        }
+    }
+}
+
+void erase_orbs(ComboList& list) {
+    std::array<tiny, MAX_BOARD_LENGTH> erased;
+
+    for (tiny x = 0; x < ROW; x++) {
+        for (tiny y = 0; y < COLUMN; y++) {
+            auto orb = (*this)(x, y);
+            // ignore empty orbs
+            if (orb == pad::empty)
+                continue;
+
+            Combo combo(orb);
+            // 58%, can be optimised, improving eraseCombo can increase
+            // the speed very significantly
+            erase_combo(erased, combo, x, y);
+            if (combo.loc.size() >= MIN_ERASE) {
+                list.push_back(combo);  // 24% here, can be optimized
+                // maybe a callback not sure how
+            }
+        }
+    }
+}
+
+void move_orbs_down() {
+    // TODO: maybe should taking min erase into account
+    // because it is impossible to erase only one orb
+    for (tiny i = 0; i < COLUMN; ++i) {
+        int emptyIndex = -1;
+        // signed type is needed or otherwise, j >= won't terminate at all
+        // because after -1 is the max value again
+        for (int j = ROW - 1; j >= 0; --j) {
+            auto index = INDEX_OF(j, i);
+            auto orb = (*this)[index];
+            if (orb == 0) {
+                // Don't override empty index if available
+                if (emptyIndex == -1)
+                    emptyIndex = j;
+            } else if (emptyIndex != -1) {
+                // replace last known empty index
+                // and replace it with current index
+                (*this)(emptyIndex, i) = orb;
+                (*this)[index] = 0;
+                // simply move it up from last index
+                --emptyIndex;
+            }
+        }
+    }
 }
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
