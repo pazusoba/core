@@ -96,7 +96,7 @@ inline void expand(const std::array<orb, MAX_BOARD_LENGTH>&,
                    std::vector<state>&,
                    int);
 // erase the board, count the combo and calculate the score
-inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>&, const state&);
+inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>&, state&);
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
@@ -161,17 +161,19 @@ void explore() {
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
 
-        for (int i = 0; i < 10; i++) {
-            print_board(temp[i].board);
-        }
+        // for (int i = 0; i < 10; i++) {
+        //     print_board(temp[i].board);
+        //     DEBUG_PRINT("%d\n", temp[i].score);
+        // }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
         std::copy(begin, begin + (end - begin) / 3, look.begin());
-        print_board(look[0].board);
+        best_state = look[0];
     }
 
     DEBUG_PRINT("best score: %d\n", best_state.combo);
+    print_board(best_state.board);
 }
 
 inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
@@ -212,7 +214,6 @@ inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
             new_state.board = BOARD;
         else
             new_state.board = current.board;
-        print_board(new_state.board);
 
         // swap the board
         auto& new_board = new_state.board;
@@ -231,7 +232,7 @@ inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
 }
 
 inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
-                     const state& new_state) {
+                     state& new_state) {
     short int score = 0;
     // scan the board to get the distance between each orb
     orb_distance distance[ORB_COUNT];
@@ -251,6 +252,7 @@ inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
     }
 
     // erase the board and find out the combo number
+    new_state.score = score;
 }
 
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
