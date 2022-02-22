@@ -14,9 +14,16 @@
 #include <vector>
 
 namespace pazusoba {
+#define DEBUG 1
+#define DEBUG_PRINT(...) \
+    if (DEBUG)           \
+        printf(__VA_ARGS__);
+
 #define MAX_DEPTH 150
 #define MIN_BEAM_SIZE 1000
 #define MAX_BOARD_LENGTH 42
+#define MIN_STATE_SCORE -9999
+#define ALLOW_DIAGONAL 0
 
 #define ORB_COUNT 14
 #define DIRECTION_COUNT 8
@@ -43,17 +50,25 @@ enum DIRECTIONS {
 };
 
 struct state {
-    // optional board here, but it is will slown down things
-    tiny combo;
+    // could be improved by swapping indexes instead of copying
+    std::array<orb, MAX_BOARD_LENGTH> board;
     tiny begin;
     tiny prev;
+    tiny curr;
     tiny step = 0;
-    short int score;
-    // 64 bits can store 21 steps 4 + 3 * 20
+    tiny combo = 0;
+    short int score = MIN_STATE_SCORE;
+    // 64 bits can store 21 steps 3 * 21
     // if we don't include diagonals,
-    // 64 bits can store 31 steps 3 + 2 * 30
+    // 64 bits can store 32 steps 2 * 32
     std::array<long long int, MAX_DEPTH / 21 + 1> route{0};
     int operator>(const state& other) const { return score > other.score; }
+};
+
+// this helps to calculate the distance between a kind of orb
+struct orb_distance {
+    tiny min = 0;
+    tiny max = 0;
 };
 
 ///
@@ -78,8 +93,10 @@ void explore();
 // expand current state to all possible next moves
 inline void expand(const std::array<orb, MAX_BOARD_LENGTH>&,
                    const state&,
-                   const std::vector<state>&,
+                   std::vector<state>&,
                    int);
+// erase the board, count the combo and calculate the score
+inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>&, const state&);
 const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
@@ -104,25 +121,31 @@ void explore() {
 
     // assign all possible states to look
     for (int i = 0; i < BOARD_SIZE; ++i) {
-        state curr;
-        curr.begin = i;
-        look[i] = curr;
+        state new_state;
+        new_state.curr = i;
+        new_state.prev = i;
+        new_state.begin = i;
+        new_state.score = 0;
+        look[i] = new_state;
     }
 
     // beam search with openmp
-    for (int i = 1; i < SEARCH_DEPTH; i++) {
-#pragma omp parallel for
+    for (int i = 0; i < SEARCH_DEPTH; i++) {
+#pragma omp parallel for shared(look, temp)
         for (int j = 0; j < BEAM_SIZE; j++) {
             if (found_max_combo)
-                continue;
+                continue;  // early stop
 
             const state& curr = look[j];
+            if (curr.score == MIN_STATE_SCORE)
+                continue;  // uninitialized state
+
             if (curr.combo >= MAX_COMBO) {
                 best_state = curr;
                 found_max_combo = true;
             }
 
-            expand(BOARD, curr, temp, j);
+            expand(curr.board, curr, temp, j);
         }
 
         // break out as soon as max combo or target is found
@@ -130,65 +153,112 @@ void explore() {
         if (found_max_combo)
             break;
 
-        // printf("%d... ", i);
-        printf("Depth %d - sorting\n", i + 1);
+        // DEBUG_PRINT("%d... ", i);
+        DEBUG_PRINT("Depth %d - sorting\n", i + 1);
 
         // sorting
         auto begin = temp.begin();
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
-        // test only, make sure better scores are on the top
-        // for (int i = 0; i < 10; i++) {
-        //     printf("%d: %d\n", i, temp[i].score);
-        // }
+
+        for (int i = 0; i < 10; i++) {
+            print_board(temp[i].board);
+        }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
         std::copy(begin, begin + (end - begin) / 3, look.begin());
+        print_board(look[0].board);
     }
 
-    printf("best score: %d\n", best_state.combo);
+    DEBUG_PRINT("best score: %d\n", best_state.combo);
 }
 
 inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
                    const state& current,
-                   const std::vector<state>& states,
+                   std::vector<state>& states,
                    int loc) {
-    auto step = current.step;
-    auto prev = step == 0 ? current.begin : current.prev;
+    int count = DIRECTION_COUNT;
+    if (!ALLOW_DIAGONAL)
+        count = 4;
 
-    for (int i = 0; i < DIRECTION_COUNT; i++) {
-        if (i > 3)
-            break;
-        switch (i) {
-            case up:
-                break;
-            case down:
-                break;
-            case left:
-                break;
-            case right:
-                break;
-            case up_left:
-                break;
-            case up_right:
-                break;
-            case down_left:
-                break;
-            case down_right:
-                break;
-            default:
-                break;
-        }
+    auto prev = current.prev;
+    auto curr = current.curr;
+    auto step = current.step;
+    for (int i = 0; i < count; i++) {
+        // this is set from parse_args()
+        tiny adjustments = DIRECTION_ADJUSTMENTS[i];
+        tiny next = curr + adjustments;
+        if (next == prev)
+            continue;  // invalid, same position
+        if (next - prev == 1 && next % COLUMN == 0)
+            continue;  // invalid, on the right edge
+        if (prev - next == 1 && prev % COLUMN == 0)
+            continue;  // invalid, on the left edge
+        if (next >= BOARD_SIZE)
+            continue;  // invalid, out of bound
+
+        state new_state;
+        new_state.step = step + 1;
+        new_state.curr = next;
+        new_state.prev = curr;
+        new_state.begin = current.begin;
+
+        // insert to the route
+        tiny route_index = new_state.step / 21;
+        new_state.route[route_index] = current.route[route_index] << 3 | i;
+
+        if (step == 0)
+            new_state.board = BOARD;
+        else
+            new_state.board = current.board;
+        print_board(new_state.board);
+
+        // swap the board
+        auto& new_board = new_state.board;
+        auto temp = new_board[curr];
+        new_board[curr] = new_board[next];
+        new_board[next] = temp;
+
+        evaluate(new_board, new_state);
+
+        // insert to the states
+        if (step == 0)
+            states[loc * 4 + i] = new_state;
+        else
+            states[loc * 3 + i] = new_state;
     }
 }
 
-const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
-    printf("board: ");
-    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
-        printf("%c", ORB_WEB_NAME[board[i]]);
+inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
+                     const state& new_state) {
+    short int score = 0;
+    // scan the board to get the distance between each orb
+    orb_distance distance[ORB_COUNT];
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        auto& orb = board[i];
+        // 0 to 5 only for 6x5, 6 to 11 will convert to 0 to 5
+        tiny loc = i % COLUMN;
+        if (loc > distance[orb].max)
+            distance[orb].max = loc;
+        else if (loc < distance[orb].min)
+            distance[orb].min = loc;
     }
-    printf("\n");
+
+    for (int i = 0; i < ORB_COUNT; i++) {
+        auto& dist = distance[i];
+        score -= (dist.max - dist.min);
+    }
+
+    // erase the board and find out the combo number
+}
+
+const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
+    DEBUG_PRINT("board: ");
+    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
+        DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
+    }
+    DEBUG_PRINT("\n");
 }
 
 const int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
@@ -228,10 +298,10 @@ void parse_args(int argc, char* argv[]) {
         // min 3, max 5 for now
         if (min_erase < 3) {
             min_erase = 3;
-            printf("min_erase is too small, set to 3\n");
+            DEBUG_PRINT("min_erase is too small, set to 3\n");
         } else if (min_erase > 5) {
             min_erase = 5;
-            printf("min_erase is too large, set to 5\n");
+            DEBUG_PRINT("min_erase is too large, set to 5\n");
         }
         MIN_ERASE = min_erase;
     }
@@ -240,7 +310,7 @@ void parse_args(int argc, char* argv[]) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
             usage();
         } else {
-            printf("=============== INFO ===============\n");
+            DEBUG_PRINT("=============== INFO ===============\n");
             auto board_string = argv[1];
             int board_size = strlen(board_string);
 
@@ -313,13 +383,13 @@ void parse_args(int argc, char* argv[]) {
     }
 
     print_board(BOARD);
-    printf("board size: %d\n", BOARD_SIZE);
-    printf("row x column: %d x %d\n", ROW, COLUMN);
-    printf("min_erase: %d\n", MIN_ERASE);
-    printf("max_combo: %d\n", MAX_COMBO);
-    printf("search_depth: %d\n", SEARCH_DEPTH);
-    printf("beam_size: %d\n", BEAM_SIZE);
-    printf("====================================\n");
+    DEBUG_PRINT("board size: %d\n", BOARD_SIZE);
+    DEBUG_PRINT("row x column: %d x %d\n", ROW, COLUMN);
+    DEBUG_PRINT("min_erase: %d\n", MIN_ERASE);
+    DEBUG_PRINT("max_combo: %d\n", MAX_COMBO);
+    DEBUG_PRINT("search_depth: %d\n", SEARCH_DEPTH);
+    DEBUG_PRINT("beam_size: %d\n", BEAM_SIZE);
+    DEBUG_PRINT("====================================\n");
 }
 
 const void usage() {
