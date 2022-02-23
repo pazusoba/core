@@ -5,84 +5,13 @@
 // mac: clang++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 // windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
+#include "pazusoba.h"
 #include <omp.h>
 #include <algorithm>
-#include <array>
 #include <cstring>
-#include <deque>
 #include <iostream>
-#include <set>
-#include <vector>
 
 namespace pazusoba {
-#define DEBUG 1
-#define DEBUG_PRINT(...) \
-    if (DEBUG)           \
-        printf(__VA_ARGS__);
-
-#define MAX_DEPTH 150
-#define MIN_BEAM_SIZE 1000
-#define MAX_BOARD_LENGTH 42
-#define MIN_STATE_SCORE -9999
-#define ALLOW_DIAGONAL 0
-
-#define ORB_COUNT 14
-#define DIRECTION_COUNT 8
-
-// TODO: 100% needs to be improved
-#define INDEX_OF(x, y) (x * COLUMN + y)
-
-typedef unsigned char orb, tiny;
-typedef std::array<orb, MAX_BOARD_LENGTH> game_board, visit_board;
-
-/// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
-                                      'J', ' ', 'P', ' ', ' ', ' ', ' '};
-
-// initalise after board size is decided
-tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
-/// All 8 possible directions
-enum DIRECTIONS {
-    up = 0,
-    down,
-    left,
-    right,
-    // after right, all moves are diagonal
-    up_left,
-    up_right,
-    down_left,
-    down_right
-};
-
-struct state {
-    // could be improved by swapping indexes instead of copying
-    game_board board;
-    tiny begin;
-    tiny prev;
-    tiny curr;
-    tiny step = 0;
-    tiny combo = 0;
-    short int score = MIN_STATE_SCORE;
-    // 64 bits can store 21 steps 3 * 21
-    // if we don't include diagonals,
-    // 64 bits can store 32 steps 2 * 32
-    std::array<long long int, MAX_DEPTH / 21 + 1> route{0};
-    int operator>(const state& other) const { return score > other.score; }
-};
-
-// this helps to calculate the distance between a kind of orb
-struct orb_distance {
-    tiny min = 0;
-    tiny max = 0;
-};
-
-// TODO: can be updated
-struct combo {
-    orb info;
-    std::set<tiny> loc;
-    combo(const orb& o) : info(o) {}
-};
-typedef std::vector<combo> combo_list;
 
 ///
 /// global variables, they shouldn't be changed outside parse_args()
@@ -97,28 +26,8 @@ game_board BOARD;
 // count the number of each orb to calculate the max combo (not 100% correct)
 std::array<orb, ORB_COUNT> ORB_COUNTER;
 
-///
-/// const marks the function pure and testable
-///
-
-// find the best possible move by exploring the board
-void explore();
-// expand current state to all possible next moves
-inline void expand(const game_board&, const state&, std::vector<state>&, int);
-// erase the board, count the combo and calculate the score
-inline void evaluate(game_board&, state&);
-// TODO: can be improved
-void erase_combo(game_board&, visit_board&, std::deque<int>&, combo&, int, int);
-void erase_orbs(game_board&, combo_list&);
-void move_orbs_down(game_board&);
-const void print_board(const game_board&);
-const void print_state(const state&);
-// A naive way to approach max combo, mostly accurate unless it is two colour
-const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
-                         const int,
-                         const int);
-void parse_args(int argc, char* argv[]);
-const void usage();
+// initalise after board size is decided
+tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
 
 void explore() {
     // setup the state, non blocking
@@ -144,9 +53,13 @@ void explore() {
         look[i] = new_state;
     }
 
+    int stop_count = 0;
     // beam search with openmp
     for (int i = 0; i < SEARCH_DEPTH; i++) {
-#pragma omp parallel for shared(look, temp)
+        if (found_max_combo)
+            break;
+
+#pragma omp parallel for
         for (int j = 0; j < BEAM_SIZE; j++) {
             if (found_max_combo)
                 continue;  // early stop
@@ -158,6 +71,7 @@ void explore() {
             if (curr.combo >= MAX_COMBO) {
                 best_state = curr;
                 found_max_combo = true;
+                continue;
             }
 
             expand(curr.board, curr, temp, j);
@@ -176,15 +90,21 @@ void explore() {
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
 
-        for (int i = 0; i < 5; i++) {
-            print_state(temp[i]);
-        }
+        // for (int i = 0; i < 5; i++) {
+        //     print_state(temp[i]);
+        // }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
         std::copy(begin, begin + (end - begin) / 3, look.begin());
-        // if (look[0].combo > best_state.combo)
-        best_state = look[0];
+        if (look[0].combo > best_state.combo) {
+            best_state = look[0];
+            stop_count = 0;
+        } else {
+            stop_count++;
+            if (stop_count == STOP_THRESHOLD)
+                found_max_combo = true;
+        }
     }
 
     print_state(best_state);
@@ -261,7 +181,7 @@ inline void evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min) * 4;
+        score -= (dist.max - dist.min);
     }
 
     // erase the board and find out the combo number
@@ -610,9 +530,3 @@ const void usage() {
     exit(0);
 }
 };  // namespace pazusoba
-
-int main(int argc, char* argv[]) {
-    pazusoba::parse_args(argc, argv);
-    pazusoba::explore();
-    return 0;
-}

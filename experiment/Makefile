@@ -15,5 +15,9 @@ endif
 FLAGS=-std=c++11 -Wall -Werror -fopenmp -O2
 FILES=pazusoba.cpp
 
-binary:
-	$(GCC) $(FLAGS) $(FILES) -o pazusoba
+main:
+	$(GCC) $(FLAGS) $(FILES) main.cpp -o pazusoba
+
+test:
+	$(GCC) $(FLAGS) $(FILES) test.cpp -o pazusoba-test
+	./pazusoba-test
