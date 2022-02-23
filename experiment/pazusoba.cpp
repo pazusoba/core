@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <deque>
 #include <iostream>
-#include <queue>
 #include <set>
 #include <vector>
 
@@ -29,7 +29,11 @@ namespace pazusoba {
 #define ORB_COUNT 14
 #define DIRECTION_COUNT 8
 
+// TODO: 100% needs to be improved
+#define INDEX_OF(x, y) (x * COLUMN + y)
+
 typedef unsigned char orb, tiny;
+typedef std::array<orb, MAX_BOARD_LENGTH> game_board, visit_board;
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
 const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
@@ -52,7 +56,7 @@ enum DIRECTIONS {
 
 struct state {
     // could be improved by swapping indexes instead of copying
-    std::array<orb, MAX_BOARD_LENGTH> board;
+    game_board board;
     tiny begin;
     tiny prev;
     tiny curr;
@@ -73,23 +77,23 @@ struct orb_distance {
 };
 
 // TODO: can be updated
-struct Combo {
+struct combo {
     orb info;
     std::set<tiny> loc;
-    Combo(const orb& o) : info(o) {}
+    combo(const orb& o) : info(o) {}
 };
-typedef std::vector<Combo> ComboList;
+typedef std::vector<combo> combo_list;
 
 ///
 /// global variables, they shouldn't be changed outside parse_args()
 ///
 int MIN_ERASE = 3;
 int SEARCH_DEPTH = 100;
-int BEAM_SIZE = 5000;
+int BEAM_SIZE = 10000;
 int ROW, COLUMN;
 int MAX_COMBO;
 int BOARD_SIZE;
-std::array<orb, MAX_BOARD_LENGTH> BOARD;
+game_board BOARD;
 // count the number of each orb to calculate the max combo (not 100% correct)
 std::array<orb, ORB_COUNT> ORB_COUNTER;
 
@@ -100,17 +104,14 @@ std::array<orb, ORB_COUNT> ORB_COUNTER;
 // find the best possible move by exploring the board
 void explore();
 // expand current state to all possible next moves
-inline void expand(const std::array<orb, MAX_BOARD_LENGTH>&,
-                   const state&,
-                   std::vector<state>&,
-                   int);
+inline void expand(const game_board&, const state&, std::vector<state>&, int);
 // erase the board, count the combo and calculate the score
-inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>&, state&);
+inline void evaluate(game_board&, state&);
 // TODO: can be improved
-void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>&, Combo&, tiny, tiny);
-void erase_orbs(ComboList&);
-void move_orbs_down();
-const void print_board(const std::array<orb, MAX_BOARD_LENGTH>&);
+void erase_combo(game_board&, visit_board&, std::deque<int>&, combo&, int, int);
+void erase_orbs(game_board&, combo_list&);
+void move_orbs_down(game_board&);
+const void print_board(const game_board&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
                          const int,
@@ -189,7 +190,7 @@ void explore() {
     print_board(best_state.board);
 }
 
-inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
+inline void expand(const game_board& board,
                    const state& current,
                    std::vector<state>& states,
                    int loc) {
@@ -244,8 +245,7 @@ inline void expand(const std::array<orb, MAX_BOARD_LENGTH>& board,
     }
 }
 
-inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
-                     state& new_state) {
+inline void evaluate(game_board& board, state& new_state) {
     short int score = 0;
     // scan the board to get the distance between each orb
     orb_distance distance[ORB_COUNT];
@@ -265,57 +265,60 @@ inline void evaluate(const std::array<orb, MAX_BOARD_LENGTH>& board,
     }
 
     // erase the board and find out the combo number
-    ComboList list;  // TODO: 515ms here, destructor is slow
+    combo_list list;  // TODO: 515ms here, destructor is slow
 
     tiny combo = 0;
-    tiny moveCount = 0;
+    tiny move_count = 0;
     while (true) {
-        _erased.eraseOrbs(list);
-        tiny comboCount = list.size();
+        erase_orbs(board, list);
+        tiny combo_count = list.size();
         // Check if there are more combo
-        if (comboCount > combo) {
-            _erased.moveOrbsDown();
-            combo = comboCount;
-            moveCount++;
+        if (combo_count > combo) {
+            move_orbs_down(board);
+            combo = combo_count;
+            move_count++;
         } else {
             break;
         }
     }
+
     combo = list.size();
     new_state.score = score + (combo * 20);
 }
 
-void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
-                 Combo& combo,
-                 tiny ox,
-                 tiny oy) {
+void erase_combo(game_board& board,
+                 visit_board& visited,
+                 std::deque<int>& queue,
+                 combo& combo,
+                 int ox,
+                 int oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
-    auto orb = (*this)[orb_index];
+    auto orb = board[orb_index];
     // should reduce the time, this function is called but how?
-    _queue.emplace_front(orb_index);  // 25%
+    queue.emplace_front(orb_index);  // 25%
 
-    while (!_queue.empty()) {
-        auto currIndex = _queue.front();
-        _queue.pop_front();
-        if (visited[currIndex].visited)
+    while (!queue.empty()) {
+        auto currIndex = queue.front();
+        queue.pop_front();
+        if (visited[currIndex])
             continue;
         else
-            visited[currIndex].visited = 1;
+            visited[currIndex] = 1;
 
-        tiny x = currIndex / COLUMN;
-        // tiny y = currIndex % COLUMN;
-        tiny y = currIndex - x * COLUMN;
+        int x = currIndex / COLUMN;
+        // int y = currIndex % COLUMN;
+        int y = currIndex - x * COLUMN;
 
         // Check vertically from x
         // go up from x
         bool vup = true;
-        tiny vupIndex = x;
+        int vupIndex = x;
         while (vup) {
-            tiny cx = vupIndex - 1;
+            int cx = vupIndex - 1;
             if (cx >= ROW) {
                 vup = false;
-            } else if ((*this)(cx, y) == orb) {
+            } else if (board[INDEX_OF(cx, y)] == orb) {
                 vupIndex--;
             } else {
                 vup = false;
@@ -323,12 +326,12 @@ void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
         }
         // go down from x
         bool vdown = true;
-        tiny vdownIndex = x;
+        int vdownIndex = x;
         while (vdown) {
-            tiny cx = vdownIndex + 1;
+            int cx = vdownIndex + 1;
             if (cx >= ROW) {
                 vdown = false;
-            } else if ((*this)(cx, y) == orb) {
+            } else if (board[INDEX_OF(cx, y)] == orb) {
                 vdownIndex++;
             } else {
                 vdown = false;
@@ -338,30 +341,30 @@ void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
         // as long as three orbs are connected, it can be erased
         // min erase doesn't matter at all here
         bool vErase = vdownIndex - vupIndex >= 2;
-        for (tiny i = vupIndex; i <= vdownIndex; i++) {
+        for (int i = vupIndex; i <= vdownIndex; i++) {
             auto currIndex = INDEX_OF(i, y);
             if (vErase) {
                 // add this location and clear the orb
                 combo.loc.insert(currIndex);  // 7.8%
-                _board[currIndex] = 0;
+                board[currIndex] = 0;
                 // to be visited
                 if (i != x)
-                    _queue.emplace_front(currIndex);
+                    queue.emplace_front(currIndex);
             } else {
                 // simply go and visit it
-                _queue.emplace_front(currIndex);
+                queue.emplace_front(currIndex);
             }
         }
 
         // Check horizontally from y
         // go left from y
         bool hleft = true;
-        tiny hleftIndex = y;
+        int hleftIndex = y;
         while (hleft) {
-            tiny cy = hleftIndex - 1;
+            int cy = hleftIndex - 1;
             if (cy >= COLUMN) {
                 hleft = false;
-            } else if ((*this)(x, cy) == orb) {
+            } else if (board[INDEX_OF(x, cy)] == orb) {
                 hleftIndex--;
             } else {
                 hleft = false;
@@ -369,12 +372,12 @@ void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
         }
         // go right from y
         bool hright = true;
-        tiny hrightIndex = y;
+        int hrightIndex = y;
         while (hright) {
-            tiny cy = hrightIndex + 1;
+            int cy = hrightIndex + 1;
             if (cy >= COLUMN) {
                 hright = false;
-            } else if ((*this)(x, cy) == orb) {
+            } else if (board[INDEX_OF(x, cy)] == orb) {
                 hrightIndex++;
             } else {
                 hright = false;
@@ -382,34 +385,36 @@ void erase_combo(std::array<tiny, MAX_BOARD_LENGTH>& visited,
         }
 
         bool hErase = hrightIndex - hleftIndex >= 2;
-        for (tiny i = hleftIndex; i <= hrightIndex; i++) {
+        for (int i = hleftIndex; i <= hrightIndex; i++) {
             auto currIndex = INDEX_OF(x, i);
             if (hErase) {
                 combo.loc.insert(currIndex);  // 7.8%
-                _board[currIndex] = 0;
+                board[currIndex] = 0;
                 if (i != y)
-                    _queue.emplace_front(currIndex);
+                    queue.emplace_front(currIndex);
             } else {
-                _queue.emplace_front(currIndex);
+                queue.emplace_front(currIndex);
             }
         }
     }
 }
 
-void erase_orbs(ComboList& list) {
-    std::array<tiny, MAX_BOARD_LENGTH> erased;
+void erase_orbs(game_board& board, combo_list& list) {
+    visit_board erased;
+    game_board copy = board;
 
-    for (tiny x = 0; x < ROW; x++) {
-        for (tiny y = 0; y < COLUMN; y++) {
-            auto orb = (*this)(x, y);
+    for (int x = 0; x < ROW; x++) {
+        for (int y = 0; y < COLUMN; y++) {
+            auto orb = board[INDEX_OF(x, y)];
             // ignore empty orbs
-            if (orb == pad::empty)
+            if (orb == 0)
                 continue;
 
-            Combo combo(orb);
-            // 58%, can be optimised, improving eraseCombo can increase
+            combo combo(orb);
+            // 58%, can be optimised, improving erasecombo can increase
             // the speed very significantly
-            erase_combo(erased, combo, x, y);
+            std::deque<int> queue;
+            erase_combo(copy, erased, queue, combo, x, y);
             if (combo.loc.size() >= MIN_ERASE) {
                 list.push_back(combo);  // 24% here, can be optimized
                 // maybe a callback not sure how
@@ -418,16 +423,16 @@ void erase_orbs(ComboList& list) {
     }
 }
 
-void move_orbs_down() {
+void move_orbs_down(game_board& board) {
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
-    for (tiny i = 0; i < COLUMN; ++i) {
+    for (int i = 0; i < COLUMN; ++i) {
         int emptyIndex = -1;
         // signed type is needed or otherwise, j >= won't terminate at all
         // because after -1 is the max value again
         for (int j = ROW - 1; j >= 0; --j) {
             auto index = INDEX_OF(j, i);
-            auto orb = (*this)[index];
+            auto orb = board[index];
             if (orb == 0) {
                 // Don't override empty index if available
                 if (emptyIndex == -1)
@@ -435,8 +440,8 @@ void move_orbs_down() {
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index
-                (*this)(emptyIndex, i) = orb;
-                (*this)[index] = 0;
+                board[INDEX_OF(emptyIndex, i)] = orb;
+                board[index] = 0;
                 // simply move it up from last index
                 --emptyIndex;
             }
@@ -444,7 +449,7 @@ void move_orbs_down() {
     }
 }
 
-const void print_board(const std::array<orb, MAX_BOARD_LENGTH>& board) {
+const void print_board(const game_board& board) {
     DEBUG_PRINT("board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
         DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
