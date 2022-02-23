@@ -18,7 +18,7 @@ namespace pazusoba {
 #define MAX_BOARD_LENGTH 42
 #define MIN_STATE_SCORE -9999
 #define ALLOW_DIAGONAL 0
-#define STOP_THRESHOLD 10
+#define STOP_THRESHOLD 100
 
 #define ORB_COUNT 14
 #define DIRECTION_COUNT 8
@@ -54,6 +54,7 @@ struct state {
     tiny curr;
     tiny step = 0;
     tiny combo = 0;
+    size_t hash;
     short int score = MIN_STATE_SCORE;
     // 64 bits can store 21 steps 3 * 21
     // if we don't include diagonals,

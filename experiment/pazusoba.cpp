@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
+#include "hash.h"
 
 namespace pazusoba {
 
@@ -155,7 +157,9 @@ inline void expand(const game_board& board,
         new_board[curr] = new_board[next];
         new_board[next] = temp;
 
-        evaluate(new_board, new_state);
+        // backup the board
+        game_board copy = new_board;
+        evaluate(copy, new_state);
 
         // insert to the states
         if (step == 0)
@@ -189,6 +193,7 @@ inline void evaluate(game_board& board, state& new_state) {
 
     tiny combo = 0;
     tiny move_count = 0;
+
     while (true) {
         erase_orbs(board, list);
         tiny combo_count = list.size();
@@ -322,7 +327,6 @@ void erase_combo(game_board& board,
 
 void erase_orbs(game_board& board, combo_list& list) {
     visit_board erased;
-    game_board copy = board;
 
     for (int x = 0; x < ROW; x++) {
         for (int y = 0; y < COLUMN; y++) {
@@ -335,7 +339,7 @@ void erase_orbs(game_board& board, combo_list& list) {
             // 58%, can be optimised, improving erasecombo can increase
             // the speed very significantly
             std::deque<int> queue;
-            erase_combo(copy, erased, queue, combo, x, y);
+            erase_combo(board, erased, queue, combo, x, y);
             if (combo.loc.size() >= MIN_ERASE) {
                 list.push_back(combo);  // 24% here, can be optimized
                 // maybe a callback not sure how
