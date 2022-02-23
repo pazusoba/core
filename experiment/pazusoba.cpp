@@ -112,6 +112,7 @@ void erase_combo(game_board&, visit_board&, std::deque<int>&, combo&, int, int);
 void erase_orbs(game_board&, combo_list&);
 void move_orbs_down(game_board&);
 const void print_board(const game_board&);
+const void print_state(const state&);
 // A naive way to approach max combo, mostly accurate unless it is two colour
 const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
                          const int,
@@ -175,19 +176,18 @@ void explore() {
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
 
-        // for (int i = 0; i < 10; i++) {
-        //     print_board(temp[i].board);
-        //     DEBUG_PRINT("%d\n", temp[i].score);
-        // }
+        for (int i = 0; i < 5; i++) {
+            print_state(temp[i]);
+        }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
         std::copy(begin, begin + (end - begin) / 3, look.begin());
+        // if (look[0].combo > best_state.combo)
         best_state = look[0];
     }
 
-    DEBUG_PRINT("best score: %d\n", best_state.combo);
-    print_board(best_state.board);
+    print_state(best_state);
 }
 
 inline void expand(const game_board& board,
@@ -261,7 +261,7 @@ inline void evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min);
+        score -= (dist.max - dist.min) * 4;
     }
 
     // erase the board and find out the combo number
@@ -283,6 +283,7 @@ inline void evaluate(game_board& board, state& new_state) {
     }
 
     combo = list.size();
+    new_state.combo = combo;
     new_state.score = score + (combo * 20);
 }
 
@@ -450,11 +451,20 @@ void move_orbs_down(game_board& board) {
 }
 
 const void print_board(const game_board& board) {
-    DEBUG_PRINT("board: ");
+    DEBUG_PRINT("Board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
         DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
     }
     DEBUG_PRINT("\n");
+}
+
+const void print_state(const state& state) {
+    DEBUG_PRINT("=============== STATE ===============\n");
+    DEBUG_PRINT("Score: %d\n", state.score);
+    DEBUG_PRINT("Combo: %d/%d\n", state.combo, MAX_COMBO);
+    DEBUG_PRINT("Step: %d\n", state.step);
+    print_board(state.board);
+    DEBUG_PRINT("=====================================\n");
 }
 
 const int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
