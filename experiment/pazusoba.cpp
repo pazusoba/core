@@ -13,7 +13,7 @@
 #include "hash.h"
 
 namespace pazusoba {
-void solver::explore() {
+state solver::explore() {
     // setup the state, non blocking
     std::vector<state> look;
     look.resize(BEAM_SIZE);
@@ -108,6 +108,7 @@ void solver::explore() {
     }
 
     print_state(best_state);
+    return best_state;
 }  // namespace pazusoba
 
 void solver::expand(const game_board& board,
@@ -376,26 +377,9 @@ void solver::move_orbs_down(game_board& board) {
     }
 }
 
-const void solver::print_board(const game_board& board) {
-    DEBUG_PRINT("Board: ");
-    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
-        DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
-    }
-    DEBUG_PRINT("\n");
-}
-
-const void solver::print_state(const state& state) {
-    DEBUG_PRINT("=============== STATE ===============\n");
-    DEBUG_PRINT("Score: %d\n", state.score);
-    DEBUG_PRINT("Combo: %d/%d\n", state.combo, MAX_COMBO);
-    DEBUG_PRINT("Step: %d\n", state.step);
-    print_board(state.board);
-    DEBUG_PRINT("=====================================\n");
-}
-
-const int solver::calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
-                                 const int size,
-                                 const int min_erase) {
+int solver::calc_max_combo(const orb_list& counter,
+                           const int size,
+                           const int min_erase) const {
     // at least one combo when the board has only one orb
     int max_combo = 0;
     int threshold = size / 2;
@@ -427,15 +411,7 @@ void solver::parse_args(int argc, char* argv[]) {
     // this is to calculate the max combo
     if (argc > 2) {
         int min_erase = atoi(argv[2]);
-        // min 3, max 5 for now
-        if (min_erase < 3) {
-            min_erase = 3;
-            DEBUG_PRINT("min_erase is too small, set to 3\n");
-        } else if (min_erase > 5) {
-            min_erase = 5;
-            DEBUG_PRINT("min_erase is too large, set to 5\n");
-        }
-        MIN_ERASE = min_erase;
+        set_min_erase(min_erase);
     }
 
     if (argc > 1) {
@@ -444,74 +420,18 @@ void solver::parse_args(int argc, char* argv[]) {
         } else {
             DEBUG_PRINT("=============== INFO ===============\n");
             auto board_string = argv[1];
-            int board_size = strlen(board_string);
-
-            // there are only 3 fixed size board -> 20, 30 or 42
-            if (board_size > MAX_BOARD_LENGTH) {
-                printf("Board string is too long\n");
-                exit(1);
-            } else if (board_size == 20) {
-                ROW = 4;
-                COLUMN = 5;
-            } else if (board_size == 30) {
-                ROW = 5;
-                COLUMN = 6;
-            } else if (board_size == 42) {
-                ROW = 6;
-                COLUMN = 7;
-            } else {
-                printf("Unsupported board size - %d\n", board_size);
-                exit(1);
-            }
-            BOARD_SIZE = board_size;
-
-            // set up DIRECTION_ADJUSTMENTS
-            DIRECTION_ADJUSTMENTS[0] = -COLUMN;
-            DIRECTION_ADJUSTMENTS[1] = COLUMN;
-            DIRECTION_ADJUSTMENTS[2] = -1;
-            DIRECTION_ADJUSTMENTS[3] = 1;
-            DIRECTION_ADJUSTMENTS[4] = -COLUMN - 1;
-            DIRECTION_ADJUSTMENTS[5] = -COLUMN + 1;
-            DIRECTION_ADJUSTMENTS[6] = COLUMN - 1;
-            DIRECTION_ADJUSTMENTS[7] = COLUMN + 1;
-
-            // setup the board here by finding the orb using the string
-            for (int i = 0; i < board_size; i++) {
-                char orb_char = board_string[i];
-                // find the orb name from ORB_WEB_NAME and make it a number
-                bool found = false;
-                for (orb j = 0; j < ORB_COUNT; j++) {
-                    if (orb_char == ORB_WEB_NAME[j]) {
-                        found = true;
-                        BOARD[i] = j;
-                        ORB_COUNTER[j]++;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    printf("orb %c not found, only RBGLDHJP are valid\n",
-                           orb_char);
-                    exit(1);
-                }
-            }
-
-            MAX_COMBO = calc_max_combo(ORB_COUNTER, BOARD_SIZE, MIN_ERASE);
+            set_board(board_string);
         }
     }
 
     if (argc > 3) {
         int depth = atoi(argv[3]);
-        if (depth > MAX_DEPTH)
-            depth = MAX_DEPTH;
-        SEARCH_DEPTH = depth;
+        set_search_depth(depth);
     }
 
     if (argc > 4) {
         int beam_size = atoi(argv[4]);
-        if (beam_size < MIN_BEAM_SIZE)
-            beam_size = MIN_BEAM_SIZE;
-        BEAM_SIZE = beam_size;
+        set_beam_size(beam_size);
     }
 
     print_board(BOARD);
@@ -524,7 +444,103 @@ void solver::parse_args(int argc, char* argv[]) {
     DEBUG_PRINT("====================================\n");
 }
 
-const void solver::usage() {
+void solver::set_board(const char* board_string) {
+    int board_size = strlen(board_string);
+
+    // there are only 3 fixed size board -> 20, 30 or 42
+    if (board_size > MAX_BOARD_LENGTH) {
+        printf("Board string is too long\n");
+        exit(1);
+    } else if (board_size == 20) {
+        ROW = 4;
+        COLUMN = 5;
+    } else if (board_size == 30) {
+        ROW = 5;
+        COLUMN = 6;
+    } else if (board_size == 42) {
+        ROW = 6;
+        COLUMN = 7;
+    } else {
+        printf("Unsupported board size - %d\n", board_size);
+        exit(1);
+    }
+    BOARD_SIZE = board_size;
+
+    // set up DIRECTION_ADJUSTMENTS
+    DIRECTION_ADJUSTMENTS[0] = -COLUMN;
+    DIRECTION_ADJUSTMENTS[1] = COLUMN;
+    DIRECTION_ADJUSTMENTS[2] = -1;
+    DIRECTION_ADJUSTMENTS[3] = 1;
+    DIRECTION_ADJUSTMENTS[4] = -COLUMN - 1;
+    DIRECTION_ADJUSTMENTS[5] = -COLUMN + 1;
+    DIRECTION_ADJUSTMENTS[6] = COLUMN - 1;
+    DIRECTION_ADJUSTMENTS[7] = COLUMN + 1;
+
+    // setup the board here by finding the orb using the string
+    for (int i = 0; i < board_size; i++) {
+        char orb_char = board_string[i];
+        // find the orb name from ORB_WEB_NAME and make it a number
+        bool found = false;
+        for (orb j = 0; j < ORB_COUNT; j++) {
+            if (orb_char == ORB_WEB_NAME[j]) {
+                found = true;
+                BOARD[i] = j;
+                ORB_COUNTER[j]++;
+                break;
+            }
+        }
+
+        if (!found) {
+            printf("orb %c not found, only RBGLDHJP are valid\n", orb_char);
+            exit(1);
+        }
+    }
+
+    MAX_COMBO = calc_max_combo(ORB_COUNTER, BOARD_SIZE, MIN_ERASE);
+}
+
+void solver::set_min_erase(int min_erase) {
+    // min 3, max 5 for now
+    if (min_erase < 3) {
+        min_erase = 3;
+        DEBUG_PRINT("min_erase is too small, set to 3\n");
+    } else if (min_erase > 5) {
+        min_erase = 5;
+        DEBUG_PRINT("min_erase is too large, set to 5\n");
+    }
+    MIN_ERASE = min_erase;
+}
+
+void solver::set_search_depth(int depth) {
+    if (depth > MAX_DEPTH)
+        depth = MAX_DEPTH;
+    SEARCH_DEPTH = depth;
+}
+
+void solver::set_beam_size(int beam_size) {
+    if (beam_size < MIN_BEAM_SIZE)
+        beam_size = MIN_BEAM_SIZE;
+    BEAM_SIZE = beam_size;
+}
+
+void solver::print_board(const game_board& board) const {
+    DEBUG_PRINT("Board: ");
+    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
+        DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
+    }
+    DEBUG_PRINT("\n");
+}
+
+void solver::print_state(const state& state) const {
+    DEBUG_PRINT("=============== STATE ===============\n");
+    DEBUG_PRINT("Score: %d\n", state.score);
+    DEBUG_PRINT("Combo: %d/%d\n", state.combo, MAX_COMBO);
+    DEBUG_PRINT("Step: %d\n", state.step);
+    print_board(state.board);
+    DEBUG_PRINT("=====================================\n");
+}
+
+void solver::usage() const {
     printf(
         "\nusage: pazusoba [board string] [min erase] [max steps] [max "
         "beam size]\nboard string\t-- "

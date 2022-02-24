@@ -30,6 +30,7 @@ namespace pazusoba {
 
 typedef unsigned char orb, tiny;
 typedef std::array<orb, MAX_BOARD_LENGTH> game_board, visit_board;
+typedef std::array<orb, ORB_COUNT> orb_list;
 
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
 const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
@@ -56,7 +57,7 @@ struct state {
     tiny curr;
     tiny step = 0;
     tiny combo = 0;
-    long long int hash;
+    size_t hash;
     short int score = MIN_STATE_SCORE;
     // 64 bits can store 21 steps 3 * 21
     // if we don't include diagonals,
@@ -103,7 +104,7 @@ public:
     /// const marks the function pure and testable
     ///
     // find the best possible move by exploring the board
-    void explore();
+    state explore();
     // expand current state to all possible next moves
     void expand(const game_board&, const state&, std::vector<state>&, int);
     // erase the board, count the combo and calculate the score
@@ -117,15 +118,29 @@ public:
                      int);
     void erase_orbs(game_board&, combo_list&);
     void move_orbs_down(game_board&);
-    // A naive way to approach max combo, mostly accurate unless it is two
-    // colour
-    const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
-                             const int,
-                             const int);
+    // A naive way to approach max combo, mostly accurate unless 2 colours
+    int calc_max_combo(const orb_list&, const int, const int) const;
     void parse_args(int argc, char* argv[]);
-    const void print_board(const game_board&);
-    const void print_state(const state&);
-    const void usage();
+    // set board from string, setup row and column, calculate max combo and
+    // also, setup DIRECTION_ADJUSTMENTS for expand()
+    void set_board(const char*);
+    void set_min_erase(int);
+    void set_search_depth(int);
+    void set_beam_size(int);
+
+    void print_board(const game_board&) const;
+    void print_state(const state&) const;
+    void usage() const;
+
+    // getters
+    int min_erase() const { return MIN_ERASE; }
+    int search_depth() const { return SEARCH_DEPTH; }
+    int beam_size() const { return BEAM_SIZE; }
+    int row() const { return ROW; }
+    int column() const { return COLUMN; }
+    int max_combo() const { return MAX_COMBO; }
+    int board_size() const { return BOARD_SIZE; }
+    const game_board& board() const { return BOARD; }
 };
 };  // namespace pazusoba
 
