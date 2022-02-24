@@ -27,6 +27,7 @@ int BOARD_SIZE;
 game_board BOARD;
 // count the number of each orb to calculate the max combo (not 100% correct)
 std::array<orb, ORB_COUNT> ORB_COUNTER;
+std::unordered_map<long long int, bool> VISITED;
 
 // initalise after board size is decided
 tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
@@ -67,6 +68,11 @@ void explore() {
                 continue;  // early stop
 
             const state& curr = look[j];
+            if (VISITED[curr.hash])
+                continue;  // visited before
+            else
+                VISITED[curr.hash] = true;
+
             if (curr.score == MIN_STATE_SCORE)
                 continue;  // uninitialized state
 
@@ -157,9 +163,11 @@ inline void expand(const game_board& board,
         new_board[curr] = new_board[next];
         new_board[next] = temp;
 
+        // calculate the hash
+        new_state.hash = hash::djb2_hash(new_board.data());
+
         // backup the board
-        game_board copy = new_board;
-        evaluate(copy, new_state);
+        evaluate(new_board, new_state);
 
         // insert to the states
         if (step == 0)
@@ -194,12 +202,13 @@ inline void evaluate(game_board& board, state& new_state) {
     tiny combo = 0;
     tiny move_count = 0;
 
+    game_board copy = board;
     while (true) {
-        erase_orbs(board, list);
+        erase_orbs(copy, list);
         tiny combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
-            move_orbs_down(board);
+            move_orbs_down(copy);
             combo = combo_count;
             move_count++;
         } else {
