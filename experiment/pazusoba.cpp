@@ -80,7 +80,23 @@ void solver::explore() {
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
-        std::copy(begin, begin + (end - begin) / 3, look.begin());
+
+        // we need to filter out the states that are already visited
+        int index = 0;
+        for (int j = 0; j < BEAM_SIZE; j++, index++) {
+            auto& curr = temp[j];
+            if (VISITED[curr.prev][curr.hash]) {
+                // printf("%d ", j);
+                // printf("%d ", curr.curr);
+                // printf("%lld\n", curr.hash);
+                index--;
+            } else {
+                VISITED[curr.prev][curr.hash] = true;
+                look[index] = curr;
+            }
+        }
+
+        // std::copy(begin, begin + (end - begin) / 3, look.begin());
         if (look[0].combo > best_state.combo) {
             best_state = look[0];
             stop_count = 0;
@@ -191,6 +207,8 @@ inline void solver::evaluate(game_board& board, state& new_state) {
             break;
         }
     }
+    // if (move_count > 1)
+    //     printf("moved %d times\n", move_count);
 
     combo = list.size();
     new_state.combo = combo;

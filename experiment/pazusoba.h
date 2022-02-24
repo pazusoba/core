@@ -18,6 +18,7 @@ namespace pazusoba {
 #define MIN_BEAM_SIZE 1000
 #define MAX_BOARD_LENGTH 42
 #define MIN_STATE_SCORE -9999
+// diagonal moves are no yet supported
 #define ALLOW_DIAGONAL 0
 #define STOP_THRESHOLD 100
 
@@ -92,7 +93,7 @@ class solver {
     // count the number of each orb to calculate the max combo (not 100%
     // correct)
     std::array<orb, ORB_COUNT> ORB_COUNTER;
-    std::unordered_map<long long int, bool> VISITED;
+    std::unordered_map<long long int, bool> VISITED[MAX_BOARD_LENGTH];
 
     // initalise after board size is decided
     tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
