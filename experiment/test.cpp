@@ -1,3 +1,4 @@
+#include <cassert>
 #include "pazusoba.h"
 
 pazusoba::game_board convert(const char*);
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
         printf("%d %lu\n", c.info, c.loc.size());
     }
     printf("total combos: %lu\n", combos.size());
+    assert(combos.size() == 2);
 
     return 0;
 }

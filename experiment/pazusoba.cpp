@@ -185,7 +185,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min);
+        score -= (dist.max - dist.min) * 2;
     }
 
     // erase the board and find out the combo number
@@ -210,7 +210,6 @@ void solver::evaluate(game_board& board, state& new_state) {
     // if (move_count > 1)
     //     printf("moved %d times\n", move_count);
 
-    combo = list.size();
     new_state.combo = combo;
     new_state.score = score + (combo * 20);
 }

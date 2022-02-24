@@ -21,3 +21,6 @@ main:
 test:
 	$(GCC) $(FLAGS) $(FILES) test.cpp -o pazusoba-test
 	./pazusoba-test
+
+clean:
+	rm pazusoba pazusoba-test
