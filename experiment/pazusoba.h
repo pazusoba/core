@@ -98,10 +98,6 @@ class solver {
     // initalise after board size is decided
     tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
 
-    const void usage();
-    const void print_board(const game_board&);
-    const void print_state(const state&);
-
 public:
     ///
     /// const marks the function pure and testable
@@ -109,27 +105,27 @@ public:
     // find the best possible move by exploring the board
     void explore();
     // expand current state to all possible next moves
-    inline void expand(const game_board&,
-                       const state&,
-                       std::vector<state>&,
-                       int);
+    void expand(const game_board&, const state&, std::vector<state>&, int);
     // erase the board, count the combo and calculate the score
-    inline void evaluate(game_board&, state&);
+    void evaluate(game_board&, state&);
     // TODO: can be improved
-    inline void erase_combo(game_board&,
-                            visit_board&,
-                            std::deque<int>&,
-                            combo&,
-                            int,
-                            int);
-    inline void erase_orbs(game_board&, combo_list&);
-    inline void move_orbs_down(game_board&);
+    void erase_combo(game_board&,
+                     visit_board&,
+                     std::deque<int>&,
+                     combo&,
+                     int,
+                     int);
+    void erase_orbs(game_board&, combo_list&);
+    void move_orbs_down(game_board&);
     // A naive way to approach max combo, mostly accurate unless it is two
     // colour
     const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
                              const int,
                              const int);
     void parse_args(int argc, char* argv[]);
+    const void print_board(const game_board&);
+    const void print_state(const state&);
+    const void usage();
 };
 };  // namespace pazusoba
 

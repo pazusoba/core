@@ -110,10 +110,10 @@ void solver::explore() {
     print_state(best_state);
 }  // namespace pazusoba
 
-inline void solver::expand(const game_board& board,
-                           const state& current,
-                           std::vector<state>& states,
-                           int loc) {
+void solver::expand(const game_board& board,
+                    const state& current,
+                    std::vector<state>& states,
+                    int loc) {
     int count = DIRECTION_COUNT;
     if (!ALLOW_DIAGONAL)
         count = 4;
@@ -169,7 +169,7 @@ inline void solver::expand(const game_board& board,
     }
 }
 
-inline void solver::evaluate(game_board& board, state& new_state) {
+void solver::evaluate(game_board& board, state& new_state) {
     short int score = 0;
     // scan the board to get the distance between each orb
     orb_distance distance[ORB_COUNT];
@@ -215,12 +215,12 @@ inline void solver::evaluate(game_board& board, state& new_state) {
     new_state.score = score + (combo * 20);
 }
 
-inline void solver::erase_combo(game_board& board,
-                                visit_board& visited,
-                                std::deque<int>& queue,
-                                combo& combo,
-                                int ox,
-                                int oy) {
+void solver::erase_combo(game_board& board,
+                         visit_board& visited,
+                         std::deque<int>& queue,
+                         combo& combo,
+                         int ox,
+                         int oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = board[orb_index];
@@ -328,7 +328,7 @@ inline void solver::erase_combo(game_board& board,
     }
 }
 
-inline void solver::erase_orbs(game_board& board, combo_list& list) {
+void solver::erase_orbs(game_board& board, combo_list& list) {
     visit_board erased;
 
     for (int x = 0; x < ROW; x++) {
@@ -351,7 +351,7 @@ inline void solver::erase_orbs(game_board& board, combo_list& list) {
     }
 }
 
-inline void solver::move_orbs_down(game_board& board) {
+void solver::move_orbs_down(game_board& board) {
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
     for (int i = 0; i < COLUMN; ++i) {
