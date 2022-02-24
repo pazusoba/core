@@ -68,11 +68,6 @@ void explore() {
                 continue;  // early stop
 
             const state& curr = look[j];
-            if (VISITED[curr.hash])
-                continue;  // visited before
-            else
-                VISITED[curr.hash] = true;
-
             if (curr.score == MIN_STATE_SCORE)
                 continue;  // uninitialized state
 
@@ -116,7 +111,7 @@ void explore() {
     }
 
     print_state(best_state);
-}
+}  // namespace pazusoba
 
 inline void expand(const game_board& board,
                    const state& current,
@@ -221,12 +216,12 @@ inline void evaluate(game_board& board, state& new_state) {
     new_state.score = score + (combo * 20);
 }
 
-void erase_combo(game_board& board,
-                 visit_board& visited,
-                 std::deque<int>& queue,
-                 combo& combo,
-                 int ox,
-                 int oy) {
+inline void erase_combo(game_board& board,
+                        visit_board& visited,
+                        std::deque<int>& queue,
+                        combo& combo,
+                        int ox,
+                        int oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = board[orb_index];
@@ -334,7 +329,7 @@ void erase_combo(game_board& board,
     }
 }
 
-void erase_orbs(game_board& board, combo_list& list) {
+inline void erase_orbs(game_board& board, combo_list& list) {
     visit_board erased;
 
     for (int x = 0; x < ROW; x++) {
@@ -357,7 +352,7 @@ void erase_orbs(game_board& board, combo_list& list) {
     }
 }
 
-void move_orbs_down(game_board& board) {
+inline void move_orbs_down(game_board& board) {
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
     for (int i = 0; i < COLUMN; ++i) {
