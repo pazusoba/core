@@ -10,29 +10,10 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
-#include <unordered_map>
 #include "hash.h"
 
 namespace pazusoba {
-
-///
-/// global variables, they shouldn't be changed outside parse_args()
-///
-int MIN_ERASE = 3;
-int SEARCH_DEPTH = 100;
-int BEAM_SIZE = 10000;
-int ROW, COLUMN;
-int MAX_COMBO;
-int BOARD_SIZE;
-game_board BOARD;
-// count the number of each orb to calculate the max combo (not 100% correct)
-std::array<orb, ORB_COUNT> ORB_COUNTER;
-std::unordered_map<long long int, bool> VISITED;
-
-// initalise after board size is decided
-tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
-
-void explore() {
+void solver::explore() {
     // setup the state, non blocking
     std::vector<state> look;
     look.resize(BEAM_SIZE);
@@ -113,10 +94,10 @@ void explore() {
     print_state(best_state);
 }  // namespace pazusoba
 
-inline void expand(const game_board& board,
-                   const state& current,
-                   std::vector<state>& states,
-                   int loc) {
+inline void solver::expand(const game_board& board,
+                           const state& current,
+                           std::vector<state>& states,
+                           int loc) {
     int count = DIRECTION_COUNT;
     if (!ALLOW_DIAGONAL)
         count = 4;
@@ -172,7 +153,7 @@ inline void expand(const game_board& board,
     }
 }
 
-inline void evaluate(game_board& board, state& new_state) {
+inline void solver::evaluate(game_board& board, state& new_state) {
     short int score = 0;
     // scan the board to get the distance between each orb
     orb_distance distance[ORB_COUNT];
@@ -216,12 +197,12 @@ inline void evaluate(game_board& board, state& new_state) {
     new_state.score = score + (combo * 20);
 }
 
-inline void erase_combo(game_board& board,
-                        visit_board& visited,
-                        std::deque<int>& queue,
-                        combo& combo,
-                        int ox,
-                        int oy) {
+inline void solver::erase_combo(game_board& board,
+                                visit_board& visited,
+                                std::deque<int>& queue,
+                                combo& combo,
+                                int ox,
+                                int oy) {
     // assume this index is valid
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = board[orb_index];
@@ -329,7 +310,7 @@ inline void erase_combo(game_board& board,
     }
 }
 
-inline void erase_orbs(game_board& board, combo_list& list) {
+inline void solver::erase_orbs(game_board& board, combo_list& list) {
     visit_board erased;
 
     for (int x = 0; x < ROW; x++) {
@@ -352,7 +333,7 @@ inline void erase_orbs(game_board& board, combo_list& list) {
     }
 }
 
-inline void move_orbs_down(game_board& board) {
+inline void solver::move_orbs_down(game_board& board) {
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
     for (int i = 0; i < COLUMN; ++i) {
@@ -378,7 +359,7 @@ inline void move_orbs_down(game_board& board) {
     }
 }
 
-const void print_board(const game_board& board) {
+const void solver::print_board(const game_board& board) {
     DEBUG_PRINT("Board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
         DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
@@ -386,7 +367,7 @@ const void print_board(const game_board& board) {
     DEBUG_PRINT("\n");
 }
 
-const void print_state(const state& state) {
+const void solver::print_state(const state& state) {
     DEBUG_PRINT("=============== STATE ===============\n");
     DEBUG_PRINT("Score: %d\n", state.score);
     DEBUG_PRINT("Combo: %d/%d\n", state.combo, MAX_COMBO);
@@ -395,9 +376,9 @@ const void print_state(const state& state) {
     DEBUG_PRINT("=====================================\n");
 }
 
-const int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
-                         const int size,
-                         const int min_erase) {
+const int solver::calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
+                                 const int size,
+                                 const int min_erase) {
     // at least one combo when the board has only one orb
     int max_combo = 0;
     int threshold = size / 2;
@@ -421,7 +402,7 @@ const int calc_max_combo(const std::array<orb, ORB_COUNT>& counter,
     return max_combo;
 }
 
-void parse_args(int argc, char* argv[]) {
+void solver::parse_args(int argc, char* argv[]) {
     if (argc <= 1)
         usage();
 
@@ -526,7 +507,7 @@ void parse_args(int argc, char* argv[]) {
     DEBUG_PRINT("====================================\n");
 }
 
-const void usage() {
+const void solver::usage() {
     printf(
         "\nusage: pazusoba [board string] [min erase] [max steps] [max "
         "beam size]\nboard string\t-- "

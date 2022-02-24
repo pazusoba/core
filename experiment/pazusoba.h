@@ -5,6 +5,7 @@
 #include <array>
 #include <deque>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 namespace pazusoba {
@@ -77,33 +78,58 @@ struct combo {
 };
 typedef std::vector<combo> combo_list;
 
-///
-/// const marks the function pure and testable
-///
+class solver {
+    ///
+    /// class variables, they shouldn't be changed outside parse_args()
+    ///
+    int MIN_ERASE = 3;
+    int SEARCH_DEPTH = 100;
+    int BEAM_SIZE = 10000;
+    int ROW, COLUMN;
+    int MAX_COMBO;
+    int BOARD_SIZE;
+    game_board BOARD;
+    // count the number of each orb to calculate the max combo (not 100%
+    // correct)
+    std::array<orb, ORB_COUNT> ORB_COUNTER;
+    std::unordered_map<long long int, bool> VISITED;
 
-// find the best possible move by exploring the board
-void explore();
-// expand current state to all possible next moves
-inline void expand(const game_board&, const state&, std::vector<state>&, int);
-// erase the board, count the combo and calculate the score
-inline void evaluate(game_board&, state&);
-// TODO: can be improved
-inline void erase_combo(game_board&,
-                        visit_board&,
-                        std::deque<int>&,
-                        combo&,
-                        int,
-                        int);
-inline void erase_orbs(game_board&, combo_list&);
-inline void move_orbs_down(game_board&);
-const void print_board(const game_board&);
-const void print_state(const state&);
-// A naive way to approach max combo, mostly accurate unless it is two colour
-const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
-                         const int,
-                         const int);
-void parse_args(int argc, char* argv[]);
-const void usage();
+    // initalise after board size is decided
+    tiny DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
+
+    const void usage();
+    const void print_board(const game_board&);
+    const void print_state(const state&);
+
+public:
+    ///
+    /// const marks the function pure and testable
+    ///
+    // find the best possible move by exploring the board
+    void explore();
+    // expand current state to all possible next moves
+    inline void expand(const game_board&,
+                       const state&,
+                       std::vector<state>&,
+                       int);
+    // erase the board, count the combo and calculate the score
+    inline void evaluate(game_board&, state&);
+    // TODO: can be improved
+    inline void erase_combo(game_board&,
+                            visit_board&,
+                            std::deque<int>&,
+                            combo&,
+                            int,
+                            int);
+    inline void erase_orbs(game_board&, combo_list&);
+    inline void move_orbs_down(game_board&);
+    // A naive way to approach max combo, mostly accurate unless it is two
+    // colour
+    const int calc_max_combo(const std::array<orb, ORB_COUNT>&,
+                             const int,
+                             const int);
+    void parse_args(int argc, char* argv[]);
+};
 };  // namespace pazusoba
 
 #endif

@@ -1,7 +1,8 @@
 #include "pazusoba.h"
 
 int main(int argc, char* argv[]) {
-    pazusoba::parse_args(argc, argv);
-    pazusoba::explore();
+    auto solver = pazusoba::solver();
+    solver.parse_args(argc, argv);
+    solver.explore();
     return 0;
 }
