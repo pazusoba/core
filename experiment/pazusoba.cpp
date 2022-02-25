@@ -16,10 +16,10 @@ namespace pazusoba {
 state solver::explore() {
     // setup the state, non blocking
     std::vector<state> look;
-    look.resize(BEAM_SIZE);
+    look.reserve(BEAM_SIZE);
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
-    temp.resize(BEAM_SIZE * 3);
+    temp.reserve(BEAM_SIZE * 3);
     // TODO: using array can definitely things a lot because the vector needs to
     // write a lot of useless data before using it, reverse is better but the
     // address calculation can be tricky
@@ -34,7 +34,7 @@ state solver::explore() {
         new_state.prev = i;
         new_state.begin = i;
         new_state.score = MIN_STATE_SCORE + 1;
-        look[i] = new_state;
+        look.push_back(new_state);
     }
 
     int stop_count = 0;
@@ -43,14 +43,14 @@ state solver::explore() {
         if (found_max_combo)
             break;
 
+        auto look_size = look.size();
+        printf("Depth %d - size %lu\n", i + 1, look_size);
 #pragma omp parallel for
-        for (int j = 0; j < BEAM_SIZE; j++) {
+        for (int j = 0; j < look_size; j++) {
             if (found_max_combo)
                 continue;  // early stop
 
             const state& curr = look[j];
-            if (curr.score == MIN_STATE_SCORE)
-                continue;  // uninitialized state
 
             if (curr.combo >= MAX_COMBO) {
                 best_state = curr;
@@ -82,6 +82,7 @@ state solver::explore() {
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
 
+        look.clear();
         // we need to filter out the states that are already visited
         int index = 0;
         for (int j = 0; j < BEAM_SIZE; j++, index++) {
@@ -93,7 +94,11 @@ state solver::explore() {
                 if (curr.combo > best_state.combo) {
                     best_state = curr;
                 }
-                look[index] = curr;
+                // break if empty boards are hit
+                if (curr.score == MIN_STATE_SCORE) {
+                    break;
+                }
+                look.push_back(curr);
             }
         }
 
@@ -180,7 +185,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min) * 2;
+        score -= (dist.max - dist.min);
     }
 
     // erase the board and find out the combo number
