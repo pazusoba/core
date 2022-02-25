@@ -19,7 +19,7 @@ state solver::explore() {
     look.reserve(BEAM_SIZE);
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
-    temp.reserve(BEAM_SIZE * 3);
+    temp.resize(BEAM_SIZE * 3);
     // TODO: using array can definitely things a lot because the vector needs to
     // write a lot of useless data before using it, reverse is better but the
     // address calculation can be tricky
@@ -193,11 +193,10 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     tiny combo = 0;
     tiny move_count = 0;
-
     game_board copy = board;
     while (true) {
         erase_orbs(copy, list);
-        tiny combo_count = list.size();
+        auto combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
             move_orbs_down(copy);
@@ -207,8 +206,6 @@ void solver::evaluate(game_board& board, state& new_state) {
             break;
         }
     }
-    // if (move_count > 1)
-    //     printf("moved %d times\n", move_count);
 
     new_state.combo = combo;
     new_state.score = score + (combo * 20);
