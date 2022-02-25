@@ -42,8 +42,8 @@ state solver::explore() {
         if (found_max_combo)
             break;
 
-        auto look_size = look.size();
-        printf("Depth %d - size %lu\n", i + 1, look_size);
+        int look_size = look.size();
+        printf("Depth %d - size %d\n", i + 1, look_size);
         for (int j = 0; j < look_size; j++) {
             if (found_max_combo)
                 continue;  // early stop
@@ -145,7 +145,7 @@ void solver::expand(const game_board& board,
         if (step == 0)
             new_state.board = BOARD;
         else
-            new_state.board = current.board;
+            new_state.board = board;
 
         // swap the board
         auto& new_board = new_state.board;
@@ -183,7 +183,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min);
+        score -= (dist.max - dist.min) * 4;
     }
 
     // erase the board and find out the combo number
@@ -211,7 +211,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
 void solver::erase_combo(game_board& board,
                          visit_board& visited,
-                         std::deque<int>& queue,
+                         std::deque<int>* queue,
                          combo& combo,
                          int ox,
                          int oy) {
@@ -219,11 +219,11 @@ void solver::erase_combo(game_board& board,
     auto orb_index = INDEX_OF(ox, oy);
     auto orb = board[orb_index];
     // should reduce the time, this function is called but how?
-    queue.emplace_front(orb_index);  // 25%
+    queue->emplace_front(orb_index);  // 25%
 
-    while (!queue.empty()) {
-        auto currIndex = queue.front();
-        queue.pop_front();
+    while (queue->size() > 0) {
+        auto currIndex = queue->front();
+        queue->pop_front();
         if (visited[currIndex])
             continue;
         else
@@ -272,10 +272,10 @@ void solver::erase_combo(game_board& board,
                 board[currIndex] = 0;
                 // to be visited
                 if (i != x)
-                    queue.emplace_front(currIndex);
+                    queue->emplace_front(currIndex);
             } else {
                 // simply go and visit it
-                queue.emplace_front(currIndex);
+                queue->emplace_front(currIndex);
             }
         }
 
@@ -314,9 +314,9 @@ void solver::erase_combo(game_board& board,
                 combo.loc.insert(currIndex);  // 7.8%
                 board[currIndex] = 0;
                 if (i != y)
-                    queue.emplace_front(currIndex);
+                    queue->emplace_front(currIndex);
             } else {
-                queue.emplace_front(currIndex);
+                queue->emplace_front(currIndex);
             }
         }
     }
@@ -324,6 +324,7 @@ void solver::erase_combo(game_board& board,
 
 void solver::erase_orbs(game_board& board, combo_list& list) {
     visit_board erased;
+    std::deque<int> queue;
 
     for (int x = 0; x < ROW; x++) {
         for (int y = 0; y < COLUMN; y++) {
@@ -335,9 +336,9 @@ void solver::erase_orbs(game_board& board, combo_list& list) {
             combo combo(orb);
             // 58%, can be optimised, improving erasecombo can increase
             // the speed very significantly
-            std::deque<int> queue;
-            erase_combo(board, erased, queue, combo, x, y);
-            if (combo.loc.size() >= MIN_ERASE) {
+            queue.clear();
+            erase_combo(board, erased, &queue, combo, x, y);
+            if ((int)combo.loc.size() >= MIN_ERASE) {
                 list.push_back(combo);  // 24% here, can be optimized
                 // maybe a callback not sure how
             }

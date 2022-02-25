@@ -86,7 +86,7 @@ class solver {
     /// class variables, they shouldn't be changed outside parse_args()
     ///
     int MIN_ERASE = 3;
-    int SEARCH_DEPTH = 30;
+    int SEARCH_DEPTH = 100;
     int BEAM_SIZE = 10000;
     int ROW, COLUMN;
     int MAX_COMBO;
@@ -113,7 +113,7 @@ public:
     // TODO: can be improved
     void erase_combo(game_board&,
                      visit_board&,
-                     std::deque<int>&,
+                     std::deque<int>*,
                      combo&,
                      int,
                      int);
