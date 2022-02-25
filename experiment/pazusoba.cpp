@@ -33,7 +33,6 @@ state solver::explore() {
         new_state.curr = i;
         new_state.prev = i;
         new_state.begin = i;
-        new_state.score = 0;
         look[i] = new_state;
     }
 
@@ -526,7 +525,10 @@ void solver::set_beam_size(int beam_size) {
 void solver::print_board(const game_board& board) const {
     DEBUG_PRINT("Board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
-        DEBUG_PRINT("%c", ORB_WEB_NAME[board[i]]);
+        auto orb = board[i];
+        if (orb == 0)
+            break;
+        DEBUG_PRINT("%c", ORB_WEB_NAME[orb]);
     }
     DEBUG_PRINT("\n");
 }
@@ -538,6 +540,18 @@ void solver::print_state(const state& state) const {
     DEBUG_PRINT("Step: %d\n", state.step);
     print_board(state.board);
     DEBUG_PRINT("=====================================\n");
+}
+
+// This is for debugging only, don't use it in pazusoba.cpp
+std::string solver::get_board_string(const game_board& board) const {
+    char board_string[MAX_BOARD_LENGTH + 1]{};
+    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
+        auto orb = board[i];
+        if (orb == 0)
+            break;
+        board_string[i] = ORB_WEB_NAME[orb];
+    }
+    return std::string(board_string);
 }
 
 void solver::usage() const {

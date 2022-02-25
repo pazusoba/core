@@ -5,6 +5,7 @@
 #include <array>
 #include <deque>
 #include <set>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -130,6 +131,7 @@ public:
 
     void print_board(const game_board&) const;
     void print_state(const state&) const;
+    std::string get_board_string(const game_board&) const;
     void usage() const;
 
     // getters

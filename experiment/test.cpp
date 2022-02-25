@@ -2,6 +2,7 @@
 #include "pazusoba.h"
 
 int main(int argc, char* argv[]) {
+    printf("test set_board\n");
     auto solver = pazusoba::solver();
     solver.set_board("DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
     assert(solver.board_size() == 30);
@@ -9,21 +10,137 @@ int main(int argc, char* argv[]) {
     assert(solver.column() == 6);
     assert(solver.max_combo() == 8);
     assert(solver.min_erase() == 3);
+    assert(solver.get_board_string(solver.board()) ==
+           "DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
+    printf("test set_board passed\n");
+    printf("====================================\n");
+    printf("test expand\n");
+    std::vector<pazusoba::state> next_states;
+    next_states.resize(4);
+    // top left corner
+    pazusoba::state top_left;
+    top_left.curr = 0;
+    top_left.prev = 0;
+    top_left.begin = 0;
+    solver.expand(solver.board(), top_left, next_states, 0);
+    int valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 6 || s.curr == 1);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 2);
+    next_states.clear();
+    next_states.resize(4);
 
-    // pazusoba::combo_list combos;
-    // // erase
-    // solver.erase_orbs(move_count_board, combos);
-    // // move down
-    // solver.move_orbs_down(move_count_board);
-    // solver.print_board(move_count_board);
-    // solver.erase_orbs(move_count_board, combos);
-    // solver.move_orbs_down(move_count_board);
-    // solver.print_board(move_count_board);
-    // for (const auto& c : combos) {
-    //     printf("%d %lu\n", c.info, c.loc.size());
-    // }
-    // printf("total combos: %lu\n", combos.size());
-    // assert(combos.size() == 2);
+    // bottom left corner
+    pazusoba::state bottom_left;
+    bottom_left.curr = 24;
+    bottom_left.prev = 24;
+    bottom_left.begin = 24;
+    solver.expand(solver.board(), bottom_left, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 18 || s.curr == 25);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 2);
+    next_states.clear();
+    next_states.resize(4);
 
+    // top right corner
+    pazusoba::state top_right;
+    top_right.curr = 5;
+    top_right.prev = 5;
+    top_right.begin = 5;
+    solver.expand(solver.board(), top_right, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 4 || s.curr == 11);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 2);
+    next_states.clear();
+    next_states.resize(4);
+
+    // bottom right corner
+    pazusoba::state bottom_right;
+    bottom_right.curr = 29;
+    bottom_right.prev = 29;
+    bottom_right.begin = 29;
+    solver.expand(solver.board(), bottom_right, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 28 || s.curr == 23);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 2);
+    next_states.clear();
+    next_states.resize(4);
+
+    // three
+    pazusoba::state three;
+    three.curr = 3;
+    three.prev = 3;
+    three.begin = 3;
+    solver.expand(solver.board(), three, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 2 || s.curr == 4 || s.curr == 9);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 3);
+    // 3 -> 2
+    assert(solver.get_board_string(next_states[2].board) ==
+           "DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
+    // 3 -> 4
+    assert(solver.get_board_string(next_states[3].board) ==
+           "DGRBRLHGBBGGRDDDDLBGHDBLLHDBLD");
+    next_states.clear();
+    next_states.resize(4);
+
+    // four
+    pazusoba::state four;
+    four.curr = 15;
+    four.prev = 15;
+    four.begin = 15;
+    solver.expand(solver.board(), four, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.curr > 0) {
+            assert(s.curr == 14 || s.curr == 16 || s.curr == 21 || s.curr == 9);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 4);
+    // 15 -> 9
+    assert(solver.get_board_string(next_states[0].board) ==
+           "DGRRBLHGBDGGRDDBDLBGHDBLLHDBLD");
+    next_states.clear();
+    next_states.resize(4);
+
+    printf("test expand passed\n");
+    printf("====================================\n");
     return 0;
 }
