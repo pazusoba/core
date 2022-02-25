@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), top_left, next_states, 0);
     int valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 6 || s.curr == 1);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), bottom_left, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 18 || s.curr == 25);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), top_right, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 4 || s.curr == 11);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), bottom_right, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 28 || s.curr == 23);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), three, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 2 || s.curr == 4 || s.curr == 9);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -118,6 +118,25 @@ int main(int argc, char* argv[]) {
     next_states.clear();
     next_states.resize(4);
 
+    // location 1
+    pazusoba::state loc_one;
+    loc_one.curr = 1;
+    loc_one.prev = 1;
+    loc_one.begin = 1;
+    solver.expand(solver.board(), loc_one, next_states, 0);
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.score != MIN_STATE_SCORE) {
+            assert(s.curr == 0 || s.curr == 2 || s.curr == 7);
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    assert(valid == 3);
+    next_states.clear();
+    next_states.resize(4);
+
     // four
     pazusoba::state four;
     four.curr = 15;
@@ -126,7 +145,7 @@ int main(int argc, char* argv[]) {
     solver.expand(solver.board(), four, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.curr > 0) {
+        if (s.score != MIN_STATE_SCORE) {
             assert(s.curr == 14 || s.curr == 16 || s.curr == 21 || s.curr == 9);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
@@ -138,9 +157,34 @@ int main(int argc, char* argv[]) {
     assert(solver.get_board_string(next_states[0].board) ==
            "DGRRBLHGBDGGRDDBDLBGHDBLLHDBLD");
     next_states.clear();
-    next_states.resize(4);
 
     printf("test expand passed\n");
     printf("====================================\n");
+    printf("test explore - first step\n");
+    next_states.resize(500);
+    for (int i = 0; i < 30; i++) {
+        pazusoba::state s;
+        s.curr = i;
+        s.prev = i;
+        s.begin = i;
+        solver.expand(solver.board(), s, next_states, i);
+    }
+
+    valid = 0;
+    for (const auto& s : next_states) {
+        if (s.score != MIN_STATE_SCORE) {
+            printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
+            solver.print_board(s.board);
+            valid++;
+        }
+    }
+    // 4 * 2, 4 corners
+    // (3 + 3 + 4 + 4) * 3, 14 edges
+    // (3 * 4) * 4, 12 centers
+    assert(valid == 98);
+
+    printf("passed\n");
+    printf("====================================\n");
+
     return 0;
 }

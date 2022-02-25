@@ -86,7 +86,7 @@ class solver {
     /// class variables, they shouldn't be changed outside parse_args()
     ///
     int MIN_ERASE = 3;
-    int SEARCH_DEPTH = 100;
+    int SEARCH_DEPTH = 30;
     int BEAM_SIZE = 10000;
     int ROW, COLUMN;
     int MAX_COMBO;

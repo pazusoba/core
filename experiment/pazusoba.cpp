@@ -33,6 +33,7 @@ state solver::explore() {
         new_state.curr = i;
         new_state.prev = i;
         new_state.begin = i;
+        new_state.score = MIN_STATE_SCORE + 1;
         look[i] = new_state;
     }
 
@@ -73,9 +74,10 @@ state solver::explore() {
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
 
-        // for (int i = 0; i < 5; i++) {
-        //     print_state(temp[i]);
-        // }
+        for (int i = 0; i < 5; i++) {
+            // print_state(temp[i]);
+            printf("combo %d\n", temp[i].combo);
+        }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
@@ -85,25 +87,18 @@ state solver::explore() {
         for (int j = 0; j < BEAM_SIZE; j++, index++) {
             auto& curr = temp[j];
             if (VISITED[curr.prev][curr.hash]) {
-                // printf("%d ", j);
-                // printf("%d ", curr.curr);
-                // printf("%lld\n", curr.hash);
                 index--;
             } else {
                 VISITED[curr.prev][curr.hash] = true;
+                if (curr.combo > best_state.combo) {
+                    best_state = curr;
+                }
                 look[index] = curr;
             }
         }
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
-        if (look[0].combo > best_state.combo) {
-            best_state = look[0];
-            stop_count = 0;
-        } else {
-            stop_count++;
-            if (stop_count == STOP_THRESHOLD)
-                found_max_combo = true;
-        }
+        stop_count++;
     }
 
     print_state(best_state);
@@ -127,9 +122,9 @@ void solver::expand(const game_board& board,
         tiny next = curr + adjustments;
         if (next == prev)
             continue;  // invalid, same position
-        if (next - prev == 1 && next % COLUMN == 0)
+        if (next - curr == 1 && next % COLUMN == 0)
             continue;  // invalid, on the right edge
-        if (prev - next == 1 && prev % COLUMN == 0)
+        if (curr - next == 1 && curr % COLUMN == 0)
             continue;  // invalid, on the left edge
         if (next >= BOARD_SIZE)
             continue;  // invalid, out of bound
