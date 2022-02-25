@@ -6,7 +6,6 @@
 // windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
 #include "pazusoba.h"
-#include <omp.h>
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -45,7 +44,6 @@ state solver::explore() {
 
         auto look_size = look.size();
         printf("Depth %d - size %lu\n", i + 1, look_size);
-#pragma omp parallel for
         for (int j = 0; j < look_size; j++) {
             if (found_max_combo)
                 continue;  // early stop
