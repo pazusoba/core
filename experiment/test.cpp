@@ -28,6 +28,7 @@ int main() {
         if (s.score != MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            solver.print_route(s.route, 1, 0);
             assert(s.curr == 6 || s.curr == 1);
             valid++;
         }

@@ -411,17 +411,16 @@ void solver::print_route(const route_list& route,
                          const int step,
                          const int begin) const {
     printf("Route: |%d| - ", begin);
-    int curr_index = step / ROUTE_PER_LIST;
+    int max_index = step / ROUTE_PER_LIST;
     // in case, it doesn't fill up the space, check the offset
     int offset = step % ROUTE_PER_LIST;
 
     int count = 0;
-    bool first = true;
-    while (curr_index >= 0) {
-        auto curr = route[curr_index];
+    int index = 0;
+    while (index <= max_index) {
+        auto curr = route[index];
         int limit = ROUTE_PER_LIST;
-        if (first) {
-            first = false;
+        if (index == max_index) {
             limit = offset;
             // shift the number to the left
             curr <<= (ROUTE_PER_LIST - offset) * 3;
@@ -436,7 +435,7 @@ void solver::print_route(const route_list& route,
             // prepare for the next step
             curr <<= 3;
         }
-        curr_index--;
+        index++;
     }
     printf("\n");
     if (count != step) {
