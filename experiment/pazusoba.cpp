@@ -203,8 +203,8 @@ void solver::evaluate(game_board& board, state& new_state) {
         int combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
-            move_orbs_down(copy);
             combo = combo_count;
+            move_orbs_down(copy);
             move_count++;
         } else {
             break;
@@ -215,6 +215,49 @@ void solver::evaluate(game_board& board, state& new_state) {
     new_state.score = score + (combo * 20);
 }
 
+void solver::erase_combo(game_board& board, combo_list& list) {
+    visit_board board;
+    // start from the bottom and check for combos
+    for (int i = BOARD_SIZE - 1; i >= 0; i--) {
+        orb& o = board[i];
+        if (o == 0)
+            continue;  // already erased
+
+        combo c(o);
+        c.loc.insert(i);
+        // check 4 directions
+        for (int curr = 0; curr < 4; curr++) {
+            int direction = DIRECTION_ADJUSTMENTS[curr];
+            // check until reaching an invalid position
+            while (true) {
+                int next = curr + direction;
+                // similar checks from expand()
+                if (next - curr == 1 && next % COLUMN == 0)
+                    break;  // invalid, on the right edge
+                if (curr - next == 1 && curr % COLUMN == 0)
+                    break;  // invalid, on the left edge
+                if (next >= BOARD_SIZE)
+                    break;  // invalid, out of bound
+
+                if (board[next] == o) {
+                    // same colour
+                    c.loc.insert(next);
+                } else {
+                    break;  // different colour
+                }
+            }
+        }
+
+        if (c.loc.size() >= MIN_ERASE) {
+            // erase the combo
+            for (auto& i : c.loc) {
+                board[i] = 0;
+            }
+            list.push_back(c);
+        }
+    }
+}
+
 void solver::move_orbs_down(game_board& board) {
     // TODO: maybe should taking min erase into account
     // because it is impossible to erase only one orb
@@ -223,15 +266,15 @@ void solver::move_orbs_down(game_board& board) {
         // signed type is needed or otherwise, j >= won't terminate at all
         // because after -1 is the max value again
         for (int j = ROW - 1; j >= 0; --j) {
-            auto index = INDEX_OF(j, i);
-            auto orb = board[index];
-            if (orb == 0 && emptyIndex == -1) {
+            int index = INDEX_OF(j, i);
+            orb& o = board[index];
+            if (o == 0 && emptyIndex == -1) {
                 // Don't override empty index if available
                 emptyIndex = j;
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index
-                board[INDEX_OF(emptyIndex, i)] = orb;
+                board[INDEX_OF(emptyIndex, i)] = o;
                 board[index] = 0;
                 // simply move it up from last index
                 --emptyIndex;

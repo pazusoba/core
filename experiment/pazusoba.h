@@ -4,12 +4,13 @@
 
 #include <array>
 #include <deque>
-#include <set>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace pazusoba {
+// TODO: should replace all of these into const
 #define DEBUG 0
 #define DEBUG_PRINT(...) \
     if (DEBUG)           \
@@ -22,6 +23,7 @@ namespace pazusoba {
 // diagonal moves are no yet supported
 #define ALLOW_DIAGONAL 0
 #define STOP_THRESHOLD 20
+
 #define ROUTE_PER_LIST 21
 #define ROUTE_MASK 0x7000000000000000
 
@@ -81,7 +83,7 @@ struct orb_distance {
 // TODO: can be updated
 struct combo {
     orb info;
-    std::set<int> loc;
+    std::unordered_set<int> loc;
     combo(const orb& o) : info(o) {}
 };
 typedef std::vector<combo> combo_list;
@@ -118,6 +120,7 @@ public:
                 const int);
     // erase the board, count the combo and calculate the score
     void evaluate(game_board&, state&);
+    void erase_combo(game_board&, combo_list&);
     void move_orbs_down(game_board&);
     // A naive way to approach max combo, mostly accurate unless 2 colours
     int calc_max_combo(const orb_list&, const int, const int) const;
