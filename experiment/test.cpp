@@ -186,6 +186,159 @@ int main() {
 
     printf("passed\n");
     printf("====================================\n");
+    printf("test erase combo\n");
+
+    pazusoba::combo_list combos;
+    // 4 combos around
+    solver.set_board("PRHBBBPHJDRHPRRHHJGGRRHJLLLHBJ");
+    auto copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 4);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        assert(c.info == 7 || c.info == 9 || c.info == 2 || c.info == 4);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+            assert(l == 0 || l == 6 || l == 12 || l == 24 || l == 25 ||
+                   l == 26 || l == 3 || l == 4 || l == 5 || l == 17 ||
+                   l == 23 || l == 29);
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    // 10 combos all horizontal
+    solver.set_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 10);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        int prev = -1;
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+            // 2 1 0 <- this order
+            if (prev > -1)
+                assert(prev == l + 1);
+            prev = l;
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    // 10 combos, 6 vertical & 4 horizontal
+    solver.set_board("RRRBBBGLDGLDGLDGLDGLDGLDRRRBBB");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 10);
+    assert(combos[2].info == 5);
+    assert(combos[7].info == 3);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    // 4 combos with a very long U
+    solver.set_board("HHHRHRHRHRHRHRHRHRHRHRHRHRHHHR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 4);
+    assert(combos[0].info == 1);
+    assert(combos[1].info == 6);
+    assert(combos[2].info == 1);
+    assert(combos[3].info == 1);
+    assert(combos[1].loc.size() == 17);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    // 3 combos, with a long Z
+    solver.set_board("HHHHHHRRRRRHHHHHHHHRRRRRHHHHHH");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 3);
+    assert(combos[0].info == 6);
+    assert(combos[0].loc.size() == 20);
+    assert(combos[1].info == 1);
+    assert(combos[1].loc.size() == 5);
+    assert(combos[2].info == 1);
+    assert(combos[2].loc.size() == 5);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+        }
+        printf("\n");
+    }
+
+    // 5 combos, test Z shapes
+    solver.set_board("LGGGRLGGGRRLBBBRRLHHHRGLBDHHHL");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    printf("combos size %d\n", (int)combos.size());
+    assert(combos.size() == 5);
+    assert(combos[0].info == 4);
+    assert(combos[1].loc.size() == 6);
+    assert(combos[2].info == 1);
+    assert(combos[2].loc.size() == 6);
+    assert(combos[4].info == 3);
+    assert(combos[4].loc.size() == 6);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    // 4 combos, L, + and a trick shape
+    solver.set_board("HLHHRRHHHRRRBLHRRGBLHHHGBBBGGG");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    printf("combos size %d\n", (int)combos.size());
+    assert(combos.size() == 4);
+    assert(combos[0].info == 3);
+    assert(combos[0].loc.size() == 5);
+    assert(combos[1].info == 2);
+    assert(combos[1].loc.size() == 5);
+    assert(combos[2].info == 6);
+    assert(combos[2].loc.size() == 8);
+    assert(combos[3].info == 1);
+    assert(combos[3].loc.size() == 5);
+    for (const auto& c : combos) {
+        printf("orb %d - ", c.info);
+        for (const auto& l : c.loc) {
+            printf("%d ", l);
+        }
+        printf("\n");
+    }
+    combos.clear();
+
+    printf("test erase combo passed\n");
 
     return 0;
 }

@@ -189,7 +189,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min);
+        score -= (dist.max - dist.min) * 3;
     }
 
     // erase the board and find out the combo number
@@ -238,8 +238,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                     break;  // invalid, on the left edge
 
                 next += direction;
-                if (visit[next])
-                    break;
+
                 if (direction == 1 && next % COLUMN == 0)
                     break;  // invalid, on the right edge
                 if (next >= BOARD_SIZE)
@@ -249,7 +248,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                     // same colour
                     c.loc.insert(next);
                     visit[next] = true;
-                    if (curr < 2)
+                    if (i < 2)
                         vertical_count++;
                     else
                         horitonal_count++;
@@ -259,7 +258,6 @@ void solver::erase_combo(game_board& board, combo_list& list) {
             }
         }
 
-        // 3 is used here and min erase doesn't matter at all
         if (horitonal_count >= 3 || vertical_count >= 3) {
             // here, the total size needs to be more than min erase
             if ((int)c.loc.size() >= MIN_ERASE) {
