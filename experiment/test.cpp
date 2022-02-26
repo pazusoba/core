@@ -248,6 +248,13 @@ int main() {
     }
     combos.clear();
 
+    // check min erase 4
+    solver.set_min_erase(4);
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+    assert(combos.size() == 0);
+
     // 4 combos with a very long U
     solver.set_board("HHHRHRHRHRHRHRHRHRHRHRHRHRHHHR");
     copy = solver.board();
@@ -337,6 +344,14 @@ int main() {
         printf("\n");
     }
     combos.clear();
+
+    // check min erase 5
+    solver.set_min_erase(5);
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+    // should be the same as above
+    assert(combos.size() == 4);
 
     printf("test erase combo passed\n");
 
