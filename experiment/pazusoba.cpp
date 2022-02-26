@@ -127,7 +127,7 @@ void solver::expand(const game_board& board,
     for (int i = 0; i < count; i++) {
         // this is set from parse_args()
         int adjustments = DIRECTION_ADJUSTMENTS[i];
-        int next = curr + adjustments;
+        tiny next = curr + adjustments;
         if (next == prev)
             continue;  // invalid, same position
         if (next - curr == 1 && next % COLUMN == 0)
@@ -142,6 +142,7 @@ void solver::expand(const game_board& board,
         new_state.curr = next;
         new_state.prev = curr;
         new_state.begin = current.begin;
+        new_state.route = current.route;
 
         // insert to the route
         int route_index = new_state.step / 21;
@@ -199,7 +200,7 @@ void solver::evaluate(game_board& board, state& new_state) {
     game_board copy = board;
     while (true) {
         // erase_orbs(copy, list);
-        auto combo_count = list.size();
+        int combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
             move_orbs_down(copy);
@@ -408,18 +409,19 @@ void solver::print_state(const state& state) const {
 
 void solver::print_route(const route_list& route, int step) const {
     printf("Route: ");
-    for (const auto& r : route) {
-        printf("%d ", r);
+    int index = step / ROUTE_PER_LIST;
+    while (index >= 0) {
+        auto curr = route[index];
+        for (int i = 0; i < ROUTE_PER_LIST; i++) {
+            // printf("%lld ", curr);
+            int dir = (curr & ROUTE_MASK) >> 60;
+            if (dir > 0)
+                printf("%d ", dir);
+            curr <<= 3;
+        }
+        index--;
+        // printf("index %d\n", index);
     }
-    // int index = step / ROUTE_PER_LIST;
-    // int offset = step % ROUTE_PER_LIST;
-    // while (index >= 0) {
-    //     auto curr = route[index];
-    //     for (int i = 0; i < offset; i++) {
-    //         printf("%c", ORB_WEB_NAME[curr[i]]);
-    //     }
-    //     index--;
-    // }
     printf("\n");
 }
 

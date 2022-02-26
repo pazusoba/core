@@ -26,9 +26,9 @@ int main() {
     int valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 6 || s.curr == 1);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 6 || s.curr == 1);
             valid++;
         }
     }
@@ -45,9 +45,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 18 || s.curr == 25);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 18 || s.curr == 25);
             valid++;
         }
     }
@@ -64,9 +64,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 4 || s.curr == 11);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 4 || s.curr == 11);
             valid++;
         }
     }
@@ -83,9 +83,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 28 || s.curr == 23);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 28 || s.curr == 23);
             valid++;
         }
     }
@@ -102,9 +102,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 2 || s.curr == 4 || s.curr == 9);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 2 || s.curr == 4 || s.curr == 9);
             valid++;
         }
     }
@@ -127,9 +127,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 0 || s.curr == 2 || s.curr == 7);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 0 || s.curr == 2 || s.curr == 7);
             valid++;
         }
     }
@@ -146,9 +146,9 @@ int main() {
     valid = 0;
     for (const auto& s : next_states) {
         if (s.score != MIN_STATE_SCORE) {
-            assert(s.curr == 14 || s.curr == 16 || s.curr == 21 || s.curr == 9);
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
+            assert(s.curr == 14 || s.curr == 16 || s.curr == 21 || s.curr == 9);
             valid++;
         }
     }
