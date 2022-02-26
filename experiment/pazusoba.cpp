@@ -43,7 +43,7 @@ state solver::explore() {
             break;
 
         int look_size = look.size();
-        printf("Depth %d - size %d\n", i + 1, look_size);
+        DEBUG_PRINT("Depth %d - size %d\n", i + 1, look_size);
         for (int j = 0; j < look_size; j++) {
             if (found_max_combo)
                 continue;  // early stop
@@ -74,7 +74,7 @@ state solver::explore() {
 
         for (int i = 0; i < 5; i++) {
             // print_state(temp[i]);
-            printf("combo %d\n", temp[i].combo);
+            DEBUG_PRINT("combo %d\n", temp[i].combo);
         }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
@@ -89,7 +89,7 @@ state solver::explore() {
                 index--;
             } else {
                 VISITED[curr.prev][curr.hash] = true;
-                if (curr.combo > best_state.combo) {
+                if (curr.score > best_state.score) {
                     best_state = curr;
                     stop_count = 0;
                 }
@@ -104,9 +104,9 @@ state solver::explore() {
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
         stop_count++;
-        if (stop_count > STOP_THRESHOLD) {
-            break;
-        }
+        // if (stop_count > STOP_THRESHOLD) {
+        //     break;
+        // }
     }
 
     print_state(best_state);
@@ -116,7 +116,7 @@ state solver::explore() {
 void solver::expand(const game_board& board,
                     const state& current,
                     std::vector<state>& states,
-                    int loc) {
+                    const int loc) {
     int count = DIRECTION_COUNT;
     if (!ALLOW_DIAGONAL)
         count = 4;
@@ -126,8 +126,8 @@ void solver::expand(const game_board& board,
     auto step = current.step;
     for (int i = 0; i < count; i++) {
         // this is set from parse_args()
-        tiny adjustments = DIRECTION_ADJUSTMENTS[i];
-        tiny next = curr + adjustments;
+        int adjustments = DIRECTION_ADJUSTMENTS[i];
+        int next = curr + adjustments;
         if (next == prev)
             continue;  // invalid, same position
         if (next - curr == 1 && next % COLUMN == 0)
@@ -144,7 +144,7 @@ void solver::expand(const game_board& board,
         new_state.begin = current.begin;
 
         // insert to the route
-        tiny route_index = new_state.step / 21;
+        int route_index = new_state.step / 21;
         new_state.route[route_index] = current.route[route_index] << 3 | i;
 
         if (step == 0)
@@ -179,7 +179,7 @@ void solver::evaluate(game_board& board, state& new_state) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         auto& orb = board[i];
         // 0 to 5 only for 6x5, 6 to 11 will convert to 0 to 5
-        tiny loc = i % COLUMN;
+        int loc = i % COLUMN;
         if (loc > distance[orb].max)
             distance[orb].max = loc;
         else if (loc < distance[orb].min)
@@ -188,17 +188,17 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min) * 4;
+        score -= (dist.max - dist.min);
     }
 
     // erase the board and find out the combo number
     combo_list list;  // TODO: 515ms here, destructor is slow
 
-    tiny combo = 0;
-    tiny move_count = 0;
+    int combo = 0;
+    int move_count = 0;
     game_board copy = board;
     while (true) {
-        erase_orbs(copy, list);
+        // erase_orbs(copy, list);
         auto combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
@@ -212,143 +212,6 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     new_state.combo = combo;
     new_state.score = score + (combo * 20);
-}
-
-void solver::erase_combo(game_board& board,
-                         visit_board& visited,
-                         std::deque<int>* queue,
-                         combo& combo,
-                         int ox,
-                         int oy) {
-    // assume this index is valid
-    auto orb_index = INDEX_OF(ox, oy);
-    auto orb = board[orb_index];
-    // should reduce the time, this function is called but how?
-    queue->emplace_front(orb_index);  // 25%
-
-    while (queue->size() > 0) {
-        auto currIndex = queue->front();
-        queue->pop_front();
-        if (visited[currIndex])
-            continue;
-        else
-            visited[currIndex] = 1;
-
-        int x = currIndex / COLUMN;
-        // int y = currIndex % COLUMN;
-        int y = currIndex - x * COLUMN;
-
-        // Check vertically from x
-        // go up from x
-        bool vup = true;
-        int vupIndex = x;
-        while (vup) {
-            int cx = vupIndex - 1;
-            if (cx >= ROW) {
-                vup = false;
-            } else if (board[INDEX_OF(cx, y)] == orb) {
-                vupIndex--;
-            } else {
-                vup = false;
-            }
-        }
-        // go down from x
-        bool vdown = true;
-        int vdownIndex = x;
-        while (vdown) {
-            int cx = vdownIndex + 1;
-            if (cx >= ROW) {
-                vdown = false;
-            } else if (board[INDEX_OF(cx, y)] == orb) {
-                vdownIndex++;
-            } else {
-                vdown = false;
-            }
-        }
-
-        // as long as three orbs are connected, it can be erased
-        // min erase doesn't matter at all here
-        bool vErase = vdownIndex - vupIndex >= 2;
-        for (int i = vupIndex; i <= vdownIndex; i++) {
-            auto currIndex = INDEX_OF(i, y);
-            if (vErase) {
-                // add this location and clear the orb
-                combo.loc.insert(currIndex);  // 7.8%
-                board[currIndex] = 0;
-                // to be visited
-                if (i != x)
-                    queue->emplace_front(currIndex);
-            } else {
-                // simply go and visit it
-                queue->emplace_front(currIndex);
-            }
-        }
-
-        // Check horizontally from y
-        // go left from y
-        bool hleft = true;
-        int hleftIndex = y;
-        while (hleft) {
-            int cy = hleftIndex - 1;
-            if (cy >= COLUMN) {
-                hleft = false;
-            } else if (board[INDEX_OF(x, cy)] == orb) {
-                hleftIndex--;
-            } else {
-                hleft = false;
-            }
-        }
-        // go right from y
-        bool hright = true;
-        int hrightIndex = y;
-        while (hright) {
-            int cy = hrightIndex + 1;
-            if (cy >= COLUMN) {
-                hright = false;
-            } else if (board[INDEX_OF(x, cy)] == orb) {
-                hrightIndex++;
-            } else {
-                hright = false;
-            }
-        }
-
-        bool hErase = hrightIndex - hleftIndex >= 2;
-        for (int i = hleftIndex; i <= hrightIndex; i++) {
-            auto currIndex = INDEX_OF(x, i);
-            if (hErase) {
-                combo.loc.insert(currIndex);  // 7.8%
-                board[currIndex] = 0;
-                if (i != y)
-                    queue->emplace_front(currIndex);
-            } else {
-                queue->emplace_front(currIndex);
-            }
-        }
-    }
-}
-
-void solver::erase_orbs(game_board& board, combo_list& list) {
-    visit_board erased;
-    std::deque<int> queue;
-
-    for (int x = 0; x < ROW; x++) {
-        for (int y = 0; y < COLUMN; y++) {
-            auto orb = board[INDEX_OF(x, y)];
-            // ignore empty orbs
-            if (orb == 0)
-                continue;
-
-            combo combo(orb);
-            // 58%, can be optimised, improving erasecombo can increase
-            // the speed very significantly
-            queue.clear();
-            erase_combo(board, erased, &queue, combo, x, y);
-            if ((int)combo.loc.size() >= MIN_ERASE) {
-                list.push_back(combo);  // 24% here, can be optimized
-                // maybe a callback not sure how
-            }
-        }
-    }
 }
 
 void solver::move_orbs_down(game_board& board) {
@@ -523,23 +386,41 @@ void solver::set_beam_size(int beam_size) {
 }
 
 void solver::print_board(const game_board& board) const {
-    DEBUG_PRINT("Board: ");
+    printf("Board: ");
     for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
         auto orb = board[i];
         if (orb == 0)
             break;
-        DEBUG_PRINT("%c", ORB_WEB_NAME[orb]);
+        printf("%c", ORB_WEB_NAME[orb]);
     }
-    DEBUG_PRINT("\n");
+    printf("\n");
 }
 
 void solver::print_state(const state& state) const {
-    DEBUG_PRINT("=============== STATE ===============\n");
-    DEBUG_PRINT("Score: %d\n", state.score);
-    DEBUG_PRINT("Combo: %d/%d\n", state.combo, MAX_COMBO);
-    DEBUG_PRINT("Step: %d\n", state.step);
+    printf("=============== STATE ===============\n");
+    printf("Score: %d\n", state.score);
+    printf("Combo: %d/%d\n", state.combo, MAX_COMBO);
+    printf("Step: %d\n", state.step);
     print_board(state.board);
-    DEBUG_PRINT("=====================================\n");
+    print_route(state.route, state.step);
+    printf("=====================================\n");
+}
+
+void solver::print_route(const route_list& route, int step) const {
+    printf("Route: ");
+    for (const auto& r : route) {
+        printf("%d ", r);
+    }
+    // int index = step / ROUTE_PER_LIST;
+    // int offset = step % ROUTE_PER_LIST;
+    // while (index >= 0) {
+    //     auto curr = route[index];
+    //     for (int i = 0; i < offset; i++) {
+    //         printf("%c", ORB_WEB_NAME[curr[i]]);
+    //     }
+    //     index--;
+    // }
+    printf("\n");
 }
 
 // This is for debugging only, don't use it in pazusoba.cpp
