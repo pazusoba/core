@@ -104,9 +104,9 @@ state solver::explore() {
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
         stop_count++;
-        // if (stop_count > STOP_THRESHOLD) {
-        //     break;
-        // }
+        if (stop_count > STOP_THRESHOLD) {
+            break;
+        }
     }
 
     print_state(best_state);
@@ -199,7 +199,7 @@ void solver::evaluate(game_board& board, state& new_state) {
     int move_count = 0;
     game_board copy = board;
     while (true) {
-        // erase_orbs(copy, list);
+        erase_combo(copy, list);
         int combo_count = list.size();
         // Check if there are more combo
         if (combo_count > combo) {
@@ -216,44 +216,58 @@ void solver::evaluate(game_board& board, state& new_state) {
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
-    visit_board board;
+    visit_board visit;
     // start from the bottom and check for combos
-    for (int i = BOARD_SIZE - 1; i >= 0; i--) {
-        orb& o = board[i];
+    for (int curr = BOARD_SIZE - 1; curr >= 0; curr--) {
+        orb& o = board[curr];
         if (o == 0)
             continue;  // already erased
 
         combo c(o);
-        c.loc.insert(i);
+        c.loc.insert(curr);
         // check 4 directions
-        for (int curr = 0; curr < 4; curr++) {
-            int direction = DIRECTION_ADJUSTMENTS[curr];
-            // check until reaching an invalid position
+        int horitonal_count = 1;
+        int vertical_count = 1;
+
+        // check until reaching an invalid position
+        for (int i = 0; i < 4; i++) {
+            int direction = DIRECTION_ADJUSTMENTS[i];
+            int next = curr;
             while (true) {
-                int next = curr + direction;
-                // similar checks from expand()
-                if (next - curr == 1 && next % COLUMN == 0)
-                    break;  // invalid, on the right edge
-                if (curr - next == 1 && curr % COLUMN == 0)
+                if (direction == -1 && next % COLUMN == 0)
                     break;  // invalid, on the left edge
+
+                next += direction;
+                if (visit[next])
+                    break;
+                if (direction == 1 && next % COLUMN == 0)
+                    break;  // invalid, on the right edge
                 if (next >= BOARD_SIZE)
                     break;  // invalid, out of bound
 
                 if (board[next] == o) {
                     // same colour
                     c.loc.insert(next);
+                    visit[next] = true;
+                    if (curr < 2)
+                        vertical_count++;
+                    else
+                        horitonal_count++;
                 } else {
                     break;  // different colour
                 }
             }
         }
 
-        if (c.loc.size() >= MIN_ERASE) {
-            // erase the combo
-            for (auto& i : c.loc) {
-                board[i] = 0;
+        // 3 is used here and min erase doesn't matter at all
+        if (horitonal_count >= 3 || vertical_count >= 3) {
+            // here, the total size needs to be more than min erase
+            if ((int)c.loc.size() >= MIN_ERASE) {
+                // erase the combo
+                for (auto& i : c.loc)
+                    board[i] = 0;
+                list.push_back(c);
             }
-            list.push_back(c);
         }
     }
 }
