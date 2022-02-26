@@ -145,8 +145,8 @@ void solver::expand(const game_board& board,
         new_state.route = current.route;
 
         // insert to the route
-        int route_index = new_state.step / 21;
-        new_state.route[route_index] = current.route[route_index] << 3 | i;
+        int route_index = new_state.step / ROUTE_PER_LIST;
+        new_state.route[route_index] = new_state.route[route_index] << 3 | i;
 
         if (step == 0)
             new_state.board = BOARD;
@@ -403,26 +403,46 @@ void solver::print_state(const state& state) const {
     printf("Combo: %d/%d\n", state.combo, MAX_COMBO);
     printf("Step: %d\n", state.step);
     print_board(state.board);
-    print_route(state.route, state.step);
+    print_route(state.route, state.step, state.begin);
     printf("=====================================\n");
 }
 
-void solver::print_route(const route_list& route, int step) const {
-    printf("Route: ");
-    int index = step / ROUTE_PER_LIST;
-    while (index >= 0) {
-        auto curr = route[index];
-        for (int i = 0; i < ROUTE_PER_LIST; i++) {
-            // printf("%lld ", curr);
+void solver::print_route(const route_list& route,
+                         const int step,
+                         const int begin) const {
+    printf("Route: |%d| - ", begin);
+    int curr_index = step / ROUTE_PER_LIST;
+    // in case, it doesn't fill up the space, check the offset
+    int offset = step % ROUTE_PER_LIST;
+
+    int count = 0;
+    bool first = true;
+    while (curr_index >= 0) {
+        auto curr = route[curr_index];
+        int limit = ROUTE_PER_LIST;
+        if (first) {
+            first = false;
+            limit = offset;
+            // shift the number to the left
+            curr <<= (ROUTE_PER_LIST - offset) * 3;
+        }
+
+        for (int i = 0; i < limit; i++) {
+            // get first 3 bits and shift to the right, 3 * 20
             int dir = (curr & ROUTE_MASK) >> 60;
-            if (dir > 0)
-                printf("%d ", dir);
+            printf("%d", dir);
+            // printf("%c", DIRECTION_NAME[dir]);
+            count++;
+            // prepare for the next step
             curr <<= 3;
         }
-        index--;
-        // printf("index %d\n", index);
+        curr_index--;
     }
     printf("\n");
+    if (count != step) {
+        printf("count (%d) should be equal to step (%d)\n", count, step);
+        exit(1);
+    }
 }
 
 // This is for debugging only, don't use it in pazusoba.cpp

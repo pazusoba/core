@@ -40,6 +40,8 @@ typedef std::array<long long int, MAX_DEPTH / ROUTE_PER_LIST + 1> route_list;
 const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
                                       'J', ' ', 'P', ' ', ' ', ' ', ' '};
 
+const char DIRECTION_NAME[4] = {'U', 'D', 'L', 'R'};
+
 /// All 8 possible directions
 enum DIRECTIONS {
     up = 0,
@@ -129,7 +131,7 @@ public:
 
     void print_board(const game_board&) const;
     void print_state(const state&) const;
-    void print_route(const route_list&, int) const;
+    void print_route(const route_list&, const int, const int) const;
     std::string get_board_string(const game_board&) const;
     void usage() const;
 
