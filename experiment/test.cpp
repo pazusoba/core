@@ -1,7 +1,7 @@
 #include <cassert>
 #include "pazusoba.h"
 
-int main(int argc, char* argv[]) {
+int main() {
     printf("test set_board\n");
     auto solver = pazusoba::solver();
     solver.set_board("DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");

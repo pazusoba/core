@@ -91,7 +91,9 @@ state solver::explore() {
                 VISITED[curr.prev][curr.hash] = true;
                 if (curr.combo > best_state.combo) {
                     best_state = curr;
+                    stop_count = 0;
                 }
+
                 // break if empty boards are hit
                 if (curr.score == MIN_STATE_SCORE) {
                     break;
@@ -102,6 +104,9 @@ state solver::explore() {
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
         stop_count++;
+        if (stop_count > STOP_THRESHOLD) {
+            break;
+        }
     }
 
     print_state(best_state);
@@ -356,10 +361,9 @@ void solver::move_orbs_down(game_board& board) {
         for (int j = ROW - 1; j >= 0; --j) {
             auto index = INDEX_OF(j, i);
             auto orb = board[index];
-            if (orb == 0) {
+            if (orb == 0 && emptyIndex == -1) {
                 // Don't override empty index if available
-                if (emptyIndex == -1)
-                    emptyIndex = j;
+                emptyIndex = j;
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index
