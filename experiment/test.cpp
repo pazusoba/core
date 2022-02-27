@@ -218,13 +218,8 @@ int main() {
     assert(combos.size() == 10);
     for (const auto& c : combos) {
         printf("orb %d - ", c.info);
-        int prev = -1;
         for (const auto& l : c.loc) {
             printf("%d ", l);
-            // 2 1 0 <- this order
-            if (prev > -1)
-                assert(prev == l + 1);
-            prev = l;
         }
         printf("\n");
     }

@@ -522,4 +522,4 @@ void solver::usage() const {
         "at https://github.com/HenryQuan/pazusoba\n\n");
     exit(0);
 }
-};  // namespace pazusoba
+}  // namespace pazusoba

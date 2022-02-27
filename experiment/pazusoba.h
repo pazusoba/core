@@ -148,6 +148,6 @@ public:
     int board_size() const { return BOARD_SIZE; }
     const game_board& board() const { return BOARD; }
 };
-};  // namespace pazusoba
+}  // namespace pazusoba
 
 #endif
