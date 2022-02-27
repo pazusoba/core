@@ -302,7 +302,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
             }
 
             // only 2 same orbs are needed to make 3 in a row
-            if (counter[0] + counter[1] >= 2 || counter[2] + counter[3] >= 2) {
+            if (counter[0] + counter[1] >= 2) {
                 c.loc.insert(to_visit);
                 board[to_visit] = 0;
                 // up & down
@@ -314,6 +314,11 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                     c.loc.insert(index);
                     board[index] = 0;
                 }
+            }
+
+            if (counter[2] + counter[3] >= 2) {
+                c.loc.insert(to_visit);
+                board[to_visit] = 0;
                 // left & right
                 for (int i = -counter[2]; i <= counter[3]; i++) {
                     if (i == 0)
