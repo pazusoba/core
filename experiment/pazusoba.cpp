@@ -501,11 +501,12 @@ void solver::set_beam_size(int beam_size) {
 
 void solver::print_board(const game_board& board) const {
     printf("Board: ");
-    for (int i = 0; i < MAX_BOARD_LENGTH; i++) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
         auto orb = board[i];
         if (orb == 0)
-            break;
-        printf("%c", ORB_WEB_NAME[orb]);
+            printf("P");
+        else
+            printf("%c", ORB_WEB_NAME[orb]);
     }
     printf("\n");
 }

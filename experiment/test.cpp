@@ -249,6 +249,8 @@ int main() {
     solver.print_board(copy);
     solver.erase_combo(copy, combos);
     assert(combos.size() == 0);
+    solver.set_min_erase(3);
+    combos.clear();
 
     // 4 combos with a very long U
     solver.set_board("HHHRHRHRHRHRHRHRHRHRHRHRHRHHHR");
@@ -282,15 +284,18 @@ int main() {
     assert(combos[2].loc.size() == 5);
     combos.clear();
 
-    // 5 combos, test Z shapes
+    //                 xxx
+    // 5 combos, test xxx shapes
     solver.set_board("LGGGRLGGGRRLBBBRRLHHHRGLBDHHHL");
     copy = solver.board();
     solver.print_board(copy);
     solver.erase_combo(copy, combos);
+    solver.print_board(copy);
 
     print_combo(combos);
     assert(combos.size() == 5);
     assert(combos[0].info == 4);
+    assert(combos[1].info == 6);
     assert(combos[1].loc.size() == 6);
     assert(combos[2].info == 1);
     assert(combos[2].loc.size() == 6);
@@ -334,6 +339,7 @@ int main() {
     solver.erase_combo(copy, combos);
     // should be the same as above
     assert(combos.size() == 4);
+    solver.set_min_erase(3);
     combos.clear();
 
     printf("test erase combo passed\n");
