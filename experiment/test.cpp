@@ -257,6 +257,8 @@ int main() {
     solver.print_board(copy);
     solver.erase_combo(copy, combos);
 
+    printf("combo size: %d\n", (int)combos.size());
+    printf("heal size: %d\n", (int)combos[1].loc.size());
     assert(combos.size() == 4);
     assert(combos[0].info == 1);
     assert(combos[1].info == 6);
@@ -300,13 +302,13 @@ int main() {
     solver.erase_combo(copy, combos);
 
     printf("combos size %d\n", (int)combos.size());
-    assert(combos.size() == 5);
-    assert(combos[0].info == 4);
-    assert(combos[1].loc.size() == 6);
-    assert(combos[2].info == 1);
-    assert(combos[2].loc.size() == 6);
-    assert(combos[4].info == 3);
-    assert(combos[4].loc.size() == 6);
+    // assert(combos.size() == 5);
+    // assert(combos[0].info == 4);
+    // assert(combos[1].loc.size() == 6);
+    // assert(combos[2].info == 1);
+    // assert(combos[2].loc.size() == 6);
+    // assert(combos[4].info == 3);
+    // assert(combos[4].loc.size() == 6);
     for (const auto& c : combos) {
         printf("orb %d - ", c.info);
         for (const auto& l : c.loc) {
@@ -315,6 +317,7 @@ int main() {
         printf("\n");
     }
     combos.clear();
+    assert(false);
 
     // 1 combo, all red
     solver.set_board("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");

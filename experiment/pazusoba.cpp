@@ -218,85 +218,113 @@ void solver::evaluate(game_board& board, state& new_state) {
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
-    visit_board visit{0};
+    visit_board visited_location{0};
     // start from the bottom and check for combos
-    for (int curr = BOARD_SIZE - 1; curr >= 0; curr--) {
-        if (visit[curr])
+    for (int curr_index = BOARD_SIZE - 1; curr_index >= 0; curr_index--) {
+        if (visited_location[curr_index])
             continue;  // already visited even if it is not erased
 
-        auto orb = board[curr];
+        auto orb = board[curr_index];
+        if (orb == 0)
+            continue;  // already erased
+
         combo c(orb);
-        std::queue<int> q;
-        q.emplace(curr);
+        std::queue<int> visit_queue;
+        visit_queue.emplace(curr_index);
 
         // start exploring until all connected orbs are visited
-        while (!q.empty()) {
-            int to_visit = q.front();
-            q.pop();
+        while (!visit_queue.empty()) {
+            int to_visit = visit_queue.front();
+            visit_queue.pop();
 
-            if (visit[to_visit])
-                continue;  // already visited
+            // if (visited_location[to_visit])
+            //     continue;  // already visited
 
-            // check 4 directions
-            // save indexes needed to be erased
-            int indexes[4]{0};
+            // number of connected orbs in all directions
+            int counter[4]{0};
 
             // check all four directions
             for (int i = 0; i < 4; i++) {
                 int direction = DIRECTION_ADJUSTMENTS[i];
                 // this needs to be unsigned to avoid negatives
                 tiny next = to_visit;
-                if (direction == -1 && next % COLUMN == 0)
-                    continue;  // invalid, on the left edge
+                // going in that direction until a different orb is found
+                while (true) {
+                    if (direction == -1 && next % COLUMN == 0)
+                        break;  // invalid, on the left edge
 
-                next += direction;
+                    next += direction;
 
-                if (direction == 1 && next % COLUMN == 0)
-                    continue;  // invalid, on the right edge
-                if (next >= BOARD_SIZE)
-                    continue;  // invalid, out of bound
-                if (visit[next])
-                    continue;  // invalid, already visited
+                    if (direction == 1 && next % COLUMN == 0)
+                        break;  // invalid, on the right edge
+                    if (next >= BOARD_SIZE)
+                        break;  // invalid, out of bound
+                    if (visited_location[next])
+                        break;  // invalid, already visited
 
-                if (board[next] == orb) {
-                    // same colour
-                    visit[next] = true;
-                    indexes[i]++;
+                    if (board[next] == orb) {
+                        // same colour
+                        visited_location[next] = true;
+                        counter[i]++;
 
-                    // check if there are orbs in the different direction
-                    if (i < 2) {
-                        // check left & right
+                        // check if there are orbs in the different direction
+                        for (int j = 0; j < 4; j++) {
+                            if (i < 2 && j < 2)
+                                continue;  // only search left & right
+                            if (i >= 2 && j >= 2)
+                                continue;  // only search up & down
+
+                            int direction = DIRECTION_ADJUSTMENTS[j];
+                            tiny nearby = next;
+                            if (direction == -1 && nearby % COLUMN == 0)
+                                continue;  // invalid, on the left edge
+
+                            nearby += direction;
+
+                            if (direction == 1 && nearby % COLUMN == 0)
+                                continue;  // invalid, on the right edge
+                            if (nearby >= BOARD_SIZE)
+                                continue;  // invalid, out of bound
+                            if (visited_location[nearby])
+                                continue;  // invalid, already visited
+
+                            // same orb in different direction, should visit
+                            if (board[nearby] == orb)
+                                visit_queue.emplace(next);
+                        }
                     } else {
-                        // check up & down
+                        break;  // different colour
                     }
-                } else {
-                    continue;  // different colour
                 }
             }
 
             // only 2 same orbs are needed to make 3 in a row
-            if (indexes[0] + indexes[1] >= 2 || indexes[2] + indexes[3] >= 2) {
+            if (counter[0] + counter[1] >= 2 || counter[2] + counter[3] >= 2) {
                 c.loc.insert(to_visit);
+                board[to_visit] = 0;
                 // up & down
-                for (int i = -indexes[0]; i <= indexes[1]; i++) {
+                for (int i = -counter[0]; i <= counter[1]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
                     // convert index to location, -1 moves -6 for 6x5
-                    c.loc.insert(to_visit + i * COLUMN);
+                    auto index = to_visit + i * COLUMN;
+                    c.loc.insert(index);
+                    board[index] = 0;
                 }
                 // left & right
-                for (int i = -indexes[2]; i <= indexes[3]; i++) {
+                for (int i = -counter[2]; i <= counter[3]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
-                    c.loc.insert(to_visit + i);
+                    auto index = to_visit + i;
+                    c.loc.insert(index);
+                    board[index] = 0;
                 }
             }
         }
 
         // add this combo to the list
-        if ((int)c.loc.size() >= MIN_ERASE) {
+        if ((int)c.loc.size() >= MIN_ERASE)
             list.push_back(c);
-        }
     }
 }
 
