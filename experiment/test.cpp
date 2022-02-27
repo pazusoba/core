@@ -195,6 +195,7 @@ int main() {
     solver.print_board(copy);
     solver.erase_combo(copy, combos);
 
+    printf("combo size: %d\n", (int)combos.size());
     assert(combos.size() == 4);
     for (const auto& c : combos) {
         printf("orb %d - ", c.info);
@@ -313,6 +314,16 @@ int main() {
         }
         printf("\n");
     }
+    combos.clear();
+
+    // 1 combo, all red
+    solver.set_board("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    assert(combos.size() == 1);
+    assert(combos[0].info == 1);
     combos.clear();
 
     // 4 combos, L, + and a trick shape

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <queue>
 #include "hash.h"
 
 namespace pazusoba {
@@ -128,6 +129,7 @@ void solver::expand(const game_board& board,
         // this is set from parse_args()
         int adjustments = DIRECTION_ADJUSTMENTS[i];
         tiny next = curr + adjustments;
+        // todo: right edge can be checked before the calculation
         if (next == prev)
             continue;  // invalid, same position
         if (next - curr == 1 && next % COLUMN == 0)
@@ -216,56 +218,84 @@ void solver::evaluate(game_board& board, state& new_state) {
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
-    visit_board visit;
+    visit_board visit{0};
     // start from the bottom and check for combos
     for (int curr = BOARD_SIZE - 1; curr >= 0; curr--) {
-        orb& o = board[curr];
-        if (o == 0)
-            continue;  // already erased
+        if (visit[curr])
+            continue;  // already visited even if it is not erased
 
-        combo c(o);
-        c.loc.insert(curr);
-        // check 4 directions
-        int horitonal_count = 1;
-        int vertical_count = 1;
+        auto orb = board[curr];
+        combo c(orb);
+        std::queue<int> q;
+        q.emplace(curr);
 
-        // check until reaching an invalid position
-        for (int i = 0; i < 4; i++) {
-            int direction = DIRECTION_ADJUSTMENTS[i];
-            int next = curr;
-            while (true) {
+        // start exploring until all connected orbs are visited
+        while (!q.empty()) {
+            int to_visit = q.front();
+            q.pop();
+
+            if (visit[to_visit])
+                continue;  // already visited
+
+            // check 4 directions
+            // save indexes needed to be erased
+            int indexes[4]{0};
+
+            // check all four directions
+            for (int i = 0; i < 4; i++) {
+                int direction = DIRECTION_ADJUSTMENTS[i];
+                // this needs to be unsigned to avoid negatives
+                tiny next = to_visit;
                 if (direction == -1 && next % COLUMN == 0)
-                    break;  // invalid, on the left edge
+                    continue;  // invalid, on the left edge
 
                 next += direction;
 
                 if (direction == 1 && next % COLUMN == 0)
-                    break;  // invalid, on the right edge
+                    continue;  // invalid, on the right edge
                 if (next >= BOARD_SIZE)
-                    break;  // invalid, out of bound
+                    continue;  // invalid, out of bound
+                if (visit[next])
+                    continue;  // invalid, already visited
 
-                if (board[next] == o) {
+                if (board[next] == orb) {
                     // same colour
-                    c.loc.insert(next);
                     visit[next] = true;
-                    if (i < 2)
-                        vertical_count++;
-                    else
-                        horitonal_count++;
+                    indexes[i]++;
+
+                    // check if there are orbs in the different direction
+                    if (i < 2) {
+                        // check left & right
+                    } else {
+                        // check up & down
+                    }
                 } else {
-                    break;  // different colour
+                    continue;  // different colour
+                }
+            }
+
+            // only 2 same orbs are needed to make 3 in a row
+            if (indexes[0] + indexes[1] >= 2 || indexes[2] + indexes[3] >= 2) {
+                c.loc.insert(to_visit);
+                // up & down
+                for (int i = -indexes[0]; i <= indexes[1]; i++) {
+                    if (i == 0)
+                        continue;  // this is the source orb itself
+                    // convert index to location, -1 moves -6 for 6x5
+                    c.loc.insert(to_visit + i * COLUMN);
+                }
+                // left & right
+                for (int i = -indexes[2]; i <= indexes[3]; i++) {
+                    if (i == 0)
+                        continue;  // this is the source orb itself
+                    c.loc.insert(to_visit + i);
                 }
             }
         }
 
-        if (horitonal_count >= 3 || vertical_count >= 3) {
-            // here, the total size needs to be more than min erase
-            if ((int)c.loc.size() >= MIN_ERASE) {
-                // erase the combo
-                for (auto& i : c.loc)
-                    board[i] = 0;
-                list.push_back(c);
-            }
+        // add this combo to the list
+        if ((int)c.loc.size() >= MIN_ERASE) {
+            list.push_back(c);
         }
     }
 }
