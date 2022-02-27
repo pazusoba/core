@@ -262,7 +262,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
 
                     if (board[next] == orb) {
                         // same colour
-                        visited_location[next] = orb;
+                        visited_location[next] = true;
                         counter[i]++;
 
                         // check if there are orbs in the different direction
@@ -343,10 +343,11 @@ void solver::move_orbs_down(game_board& board) {
         // because after -1 is the max value again
         for (int j = ROW - 1; j >= 0; --j) {
             int index = INDEX_OF(j, i);
-            orb& o = board[index];
-            if (o == 0 && emptyIndex == -1) {
+            orb o = board[index];
+            if (o == 0) {
                 // Don't override empty index if available
-                emptyIndex = j;
+                if (emptyIndex == -1)
+                    emptyIndex = j;
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index

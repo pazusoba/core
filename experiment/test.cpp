@@ -250,6 +250,18 @@ int main() {
     assert(combos.size() == 10);
     combos.clear();
 
+    // 10 combos with jammer and poison
+    solver.set_board("RRRBBBDDDHRJPHLHRJPHLHRJPHLGGG");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 10);
+    assert(combos[3].info == 9);
+    assert(combos[4].info == 7);
+    combos.clear();
+
     // 10 combos, 6 vertical & 4 horizontal
     solver.set_board("RRRBBBGLDGLDGLDGLDGLDGLDRRRBBB");
     copy = solver.board();
