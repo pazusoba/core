@@ -257,6 +257,7 @@ int main() {
     copy = solver.board();
     solver.print_board(copy);
     solver.erase_combo(copy, combos);
+    solver.print_board(copy);
 
     printf("heal size: %d\n", (int)combos[1].loc.size());
     print_combo(combos);

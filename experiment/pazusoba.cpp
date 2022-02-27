@@ -289,8 +289,11 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                                 continue;  // invalid, already visited
 
                             // same orb in different direction, should visit
-                            if (board[nearby] == orb)
+                            if (board[nearby] == orb) {
+                                // check next first before nearby
                                 visit_queue.emplace(next);
+                                visit_queue.emplace(nearby);
+                            }
                         }
                     } else {
                         break;  // different colour
