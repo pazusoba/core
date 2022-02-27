@@ -259,12 +259,10 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                         break;  // invalid, on the right edge
                     if (next >= BOARD_SIZE)
                         break;  // invalid, out of bound
-                    if (visited_location[next])
-                        break;  // invalid, already visited
 
                     if (board[next] == orb) {
                         // same colour
-                        visited_location[next] = true;
+                        visited_location[next] = orb;
                         counter[i]++;
 
                         // check if there are orbs in the different direction

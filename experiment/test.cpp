@@ -13,6 +13,10 @@ void print_combo(const pazusoba::combo_list& combos) {
 }
 
 int main() {
+    ///
+    /// Set Board
+    ///
+
     printf("test set_board\n");
     auto solver = pazusoba::solver();
     solver.set_board("DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
@@ -25,6 +29,11 @@ int main() {
            "DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
     printf("test set_board passed\n");
     printf("====================================\n");
+
+    ///
+    /// Expand
+    ///
+
     printf("test expand\n");
     std::vector<pazusoba::state> next_states;
     next_states.resize(4);
@@ -172,6 +181,11 @@ int main() {
 
     printf("test expand passed\n");
     printf("====================================\n");
+
+    ///
+    /// Explore
+    ///
+
     printf("test explore - first step\n");
     next_states.resize(500);
     for (int i = 0; i < 30; i++) {
@@ -197,6 +211,11 @@ int main() {
 
     printf("passed\n");
     printf("====================================\n");
+
+    ///
+    /// Erase COmbo
+    ///
+
     printf("test erase combo\n");
 
     pazusoba::combo_list combos;
@@ -343,7 +362,128 @@ int main() {
     solver.set_min_erase(3);
     combos.clear();
 
+    // 3 + and 2 combos
+    solver.set_board("BBHHLLBBBLLLDBGGLRDGGGHLDRGRRR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 5);
+    assert(combos[0].info == 1);
+    assert(combos[0].loc.size() == 3);
+    assert(combos[1].info == 3);
+    assert(combos[1].loc.size() == 5);
+    assert(combos[2].info == 5);
+    assert(combos[2].loc.size() == 3);
+    assert(combos[3].info == 4);
+    assert(combos[3].loc.size() == 5);
+    assert(combos[4].info == 2);
+    assert(combos[4].loc.size() == 5);
+    combos.clear();
+
+    // check min erase 5
+    solver.set_min_erase(5);
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+    print_combo(combos);
+
+    assert(combos.size() == 3);
+    solver.set_min_erase(3);
+    combos.clear();
+
+    // 5 combos, T, L and going up shape
+    solver.set_board("BBBLLLBDBGLLDDGGLRDDGGRRDRGRRR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 5);
+    assert(combos[0].info == 1);
+    assert(combos[0].loc.size() == 5);
+    assert(combos[1].info == 3);
+    assert(combos[1].loc.size() == 6);
+    assert(combos[2].info == 5);
+    assert(combos[2].loc.size() == 6);
+    assert(combos[3].info == 4);
+    assert(combos[3].loc.size() == 5);
+    assert(combos[4].info == 2);
+    assert(combos[4].loc.size() == 3);
+    combos.clear();
+
+    // 5 combos, T, L
+    solver.set_board("BBBLLLBDBGLLBDGGLRDDDGGGDRGRRR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 5);
+    assert(combos[0].info == 1);
+    assert(combos[0].loc.size() == 3);
+    assert(combos[1].info == 5);
+    assert(combos[1].loc.size() == 5);
+    assert(combos[2].info == 3);
+    assert(combos[2].loc.size() == 5);
+    assert(combos[3].info == 4);
+    assert(combos[3].loc.size() == 5);
+    assert(combos[4].info == 2);
+    assert(combos[4].loc.size() == 5);
+    combos.clear();
+
+    // no combo
+    solver.set_board("LBGHGDHDBDLBHDLHDRLHRBBGBLBDGR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 0);
+    combos.clear();
+
+    // 2 combos with a long heal
+    solver.set_board("BDLHGBBBHHHDBBHHGLDBRHHGGBHHGR");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 2);
+    assert(combos[0].info == 6);
+    assert(combos[0].loc.size() == 7);
+    assert(combos[1].info == 2);
+    assert(combos[1].loc.size() == 7);
+    combos.clear();
+
+    // 3 combos with a tricky shape
+    solver.set_board("DHLLHLHHHHHHHHRRHBHRRRHBGBRDDD");
+    copy = solver.board();
+    solver.print_board(copy);
+    solver.erase_combo(copy, combos);
+
+    print_combo(combos);
+    assert(combos.size() == 3);
+    assert(combos[0].info == 5);
+    assert(combos[0].loc.size() == 3);
+    assert(combos[1].info == 1);
+    assert(combos[1].loc.size() == 5);
+    assert(combos[2].info == 6);
+    assert(combos[2].loc.size() == 13);
+    combos.clear();
+
     printf("test erase combo passed\n");
+    printf("====================================\n");
+
+    ///
+    /// Move orbs down
+    ///
+
+    printf("test move orbs down\n");
+
+    printf("test move orbs down passed\n");
+    printf("====================================\n");
 
     return 0;
 }
