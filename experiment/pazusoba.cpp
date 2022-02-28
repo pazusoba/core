@@ -7,7 +7,6 @@
 
 #include "pazusoba.h"
 #include <algorithm>
-#include <bitset>
 #include <cstring>
 #include <iostream>
 #include <queue>
@@ -150,6 +149,8 @@ void solver::expand(const game_board& board,
 
         // insert to the route
         int route_index = new_state.step / ROUTE_PER_LIST;
+        if (new_state.step % ROUTE_PER_LIST == 0)
+            route_index--;  // the last one in the previous number
         new_state.route[route_index] = new_state.route[route_index] << 3 | i;
 
         if (step == 0)
@@ -535,12 +536,6 @@ void solver::print_state(const state& state) const {
 void solver::print_route(const route_list& route,
                          const int step,
                          const int begin) const {
-    for (const auto& ll : route) {
-        if (ll == 0)
-            break;
-        std::cout << std::bitset<64>(ll) << std::endl;
-    }
-
     printf("Route: |%d| - ", begin);
     int max_index = step / ROUTE_PER_LIST;
     // in case, it doesn't fill up the space, check the offset
