@@ -591,7 +591,7 @@ void solver::usage() const {
         "steps\t-- maximum steps before the program stops "
         "searching\nmax beam size\t-- the width of the search space, "
         "larger number means slower speed but better results\n\nMore "
-        "at https://github.com/HenryQuan/pazusoba\n\n");
+        "at https://github.com/pazusoba/core\n\n");
     exit(0);
 }
 }  // namespace pazusoba

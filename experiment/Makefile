@@ -26,5 +26,8 @@ benchmark:
 	$(GCC) $(FLAGS) $(FILES) benchmark.cpp -o pazusoba-benchmark
 	./pazusoba-benchmark
 
+so:
+	$(GCC) $(FLAGS) $(FILES) api.cpp -shared -o libpazusoba.so
+
 clean:
 	rm pazusoba pazusoba-test
