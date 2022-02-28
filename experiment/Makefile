@@ -12,7 +12,7 @@ else
 	GCC=g++
 endif
 
-FLAGS=-std=c++11 -Wall -Wextra -pedantic -O2 -g
+FLAGS=-std=c++11 -Wall -Wextra -pedantic -fopenmp -O2 -g
 FILES=pazusoba.cpp
 
 main:
@@ -21,6 +21,10 @@ main:
 test:
 	$(GCC) $(FLAGS) $(FILES) test.cpp -o pazusoba-test
 	./pazusoba-test
+
+benchmark:
+	$(GCC) $(FLAGS) $(FILES) benchmark.cpp -o pazusoba-benchmark
+	./pazusoba-benchmark
 
 clean:
 	rm pazusoba pazusoba-test

@@ -90,7 +90,7 @@ state solver::explore() {
                 index--;
             } else {
                 VISITED[curr.prev][curr.hash] = true;
-                if (curr.score > best_state.score) {
+                if (curr.combo > best_state.combo) {
                     best_state = curr;
                     stop_count = 0;
                 }
@@ -191,7 +191,7 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     for (int i = 0; i < ORB_COUNT; i++) {
         auto& dist = distance[i];
-        score -= (dist.max - dist.min) * 3;
+        score -= (dist.max - dist.min);
     }
 
     // erase the board and find out the combo number
@@ -520,6 +520,11 @@ void solver::print_board(const game_board& board) const {
 
 void solver::print_state(const state& state) const {
     printf("=============== STATE ===============\n");
+    if (state.step == 0) {
+        printf("Invalid state\n");
+        exit(-1);
+    }
+
     printf("Score: %d\n", state.score);
     printf("Combo: %d/%d\n", state.combo, MAX_COMBO);
     printf("Step: %d\n", state.step);
