@@ -556,8 +556,8 @@ void solver::print_route(const route_list& route,
         for (int i = 0; i < limit; i++) {
             // get first 3 bits and shift to the right, 3 * 20
             int dir = (curr & ROUTE_MASK) >> 60;
-            printf("%d", dir);
-            // printf("%c", DIRECTION_NAME[dir]);
+            // printf("%d", dir);
+            printf("%c", DIRECTION_NAME[dir]);
             count++;
             // prepare for the next step
             curr <<= 3;
