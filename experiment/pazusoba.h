@@ -22,7 +22,7 @@ namespace pazusoba {
 #define MIN_STATE_SCORE -9999
 // diagonal moves are no yet supported
 #define ALLOW_DIAGONAL 0
-#define STOP_THRESHOLD 100
+#define STOP_THRESHOLD 20
 
 #define ROUTE_PER_LIST 21
 #define ROUTE_MASK 0x7000000000000000

@@ -45,6 +45,7 @@ state solver::explore() {
 
         int look_size = look.size();
         DEBUG_PRINT("Depth %d - size %d\n", i + 1, look_size);
+#pragma omp parallel for
         for (int j = 0; j < look_size; j++) {
             if (found_max_combo)
                 continue;  // early stop
