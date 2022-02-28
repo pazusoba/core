@@ -7,6 +7,7 @@
 
 #include "pazusoba.h"
 #include <algorithm>
+#include <bitset>
 #include <cstring>
 #include <iostream>
 #include <queue>
@@ -237,9 +238,6 @@ void solver::erase_combo(game_board& board, combo_list& list) {
         while (!visit_queue.empty()) {
             int to_visit = visit_queue.front();
             visit_queue.pop();
-
-            // if (visited_location[to_visit])
-            //     continue;  // already visited
 
             // number of connected orbs in all directions
             int counter[4]{0};
@@ -537,6 +535,12 @@ void solver::print_state(const state& state) const {
 void solver::print_route(const route_list& route,
                          const int step,
                          const int begin) const {
+    for (const auto& ll : route) {
+        if (ll == 0)
+            break;
+        std::cout << std::bitset<64>(ll) << std::endl;
+    }
+
     printf("Route: |%d| - ", begin);
     int max_index = step / ROUTE_PER_LIST;
     // in case, it doesn't fill up the space, check the offset
