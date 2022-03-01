@@ -52,7 +52,7 @@ state solver::explore() {
 
             const state& curr = look[j];
 
-            if (curr.combo >= MAX_COMBO) {
+            if (curr.goal) {
                 best_state = curr;
                 found_max_combo = true;
                 continue;
@@ -216,8 +216,37 @@ void solver::evaluate(game_board& board, state& new_state) {
         }
     }
 
+    // amen
+    int erased = 0;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        if (copy[i] == 0)
+            erased++;
+    }
+
+    int remaining = BOARD_SIZE - erased;
+    if (combo == 7 && remaining <= 3) {
+        new_state.goal = true;
+    }
+    score -= remaining * 10;
+
+    // for (const auto &c : list) {
+    //     int size = c.loc.size();
+    //     if (size == MIN_ERASE)
+    //         score -= 10;
+    //     score += (size - MIN_ERASE) * 5;
+    // }
+
     new_state.combo = combo;
-    new_state.score = score + (combo * 20);
+    if (combo < 7)
+        score -= (7 - combo) * 30;
+    if (combo == 7)
+        score += 50;
+    else if (combo > 7)
+        score -= 50;
+    new_state.score = score;
+
+    // new_state.combo = combo;
+    // new_state.score = score + (combo * 20);
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {

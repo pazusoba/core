@@ -65,6 +65,7 @@ struct state {
     tiny curr;
     tiny step = 0;
     tiny combo = 0;
+    bool goal = false;
     size_t hash;
     short int score = MIN_STATE_SCORE;
     // 64 bits can store 21 steps 3 * 21
