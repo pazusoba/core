@@ -22,12 +22,11 @@ namespace pazusoba {
 #define MIN_STATE_SCORE -9999
 // diagonal moves are no yet supported
 #define ALLOW_DIAGONAL 0
-#define STOP_THRESHOLD 20
 
 #define ROUTE_PER_LIST 21
 #define ROUTE_MASK 0x7000000000000000
 
-#define ORB_COUNT 14
+#define ORB_COUNT 11
 #define DIRECTION_COUNT 8
 
 // TODO: 100% needs to be improved
@@ -38,9 +37,10 @@ typedef std::array<orb, MAX_BOARD_LENGTH> game_board, visit_board;
 typedef std::array<orb, ORB_COUNT> orb_list;
 typedef std::array<long long int, MAX_DEPTH / ROUTE_PER_LIST + 1> route_list;
 
+// Empty, Fire, Water, Wood, Light, Dark, Heal, Jammer, Bomb, Poison, Poison+
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D', 'H',
-                                      'J', ' ', 'P', ' ', ' ', ' ', ' '};
+const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D',
+                                      'H', 'J', 'E', 'P', 'T'};
 
 const char DIRECTION_NAME[4] = {'U', 'D', 'L', 'R'};
 
@@ -75,6 +75,15 @@ struct state {
     int operator>(const state& other) const { return score > other.score; }
 };
 
+struct profile {
+    // combo, amen are supported
+    char* name;
+    // After how many steps should it stop if better states can't be found
+    int stop_threshold = 20;
+    // Which orbs should be considered
+    bool orbs[ORB_COUNT]{false};
+};
+
 // this helps to calculate the distance between a kind of orb
 struct orb_distance {
     int min = 0;
@@ -99,6 +108,8 @@ class solver {
     int ROW, COLUMN;
     int MAX_COMBO;
     int BOARD_SIZE;
+    int STOP_THRESHOLD = 20;
+
     game_board BOARD;
     // count the number of each orb to calculate the max combo (not 100%
     // correct)
