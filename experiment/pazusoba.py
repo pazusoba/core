@@ -17,6 +17,7 @@ class c_state(Structure):
                 ("step", c_int),
                 ("row", c_int),
                 ("column", c_int),
+                ("goal", c_bool),
                 ("routes", c_location*151)]
 
 
@@ -39,6 +40,7 @@ class State:
         self.step = raw.step
         self.row = raw.row
         self.column = raw.column
+        self.goal = raw.goal
         self.routes = [Location(raw.routes[i])
                        for i in range(151) if raw.routes[i].row != -1]
 
@@ -63,8 +65,8 @@ class State:
         self.simplified_step = len(self.simplified_routes)
 
     def __str__(self):
-        return "Combo: {}\nMax Combo: {}\nStep: {} ({})\nRow: {}\nColumn: {}\nRoutes: {}\nSimplified Routes: {}".format(
-            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.routes, self.simplified_routes)
+        return "Combo: {}\nMax Combo: {}\nStep: {} ({})\nRow: {}\nColumn: {}\nGoal: {}\nRoutes: {}\nSimplified Routes: {}".format(
+            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.goal, self.routes, self.simplified_routes)
 
     def __repr__(self):
         return "Combo: {}\nMax Combo: {}\nStep: {} ({})\nRow: {}\nColumn: {}\nRoutes: {}\nSimplified Routes: {}".format(
@@ -75,6 +77,16 @@ libpazusoba = CDLL("libpazusoba.so", winmode=0)
 # NOTE: the restype here must be correct to call it properly
 libpazusoba.explore.restype = c_state
 libpazusoba.explore.argtypes = (c_int, POINTER(c_char_p))
+
+libpazusoba.exploreEx.restype = c_state
+libpazusoba.exploreEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
+
+
+def exploreEx(board: str, min_erase: int, search_depth: int, beam_size: int) -> State:
+    # additional step is required here because Mac is stricter than Windows
+    c_board = c_char_p(board.encode("ascii"))
+    state = libpazusoba.exploreEx(c_board, min_erase, search_depth, beam_size)
+    return State(state)
 
 
 def explore(arguments: List[str]) -> State:
@@ -92,5 +104,7 @@ def explore(arguments: List[str]) -> State:
 
 if __name__ == "__main__":
     state = explore(
-        ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "5000"])
+        ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
+    state = exploreEx(
+        "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", 3, 100, 10000)
     print(state)

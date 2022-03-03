@@ -15,20 +15,12 @@ struct c_state {
     int step;
     int row;
     int column;
+    bool goal;
     // add the first step here as well
     c_location routes[MAX_DEPTH + 1];
 };
 
-c_state explore(int argc, char* argv[]) {
-    DEBUG_PRINT("Calling from shared library\n");
-    for (int i = 0; i < argc; i++) {
-        DEBUG_PRINT("argv[%d] = %s\n", i, argv[i]);
-    }
-
-    auto solver = pazusoba::solver();
-    solver.parse_args(argc, argv);
-    auto state = solver.explore();
-
+c_state convert(const pazusoba::solver& solver, const pazusoba::state& state) {
     int column = solver.column();
     int step = state.step;
 
@@ -38,6 +30,7 @@ c_state explore(int argc, char* argv[]) {
     c_state.step = state.step;
     c_state.row = solver.row();
     c_state.column = solver.column();
+    c_state.goal = state.goal;
 
     // set the first location
     c_state.routes[0].row = state.begin / column;
@@ -79,5 +72,30 @@ c_state explore(int argc, char* argv[]) {
     }
 
     return c_state;
+}
+
+c_state exploreEx(const char* board,
+                  int min_erase,
+                  int search_depth,
+                  int beam_size) {
+    auto solver = pazusoba::solver();
+    solver.set_board(board);
+    solver.set_min_erase(min_erase);
+    solver.set_search_depth(search_depth);
+    solver.set_beam_size(beam_size);
+    auto state = solver.explore();
+    return convert(solver, state);
+}
+
+c_state explore(int argc, char* argv[]) {
+    DEBUG_PRINT("Calling from shared library\n");
+    for (int i = 0; i < argc; i++) {
+        DEBUG_PRINT("argv[%d] = %s\n", i, argv[i]);
+    }
+
+    auto solver = pazusoba::solver();
+    solver.parse_args(argc, argv);
+    auto state = solver.explore();
+    return convert(solver, state);
 }
 }
