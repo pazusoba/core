@@ -112,7 +112,7 @@ class ProfileName(enum.Enum):
 
 
 class Profile:
-    def __init__(self, name: ProfileName, threshold: int = 20, target: int = -1, orbs: List[bool] = None):
+    def __init__(self, name: ProfileName, threshold: int = 100, target: int = -1, orbs: List[bool] = None):
         if orbs is None:
             # default to 5 colours + heal
             c_orb_list = orb_list(
@@ -172,7 +172,9 @@ if __name__ == "__main__":
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
-        "GGDLRGHBLRHLHHDDHBDHGBLLLDHHBD", 3, 150, 10000, [
-            Profile(ProfileName.SHAPE_PLUS, threshold=100),
+        "LRGLHDRDRDRDHBRDGBBLBBDDLHGGLR", 3, 150, 10000, [
+            # Profile(ProfileName.SHAPE_PLUS, threshold=100),
+            Profile(name=ProfileName.COMBO, target=7),
+            Profile(name=ProfileName.ORB_REMAINING, target=3),
         ])
     print(state)

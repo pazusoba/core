@@ -112,7 +112,7 @@ state solver::adventure() {
         }
     }
 
-    print_state(best_state);
+    // print_state(best_state);
     return best_state;
 }  // namespace pazusoba
 
