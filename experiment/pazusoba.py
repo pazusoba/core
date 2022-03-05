@@ -4,32 +4,12 @@ Call methods exported in the shared library
 from ctypes import *
 from typing import List
 import os
+import enum
 
 
 class c_location(Structure):
     _fields_ = [("row", c_int),
                 ("column", c_int)]
-
-
-class c_state(Structure):
-    _fields_ = [("combo", c_int),
-                ("max_combo", c_int),
-                ("step", c_int),
-                ("row", c_int),
-                ("column", c_int),
-                ("goal", c_bool),
-                ("routes", c_location*151)]
-
-
-orb_list = (c_bool*11)
-
-
-class c_profile(Structure):
-    _fields_ = [("name", c_int),
-                ("stop_threshold", c_int),
-                ("target_combo", c_int),
-                ("orb_remaining", c_int),
-                ("orbs", orb_list)]
 
 
 class Location:
@@ -42,6 +22,16 @@ class Location:
 
     def __repr__(self):
         return "({}, {})".format(self.row, self.column)
+
+
+class c_state(Structure):
+    _fields_ = [("combo", c_int),
+                ("max_combo", c_int),
+                ("step", c_int),
+                ("row", c_int),
+                ("column", c_int),
+                ("goal", c_bool),
+                ("routes", c_location*151)]
 
 
 class State:
@@ -84,6 +74,55 @@ class State:
             self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.routes, self.simplified_routes)
 
 
+orb_list = (c_bool*11)
+
+
+class Orb(enum.Enum):
+    EMPTY = 0
+    FIRE = 1
+    WATER = 2
+    WOOD = 3
+    LIGHT = 4
+    DARK = 5
+    HEAL = 6
+    JAMMER = 7
+    BOMB = 8
+    POISON = 9
+    POISON_PLUS = 10
+
+
+class c_profile(Structure):
+    _fields_ = [("name", c_int),
+                ("stop_threshold", c_int),
+                ("target_combo", c_int),
+                ("orb_remaining", c_int),
+                ("orbs", orb_list)]
+
+
+class ProfileName(enum.Enum):
+    COMBO = 0             # target certain combo, -1 means max combo
+    COLOUR = 1            # how many colours should be included, 5, 6
+    COLOUR_COMBO = 2      # how many combo for one colour, 2, 3
+    CONNECTED_ORB = 3     # how many orbs connected, 4, 5, 6
+    ORB_REMAINING = 4     # how many orbs remaining, usually less than 5
+    SHAPE_L = 5           # L shape
+    SHAPE_PLUS = 6        # + plus shape, 十字
+    SHAPE_SQUARE = 7      # square shape, 無効貫通
+    SHAPE_ROW = 8         # row shape, one line
+    SHAPE_COLUMN = 9      # column shape, 追撃
+
+
+class Profile:
+    def __init__(self,
+                 name: ProfileName,
+                 stop_threshold: int = 20,
+                 target_combo: int = -1,
+                 orb_remaining: int = -1,
+                 orbs: List[bool] = [False]*11):
+        self.c_profile = c_profile(
+            int(name.value), stop_threshold, target_combo, orb_remaining, orb_list(*orbs))
+
+
 libpazusoba = CDLL("libpazusoba.so", winmode=0)
 # NOTE: the restype here must be correct to call it properly
 libpazusoba.adventure.restype = c_state
@@ -93,17 +132,26 @@ libpazusoba.adventureEx.restype = c_state
 libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
 
 
-def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int) -> State:
+def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int, profiles: List[Profile]) -> State:
     # additional step is required here because Mac is stricter than Windows
     c_board = c_char_p(board.encode("ascii"))
-    profile_list = c_profile * 5
-    c_profiles = profile_list()
-    c_profiles[0] = c_profile(
-        2, 200, 4, -5, orb_list(False, True, True, True, True, True, True))
+    # convert python Profile list to c_profile array
+    profile_count = len(profiles)
+    c_profile_list = (c_profile * profile_count)()
+    for i in range(profile_count):
+        c_profile_list[i] = profiles[i].c_profile
 
     state = libpazusoba.adventureEx(
-        c_board, min_erase, search_depth, beam_size, c_profiles, 5)
+        c_board, min_erase, search_depth, beam_size, c_profile_list, profile_count)
     return State(state)
+
+
+def convert(orbs: List[Orb]) -> List[bool]:
+    """Convert orb list to bool list"""
+    orb_list = [False] * 11
+    for o in orbs:
+        orb_list[int(o.value)] = True
+    return orb_list
 
 
 def adventure(arguments: List[str]) -> State:
@@ -123,5 +171,8 @@ if __name__ == "__main__":
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
-        "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", 3, 100, 10000)
+        "RGHHDDDLBRDGBBHBBRGDDGHRLLRHGD", 3, 100, 10000, [
+            Profile(ProfileName.COLOUR,
+                    orbs=convert([Orb.FIRE, Orb.WATER, Orb.WOOD, Orb.LIGHT, Orb.DARK, Orb.HEAL])),
+        ])
     print(state)
