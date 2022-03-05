@@ -172,8 +172,7 @@ if __name__ == "__main__":
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
-        "RGHHDDDLBRDGBBHBBRGDDGHRLLRHGD", 3, 100, 10000, [
-            Profile(ProfileName.CONNECTED_ORB, target=4, threshold=50),
-            Profile(ProfileName.COMBO),
+        "LBHRGHRDBRRGHGBLGHBLRDHLGBBLLB", 3, 150, 10000, [
+            Profile(ProfileName.SHAPE_L, threshold=100),
         ])
     print(state)
