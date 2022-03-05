@@ -15,12 +15,13 @@
 
 namespace pazusoba {
 state solver::adventure() {
+    int REAL_BEAM_SIZE = BEAM_SIZE * 1.4;
     // setup the state, non blocking
     std::vector<state> look;
-    look.reserve(BEAM_SIZE);
+    look.reserve(REAL_BEAM_SIZE);
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
-    temp.resize(BEAM_SIZE * 3);
+    temp.resize(REAL_BEAM_SIZE * 3);
     // TODO: using array can definitely things a lot because the vector needs to
     // write a lot of useless data before using it, reverse is better but the
     // address calculation can be tricky
@@ -86,7 +87,7 @@ state solver::adventure() {
         look.clear();
         // we need to filter out the states that are already visited
         int index = 0;
-        for (int j = 0; j < BEAM_SIZE; j++, index++) {
+        for (int j = 0; j < REAL_BEAM_SIZE; j++, index++) {
             auto& curr = temp[j];
             if (VISITED[curr.prev][curr.hash]) {
                 index--;

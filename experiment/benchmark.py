@@ -41,11 +41,9 @@ def combo_benchmark():
     steps = 0
     start = time.time()
     for i in range(COUNT):
-        print("Test {}".format(i + 1))
         board = random_board()
-        print("Board: {}".format(board))
-        result = adventureEx(board, 3, 150, 1000, [
-            Profile(name=ProfileName.COMBO, threshold=20)
+        result = adventureEx(board, 3, 150, 10000, [
+            Profile(name=ProfileName.COMBO, threshold=50)
         ])
 
         if result.goal:
@@ -60,7 +58,9 @@ def combo_benchmark():
 
 
 def find_best_small_size_combo():
-    COUNT = 100
+    COUNT = 20
+    # generate same board
+    boards = [random_board() for _ in range(COUNT)]
     for x in range(1, 11):
         size = x * 100
         goal_counter = 0
@@ -68,9 +68,7 @@ def find_best_small_size_combo():
         start = time.time()
 
         for i in range(COUNT):
-            # loop 100 times
-            board = random_board()
-            result = adventureEx(board, 3, 150, 1000, [
+            result = adventureEx(boards[i], 3, 150, 1000, [
                 Profile(name=ProfileName.COMBO, threshold=20)
             ])
 
@@ -86,5 +84,5 @@ def find_best_small_size_combo():
 if __name__ == '__main__':
     print("Running benchmark")
     # amen_benchmark()
-    # combo_benchmark()
-    find_best_small_size_combo()
+    combo_benchmark()
+    # find_best_small_size_combo()
