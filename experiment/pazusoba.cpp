@@ -289,29 +289,18 @@ void solver::evaluate(game_board& board, state& new_state) {
             } break;
 
             case connected_orb: {
-                int colour_counter[ORB_COUNT]{0};
+                int target = profile.target;
+                bool fulfilled = false;
+
                 for (const auto& c : list) {
                     int connected_count = c.loc.size();
-                    // get only the max number here because it doesn't matter
-                    // if one colour has more than one combo reaching the target
-                    if (colour_counter[c.info] < connected_count)
-                        colour_counter[c.info] = connected_count;
-                }
-
-                bool fulfilled = false;
-                for (int j = 0; j < ORB_COUNT; j++) {
-                    // this orb should be included
-                    if (profile.orbs[j]) {
-                        int connected_count = colour_counter[j];
-                        int target = profile.target;
-                        // just add a tiny score, don't do too much
-                        if (connected_count == 0)
-                            fulfilled = false;
-                        else if (connected_count >= target) {
-                            fulfilled = true;
-                            score += 50;
-                        } else
-                            score -= (target - connected_count) * 10;
+                    if (connected_count < target) {
+                        score -= (target - connected_count) * 10;
+                    } else if (connected_count == target) {
+                        fulfilled = true;
+                        score += 50;
+                    } else {
+                        score -= (connected_count - target) * 10;
                     }
                 }
 
