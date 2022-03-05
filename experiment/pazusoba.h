@@ -76,7 +76,7 @@ struct state {
 };
 
 enum PROFILE_NAME {
-    target_combo = 0,  // target certain combo, 0 means max combo
+    target_combo = 0,  // target certain combo, -1 means max combo
     colour,            // how many colours should be included, 5, 6
     colour_combo,      // how many combo for one colour, 2, 3
     connected_orb,     // how many orbs connected, 4, 5, 6

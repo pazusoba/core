@@ -536,7 +536,18 @@ void solver::set_beam_size(int beam_size) {
 }
 
 void solver::set_profiles(const profile* profiles, int count) {
-    //
+    for (int i = 0; i < count; i++) {
+        const auto& p = profiles[i];
+        printf("==== Profile %d ====\n", i + 1);
+        printf("name: %d\n", p.name);
+        printf("stop_threshold: %d\n", p.stop_threshold);
+        printf("target_combo: %d\n", p.target_combo);
+        printf("orb_remaining: %d\n", p.orb_remaining);
+        for (int j = 0; j < ORB_COUNT; j++) {
+            printf("%d ", p.orbs[j]);
+        }
+        printf("\n");
+    }
 }
 
 void solver::print_board(const game_board& board) const {

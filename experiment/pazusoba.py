@@ -21,6 +21,17 @@ class c_state(Structure):
                 ("routes", c_location*151)]
 
 
+orb_list = (c_bool*11)
+
+
+class c_profile(Structure):
+    _fields_ = [("name", c_int),
+                ("stop_threshold", c_int),
+                ("target_combo", c_int),
+                ("orb_remaining", c_int),
+                ("orbs", orb_list)]
+
+
 class Location:
     def __init__(self, raw):
         self.row = raw.row
@@ -85,8 +96,13 @@ libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
 def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int) -> State:
     # additional step is required here because Mac is stricter than Windows
     c_board = c_char_p(board.encode("ascii"))
+    profile_list = c_profile * 5
+    c_profiles = profile_list()
+    c_profiles[0] = c_profile(
+        2, 200, 4, -5, orb_list(False, True, True, True, True, True, True))
+
     state = libpazusoba.adventureEx(
-        c_board, min_erase, search_depth, beam_size)
+        c_board, min_erase, search_depth, beam_size, c_profiles, 5)
     return State(state)
 
 
@@ -104,8 +120,8 @@ def adventure(arguments: List[str]) -> State:
 
 
 if __name__ == "__main__":
-    state = adventure(
-        ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
+    # state = adventure(
+    #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
         "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", 3, 100, 10000)
     print(state)

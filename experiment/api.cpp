@@ -77,12 +77,15 @@ c_state convert(const pazusoba::solver& solver, const pazusoba::state& state) {
 c_state adventureEx(const char* board,
                     int min_erase,
                     int search_depth,
-                    int beam_size) {
+                    int beam_size,
+                    pazusoba::profile* profiles,
+                    int count) {
     auto solver = pazusoba::solver();
     solver.set_board(board);
     solver.set_min_erase(min_erase);
     solver.set_search_depth(search_depth);
     solver.set_beam_size(beam_size);
+    solver.set_profiles(profiles, count);
     auto state = solver.adventure();
     return convert(solver, state);
 }
