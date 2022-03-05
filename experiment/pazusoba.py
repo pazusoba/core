@@ -75,21 +75,22 @@ class State:
 
 libpazusoba = CDLL("libpazusoba.so", winmode=0)
 # NOTE: the restype here must be correct to call it properly
-libpazusoba.explore.restype = c_state
-libpazusoba.explore.argtypes = (c_int, POINTER(c_char_p))
+libpazusoba.adventure.restype = c_state
+libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
 
-libpazusoba.exploreEx.restype = c_state
-libpazusoba.exploreEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
+libpazusoba.adventureEx.restype = c_state
+libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
 
 
-def exploreEx(board: str, min_erase: int, search_depth: int, beam_size: int) -> State:
+def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int) -> State:
     # additional step is required here because Mac is stricter than Windows
     c_board = c_char_p(board.encode("ascii"))
-    state = libpazusoba.exploreEx(c_board, min_erase, search_depth, beam_size)
+    state = libpazusoba.adventureEx(
+        c_board, min_erase, search_depth, beam_size)
     return State(state)
 
 
-def explore(arguments: List[str]) -> State:
+def adventure(arguments: List[str]) -> State:
     # additional step is required here because Mac is stricter than Windows
     argv = []
     for s in arguments:
@@ -98,13 +99,13 @@ def explore(arguments: List[str]) -> State:
     c_argv = (c_char_p * c_argc)()
     c_argv[:] = argv
 
-    state = libpazusoba.explore(c_argc, c_argv)
+    state = libpazusoba.adventure(c_argc, c_argv)
     return State(state)
 
 
 if __name__ == "__main__":
-    state = explore(
+    state = adventure(
         ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
-    state = exploreEx(
+    state = adventureEx(
         "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", 3, 100, 10000)
     print(state)

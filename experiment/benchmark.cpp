@@ -1,8 +1,9 @@
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 #include <ctime>
+#include <string>
 #include "pazusoba.h"
+
 
 #define ROUND 10
 const char ORB_NAME[] = {'R', 'B', 'G', 'L', 'D', 'H'};
@@ -24,7 +25,7 @@ int main() {
         printf("%d: %s\n", i + 1, board);
         pazusoba::solver solver;
         solver.set_board(board);
-        auto state = solver.explore();
+        auto state = solver.adventure();
         delete[] board;
     }
     return 0;

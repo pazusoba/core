@@ -5,6 +5,6 @@ int main(int argc, char* argv[]) {
     auto solver = pazusoba::solver();
     solver.parse_args(argc, argv);
     pazusoba::Timer timer("explore");
-    solver.explore();
+    solver.adventure();
     return 0;
 }

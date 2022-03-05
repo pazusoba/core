@@ -13,7 +13,7 @@
 #include "hash.h"
 
 namespace pazusoba {
-state solver::explore() {
+state solver::adventure() {
     // setup the state, non blocking
     std::vector<state> look;
     look.reserve(BEAM_SIZE);
@@ -533,6 +533,10 @@ void solver::set_beam_size(int beam_size) {
     if (beam_size < MIN_BEAM_SIZE)
         beam_size = MIN_BEAM_SIZE;
     BEAM_SIZE = beam_size;
+}
+
+void solver::set_profiles(const profile* profiles, int count) {
+    //
 }
 
 void solver::print_board(const game_board& board) const {

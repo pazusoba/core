@@ -75,12 +75,27 @@ struct state {
     int operator>(const state& other) const { return score > other.score; }
 };
 
+enum PROFILE_NAME {
+    target_combo = 0,  // target certain combo, 0 means max combo
+    colour,            // how many colours should be included, 5, 6
+    colour_combo,      // how many combo for one colour, 2, 3
+    connected_orb,     // how many orbs connected, 4, 5, 6
+    orb_remaining,     // how many orbs remaining, usually less than 5
+    shape_L,           // L shape
+    shape_plus,        // + plus shape, 十字
+    shape_square,      // square shape, 無効貫通
+    shape_row,         // row shape, one line
+    shape_column,      // column shape, 追撃
+};
+
 struct profile {
-    // combo, amen are supported
-    char* name;
+    // PROFILE_NAME
+    int name = -1;
     // After how many steps should it stop if better states can't be found
     int stop_threshold = 20;
     // Which orbs should be considered
+    int target_combo = -1;
+    int orb_remaining = -1;
     bool orbs[ORB_COUNT]{false};
 };
 
@@ -124,7 +139,7 @@ public:
     /// const marks the function pure and testable
     ///
     // find the best possible move by exploring the board
-    state explore();
+    state adventure();
     // expand current state to all possible next moves
     void expand(const game_board&,
                 const state&,
@@ -136,6 +151,7 @@ public:
     void move_orbs_down(game_board&);
     // A naive way to approach max combo, mostly accurate unless 2 colours
     int calc_max_combo(const orb_list&, const int, const int) const;
+
     void parse_args(int argc, char* argv[]);
     // set board from string, setup row and column, calculate max combo and
     // also, setup DIRECTION_ADJUSTMENTS for expand()
@@ -143,6 +159,7 @@ public:
     void set_min_erase(int);
     void set_search_depth(int);
     void set_beam_size(int);
+    void set_profiles(const profile*, int);
 
     void print_board(const game_board&) const;
     void print_state(const state&) const;
