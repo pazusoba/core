@@ -94,8 +94,7 @@ struct profile {
     // After how many steps should it stop if better states can't be found
     int stop_threshold = 20;
     // Which orbs should be considered
-    int target_combo = -1;
-    int orb_remaining = -1;
+    int target = -1;
     bool orbs[ORB_COUNT]{false};
 };
 
@@ -124,6 +123,8 @@ class solver {
     int MAX_COMBO;
     int BOARD_SIZE;
     int STOP_THRESHOLD = 20;
+    profile* PROFILES;
+    int PROFILE_COUNT = 0;
 
     game_board BOARD;
     // count the number of each orb to calculate the max combo (not 100%
@@ -159,7 +160,7 @@ public:
     void set_min_erase(int);
     void set_search_depth(int);
     void set_beam_size(int);
-    void set_profiles(const profile*, int);
+    void set_profiles(profile*, int);
 
     void print_board(const game_board&) const;
     void print_state(const state&) const;

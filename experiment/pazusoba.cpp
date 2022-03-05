@@ -180,6 +180,7 @@ void solver::expand(const game_board& board,
 
 void solver::evaluate(game_board& board, state& new_state) {
     short int score = 0;
+    // TODO: should this be after??
     // scan the board to get the distance between each orb
     orb_distance distance[ORB_COUNT];
     for (int i = 0; i < BOARD_SIZE; i++) {
@@ -216,37 +217,141 @@ void solver::evaluate(game_board& board, state& new_state) {
         }
     }
 
-    // amen
-    int erased = 0;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        if (copy[i] == 0)
-            erased++;
-    }
+    // track if all goals are reached
+    int goal = 0;
+    for (int i = 0; i < PROFILE_COUNT; i++) {
+        const auto& profile = PROFILES[i];
+        switch (profile.name) {
+            case target_combo: {
+                int target = profile.target;
+                if (target == -1) {
+                    // max combo
+                    score += combo * 20;
+                    if (combo == MAX_COMBO)
+                        goal++;
+                } else {
+                    // only do max target combo
+                    if (combo < target)
+                        score -= (7 - target) * 30;
+                    if (combo == target)
+                        score += 50;
+                    else if (target > 7)
+                        score -= 50;
 
-    int remaining = BOARD_SIZE - erased;
-    if (combo == 7 && remaining <= 3) {
-        new_state.goal = true;
-    }
-    score -= remaining * 10;
+                    if (combo == target)
+                        goal++;
+                }
+            } break;
 
-    // for (const auto &c : list) {
-    //     int size = c.loc.size();
-    //     if (size == MIN_ERASE)
-    //         score -= 10;
-    //     score += (size - MIN_ERASE) * 5;
-    // }
+            case colour: {
+                int colour_counter[ORB_COUNT]{0};
+                for (const auto& c : list) {
+                    colour_counter[c.info]++;
+                }
+
+                bool has_all_target_colours = true;
+                for (int j = 0; j < ORB_COUNT; j++) {
+                    // this orb should be included
+                    if (profile.orbs[j]) {
+                        // just add a tiny score, don't do too much
+                        if (colour_counter[j] == 0)
+                            has_all_target_colours = false;
+                        else
+                            score += 2;
+                    }
+                }
+
+                if (has_all_target_colours)
+                    goal++;
+            } break;
+
+            case colour_combo: {
+                int colour_counter[ORB_COUNT]{0};
+                for (const auto& c : list) {
+                    colour_counter[c.info]++;
+                }
+
+                bool fulfilled = true;
+                for (int j = 0; j < ORB_COUNT; j++) {
+                    // this orb should be included
+                    if (profile.orbs[j]) {
+                        int colour_combo = colour_counter[j];
+                        // just add a tiny score, don't do too much
+                        if (colour_combo == 0)
+                            fulfilled = false;
+                        else if (colour_combo >= profile.target)
+                            score += 2;
+                    }
+                }
+
+                if (fulfilled)
+                    goal++;
+            } break;
+
+            case connected_orb: {
+                int colour_counter[ORB_COUNT]{0};
+                for (const auto& c : list) {
+                    int connected_count = c.loc.size();
+                    // get only the max number here because it doesn't matter
+                    // if one colour has more than one combo reaching the target
+                    if (colour_counter[c.info] < connected_count)
+                        colour_counter[c.info] = connected_count;
+                }
+
+                bool fulfilled = true;
+                for (int j = 0; j < ORB_COUNT; j++) {
+                    // this orb should be included
+                    if (profile.orbs[j]) {
+                        int connected_count = colour_counter[j];
+                        // just add a tiny score, don't do too much
+                        if (connected_count == 0)
+                            fulfilled = false;
+                        else if (connected_count >= profile.target)
+                            score += 2;
+                    }
+                }
+            } break;
+
+            case orb_remaining: {
+                int remaining = 0;
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    if (copy[j] > 0)
+                        remaining++;
+                }
+
+                if (remaining <= profile.target)
+                    goal++;
+                score -= remaining * 10;
+            } break;
+
+            case shape_L: {
+            } break;
+
+            case shape_plus: {
+            } break;
+
+            case shape_square: {
+            } break;
+
+            case shape_row: {
+            } break;
+
+            case shape_column: {
+            } break;
+
+            default: {
+                printf("unknown profile %d\n", profile.name);
+                exit(1);
+            } break;
+        }
+    }
 
     new_state.combo = combo;
-    if (combo < 7)
-        score -= (7 - combo) * 30;
-    if (combo == 7)
-        score += 50;
-    else if (combo > 7)
-        score -= 50;
     new_state.score = score;
 
-    // new_state.combo = combo;
-    // new_state.score = score + (combo * 20);
+    if (goal == PROFILE_COUNT) {
+        new_state.goal = true;
+    }
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
@@ -535,18 +640,13 @@ void solver::set_beam_size(int beam_size) {
     BEAM_SIZE = beam_size;
 }
 
-void solver::set_profiles(const profile* profiles, int count) {
+void solver::set_profiles(profile* profiles, int count) {
+    PROFILES = profiles;
+    PROFILE_COUNT = count;
     for (int i = 0; i < count; i++) {
-        const auto& p = profiles[i];
-        printf("==== Profile %d ====\n", i + 1);
-        printf("name: %d\n", p.name);
-        printf("stop_threshold: %d\n", p.stop_threshold);
-        printf("target_combo: %d\n", p.target_combo);
-        printf("orb_remaining: %d\n", p.orb_remaining);
-        for (int j = 0; j < ORB_COUNT; j++) {
-            printf("%d ", p.orbs[j]);
-        }
-        printf("\n");
+        // use the largest threshold
+        if (STOP_THRESHOLD < profiles[i].stop_threshold)
+            STOP_THRESHOLD = profiles[i].stop_threshold;
     }
 }
 

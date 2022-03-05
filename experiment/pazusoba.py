@@ -94,8 +94,7 @@ class Orb(enum.Enum):
 class c_profile(Structure):
     _fields_ = [("name", c_int),
                 ("stop_threshold", c_int),
-                ("target_combo", c_int),
-                ("orb_remaining", c_int),
+                ("target", c_int),
                 ("orbs", orb_list)]
 
 
@@ -116,11 +115,10 @@ class Profile:
     def __init__(self,
                  name: ProfileName,
                  stop_threshold: int = 20,
-                 target_combo: int = -1,
-                 orb_remaining: int = -1,
+                 target: int = -1,
                  orbs: List[bool] = [False]*11):
         self.c_profile = c_profile(
-            int(name.value), stop_threshold, target_combo, orb_remaining, orb_list(*orbs))
+            int(name.value), stop_threshold, target, orb_list(*orbs))
 
 
 libpazusoba = CDLL("libpazusoba.so", winmode=0)
@@ -172,7 +170,7 @@ if __name__ == "__main__":
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
         "RGHHDDDLBRDGBBHBBRGDDGHRLLRHGD", 3, 100, 10000, [
-            Profile(ProfileName.COLOUR,
-                    orbs=convert([Orb.FIRE, Orb.WATER, Orb.WOOD, Orb.LIGHT, Orb.DARK, Orb.HEAL])),
+            Profile(ProfileName.COMBO, target=7),
+            Profile(ProfileName.ORB_REMAINING, target=3),
         ])
     print(state)
