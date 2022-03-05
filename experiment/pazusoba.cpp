@@ -298,18 +298,25 @@ void solver::evaluate(game_board& board, state& new_state) {
                         colour_counter[c.info] = connected_count;
                 }
 
-                bool fulfilled = true;
+                bool fulfilled = false;
                 for (int j = 0; j < ORB_COUNT; j++) {
                     // this orb should be included
                     if (profile.orbs[j]) {
                         int connected_count = colour_counter[j];
+                        int target = profile.target;
                         // just add a tiny score, don't do too much
                         if (connected_count == 0)
                             fulfilled = false;
-                        else if (connected_count >= profile.target)
-                            score += 2;
+                        else if (connected_count >= target) {
+                            fulfilled = true;
+                            score += 50;
+                        } else
+                            score -= (target - connected_count) * 10;
                     }
                 }
+
+                if (fulfilled)
+                    goal++;
             } break;
 
             case orb_remaining: {
