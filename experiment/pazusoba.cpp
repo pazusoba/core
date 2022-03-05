@@ -375,6 +375,52 @@ void solver::evaluate(game_board& board, state& new_state) {
             } break;
 
             case shape_plus: {
+                for (const auto& c : list) {
+                    if (profile.orbs[c.info] && ORB_COUNTER[c.info] >= 5) {
+                        int size = c.loc.size();
+                        if (size <= 5)
+                            score += (size - MIN_ERASE) * 10;
+
+                        // some score for connecting more orbs
+                        // check if it is L shape
+                        std::map<int, int> vertical;
+                        std::map<int, int> horizontal;
+                        int bigFirst = -1;
+                        int bigSecond = -1;
+
+                        // Collect info
+                        for (const auto& loc : c.loc) {
+                            int x = loc % COLUMN;
+                            int y = loc / COLUMN;
+                            vertical[x]++;
+                            horizontal[y]++;
+
+                            // Track the largest number
+                            if (vertical[x] >= 3)
+                                bigFirst = x;
+                            if (horizontal[y] >= 3)
+                                bigSecond = y;
+                        }
+
+                        // This is the center point
+                        if (bigFirst > -1 && bigSecond > -1) {
+                            int counter = 0;
+                            // Check up down left right there is an orb around
+                            // center orb
+                            if (vertical[bigFirst - 1] > 0 &&
+                                vertical[bigFirst + 1] > 0)
+                                counter++;
+                            if (horizontal[bigSecond - 1] > 0 &&
+                                horizontal[bigSecond + 1] > 0)
+                                counter++;
+
+                            if (counter == 2)
+                                score += 50;
+                            if (counter == 1)
+                                score += 10;
+                        }
+                    }
+                }
             } break;
 
             case shape_square: {
