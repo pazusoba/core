@@ -31,7 +31,8 @@ class c_state(Structure):
                 ("row", c_int),
                 ("column", c_int),
                 ("goal", c_bool),
-                ("routes", c_location*151)]
+                ("routes", c_location*151),
+                ("board", c_char*42)]
 
 
 class State:
@@ -44,6 +45,8 @@ class State:
         self.goal = raw.goal
         self.routes = [Location(raw.routes[i])
                        for i in range(151) if raw.routes[i].row != -1]
+        ORB_LIST = ['', 'R', 'B', 'G', 'L', 'D', 'H']
+        self.board = "".join([ORB_LIST[b] for b in raw.board])
 
         # shorten routes
         # insert the first
@@ -66,12 +69,12 @@ class State:
         self.simplified_step = len(self.simplified_routes)
 
     def __str__(self):
-        return "Combo: {}\nMax Combo: {}\nStep: {} ({})\nRow: {}\nColumn: {}\nGoal: {}\nRoutes: {}\nSimplified Routes: {}".format(
-            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.goal, self.routes, self.simplified_routes)
+        return "Combo: {}/{}\nStep: {} ({})\nSize: {} x {}\nGoal: {}\nBoard: {}".format(
+            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.goal, self.board)
 
     def __repr__(self):
-        return "Combo: {}\nMax Combo: {}\nStep: {} ({})\nRow: {}\nColumn: {}\nRoutes: {}\nSimplified Routes: {}".format(
-            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.routes, self.simplified_routes)
+        return "Combo: {}/{}\nStep: {} ({})\nSize: {} x {}\nGoal: {}\nBoard: {}".format(
+            self.combo, self.max_combo, self.step, self.simplified_step, self.row, self.column, self.goal, self.board)
 
 
 orb_list = (c_bool*11)
@@ -112,7 +115,7 @@ class ProfileName(enum.Enum):
 
 
 class Profile:
-    def __init__(self, name: ProfileName, threshold: int = 100, target: int = -1, orbs: List[bool] = None):
+    def __init__(self, name: ProfileName, threshold: int = 20, target: int = -1, orbs: List[bool] = None):
         if orbs is None:
             # default to 5 colours + heal
             c_orb_list = orb_list(
@@ -172,9 +175,9 @@ if __name__ == "__main__":
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
-        "LRGLHDRDRDRDHBRDGBBLBBDDLHGGLR", 3, 150, 10000, [
+        "LRGDLDHRRRRDHDDGBDHLLGBDBBBGLR", 3, 150, 10000, [
             # Profile(ProfileName.SHAPE_PLUS, threshold=100),
-            Profile(name=ProfileName.COMBO, target=7),
-            Profile(name=ProfileName.ORB_REMAINING, target=3),
+            Profile(name=ProfileName.CONNECTED_ORB, target=4),
+            Profile(name=ProfileName.SHAPE_PLUS),
         ])
     print(state)

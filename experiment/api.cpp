@@ -18,6 +18,7 @@ struct c_state {
     bool goal;
     // add the first step here as well
     c_location routes[MAX_DEPTH + 1];
+    pazusoba::game_board board;
 };
 
 c_state convert(const pazusoba::solver& solver, const pazusoba::state& state) {
@@ -31,6 +32,7 @@ c_state convert(const pazusoba::solver& solver, const pazusoba::state& state) {
     c_state.row = solver.row();
     c_state.column = solver.column();
     c_state.goal = state.goal;
+    c_state.board = state.board;
 
     // set the first location
     c_state.routes[0].row = state.begin / column;
