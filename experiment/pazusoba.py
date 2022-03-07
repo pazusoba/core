@@ -133,7 +133,15 @@ libpazusoba.adventure.restype = c_state
 libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
 
 libpazusoba.adventureEx.restype = c_state
-libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int)
+libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
+
+
+def convert(orbs: List[Orb]) -> List[bool]:
+    """Convert orb list to bool list"""
+    orb_list = [False] * 11
+    for o in orbs:
+        orb_list[int(o.value)] = True
+    return orb_list
 
 
 def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int, profiles: List[Profile]) -> State:
@@ -148,14 +156,6 @@ def adventureEx(board: str, min_erase: int, search_depth: int, beam_size: int, p
     state = libpazusoba.adventureEx(
         c_board, min_erase, search_depth, beam_size, c_profile_list, profile_count)
     return State(state)
-
-
-def convert(orbs: List[Orb]) -> List[bool]:
-    """Convert orb list to bool list"""
-    orb_list = [False] * 11
-    for o in orbs:
-        orb_list[int(o.value)] = True
-    return orb_list
 
 
 def adventure(arguments: List[str]) -> State:
@@ -175,9 +175,9 @@ if __name__ == "__main__":
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
-        "LRGDLDHRRRRDHDDGBDHLLGBDBBBGLR", 3, 150, 10000, [
+        "LDRLBHLHRBBRBDGGHHBGDRHGRRRGLL", 3, 150, 10000, [
             # Profile(ProfileName.SHAPE_PLUS, threshold=100),
-            Profile(name=ProfileName.CONNECTED_ORB, target=4),
-            Profile(name=ProfileName.SHAPE_PLUS),
+            # Profile(name=ProfileName.CONNECTED_ORB, target=4),
+            Profile(name=ProfileName.COMBO),
         ])
     print(state)

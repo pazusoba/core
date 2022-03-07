@@ -42,7 +42,8 @@ def combo_benchmark():
     start = time.time()
     for i in range(COUNT):
         board = random_board()
-        result = adventureEx(board, 3, 150, 10000, [
+        print("{} - {}".format(i + 1, board))
+        result = adventureEx(board, 3, 150, 1000, [
             Profile(name=ProfileName.COMBO, threshold=50)
         ])
 
