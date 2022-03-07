@@ -18,6 +18,7 @@ struct c_state {
     bool goal;
     // add the first step here as well
     c_location routes[MAX_DEPTH + 1];
+    // TODO: this should be a c type not std::array but it works
     pazusoba::game_board board;
 };
 

@@ -11,6 +11,8 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <thread>
+#include <vector>
 #include "hash.h"
 
 namespace pazusoba {
@@ -39,7 +41,14 @@ state solver::adventure() {
         look.push_back(new_state);
     }
 
+    // setup threading
+    unsigned int processor_count = std::thread::hardware_concurrency();
+    // unsigned int processor_count = 1;
+    std::vector<std::thread> threads;
+    threads.reserve(processor_count);
+
     int stop_count = 0;
+
     // beam search with openmp
     for (int i = 0; i < SEARCH_DEPTH; i++) {
         if (found_max_combo)
@@ -47,21 +56,33 @@ state solver::adventure() {
 
         int look_size = look.size();
         DEBUG_PRINT("Depth %d - size %d\n", i + 1, look_size);
-#pragma omp parallel for
-        for (int j = 0; j < look_size; j++) {
-            if (found_max_combo)
-                continue;  // early stop
+        int look_size_thread = look_size / processor_count + 1;
 
-            const state& curr = look[j];
+        // #pragma omp parallel for
+        for (int thread_num = 0; thread_num < processor_count; thread_num++) {
+            threads.emplace_back([&, thread_num, look_size_thread] {
+                int start_index = thread_num * (look_size_thread + 1);
+                int end_index = start_index + look_size_thread;
+                for (int j = start_index; j < end_index; j++) {
+                    if (found_max_combo)
+                        continue;  // early stop
 
-            if (curr.goal) {
-                best_state = curr;
-                found_max_combo = true;
-                continue;
-            }
+                    const state& curr = look[j];
 
-            expand(curr.board, curr, temp, j);
+                    if (curr.goal) {
+                        best_state = curr;
+                        found_max_combo = true;
+                        continue;
+                    }
+
+                    expand(curr.board, curr, temp, j);
+                }
+            });
         }
+
+        for (auto& t : threads)
+            t.join();
+        threads.clear();
 
         // break out as soon as max combo or target is found
         // TODO: this should be the target
@@ -768,6 +789,7 @@ void solver::print_state(const state& state) const {
     printf("Step: %d\n", state.step);
     print_board(state.board);
     print_route(state.route, state.step, state.begin);
+    printf("Goal: %d\n", state.goal);
     printf("=====================================\n");
 }
 

@@ -9,9 +9,11 @@ int main(int argc, char* argv[]) {
     // this can be done from the command line
     pazusoba::profile profiles[1];
     profiles[0].name = pazusoba::target_combo;
+    profiles[0].stop_threshold = 100;
     solver.set_profiles(profiles, 1);
 
     pazusoba::Timer timer("adventure");
-    solver.adventure();
+    auto state = solver.adventure();
+    solver.print_state(state);
     return 0;
 }
