@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 import platform
 
-compilor_args = ['-std=c++11', '-O2']
+compilor_args = ['-std=c++11']
 if platform.system() == 'Windows':
     compilor_args = []
 
