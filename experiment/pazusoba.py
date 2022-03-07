@@ -3,7 +3,7 @@ Call methods exported in the shared library
 """
 from ctypes import *
 from typing import List
-import os
+import glob
 import enum
 
 
@@ -127,15 +127,6 @@ class Profile:
             int(name.value), threshold, target, c_orb_list)
 
 
-libpazusoba = CDLL("libpazusoba.so", winmode=0)
-# NOTE: the restype here must be correct to call it properly
-libpazusoba.adventure.restype = c_state
-libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
-
-libpazusoba.adventureEx.restype = c_state
-libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
-
-
 def convert(orbs: List[Orb]) -> List[bool]:
     """Convert orb list to bool list"""
     orb_list = [False] * 11
@@ -172,6 +163,18 @@ def adventure(arguments: List[str]) -> State:
 
 
 if __name__ == "__main__":
+    so_path = glob.glob("build/lib*/pazusoba*")
+    if (len(so_path) != 1):
+        raise Exception("Shared Library is not found. Run python3 setup.pt build.")
+
+    libpazusoba = CDLL(so_path[0], winmode=0)
+    # NOTE: the restype here must be correct to call it properly
+    libpazusoba.adventure.restype = c_state
+    libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
+
+    libpazusoba.adventureEx.restype = c_state
+    libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
+
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     state = adventureEx(
