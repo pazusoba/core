@@ -4,6 +4,7 @@ Call methods exported in the shared library
 from ctypes import *
 from typing import List
 import glob
+import time
 import enum
 
 
@@ -45,7 +46,7 @@ class State:
         self.goal = raw.goal
         self.routes = [Location(raw.routes[i])
                        for i in range(151) if raw.routes[i].row != -1]
-        ORB_LIST = ['', 'R', 'B', 'G', 'L', 'D', 'H']
+        ORB_LIST = ['', 'R', 'B', 'G', 'L', 'D', 'H', 'J', 'E', 'P', 'T']
         self.board = "".join([ORB_LIST[b] for b in raw.board])
 
         # shorten routes
@@ -177,10 +178,12 @@ if __name__ == "__main__":
 
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
+    begin = time.time()
     state = adventureEx(
-        "LDRLBHLHRBBRBDGGHHBGDRHGRRRGLL", 3, 150, 10000, [
+        "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 150, 10000, [
             # Profile(ProfileName.SHAPE_PLUS, threshold=100),
             # Profile(name=ProfileName.CONNECTED_ORB, target=4),
-            Profile(name=ProfileName.COMBO),
+            Profile(name=ProfileName.COMBO, threshold=100),
         ])
     print(state)
+    print("It took {} s".format(time.time() - begin))

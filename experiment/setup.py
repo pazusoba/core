@@ -2,7 +2,7 @@ from distutils.core import setup, Extension
 
 module_pazusoba = Extension('pazusoba',
                     sources = ['pazusoba.cpp', 'api.cpp'],
-                    extra_compile_args=['-std=c++11'])
+                    extra_compile_args=['-std=c++11', '-O2'])
 
 setup(name = 'pazusoba',
        version = '1.0.0',
