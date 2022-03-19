@@ -5,7 +5,7 @@
 // mac: clang++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 // windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
-#include "pazusoba.h"
+#include <pazusoba/core.h>
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -13,7 +13,6 @@
 #include <queue>
 #include <thread>
 #include <vector>
-#include "hash.h"
 
 namespace pazusoba {
 state solver::adventure() {

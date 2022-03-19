@@ -9,13 +9,7 @@
 **/.ipynb_checkpoints
 **/__pycache**
 **/*.test
-
-# generated boards
-**/board_*.txt
-# program output
-**/output.txt
 **/.DS_Store
-**/*.pazusoba
 
 # debug
 **/*.dSYM
@@ -32,5 +26,3 @@ xcode/
 
 # trace from instrument
 **/*.trace/
-
-pazusoba

@@ -5,6 +5,7 @@
 // Created by Yiheng Quan on 11/11/2020
 //
 
+#pragma once
 #ifndef _TIMER_H_
 #define _TIMER_H_
 

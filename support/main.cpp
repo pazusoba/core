@@ -1,5 +1,4 @@
-#include "pazusoba.h"
-#include "timer.h"
+#include <pazusoba/core.h>
 
 int main(int argc, char* argv[]) {
     auto solver = pazusoba::solver();

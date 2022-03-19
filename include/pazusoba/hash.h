@@ -7,13 +7,14 @@
 // Mofified by Yiheng Quan on 31/07/2021
 //
 
+#pragma once
 #ifndef _HASH_H_
 #define _HASH_H_
 
 namespace pazusoba {
 namespace hash {
-inline size_t djb2_hash(const unsigned char* str) {
-    size_t hash = 5381;
+inline long long int djb2_hash(const unsigned char* str) {
+    long long int hash = 5381;
     int c;
 
     while (*str) {
@@ -24,12 +25,12 @@ inline size_t djb2_hash(const unsigned char* str) {
     return hash;
 }
 
-inline size_t djb2_hash_shift(size_t hash, int c) {
+inline long long int djb2_hash_shift(long long int hash, int c) {
     return ((hash << 5) + hash) + c;
 }
 
-inline size_t sdbm_hash(const unsigned char* str) {
-    size_t hash = 0;
+inline long long int sdbm_hash(const unsigned char* str) {
+    long long int hash = 0;
     int c;
 
     while (*str) {
@@ -40,7 +41,7 @@ inline size_t sdbm_hash(const unsigned char* str) {
     return hash;
 }
 
-inline size_t sdbm_hash_shift(size_t hash, int c) {
+inline long long int sdbm_hash_shift(long long int hash, int c) {
     return c + (hash << 6) + (hash << 16) - hash;
 }
 }  // namespace hash

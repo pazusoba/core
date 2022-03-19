@@ -1,20 +1,18 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.12)
 
 project(
     pazusoba
-    VERSION 0.8.0
+    VERSION 0.9.0
     LANGUAGES CXX
-    # This is not support until CMake 3.12
-    # HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
+    HOMEPAGE_URL https://github.com/HenryQuan/pazusoba
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
 
-# TODO: is C++17 required excpept for the nested namespace?
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-set(MAIN_CPP test/pazusoba.cpp)
-set(TEST_CPP test/test.cpp)
+set(MAIN_CPP support/main.cpp)
+set(TEST_CPP support/test.cpp)
 
 # strict compiler warnings
 if(MSVC)
@@ -32,19 +30,15 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 link_libraries(Threads::Threads)
 
-# openmp for better multithreading
-find_package(OpenMP REQUIRED)
-link_libraries(OpenMP::OpenMP_CXX)
-
-message(STATUS "Add {fmt} module")
-# add {fmt} module
-add_subdirectory(src/fmt EXCLUDE_FROM_ALL)
-link_libraries(fmt::fmt-header-only)
+# openmp for simpler multithreading
+# find_package(OpenMP REQUIRED)
+# link_libraries(OpenMP::OpenMP_CXX)
 
 # include headers and get all source files
 include_directories(include)
-# fiind all source files under src/
-file(GLOB_RECURSE PAZUSOBA_SOURCES "src/*.cpp")
+# find all source files under src/
+# file(GLOB_RECURSE PAZUSOBA_SOURCES "src/*.cpp")
+set(PAZUSOBA_SOURCES src/pazusoba.cpp)
 
 # use release by default
 if (NOT CMAKE_BUILD_TYPE)
@@ -63,6 +57,7 @@ if(${build_type} STREQUAL "release")
         pazusoba 
         SHARED
         ${PAZUSOBA_SOURCES}
+        src/api.cpp
     )
 
     # pazuauto

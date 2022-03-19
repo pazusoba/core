@@ -1,5 +1,5 @@
+#include <pazusoba/core.h>
 #include <cstdio>
-#include "pazusoba.h"
 
 extern "C" {
 // Holds the row & column of where to go next

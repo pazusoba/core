@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PAZUSOBA_H
-#define PAZUSOBA_H
+#ifndef _PAZUSOBA_H_
+#define _PAZUSOBA_H_
 
 #include <array>
 #include <deque>
@@ -66,7 +66,7 @@ struct state {
     tiny step = 0;
     tiny combo = 0;
     bool goal = false;
-    size_t hash;
+    long long int hash;
     short int score = MIN_STATE_SCORE;
     // 64 bits can store 21 steps 3 * 21
     // if we don't include diagonals,
@@ -130,7 +130,7 @@ class solver {
     // count the number of each orb to calculate the max combo (not 100%
     // correct)
     std::array<orb, ORB_COUNT> ORB_COUNTER;
-    std::unordered_map<size_t, bool> VISITED[MAX_BOARD_LENGTH];
+    std::unordered_map<long long int, bool> VISITED[MAX_BOARD_LENGTH];
 
     // initalise after board size is decided
     int DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];

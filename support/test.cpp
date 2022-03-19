@@ -1,5 +1,6 @@
+#include <pazusoba/core.h>
 #include <cassert>
-#include "pazusoba.h"
+
 
 void print_combo(const pazusoba::combo_list& combos) {
     printf("combos size %d\n", (int)combos.size());
