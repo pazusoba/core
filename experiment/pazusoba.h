@@ -11,7 +11,7 @@
 
 namespace pazusoba {
 // TODO: should replace all of these into const
-#define DEBUG 0
+#define DEBUG 1
 #define DEBUG_PRINT(...) \
     if (DEBUG)           \
         printf(__VA_ARGS__);
