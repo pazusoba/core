@@ -12,7 +12,7 @@ else
 	GCC=g++
 endif
 
-FLAGS=-std=c++11 -Wall -Wextra -pedantic -flto -O2
+FLAGS=-std=c++11 -Wall -Wextra -pedantic -Os -flto -pthread -lpthread
 FILES=pazusoba.cpp
 
 main:

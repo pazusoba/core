@@ -42,7 +42,7 @@ state solver::adventure() {
     }
 
     // setup threading
-    unsigned int processor_count = std::thread::hardware_concurrency();
+    int processor_count = std::thread::hardware_concurrency();
     // unsigned int processor_count = 1;
     std::vector<std::thread> threads;
     threads.reserve(processor_count);
@@ -109,7 +109,7 @@ state solver::adventure() {
         // we need to filter out the states that are already visited
         int index = 0;
         for (int j = 0; j < REAL_BEAM_SIZE; j++, index++) {
-            auto& curr = temp[j];
+            const auto& curr = temp[j];
             if (VISITED[curr.prev][curr.hash]) {
                 index--;
             } else {
