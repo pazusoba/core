@@ -109,10 +109,10 @@ state solver::adventure() {
         int index = 0;
         for (int j = 0; j < REAL_BEAM_SIZE; j++, index++) {
             const auto& curr = temp[j];
-            if (VISITED[curr.prev][curr.hash]) {
+            if (VISITED[curr.hash]) {
                 index--;
             } else {
-                VISITED[curr.prev][curr.hash] = true;
+                VISITED[curr.hash] = true;
                 if (curr.combo > best_state.combo) {
                     best_state = curr;
                     stop_count = 0;
@@ -187,7 +187,7 @@ void solver::expand(const game_board& board,
         new_board[next] = temp;
 
         // calculate the hash
-        new_state.hash = hash::djb2_hash(new_board.data());
+        new_state.hash = hash::pazusoba_hash(new_board.data(), new_state.prev);
 
         // backup the board
         evaluate(new_board, new_state);

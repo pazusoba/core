@@ -130,7 +130,7 @@ class solver {
     // count the number of each orb to calculate the max combo (not 100%
     // correct)
     std::array<orb, ORB_COUNT> ORB_COUNTER;
-    std::unordered_map<long long int, bool> VISITED[MAX_BOARD_LENGTH];
+    std::unordered_map<long long int, bool> VISITED;
 
     // initalise after board size is decided
     int DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];

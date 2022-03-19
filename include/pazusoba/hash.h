@@ -25,6 +25,13 @@ inline long long int djb2_hash(const unsigned char* str) {
     return hash;
 }
 
+/// Use djb2_hash and add the initial location
+inline long long int pazusoba_hash(const unsigned char* str, int loc) {
+    long long int hash = djb2_hash(str);
+    hash = ((hash << 5) + hash) + loc;
+    return hash;
+}
+
 inline long long int djb2_hash_shift(long long int hash, int c) {
     return ((hash << 5) + hash) + c;
 }
