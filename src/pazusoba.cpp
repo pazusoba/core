@@ -113,7 +113,7 @@ state solver::adventure() {
                 index--;
             } else {
                 VISITED[curr.hash] = true;
-                if (curr.combo > best_state.combo) {
+                if (curr.score > best_state.score) {
                     best_state = curr;
                     stop_count = 0;
                 }
@@ -385,8 +385,10 @@ void solver::evaluate(game_board& board, state& new_state) {
                                     counter++;
 
                                 if (counter == 2)
-                                    score += 40;
+                                    score += 50;
                             }
+                        } else if (size > 3) {
+                            score += 10;
                         }
                     }
                 }

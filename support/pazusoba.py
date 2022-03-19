@@ -6,6 +6,7 @@ from typing import List
 import glob
 import time
 import enum
+import os
 
 
 class c_location(Structure):
@@ -164,9 +165,13 @@ def adventure(arguments: List[str]) -> State:
 
 
 if __name__ == "__main__":
-    so_path = glob.glob("build/lib*/pazusoba*")
-    if (len(so_path) != 1):
-        raise Exception("Shared Library is not found. Run python3 setup.pt build.")
+    if (os.path.exists("libpazusoba.dll")):
+        so_path = ["libpazusoba.dll"]
+    else:
+        so_path = glob.glob("build/lib*/pazusoba*")
+        if (len(so_path) != 1):
+            raise Exception(
+                "Shared Library is not found. Run python3 setup.pt build.")
 
     libpazusoba = CDLL(so_path[0], winmode=0)
     # NOTE: the restype here must be correct to call it properly
@@ -174,16 +179,18 @@ if __name__ == "__main__":
     libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
 
     libpazusoba.adventureEx.restype = c_state
-    libpazusoba.adventureEx.argtypes = (POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
+    libpazusoba.adventureEx.argtypes = (
+        POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
 
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     begin = time.time()
     state = adventureEx(
-        "RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB", 3, 150, 10000, [
-            # Profile(ProfileName.SHAPE_PLUS, threshold=100),
-            # Profile(name=ProfileName.CONNECTED_ORB, target=4),
-            Profile(name=ProfileName.COMBO, threshold=100),
+        "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL", 3, 50, 10000, [
+            # Profile(name=ProfileName.COMBO, target=7, threshold=100),
+            # Profile(name=ProfileName.ORB_REMAINING, target=3),
+            Profile(name=ProfileName.SHAPE_L, orbs=[
+                    Orb.FIRE, Orb.WATER, Orb.WOOD, Orb.LIGHT, Orb.DARK]),
         ])
     print(state)
     print("It took {} s".format(time.time() - begin))
