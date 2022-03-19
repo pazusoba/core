@@ -55,12 +55,12 @@ state solver::adventure() {
 
         int look_size = look.size();
         DEBUG_PRINT("Depth %d - size %d\n", i + 1, look_size);
-        int look_size_thread = look_size / processor_count + 1;
+        int look_size_thread = look_size / processor_count;
 
         // #pragma omp parallel for
         for (int thread_num = 0; thread_num < processor_count; thread_num++) {
             threads.emplace_back([&, thread_num, look_size_thread] {
-                int start_index = thread_num * (look_size_thread + 1);
+                int start_index = thread_num * (look_size_thread);
                 int end_index = start_index + look_size_thread;
                 for (int j = start_index; j < end_index; j++) {
                     if (found_max_combo)
