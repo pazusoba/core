@@ -17,7 +17,7 @@ namespace pazusoba {
         printf(__VA_ARGS__);
 
 #define MAX_DEPTH 150
-#define MIN_BEAM_SIZE 1000
+#define MIN_BEAM_SIZE 100
 #define MAX_BOARD_LENGTH 42
 #define MIN_STATE_SCORE -9999
 // diagonal moves are no yet supported

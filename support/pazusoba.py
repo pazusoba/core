@@ -164,24 +164,24 @@ def adventure(arguments: List[str]) -> State:
     return State(state)
 
 
+if (os.path.exists("libpazusoba.dll")):
+    so_path = ["libpazusoba.dll"]
+else:
+    so_path = glob.glob("build/lib*/pazusoba*")
+    if (len(so_path) != 1):
+        raise Exception(
+            "Shared Library is not found. Run python3 setup.pt build.")
+
+libpazusoba = CDLL(so_path[0], winmode=0)
+# NOTE: the restype here must be correct to call it properly
+libpazusoba.adventure.restype = c_state
+libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
+
+libpazusoba.adventureEx.restype = c_state
+libpazusoba.adventureEx.argtypes = (
+    POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
+
 if __name__ == "__main__":
-    if (os.path.exists("libpazusoba.dll")):
-        so_path = ["libpazusoba.dll"]
-    else:
-        so_path = glob.glob("build/lib*/pazusoba*")
-        if (len(so_path) != 1):
-            raise Exception(
-                "Shared Library is not found. Run python3 setup.pt build.")
-
-    libpazusoba = CDLL(so_path[0], winmode=0)
-    # NOTE: the restype here must be correct to call it properly
-    libpazusoba.adventure.restype = c_state
-    libpazusoba.adventure.argtypes = (c_int, POINTER(c_char_p))
-
-    libpazusoba.adventureEx.restype = c_state
-    libpazusoba.adventureEx.argtypes = (
-        POINTER(c_char), c_int, c_int, c_int, POINTER(c_profile), c_int)
-
     # state = adventure(
     #     ["pazusoba", "RLRRDBHBLDBLDHRGLGBRGLBDBHDGRL", "3", "100", "10000"])
     begin = time.time()
