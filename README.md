@@ -99,21 +99,13 @@ On Windows, `MinGW` is recommened as this is what I am using. `MCVS` is also sup
   - C++11 is the minimum requirement as lambda is used
   - Nested namespace requires C++17 but can be easily updated
 
-#### Submodules
-
-```shell
-git submodule update --init --recursive
-```
-
-`{fmt}` is used as a submodule so it is required to clone it properly. Not sure if this does improve anything or not, it will be removed so it is not useful at all.
-
 #### Setup CMake
 
 ```shell
 cmake -B release
 cd release
 make pazusoba_binary
-.pazusoba_binary.exe
+./pazusoba_binary.exe
 ```
 
 Add `-DCMAKE_BUILD_TYPE=Debug` to debug or test pazusoba.
@@ -145,27 +137,6 @@ $ ./a.out assets/sample_board_65.txt 3
 
 By increasing the beam size, it will take more time (linear space) to compute. With more CPU cores, it runs significantly faster.
 
-### DEBUG
-
-lldb can call methods while debugging so it is easier to debug
-
-```
-// print current board
-_board.getFormattedBoard(FormatStyle::dawnglare)
-```
-
-### Coding Style
-
-I am very free style but I think consistency is important. That's why I think it is time to define the coding style for this project.
-
-- Class should be named like `ClassName`
-- Function should be named like `functionName`
-- Variable should be named like `variable_name`
-- Enum should be named like `EnumName`
-- Const should be named like `CONST_NAME`
-- Everything should be inside `namespace pazusoba`
-- `new` should be avoided if possible
-
 ## Benchmark
 
 Binaries are compiled locally and overall time are used based on the same board, max step 50 and beam size 5000. This might not be accurate. Use it as a reference.
@@ -180,10 +151,6 @@ Binaries are compiled locally and overall time are used based on the same board,
 | 0.7.1β  |    1.71s    |  0.91s  |  General Improvement  |
 | 0.7.5β  |      -      |    -    |    Full Automation    |
 |  0.8γ   |      -      |  0.77s  |        Rework         |
-
-## QT (Deprecated)
-
-This was my original attempt to port pazusoba to all platforms but was abondoned. [pazuauto](https://github.com/HenryQuan/pazuauto) was what it had became. The true successor is [pazuflata](https://github.com/HenryQuan/pazuflata) (Flutter) and it can be done by using Dart FFI to port pazusoba to all platforms.
 
 ## Resources
 
@@ -217,6 +184,9 @@ Things that were helpful during my experiments.
 - [BSD License](https://github.com/asweigart/pyautogui/blob/master/LICENSE.txt) for pyautogui
 - [NumPy License](https://numpy.org/devdocs/license.html)
 - [{fmt}](https://github.com/fmtlib/fmt/blob/master/LICENSE.rst)
+
+## Legacy Code
+They have been removed now. Check [here](https://github.com/pazusoba/core/tree/aab44313d8da4b276bfae64c022b05e9e608e0c5) if needed.
 
 <details>
 <summary>Miscellaneous</summary>
