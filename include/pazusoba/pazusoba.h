@@ -91,11 +91,19 @@ struct state {
     route_list route{};
     
     // C++20 three-way comparison operator for sorting
-    // Compares by score first, then hash for stable sort
+    // CRITICAL FOR MAX COMBO: Primary sort by combo count, then score, then steps
     [[nodiscard]] constexpr auto operator<=>(const state& other) const noexcept {
+        // Prioritize combo count above all else
+        if (auto cmp = combo <=> other.combo; cmp != 0)
+            return cmp;
+        // Then by score
         if (auto cmp = score <=> other.score; cmp != 0)
             return cmp;
-        return hash <=> other.hash;  // Tie-breaker for stable sort
+        // Then prefer fewer steps
+        if (auto cmp = other.step <=> step; cmp != 0)  // Reversed for ascending
+            return cmp;
+        // Tie-breaker for stable sort
+        return hash <=> other.hash;
     }
     
     // Equality operator needed alongside <=>
@@ -103,7 +111,12 @@ struct state {
     
     // For compatibility with existing code
     [[nodiscard]] constexpr bool operator>(const state& other) const noexcept {
-        return score > other.score;
+        // Use combo-first comparison
+        if (combo != other.combo)
+            return combo > other.combo;
+        if (score != other.score)
+            return score > other.score;
+        return step < other.step;  // Prefer fewer steps
     }
 };
 

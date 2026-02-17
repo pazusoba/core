@@ -149,6 +149,12 @@ state solver::adventure() {
                 best_state = curr;
                 stop_count = 0;
             }
+            // CRITICAL: Also reset stop_count if we find higher combo count
+            // This ensures we keep searching for max combos
+            else if (curr.combo > best_state.combo) {
+                best_state = curr;
+                stop_count = 0;
+            }
 
             // break if empty boards are hit
             if (curr.score == MIN_STATE_SCORE) {
@@ -240,18 +246,27 @@ void solver::evaluate(game_board& board, state& new_state) {
         }
     }
 
-    // Heuristic 1: Penalize orb dispersion (original)
+    // Dispersion heuristic removed - misleading because:
+    // - Scattered orbs before cascade can still result in full combos after cascade
+    // - What matters is actual combos achieved, not initial orb positions
+    // Only use dispersion as a very weak tie-breaker
+    int dispersion_penalty = 0;
     for (const auto& dist : distance) {
-        score -= (dist.max - dist.min);
+        dispersion_penalty += (dist.max - dist.min);
     }
+    score -= dispersion_penalty / 10;  // Minimal weight - just a tie-breaker
     
-    // Heuristic 2: Bonus for having enough orbs to form combos
+    // Heuristic 2: Strong bonus for having enough orbs to form combos (lookahead)
+    // This encourages preserving combo potential for future moves
+    int potential_combos = 0;
     for (int i = 1; i < ORB_COUNT; i++) {
         if (orb_count[i] >= MIN_ERASE) {
-            // Potential combo bonus (encourages keeping viable combos)
-            score += (orb_count[i] / MIN_ERASE) * 2;
+            // Count how many combos could potentially be formed
+            potential_combos += orb_count[i] / MIN_ERASE;
         }
     }
+    // Strong bonus for high combo potential - this is our lookahead heuristic
+    score += potential_combos * potential_combos * 20;  // Exponential scaling
 
     // erase the board and find out the combo number
     // Pre-allocate combo_list to reduce allocations
@@ -300,8 +315,13 @@ void solver::evaluate(game_board& board, state& new_state) {
             case ProfileName::target_combo: {
                 int target = profile.target;
                 if (target == -1) {
-                    // max combo
-                    score += combo * 20;
+                    // max combo - MASSIVELY prioritize combo count
+                    // Use VERY aggressive exponential scaling to ensure higher combos always win
+                    score += combo * combo * combo * 100;  // Cubic: 5=12500, 10=100000
+                    
+                    // Slight step penalty to prefer shorter solutions at same combo count
+                    score -= new_state.step * 2;
+                    
                     if (combo == MAX_COMBO)
                         goal++;
                 } else {
