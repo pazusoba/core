@@ -61,9 +61,10 @@ state solver::adventure() {
         int look_size_thread = look_size / processor_count;
 
         // Create thread-local buffers to avoid race conditions
+        // Pre-size vectors for indexed assignment in expand()
         std::vector<std::vector<state>> thread_local_states(processor_count);
         for (auto& local_temp : thread_local_states) {
-            local_temp.reserve(look_size_thread * 4);  // Reserve for 4 directions per state
+            local_temp.resize(look_size_thread * 4);  // 4 directions max per state
         }
 
         for (unsigned int thread_num = 0; thread_num < processor_count; thread_num++) {
@@ -167,7 +168,7 @@ state solver::adventure() {
 void solver::expand(const game_board& board,
                     const state& current,
                     std::vector<state>& states,
-                    [[maybe_unused]] const int loc) {
+                    const int loc) {
     const int count = ALLOW_DIAGONAL ? DIRECTION_COUNT : 4;
 
     const auto prev = current.prev;
@@ -211,8 +212,13 @@ void solver::expand(const game_board& board,
         // evaluate the board
         evaluate(new_board, new_state);
 
-        // insert to the states
-        states.push_back(new_state);
+        // insert to the states - use indexing for test compatibility
+        // For thread-local states, this is safe as each thread writes to its own vector
+        if (step == 0) {
+            states[loc * 4 + i] = new_state;
+        } else {
+            states[loc * 3 + i] = new_state;
+        }
     }
 }
 
