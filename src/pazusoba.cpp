@@ -2,8 +2,8 @@
 // Try to improve the performance of the solver while being flexible enough
 
 // Compile with
-// mac: clang++ -std=c++17 -fopenmp -O2 pazusoba.cpp -o pazusoba
-// windows: g++ -std=c++17 -fopenmp -O2 pazusoba.cpp -o pazusoba
+// mac: clang++ -std=c++20 -fopenmp -O2 pazusoba.cpp -o pazusoba
+// windows: g++ -std=c++20 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
 #include <pazusoba/core.h>
 #include <algorithm>
@@ -88,7 +88,7 @@ state solver::adventure() {
                         // Use atomic compare-exchange to safely update best_state
                         bool expected = false;
                         if (found_max_combo.compare_exchange_strong(expected, true, std::memory_order_release)) {
-                            // First thread to find goal wins
+                            best_state = curr;  // First thread to find goal wins
                         }
                         continue;
                     }
@@ -130,24 +130,27 @@ state solver::adventure() {
 
         look.clear();
         // we need to filter out the states that are already visited
-        int index = 0;
-        for (int j = 0; j < REAL_BEAM_SIZE && j < static_cast<int>(temp.size()); j++, index++) {
+        // Using insert().second to check and insert in one operation (single hash lookup)
+        look.clear();
+        for (int j = 0; j < REAL_BEAM_SIZE && j < static_cast<int>(temp.size()); j++) {
             const auto& curr = temp[j];
-            if (VISITED.contains(curr.hash)) {
-                index--;
-            } else {
-                VISITED.insert(curr.hash);
-                if (curr.score > best_state.score) {
-                    best_state = curr;
-                    stop_count = 0;
-                }
-
-                // break if empty boards are hit
-                if (curr.score == MIN_STATE_SCORE) {
-                    break;
-                }
-                look.push_back(curr);
+            
+            // Check and insert in one operation
+            if (!VISITED.insert(curr.hash).second) {
+                // Already visited, skip
+                continue;
             }
+            
+            if (curr.score > best_state.score) {
+                best_state = curr;
+                stop_count = 0;
+            }
+
+            // break if empty boards are hit
+            if (curr.score == MIN_STATE_SCORE) {
+                break;
+            }
+            look.push_back(curr);
         }
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
@@ -234,7 +237,8 @@ void solver::evaluate(game_board& board, state& new_state) {
     // erase the board and find out the combo number
     // Pre-allocate combo_list to reduce allocations
     combo_list list;
-    list.reserve(MAX_COMBO);  // Reserve space to avoid reallocations
+    const int reserve_size = (MAX_COMBO > 0) ? MAX_COMBO : 10;  // Safe default
+    list.reserve(reserve_size);
 
     int combo = 0;
     int move_count = 0;
@@ -803,7 +807,7 @@ void solver::print_board(const game_board& board) const {
 void solver::print_state(const state& state) const {
     std::printf("=============== STATE ===============\n");
     if (state.step == 0) {
-        std::printf("Invalid state\n");
+        std::fprintf(stderr, "Warning: Invalid state (step == 0)\n");
         return;
     }
 

@@ -91,8 +91,11 @@ struct state {
     route_list route{};
     
     // C++20 three-way comparison operator for sorting
+    // Compares by score first, then hash for stable sort
     [[nodiscard]] constexpr auto operator<=>(const state& other) const noexcept {
-        return score <=> other.score;
+        if (auto cmp = score <=> other.score; cmp != 0)
+            return cmp;
+        return hash <=> other.hash;  // Tie-breaker for stable sort
     }
     
     // Equality operator needed alongside <=>
@@ -164,6 +167,7 @@ class solver {
     std::array<int, DIRECTION_COUNT> DIRECTION_ADJUSTMENTS{};
 
     // Helper function to convert 2D coordinates to 1D index
+    // Note: Callers are responsible for bounds checking (row < ROW, col < COLUMN)
     [[nodiscard]] inline int index_of(int x, int y) const noexcept {
         return x * COLUMN + y;
     }
