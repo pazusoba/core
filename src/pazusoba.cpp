@@ -215,33 +215,38 @@ void solver::expand(const game_board& board,
 
 void solver::evaluate(game_board& board, state& new_state) {
     short int score = 0;
-    // TODO: should this be after??
+    
     // scan the board to get the distance between each orb
-    orb_distance distance[ORB_COUNT];
+    std::array<orb_distance, ORB_COUNT> distance{};
     for (int i = 0; i < BOARD_SIZE; i++) {
-        auto& orb = board[i];
-        // 0 to 5 only for 6x5, 6 to 11 will convert to 0 to 5
-        int loc = i % COLUMN;
-        if (loc > distance[orb].max)
-            distance[orb].max = loc;
-        else if (loc < distance[orb].min)
-            distance[orb].min = loc;
+        const auto& orb_val = board[i];
+        const int loc = i % COLUMN;
+        if (loc > distance[orb_val].max)
+            distance[orb_val].max = loc;
+        else if (loc < distance[orb_val].min)
+            distance[orb_val].min = loc;
     }
 
-    for (int i = 0; i < ORB_COUNT; i++) {
-        auto& dist = distance[i];
+    for (const auto& dist : distance) {
         score -= (dist.max - dist.min);
     }
 
     // erase the board and find out the combo number
-    combo_list list;  // TODO: 515ms here, destructor is slow
+    // Pre-allocate combo_list to reduce allocations
+    combo_list list;
+    list.reserve(MAX_COMBO);  // Reserve space to avoid reallocations
 
     int combo = 0;
     int move_count = 0;
     game_board copy = board;
-    while (true) {
+    
+    // Limit cascade simulation to reasonable depth
+    constexpr int MAX_CASCADE_DEPTH = 10;
+    while (move_count < MAX_CASCADE_DEPTH) {
+        list.clear();  // Reuse the vector instead of creating new one
         erase_combo(copy, list);
-        int combo_count = list.size();
+        const int combo_count = list.size();
+        
         // Check if there are more combo
         if (combo_count > combo) {
             combo = combo_count;
@@ -484,33 +489,36 @@ void solver::evaluate(game_board& board, state& new_state) {
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
-    visit_board visited_location{0};
+    visit_board visited_location{};  // Initialize to zero
+    
     // start from the bottom and check for combos
     for (int curr_index = BOARD_SIZE - 1; curr_index >= 0; curr_index--) {
         if (visited_location[curr_index])
             continue;  // already visited even if it is not erased
 
-        auto orb = board[curr_index];
-        if (orb == 0)
+        const auto orb_val = board[curr_index];
+        if (orb_val == 0)
             continue;  // already erased
 
-        combo c(orb);
+        combo c(orb_val);
+        c.loc.reserve(15);  // Pre-reserve space for connected orbs
+        
         std::queue<int> visit_queue;
         visit_queue.emplace(curr_index);
 
         // start exploring until all connected orbs are visited
         while (!visit_queue.empty()) {
-            int to_visit = visit_queue.front();
+            const int to_visit = visit_queue.front();
             visit_queue.pop();
 
             // number of connected orbs in all directions
-            int counter[4]{0};
+            std::array<int, 4> counter{};
 
             // check all four directions
             for (int i = 0; i < 4; i++) {
-                int direction = DIRECTION_ADJUSTMENTS[i];
-                // this needs to be unsigned to avoid negatives
+                const int direction = DIRECTION_ADJUSTMENTS[i];
                 tiny next = to_visit;
+                
                 // going in that direction until a different orb is found
                 while (true) {
                     if (direction == -1 && next % COLUMN == 0)
@@ -523,7 +531,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                     if (next >= BOARD_SIZE)
                         break;  // invalid, out of bound
 
-                    if (board[next] == orb) {
+                    if (board[next] == orb_val) {
                         // same colour
                         visited_location[next] = true;
                         counter[i]++;
@@ -535,14 +543,15 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                             if (i >= 2 && j >= 2)
                                 continue;  // only search up & down
 
-                            int direction = DIRECTION_ADJUSTMENTS[j];
+                            const int dir2 = DIRECTION_ADJUSTMENTS[j];
                             tiny nearby = next;
-                            if (direction == -1 && nearby % COLUMN == 0)
+                            
+                            if (dir2 == -1 && nearby % COLUMN == 0)
                                 continue;  // invalid, on the left edge
 
-                            nearby += direction;
+                            nearby += dir2;
 
-                            if (direction == 1 && nearby % COLUMN == 0)
+                            if (dir2 == 1 && nearby % COLUMN == 0)
                                 continue;  // invalid, on the right edge
                             if (nearby >= BOARD_SIZE)
                                 continue;  // invalid, out of bound
@@ -550,7 +559,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                                 continue;  // invalid, already visited
 
                             // same orb in different direction, should visit
-                            if (board[nearby] == orb) {
+                            if (board[nearby] == orb_val) {
                                 // check next first before nearby
                                 visit_queue.emplace(next);
                                 visit_queue.emplace(nearby);

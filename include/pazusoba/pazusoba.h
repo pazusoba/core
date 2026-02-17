@@ -169,36 +169,59 @@ class solver {
     }
 
 public:
-    ///
-    /// const marks the function pure and testable
-    ///
-    // find the best possible move by exploring the board
-    state adventure();
-    // expand current state to all possible next moves
-    void expand(const game_board&,
-                const state&,
-                std::vector<state>&,
-                const int);
-    // erase the board, count the combo and calculate the score
-    void evaluate(game_board&, state&);
-    void erase_combo(game_board&, combo_list&);
-    void move_orbs_down(game_board&);
-    // A naive way to approach max combo, mostly accurate unless 2 colours
-    int calc_max_combo(const orb_list&, const int, const int) const;
+    /// @brief Find the best possible move by exploring the board using beam search
+    /// @return The best state found within search depth and beam size constraints
+    [[nodiscard]] state adventure();
+    
+    /// @brief Expand current state to all possible next moves
+    /// @param board Current game board state
+    /// @param current Current state to expand from
+    /// @param states Output vector to store expanded states
+    /// @param loc Location index (unused in current implementation)
+    void expand(const game_board& board,
+                const state& current,
+                std::vector<state>& states,
+                const int loc);
+    
+    /// @brief Erase the board, count the combo and calculate the score
+    /// @param board Game board to evaluate (will be modified during cascade simulation)
+    /// @param new_state State to update with evaluation results
+    void evaluate(game_board& board, state& new_state);
+    
+    /// @brief Find and erase combos on the board using flood fill
+    /// @param board Game board to erase combos from
+    /// @param list Output list of combos found
+    void erase_combo(game_board& board, combo_list& list);
+    
+    /// @brief Move orbs down after erasing combos (gravity simulation)
+    /// @param board Game board to apply gravity to
+    void move_orbs_down(game_board& board);
+    
+    /// @brief Calculate maximum possible combos for a board
+    /// @param counter Count of each orb type
+    /// @param size Board size
+    /// @param min_erase Minimum orbs needed to erase
+    /// @return Estimated maximum combo count
+    [[nodiscard]] int calc_max_combo(const orb_list& counter, 
+                                      const int size, 
+                                      const int min_erase) const;
 
+    /// @brief Parse command line arguments
     void parse_args(int argc, char* argv[]);
-    // set board from string, setup row and column, calculate max combo and
-    // also, setup DIRECTION_ADJUSTMENTS for expand()
-    void set_board(const char*);
-    void set_min_erase(int);
-    void set_search_depth(int);
-    void set_beam_size(int);
-    void set_profiles(profile*, int);
+    
+    /// @brief Set board from string, setup row and column, calculate max combo
+    /// @param board_string String representation of the board (e.g., "RBGLDH...")
+    void set_board(const char* board_string);
+    
+    void set_min_erase(int min_erase);
+    void set_search_depth(int depth);
+    void set_beam_size(int beam_size);
+    void set_profiles(profile* profiles, int count);
 
-    void print_board(const game_board&) const;
-    void print_state(const state&) const;
-    void print_route(const route_list&, const int, const int) const;
-    std::string get_board_string(const game_board&) const;
+    void print_board(const game_board& board) const;
+    void print_state(const state& state) const;
+    void print_route(const route_list& route, const int step, const int begin) const;
+    [[nodiscard]] std::string get_board_string(const game_board& board) const;
     void usage() const;
 
     // getters - marked [[nodiscard]] to encourage proper usage
