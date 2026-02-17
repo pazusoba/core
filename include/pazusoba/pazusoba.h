@@ -3,49 +3,64 @@
 #define _PAZUSOBA_H_
 
 #include <array>
+#include <atomic>
+#include <concepts>
+#include <cstdio>
 #include <deque>
+#include <span>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 namespace pazusoba {
-// TODO: should replace all of these into const
-#define DEBUG 0
-#define DEBUG_PRINT(...) \
-    if (DEBUG)           \
-        printf(__VA_ARGS__);
+// Modern C++20 constants replacing macros - using inline constexpr for ODR-safety
+inline constexpr bool DEBUG = false;
+inline constexpr int MAX_DEPTH = 150;
+inline constexpr int MIN_BEAM_SIZE = 100;
+inline constexpr int MAX_BOARD_LENGTH = 42;
+inline constexpr int MIN_STATE_SCORE = -9999;
+inline constexpr bool ALLOW_DIAGONAL = false;
+inline constexpr int ROUTE_PER_LIST = 21;
+inline constexpr long long ROUTE_MASK = 0x7000000000000000;
+inline constexpr int ORB_COUNT = 11;
+inline constexpr int DIRECTION_COUNT = 8;
+inline constexpr double BEAM_SIZE_MULTIPLIER = 1.4;
 
-#define MAX_DEPTH 150
-#define MIN_BEAM_SIZE 100
-#define MAX_BOARD_LENGTH 42
-#define MIN_STATE_SCORE -9999
-// diagonal moves are no yet supported
-#define ALLOW_DIAGONAL 0
+// C++20 Concepts for type safety
+template<typename T>
+concept Numeric = std::integral<T> || std::floating_point<T>;
 
-#define ROUTE_PER_LIST 21
-#define ROUTE_MASK 0x7000000000000000
+template<typename T>
+concept OrbType = std::same_as<T, unsigned char>;
 
-#define ORB_COUNT 11
-#define DIRECTION_COUNT 8
+// Debug print helper - using if constexpr for zero runtime cost in release builds
+template<typename... Args>
+inline void debug_print([[maybe_unused]] const char* format, [[maybe_unused]] Args... args) noexcept {
+    if constexpr (DEBUG) {
+        std::printf(format, args...);
+    }
+}
 
-// TODO: 100% needs to be improved
-#define INDEX_OF(x, y) (x * COLUMN + y)
-
-typedef unsigned char orb, tiny;
-typedef std::array<orb, MAX_BOARD_LENGTH> game_board, visit_board;
-typedef std::array<orb, ORB_COUNT> orb_list;
-typedef std::array<long long int, MAX_DEPTH / ROUTE_PER_LIST + 1> route_list;
+// Modern type aliases using C++20 style
+using orb = unsigned char;
+using tiny = unsigned char;
+using game_board = std::array<orb, MAX_BOARD_LENGTH>;
+using visit_board = std::array<orb, MAX_BOARD_LENGTH>;
+using orb_list = std::array<orb, ORB_COUNT>;
+using route_list = std::array<long long int, MAX_DEPTH / ROUTE_PER_LIST + 1>;
 
 // Empty, Fire, Water, Wood, Light, Dark, Heal, Jammer, Bomb, Poison, Poison+
 /// Match names https://pad.dawnglare.com/ use (not all orbs are supported)
-const char ORB_WEB_NAME[ORB_COUNT] = {' ', 'R', 'B', 'G', 'L', 'D',
-                                      'H', 'J', 'E', 'P', 'T'};
+inline constexpr std::array<char, ORB_COUNT> ORB_WEB_NAME = {
+    ' ', 'R', 'B', 'G', 'L', 'D', 'H', 'J', 'E', 'P', 'T'
+};
 
-const char DIRECTION_NAME[4] = {'U', 'D', 'L', 'R'};
+inline constexpr std::array<char, 4> DIRECTION_NAME = {'U', 'D', 'L', 'R'};
 
-/// All 8 possible directions
-enum DIRECTIONS {
+/// All 8 possible directions - using enum class for type safety
+enum class Direction : unsigned char {
     up = 0,
     down,
     left,
@@ -57,25 +72,39 @@ enum DIRECTIONS {
     down_right
 };
 
+// C++20 three-way comparison for Direction
+[[nodiscard]] constexpr auto operator<=>(Direction lhs, Direction rhs) noexcept {
+    return static_cast<unsigned char>(lhs) <=> static_cast<unsigned char>(rhs);
+}
+
 struct state {
-    // could be improved by swapping indexes instead of copying
-    game_board board{0};
-    tiny begin;
-    tiny prev;
-    tiny curr;
+    // C++20 designated initializers can be used to construct this
+    game_board board{};
+    tiny begin = 0;
+    tiny prev = 0;
+    tiny curr = 0;
     tiny step = 0;
     tiny combo = 0;
     bool goal = false;
-    long long int hash;
+    long long int hash = 0;
     short int score = MIN_STATE_SCORE;
-    // 64 bits can store 21 steps 3 * 21
-    // if we don't include diagonals,
-    // 64 bits can store 32 steps 2 * 32
-    route_list route{0};
-    int operator>(const state& other) const { return score > other.score; }
+    route_list route{};
+    
+    // C++20 three-way comparison operator for sorting
+    [[nodiscard]] constexpr auto operator<=>(const state& other) const noexcept {
+        return score <=> other.score;
+    }
+    
+    // Equality operator needed alongside <=>
+    [[nodiscard]] constexpr bool operator==(const state& other) const noexcept = default;
+    
+    // For compatibility with existing code
+    [[nodiscard]] constexpr bool operator>(const state& other) const noexcept {
+        return score > other.score;
+    }
 };
 
-enum PROFILE_NAME {
+enum class ProfileName : int {
     target_combo = 0,  // target certain combo, -1 means max combo
     colour,            // how many colours should be included, 5, 6
     colour_combo,      // how many combo for one colour, 2, 3
@@ -89,13 +118,12 @@ enum PROFILE_NAME {
 };
 
 struct profile {
-    // PROFILE_NAME
-    int name = -1;
+    ProfileName name = ProfileName::target_combo;
     // After how many steps should it stop if better states can't be found
     int stop_threshold = 20;
     // Which orbs should be considered
     int target = -1;
-    bool orbs[ORB_COUNT]{false};
+    std::array<bool, ORB_COUNT> orbs{};
 };
 
 // this helps to calculate the distance between a kind of orb
@@ -108,9 +136,9 @@ struct orb_distance {
 struct combo {
     orb info;
     std::unordered_set<int> loc;
-    combo(const orb& o) : info(o) {}
+    explicit combo(const orb& o) : info(o) {}
 };
-typedef std::vector<combo> combo_list;
+using combo_list = std::vector<combo>;
 
 class solver {
     ///
@@ -119,21 +147,26 @@ class solver {
     int MIN_ERASE = 3;
     int SEARCH_DEPTH = 100;
     int BEAM_SIZE = 10000;
-    int ROW, COLUMN;
-    int MAX_COMBO;
-    int BOARD_SIZE;
+    int ROW = 0, COLUMN = 0;
+    int MAX_COMBO = 0;
+    int BOARD_SIZE = 0;
     int STOP_THRESHOLD = 20;
-    profile* PROFILES;
+    profile* PROFILES = nullptr;
     int PROFILE_COUNT = 0;
 
-    game_board BOARD;
+    game_board BOARD{};
     // count the number of each orb to calculate the max combo (not 100%
     // correct)
-    std::array<orb, ORB_COUNT> ORB_COUNTER;
-    std::unordered_map<long long int, bool> VISITED;
+    orb_list ORB_COUNTER{};
+    std::unordered_set<long long int> VISITED;
 
-    // initalise after board size is decided
-    int DIRECTION_ADJUSTMENTS[DIRECTION_COUNT];
+    // initialize after board size is decided
+    std::array<int, DIRECTION_COUNT> DIRECTION_ADJUSTMENTS{};
+
+    // Helper function to convert 2D coordinates to 1D index
+    [[nodiscard]] inline int index_of(int x, int y) const noexcept {
+        return x * COLUMN + y;
+    }
 
 public:
     ///
@@ -168,15 +201,15 @@ public:
     std::string get_board_string(const game_board&) const;
     void usage() const;
 
-    // getters
-    int min_erase() const { return MIN_ERASE; }
-    int search_depth() const { return SEARCH_DEPTH; }
-    int beam_size() const { return BEAM_SIZE; }
-    int row() const { return ROW; }
-    int column() const { return COLUMN; }
-    int max_combo() const { return MAX_COMBO; }
-    int board_size() const { return BOARD_SIZE; }
-    const game_board& board() const { return BOARD; }
+    // getters - marked [[nodiscard]] to encourage proper usage
+    [[nodiscard]] int min_erase() const noexcept { return MIN_ERASE; }
+    [[nodiscard]] int search_depth() const noexcept { return SEARCH_DEPTH; }
+    [[nodiscard]] int beam_size() const noexcept { return BEAM_SIZE; }
+    [[nodiscard]] int row() const noexcept { return ROW; }
+    [[nodiscard]] int column() const noexcept { return COLUMN; }
+    [[nodiscard]] int max_combo() const noexcept { return MAX_COMBO; }
+    [[nodiscard]] int board_size() const noexcept { return BOARD_SIZE; }
+    [[nodiscard]] const game_board& board() const noexcept { return BOARD; }
 };
 }  // namespace pazusoba
 
