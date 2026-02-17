@@ -132,14 +132,16 @@ state solver::adventure() {
 
         look.clear();
         // we need to filter out the states that are already visited
-        // Using insert().second to check and insert in one operation (single hash lookup)
+        // Using insert().second for hash-based deduplication (single hash lookup)
+        // Note: Does not detect hash collisions - assumes hash uniquely identifies state
         look.clear();
         for (int j = 0; j < REAL_BEAM_SIZE && j < static_cast<int>(temp.size()); j++) {
             const auto& curr = temp[j];
             
-            // Check and insert in one operation
-            if (!VISITED.insert(curr.hash).second) {
-                // Already visited, skip
+            // Check and insert in one operation - hash-based deduplication
+            auto [it, inserted] = VISITED.insert(curr.hash);
+            if (!inserted) {
+                // Already visited (hash exists in set) - skip this state
                 continue;
             }
             
@@ -221,19 +223,34 @@ void solver::expand(const game_board& board,
 void solver::evaluate(game_board& board, state& new_state) {
     short int score = 0;
     
-    // scan the board to get the distance between each orb
+    // Improved heuristic 1: scan the board to get the distance between each orb
+    // Penalize scattered orbs (encourages clustering)
     std::array<orb_distance, ORB_COUNT> distance{};
+    std::array<int, ORB_COUNT> orb_count{};  // Track orb counts for better heuristic
+    
     for (int i = 0; i < BOARD_SIZE; i++) {
         const auto& orb_val = board[i];
-        const int loc = i % COLUMN;
-        if (loc > distance[orb_val].max)
-            distance[orb_val].max = loc;
-        else if (loc < distance[orb_val].min)
-            distance[orb_val].min = loc;
+        if (orb_val > 0) {
+            orb_count[orb_val]++;
+            const int loc = i % COLUMN;
+            if (loc > distance[orb_val].max)
+                distance[orb_val].max = loc;
+            else if (loc < distance[orb_val].min)
+                distance[orb_val].min = loc;
+        }
     }
 
+    // Heuristic 1: Penalize orb dispersion (original)
     for (const auto& dist : distance) {
         score -= (dist.max - dist.min);
+    }
+    
+    // Heuristic 2: Bonus for having enough orbs to form combos
+    for (int i = 1; i < ORB_COUNT; i++) {
+        if (orb_count[i] >= MIN_ERASE) {
+            // Potential combo bonus (encourages keeping viable combos)
+            score += (orb_count[i] / MIN_ERASE) * 2;
+        }
     }
 
     // erase the board and find out the combo number
@@ -244,22 +261,34 @@ void solver::evaluate(game_board& board, state& new_state) {
 
     int combo = 0;
     int move_count = 0;
-    game_board copy = board;
+    game_board board_copy = board;  // Renamed to avoid conflict with std::copy
     
     // Limit cascade simulation to reasonable depth
     constexpr int MAX_CASCADE_DEPTH = 10;
-    while (move_count < MAX_CASCADE_DEPTH) {
-        list.clear();  // Reuse the vector instead of creating new one
-        erase_combo(copy, list);
-        const int combo_count = list.size();
-        
-        // Check if there are more combo
-        if (combo_count > combo) {
-            combo = combo_count;
-            move_orbs_down(copy);
-            move_count++;
-        } else {
+    
+    // Early exit optimization: if no potential combos, skip simulation
+    bool has_potential = false;
+    for (int i = 1; i < ORB_COUNT; i++) {
+        if (orb_count[i] >= MIN_ERASE) {
+            has_potential = true;
             break;
+        }
+    }
+    
+    if (has_potential) {
+        while (move_count < MAX_CASCADE_DEPTH) {
+            list.clear();  // Reuse the vector instead of creating new one
+            erase_combo(board_copy, list);
+            const int combo_count = list.size();
+            
+            // Check if there are more combo
+            if (combo_count > combo) {
+                combo = combo_count;
+                move_orbs_down(board_copy);
+                move_count++;
+            } else {
+                break;
+            }
         }
     }
 
@@ -361,7 +390,7 @@ void solver::evaluate(game_board& board, state& new_state) {
             case ProfileName::orb_remaining: {
                 int remaining = 0;
                 for (int j = 0; j < BOARD_SIZE; j++) {
-                    if (copy[j] > 0)
+                    if (board_copy[j] > 0)
                         remaining++;
                 }
 
@@ -523,18 +552,22 @@ void solver::erase_combo(game_board& board, combo_list& list) {
             // check all four directions
             for (int i = 0; i < 4; i++) {
                 const int direction = DIRECTION_ADJUSTMENTS[i];
-                tiny next = to_visit;
+                // Use signed int to prevent unsigned wraparound
+                int next = to_visit;
                 
                 // going in that direction until a different orb is found
                 while (true) {
+                    // Check left edge before adding direction
                     if (direction == -1 && next % COLUMN == 0)
                         break;  // invalid, on the left edge
 
                     next += direction;
-
+                    
+                    // Check right edge after move (modulo safe since next was valid before)
                     if (direction == 1 && next % COLUMN == 0)
                         break;  // invalid, on the right edge
-                    if (next >= BOARD_SIZE)
+                    // Comprehensive bounds checking for signed arithmetic
+                    if (next < 0 || next >= BOARD_SIZE)
                         break;  // invalid, out of bound
 
                     if (board[next] == orb_val) {
@@ -578,30 +611,37 @@ void solver::erase_combo(game_board& board, combo_list& list) {
             }
 
             // only 2 same orbs are needed to make 3 in a row
+            // Track which cells have been erased to avoid redundant operations
             if (counter[0] + counter[1] >= 2) {
-                c.loc.insert(to_visit);
-                board[to_visit] = 0;
+                // Insert and erase only once per location
+                if (c.loc.insert(to_visit).second) {
+                    board[to_visit] = 0;
+                }
                 // up & down
                 for (int i = -counter[0]; i <= counter[1]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
                     // convert index to location, -1 moves -6 for 6x5
                     auto index = to_visit + i * COLUMN;
-                    c.loc.insert(index);
-                    board[index] = 0;
+                    if (c.loc.insert(index).second) {
+                        board[index] = 0;
+                    }
                 }
             }
 
             if (counter[2] + counter[3] >= 2) {
-                c.loc.insert(to_visit);
-                board[to_visit] = 0;
+                // Insert and erase only once per location
+                if (c.loc.insert(to_visit).second) {
+                    board[to_visit] = 0;
+                }
                 // left & right
                 for (int i = -counter[2]; i <= counter[3]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
                     auto index = to_visit + i;
-                    c.loc.insert(index);
-                    board[index] = 0;
+                    if (c.loc.insert(index).second) {
+                        board[index] = 0;
+                    }
                 }
             }
         }
