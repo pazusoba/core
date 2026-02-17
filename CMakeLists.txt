@@ -8,8 +8,9 @@ project(
     DESCRIPTION "Solve Puzzle & Dragons with C++"
 )
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
+set(CMAKE_CXX_EXTENSIONS OFF)  # Disable compiler-specific extensions for portability
 
 set(MAIN_CPP support/main.cpp)
 set(TEST_CPP support/test.cpp)

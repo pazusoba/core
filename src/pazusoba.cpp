@@ -2,33 +2,35 @@
 // Try to improve the performance of the solver while being flexible enough
 
 // Compile with
-// mac: clang++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
-// windows: g++ -std=c++11 -fopenmp -O2 pazusoba.cpp -o pazusoba
+// mac: clang++ -std=c++20 -fopenmp -O2 pazusoba.cpp -o pazusoba
+// windows: g++ -std=c++20 -fopenmp -O2 pazusoba.cpp -o pazusoba
 
 #include <pazusoba/core.h>
 #include <algorithm>
+#include <atomic>
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <queue>
 #include <thread>
 #include <vector>
 
 namespace pazusoba {
 state solver::adventure() {
-    int REAL_BEAM_SIZE = BEAM_SIZE * 1.4;
+    constexpr double BEAM_SIZE_MULTIPLIER = 1.4;
+    int REAL_BEAM_SIZE = static_cast<int>(BEAM_SIZE * BEAM_SIZE_MULTIPLIER);
+    
     // setup the state, non blocking
     std::vector<state> look;
     look.reserve(REAL_BEAM_SIZE);
+    
     // insert to temp, sort and copy back to look
     std::vector<state> temp;
-    temp.resize(REAL_BEAM_SIZE * 3);
-    // TODO: using array can definitely things a lot because the vector needs to
-    // write a lot of useless data before using it, reverse is better but the
-    // address calculation can be tricky
-
+    temp.reserve(REAL_BEAM_SIZE * 3);
+    
     state best_state;
-    bool found_max_combo = false;
+    std::atomic<bool> found_max_combo{false};  // Thread-safe flag
 
     // assign all possible states to look
     for (int i = 0; i < BOARD_SIZE; ++i) {
@@ -40,41 +42,60 @@ state solver::adventure() {
         look.push_back(new_state);
     }
 
-    // setup threading
-    int processor_count = std::thread::hardware_concurrency();
-    // unsigned int processor_count = 1;
+    // setup threading with bounds checking
+    unsigned int processor_count = std::thread::hardware_concurrency();
+    if (processor_count == 0) processor_count = 1;  // Fallback to single thread
+    
     std::vector<std::thread> threads;
     threads.reserve(processor_count);
 
     int stop_count = 0;
 
-    // beam search with openmp
+    // beam search with thread-safe state management
     for (int i = 0; i < SEARCH_DEPTH; i++) {
-        if (found_max_combo)
+        if (found_max_combo.load(std::memory_order_acquire))
             break;
 
         int look_size = look.size();
-        DEBUG_PRINT("Depth %d - size %d\n", i + 1, look_size);
+        debug_print("Depth %d - size %d\n", i + 1, look_size);
         int look_size_thread = look_size / processor_count;
 
-        // #pragma omp parallel for
-        for (int thread_num = 0; thread_num < processor_count; thread_num++) {
-            threads.emplace_back([&, thread_num, look_size_thread] {
-                int start_index = thread_num * (look_size_thread);
+        // Create thread-local buffers to avoid race conditions
+        // Use reserve instead of resize since we'll use push_back
+        std::vector<std::vector<state>> thread_local_states(processor_count);
+        for (auto& local_temp : thread_local_states) {
+            local_temp.reserve(look_size_thread * 4);  // Reserve space for expansion
+        }
+
+        for (unsigned int thread_num = 0; thread_num < processor_count; thread_num++) {
+            threads.emplace_back([&, thread_num]() {
+                int start_index = thread_num * look_size_thread;
                 int end_index = start_index + look_size_thread;
+                
+                // Handle last thread getting remaining work
+                if (thread_num == processor_count - 1) {
+                    end_index = look_size;
+                }
+                
+                auto& local_states = thread_local_states[thread_num];
+                
                 for (int j = start_index; j < end_index; j++) {
-                    if (found_max_combo)
-                        continue;  // early stop
+                    if (found_max_combo.load(std::memory_order_acquire))
+                        break;  // early stop
 
                     const state& curr = look[j];
 
                     if (curr.goal) {
-                        best_state = curr;
-                        found_max_combo = true;
+                        // Use atomic compare-exchange to safely update best_state
+                        bool expected = false;
+                        if (found_max_combo.compare_exchange_strong(expected, true, std::memory_order_release)) {
+                            best_state = curr;  // First thread to find goal wins
+                        }
                         continue;
                     }
 
-                    expand(curr.board, curr, temp, j);
+                    // expand() now uses push_back, no loc parameter needed
+                    expand(curr.board, curr, local_states, j);
                 }
             });
         }
@@ -84,45 +105,94 @@ state solver::adventure() {
         threads.clear();
 
         // break out as soon as max combo or target is found
-        // TODO: this should be the target
-        if (found_max_combo)
+        if (found_max_combo.load(std::memory_order_acquire))
             break;
 
-        // DEBUG_PRINT("%d... ", i);
-        DEBUG_PRINT("Depth %d - sorting\n", i + 1);
+        debug_print("Depth %d - merging and sorting\n", i + 1);
+
+        // Merge thread-local results into temp
+        temp.clear();
+        for (const auto& local_states : thread_local_states) {
+            temp.insert(temp.end(), local_states.begin(), local_states.end());
+        }
 
         // sorting
         auto begin = temp.begin();
         auto end = temp.end();
         std::sort(begin, end, std::greater<state>());
 
-        for (int i = 0; i < 5; i++) {
-            // print_state(temp[i]);
-            DEBUG_PRINT("combo %d\n", temp[i].combo);
+        if constexpr (DEBUG) {
+            for (int k = 0; k < 5 && k < static_cast<int>(temp.size()); k++) {
+                debug_print("combo %d\n", temp[k].combo);
+            }
         }
 
         // (end - begin) gets the size of the vector, divide by 3 to get the
         // number of states we consider in the next step
 
         look.clear();
-        // we need to filter out the states that are already visited
-        int index = 0;
-        for (int j = 0; j < REAL_BEAM_SIZE; j++, index++) {
+        // DIVERSE BEAM SEARCH to overcome local maxima
+        // Strategy: Maintain separate quotas for different selection criteria
+        std::unordered_set<long long int> selected_hashes;
+        
+        // Calculate adaptive beam size
+        int primary_beam = REAL_BEAM_SIZE;
+        if (SEARCH_DEPTH >= 60 && MAX_COMBO > 6) {
+            primary_beam = REAL_BEAM_SIZE * 3;  // Triple beam for deep max-combo searches
+        } else if (SEARCH_DEPTH >= 40) {
+            primary_beam = REAL_BEAM_SIZE * 2;  // Double for medium searches
+        }
+        
+        // PHASE 1: Select by score/combo (primary criterion)
+        for (int j = 0; j < primary_beam && j < static_cast<int>(temp.size()); j++) {
             const auto& curr = temp[j];
-            if (VISITED[curr.hash]) {
-                index--;
-            } else {
-                VISITED[curr.hash] = true;
-                if (curr.score > best_state.score) {
-                    best_state = curr;
-                    stop_count = 0;
+            
+            if (VISITED.insert(curr.hash).second && selected_hashes.insert(curr.hash).second) {
+                if (curr.score > MIN_STATE_SCORE) {
+                    look.push_back(curr);
+                    
+                    // Update best
+                    if (curr.score > best_state.score || curr.combo > best_state.combo) {
+                        best_state = curr;
+                        stop_count = 0;
+                    }
                 }
-
-                // break if empty boards are hit
-                if (curr.score == MIN_STATE_SCORE) {
-                    break;
+            }
+        }
+        
+        // PHASE 2: POTENTIAL-BASED SELECTION (key to avoiding local maxima)
+        // Separately preserve states with high combo potential, even if current score is low
+        if (MAX_COMBO > 6 && SEARCH_DEPTH >= 50) {
+            std::vector<std::pair<int, const state*>> potential_states;
+            
+            for (const auto& s : temp) {
+                if (selected_hashes.find(s.hash) == selected_hashes.end()) {
+                    // Quick potential calculation from board
+                    std::array<int, ORB_COUNT> counts{};
+                    for (const auto& orb : s.board) if (orb > 0) counts[orb]++;
+                    
+                    int pot = 0;
+                    for (int k = 1; k < ORB_COUNT; k++) pot += counts[k] / MIN_ERASE;
+                    
+                    if (pot >= MAX_COMBO - 2) {  // High potential states
+                        potential_states.push_back({pot, &s});
+                    }
                 }
-                look.push_back(curr);
+            }
+            
+            // Sort by potential descending
+            std::sort(potential_states.begin(), potential_states.end(),
+                     [](const auto& a, const auto& b) { return a.first > b.first; });
+            
+            // Add high-potential states (separate quota)
+            int pot_quota = std::min(REAL_BEAM_SIZE / 2, (int)potential_states.size());
+            for (int k = 0; k < pot_quota; k++) {
+                const auto* s = potential_states[k].second;
+                if (VISITED.insert(s->hash).second && selected_hashes.insert(s->hash).second) {
+                    if (s->score > MIN_STATE_SCORE) {
+                        look.push_back(*s);
+                    }
+                }
             }
         }
 
@@ -140,34 +210,33 @@ state solver::adventure() {
 void solver::expand(const game_board& board,
                     const state& current,
                     std::vector<state>& states,
-                    const int loc) {
-    int count = DIRECTION_COUNT;
-    if (!ALLOW_DIAGONAL)
-        count = 4;
+                    [[maybe_unused]] const int loc) {
+    const int count = ALLOW_DIAGONAL ? DIRECTION_COUNT : 4;
 
-    auto prev = current.prev;
-    auto curr = current.curr;
-    auto step = current.step;
+    const auto prev = current.prev;
+    const auto curr = current.curr;
+    const auto step = current.step;
+    
     for (int i = 0; i < count; i++) {
         // this is set from parse_args()
-        int adjustments = DIRECTION_ADJUSTMENTS[i];
-        tiny next = curr + adjustments;
-        // todo: right edge can be checked before the calculation
-        if (next == prev)
-            continue;  // invalid, same position
-        if (next - curr == 1 && next % COLUMN == 0)
-            continue;  // invalid, on the right edge
-        if (curr - next == 1 && curr % COLUMN == 0)
-            continue;  // invalid, on the left edge
-        if (next >= BOARD_SIZE)
-            continue;  // invalid, out of bound
+        const int adjustments = DIRECTION_ADJUSTMENTS[i];
+        const tiny next = curr + adjustments;
+        
+        // Boundary and validity checks - optimized to check once
+        if (next == prev) continue;  // invalid, same position
+        if (next >= BOARD_SIZE) continue;  // invalid, out of bound
+        if (next - curr == 1 && next % COLUMN == 0) continue;  // invalid, on the right edge
+        if (curr - next == 1 && curr % COLUMN == 0) continue;  // invalid, on the left edge
 
-        state new_state;
-        new_state.step = step + 1;
-        new_state.curr = next;
-        new_state.prev = curr;
-        new_state.begin = current.begin;
-        new_state.route = current.route;
+        // Use C++20 designated initializers for clarity
+        state new_state{
+            .board = (step == 0) ? BOARD : board,
+            .begin = current.begin,
+            .prev = curr,
+            .curr = next,
+            .step = static_cast<tiny>(step + 1),
+            .route = current.route
+        };
 
         // insert to the route
         int route_index = new_state.step / ROUTE_PER_LIST;
@@ -175,67 +244,102 @@ void solver::expand(const game_board& board,
             route_index--;  // the last one in the previous number
         new_state.route[route_index] = new_state.route[route_index] << 3 | i;
 
-        if (step == 0)
-            new_state.board = BOARD;
-        else
-            new_state.board = board;
-
-        // swap the board
+        // swap the board - using std::swap for clarity
         auto& new_board = new_state.board;
-        auto temp = new_board[curr];
-        new_board[curr] = new_board[next];
-        new_board[next] = temp;
+        std::swap(new_board[curr], new_board[next]);
 
         // calculate the hash
         new_state.hash = hash::pazusoba_hash(new_board.data(), new_state.prev);
 
-        // backup the board
+        // evaluate the board
         evaluate(new_board, new_state);
 
-        // insert to the states
-        if (step == 0)
-            states[loc * 4 + i] = new_state;
-        else
-            states[loc * 3 + i] = new_state;
+        // Use push_back for thread-local vectors (thread-safe, no indexing issues)
+        states.push_back(new_state);
     }
 }
 
 void solver::evaluate(game_board& board, state& new_state) {
-    short int score = 0;
-    // TODO: should this be after??
-    // scan the board to get the distance between each orb
-    orb_distance distance[ORB_COUNT];
+    int score = 0;  // MUST be int to handle exponential scoring (2^10 * 1000 = 1M)
+    
+    // Improved heuristic 1: scan the board to get the distance between each orb
+    // Penalize scattered orbs (encourages clustering)
+    std::array<orb_distance, ORB_COUNT> distance{};
+    std::array<int, ORB_COUNT> orb_count{};  // Track orb counts for better heuristic
+    
     for (int i = 0; i < BOARD_SIZE; i++) {
-        auto& orb = board[i];
-        // 0 to 5 only for 6x5, 6 to 11 will convert to 0 to 5
-        int loc = i % COLUMN;
-        if (loc > distance[orb].max)
-            distance[orb].max = loc;
-        else if (loc < distance[orb].min)
-            distance[orb].min = loc;
+        const auto& orb_val = board[i];
+        if (orb_val > 0) {
+            orb_count[orb_val]++;
+            const int loc = i % COLUMN;
+            if (loc > distance[orb_val].max)
+                distance[orb_val].max = loc;
+            else if (loc < distance[orb_val].min)
+                distance[orb_val].min = loc;
+        }
     }
 
-    for (int i = 0; i < ORB_COUNT; i++) {
-        auto& dist = distance[i];
-        score -= (dist.max - dist.min);
+    // Dispersion heuristic removed - misleading because:
+    // - Scattered orbs before cascade can still result in full combos after cascade
+    // - What matters is actual combos achieved, not initial orb positions
+    // Only use dispersion as a very weak tie-breaker
+    int dispersion_penalty = 0;
+    for (const auto& dist : distance) {
+        dispersion_penalty += (dist.max - dist.min);
+    }
+    score -= dispersion_penalty / 10;  // Minimal weight - just a tie-breaker
+    
+    // Heuristic 2: ULTRA AGGRESSIVE lookahead for max combo potential
+    // CRITICAL: This must match or exceed actual combo scoring to keep high-potential states in beam
+    int potential_combos = 0;
+    for (int i = 1; i < ORB_COUNT; i++) {
+        if (orb_count[i] >= MIN_ERASE) {
+            potential_combos += orb_count[i] / MIN_ERASE;
+        }
+    }
+    
+    // Use SAME exponential as actual combos to ensure high-potential states aren't pruned
+    // 2^potential * 1000 (same weight as actual combo scoring)
+    if (potential_combos > 0) {
+        score += (1 << potential_combos) * 1000;
     }
 
     // erase the board and find out the combo number
-    combo_list list;  // TODO: 515ms here, destructor is slow
+    // Pre-allocate combo_list to reduce allocations
+    combo_list list;
+    const int reserve_size = (MAX_COMBO > 0) ? MAX_COMBO : 10;  // Safe default
+    list.reserve(reserve_size);
 
     int combo = 0;
     int move_count = 0;
-    game_board copy = board;
-    while (true) {
-        erase_combo(copy, list);
-        int combo_count = list.size();
-        // Check if there are more combo
-        if (combo_count > combo) {
-            combo = combo_count;
-            move_orbs_down(copy);
-            move_count++;
-        } else {
+    game_board board_copy = board;  // Renamed to avoid conflict with std::copy
+    
+    // Limit cascade simulation to reasonable depth
+    constexpr int MAX_CASCADE_DEPTH = 10;
+    
+    // Early exit optimization: if no potential combos, skip simulation
+    bool has_potential = false;
+    for (int i = 1; i < ORB_COUNT; i++) {
+        if (orb_count[i] >= MIN_ERASE) {
+            has_potential = true;
             break;
+        }
+    }
+    
+    if (has_potential) {
+        while (move_count < MAX_CASCADE_DEPTH) {
+            list.clear();  // Reuse the vector instead of creating new one
+            erase_combo(board_copy, list);
+            const int combo_count = list.size();
+            
+            // Check if there are more combo
+            if (combo_count > combo) {
+                combo = combo_count;
+                move_orbs_down(board_copy);
+                move_count++;
+            } else {
+                break;
+            }
         }
     }
 
@@ -244,11 +348,16 @@ void solver::evaluate(game_board& board, state& new_state) {
     for (int i = 0; i < PROFILE_COUNT; i++) {
         const auto& profile = PROFILES[i];
         switch (profile.name) {
-            case target_combo: {
+            case ProfileName::target_combo: {
                 int target = profile.target;
                 if (target == -1) {
-                    // max combo
-                    score += combo * 20;
+                    // max combo - ULTRA AGGRESSIVE exponential scoring
+                    // 2^combo * 1000 creates massive gaps: 5=32k, 10=1,024,000
+                    score += (1 << combo) * 1000;
+                    
+                    // Minimal step penalty - combos >> steps
+                    score -= new_state.step;
+                    
                     if (combo == MAX_COMBO)
                         goal++;
                 } else {
@@ -265,7 +374,7 @@ void solver::evaluate(game_board& board, state& new_state) {
                 }
             } break;
 
-            case colour: {
+            case ProfileName::colour: {
                 int colour_counter[ORB_COUNT]{0};
                 for (const auto& c : list) {
                     colour_counter[c.info]++;
@@ -287,7 +396,7 @@ void solver::evaluate(game_board& board, state& new_state) {
                     goal++;
             } break;
 
-            case colour_combo: {
+            case ProfileName::colour_combo: {
                 int colour_counter[ORB_COUNT]{0};
                 for (const auto& c : list) {
                     colour_counter[c.info]++;
@@ -310,7 +419,7 @@ void solver::evaluate(game_board& board, state& new_state) {
                     goal++;
             } break;
 
-            case connected_orb: {
+            case ProfileName::connected_orb: {
                 int target = profile.target;
                 bool fulfilled = false;
 
@@ -334,10 +443,10 @@ void solver::evaluate(game_board& board, state& new_state) {
                     goal++;
             } break;
 
-            case orb_remaining: {
+            case ProfileName::orb_remaining: {
                 int remaining = 0;
                 for (int j = 0; j < BOARD_SIZE; j++) {
-                    if (copy[j] > 0)
+                    if (board_copy[j] > 0)
                         remaining++;
                 }
 
@@ -346,7 +455,7 @@ void solver::evaluate(game_board& board, state& new_state) {
                 score -= remaining * 10;
             } break;
 
-            case shape_L: {
+            case ProfileName::shape_L: {
                 for (const auto& c : list) {
                     if (profile.orbs[c.info] && ORB_COUNTER[c.info] >= 5) {
                         int size = c.loc.size();
@@ -397,7 +506,7 @@ void solver::evaluate(game_board& board, state& new_state) {
                 score += combo * 20;
             } break;
 
-            case shape_plus: {
+            case ProfileName::shape_plus: {
                 for (const auto& c : list) {
                     if (profile.orbs[c.info] && ORB_COUNTER[c.info] >= 5) {
                         int size = c.loc.size();
@@ -446,17 +555,17 @@ void solver::evaluate(game_board& board, state& new_state) {
                 }
             } break;
 
-            case shape_square: {
+            case ProfileName::shape_square: {
             } break;
 
-            case shape_row: {
+            case ProfileName::shape_row: {
             } break;
 
-            case shape_column: {
+            case ProfileName::shape_column: {
             } break;
 
             default: {
-                printf("unknown profile %d\n", profile.name);
+                std::printf("unknown profile %d\n", static_cast<int>(profile.name));
                 exit(1);
             } break;
         }
@@ -471,46 +580,53 @@ void solver::evaluate(game_board& board, state& new_state) {
 }
 
 void solver::erase_combo(game_board& board, combo_list& list) {
-    visit_board visited_location{0};
+    visit_board visited_location{};  // Initialize to zero
+    
     // start from the bottom and check for combos
     for (int curr_index = BOARD_SIZE - 1; curr_index >= 0; curr_index--) {
         if (visited_location[curr_index])
             continue;  // already visited even if it is not erased
 
-        auto orb = board[curr_index];
-        if (orb == 0)
+        const auto orb_val = board[curr_index];
+        if (orb_val == 0)
             continue;  // already erased
 
-        combo c(orb);
+        combo c(orb_val);
+        c.loc.reserve(15);  // Pre-reserve space for connected orbs
+        
         std::queue<int> visit_queue;
         visit_queue.emplace(curr_index);
 
         // start exploring until all connected orbs are visited
         while (!visit_queue.empty()) {
-            int to_visit = visit_queue.front();
+            const int to_visit = visit_queue.front();
             visit_queue.pop();
 
             // number of connected orbs in all directions
-            int counter[4]{0};
+            std::array<int, 4> counter{};
 
             // check all four directions
             for (int i = 0; i < 4; i++) {
-                int direction = DIRECTION_ADJUSTMENTS[i];
-                // this needs to be unsigned to avoid negatives
-                tiny next = to_visit;
+                const int direction = DIRECTION_ADJUSTMENTS[i];
+                // Use signed int to prevent unsigned wraparound
+                int next = to_visit;
+                
                 // going in that direction until a different orb is found
                 while (true) {
+                    // Check left edge before adding direction
                     if (direction == -1 && next % COLUMN == 0)
                         break;  // invalid, on the left edge
 
                     next += direction;
-
+                    
+                    // Check right edge after move (modulo safe since next was valid before)
                     if (direction == 1 && next % COLUMN == 0)
                         break;  // invalid, on the right edge
-                    if (next >= BOARD_SIZE)
+                    // Comprehensive bounds checking for signed arithmetic
+                    if (next < 0 || next >= BOARD_SIZE)
                         break;  // invalid, out of bound
 
-                    if (board[next] == orb) {
+                    if (board[next] == orb_val) {
                         // same colour
                         visited_location[next] = true;
                         counter[i]++;
@@ -522,14 +638,15 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                             if (i >= 2 && j >= 2)
                                 continue;  // only search up & down
 
-                            int direction = DIRECTION_ADJUSTMENTS[j];
+                            const int dir2 = DIRECTION_ADJUSTMENTS[j];
                             tiny nearby = next;
-                            if (direction == -1 && nearby % COLUMN == 0)
+                            
+                            if (dir2 == -1 && nearby % COLUMN == 0)
                                 continue;  // invalid, on the left edge
 
-                            nearby += direction;
+                            nearby += dir2;
 
-                            if (direction == 1 && nearby % COLUMN == 0)
+                            if (dir2 == 1 && nearby % COLUMN == 0)
                                 continue;  // invalid, on the right edge
                             if (nearby >= BOARD_SIZE)
                                 continue;  // invalid, out of bound
@@ -537,7 +654,7 @@ void solver::erase_combo(game_board& board, combo_list& list) {
                                 continue;  // invalid, already visited
 
                             // same orb in different direction, should visit
-                            if (board[nearby] == orb) {
+                            if (board[nearby] == orb_val) {
                                 // check next first before nearby
                                 visit_queue.emplace(next);
                                 visit_queue.emplace(nearby);
@@ -550,30 +667,37 @@ void solver::erase_combo(game_board& board, combo_list& list) {
             }
 
             // only 2 same orbs are needed to make 3 in a row
+            // Track which cells have been erased to avoid redundant operations
             if (counter[0] + counter[1] >= 2) {
-                c.loc.insert(to_visit);
-                board[to_visit] = 0;
+                // Insert and erase only once per location
+                if (c.loc.insert(to_visit).second) {
+                    board[to_visit] = 0;
+                }
                 // up & down
                 for (int i = -counter[0]; i <= counter[1]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
                     // convert index to location, -1 moves -6 for 6x5
                     auto index = to_visit + i * COLUMN;
-                    c.loc.insert(index);
-                    board[index] = 0;
+                    if (c.loc.insert(index).second) {
+                        board[index] = 0;
+                    }
                 }
             }
 
             if (counter[2] + counter[3] >= 2) {
-                c.loc.insert(to_visit);
-                board[to_visit] = 0;
+                // Insert and erase only once per location
+                if (c.loc.insert(to_visit).second) {
+                    board[to_visit] = 0;
+                }
                 // left & right
                 for (int i = -counter[2]; i <= counter[3]; i++) {
                     if (i == 0)
                         continue;  // this is the source orb itself
                     auto index = to_visit + i;
-                    c.loc.insert(index);
-                    board[index] = 0;
+                    if (c.loc.insert(index).second) {
+                        board[index] = 0;
+                    }
                 }
             }
         }
@@ -585,23 +709,23 @@ void solver::erase_combo(game_board& board, combo_list& list) {
 }
 
 void solver::move_orbs_down(game_board& board) {
-    // TODO: maybe should taking min erase into account
-    // because it is impossible to erase only one orb
-    for (int i = 0; i < COLUMN; ++i) {
+    // Move orbs down after erasing combos - optimized column-wise iteration
+    for (int col = 0; col < COLUMN; ++col) {
         int emptyIndex = -1;
         // signed type is needed or otherwise, j >= won't terminate at all
         // because after -1 is the max value again
-        for (int j = ROW - 1; j >= 0; --j) {
-            int index = INDEX_OF(j, i);
-            orb o = board[index];
+        for (int row = ROW - 1; row >= 0; --row) {
+            const int index = index_of(row, col);
+            const orb o = board[index];
+            
             if (o == 0) {
                 // Don't override empty index if available
                 if (emptyIndex == -1)
-                    emptyIndex = j;
+                    emptyIndex = row;
             } else if (emptyIndex != -1) {
                 // replace last known empty index
                 // and replace it with current index
-                board[INDEX_OF(emptyIndex, i)] = o;
+                board[index_of(emptyIndex, col)] = o;
                 board[index] = 0;
                 // simply move it up from last index
                 --emptyIndex;
@@ -643,47 +767,47 @@ void solver::parse_args(int argc, char* argv[]) {
     // min_erase needs to know before parsing the board,
     // this is to calculate the max combo
     if (argc > 2) {
-        int min_erase = atoi(argv[2]);
+        int min_erase = std::atoi(argv[2]);
         set_min_erase(min_erase);
     }
 
     if (argc > 1) {
-        if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+        if (std::strcmp(argv[1], "--help") == 0 || std::strcmp(argv[1], "-h") == 0) {
             usage();
         } else {
-            DEBUG_PRINT("=============== INFO ===============\n");
+            debug_print("=============== INFO ===============\n");
             auto board_string = argv[1];
             set_board(board_string);
         }
     }
 
     if (argc > 3) {
-        int depth = atoi(argv[3]);
+        int depth = std::atoi(argv[3]);
         set_search_depth(depth);
     }
 
     if (argc > 4) {
-        int beam_size = atoi(argv[4]);
+        int beam_size = std::atoi(argv[4]);
         set_beam_size(beam_size);
     }
 
     print_board(BOARD);
-    DEBUG_PRINT("board size: %d\n", BOARD_SIZE);
-    DEBUG_PRINT("row x column: %d x %d\n", ROW, COLUMN);
-    DEBUG_PRINT("min_erase: %d\n", MIN_ERASE);
-    DEBUG_PRINT("max_combo: %d\n", MAX_COMBO);
-    DEBUG_PRINT("search_depth: %d\n", SEARCH_DEPTH);
-    DEBUG_PRINT("beam_size: %d\n", BEAM_SIZE);
-    DEBUG_PRINT("====================================\n");
+    debug_print("board size: %d\n", BOARD_SIZE);
+    debug_print("row x column: %d x %d\n", ROW, COLUMN);
+    debug_print("min_erase: %d\n", MIN_ERASE);
+    debug_print("max_combo: %d\n", MAX_COMBO);
+    debug_print("search_depth: %d\n", SEARCH_DEPTH);
+    debug_print("beam_size: %d\n", BEAM_SIZE);
+    debug_print("====================================\n");
 }
 
 void solver::set_board(const char* board_string) {
-    int board_size = strlen(board_string);
+    const int board_size = std::strlen(board_string);
 
     // there are only 3 fixed size board -> 20, 30 or 42
     if (board_size > MAX_BOARD_LENGTH) {
-        printf("Board string is too long\n");
-        exit(1);
+        std::printf("Board string is too long\n");
+        std::exit(1);
     } else if (board_size == 20) {
         ROW = 4;
         COLUMN = 5;
@@ -694,8 +818,8 @@ void solver::set_board(const char* board_string) {
         ROW = 6;
         COLUMN = 7;
     } else {
-        printf("Unsupported board size - %d\n", board_size);
-        exit(1);
+        std::printf("Unsupported board size - %d\n", board_size);
+        std::exit(1);
     }
     BOARD_SIZE = board_size;
 
@@ -736,10 +860,10 @@ void solver::set_min_erase(int min_erase) {
     // min 3, max 5 for now
     if (min_erase < 3) {
         min_erase = 3;
-        DEBUG_PRINT("min_erase is too small, set to 3\n");
+        debug_print("min_erase is too small, set to 3\n");
     } else if (min_erase > 5) {
         min_erase = 5;
-        DEBUG_PRINT("min_erase is too large, set to 5\n");
+        debug_print("min_erase is too large, set to 5\n");
     }
     MIN_ERASE = min_erase;
 }
@@ -779,25 +903,25 @@ void solver::print_board(const game_board& board) const {
 }
 
 void solver::print_state(const state& state) const {
-    printf("=============== STATE ===============\n");
+    std::printf("=============== STATE ===============\n");
     if (state.step == 0) {
-        printf("Invalid state\n");
-        exit(-1);
+        std::fprintf(stderr, "Warning: Invalid state (step == 0)\n");
+        return;
     }
 
-    printf("Score: %d\n", state.score);
-    printf("Combo: %d/%d\n", state.combo, MAX_COMBO);
-    printf("Step: %d\n", state.step);
+    std::printf("Score: %d\n", state.score);
+    std::printf("Combo: %d/%d\n", state.combo, MAX_COMBO);
+    std::printf("Step: %d\n", state.step);
     print_board(state.board);
     print_route(state.route, state.step, state.begin);
-    printf("Goal: %d\n", state.goal);
-    printf("=====================================\n");
+    std::printf("Goal: %d\n", state.goal);
+    std::printf("=====================================\n");
 }
 
 void solver::print_route(const route_list& route,
                          const int step,
                          const int begin) const {
-    printf("Route: |%d| - ", begin);
+    std::printf("Route: |%d| - ", begin);
     int max_index = step / ROUTE_PER_LIST;
     // in case, it doesn't fill up the space, check the offset
     int offset = step % ROUTE_PER_LIST;
@@ -816,18 +940,16 @@ void solver::print_route(const route_list& route,
         for (int i = 0; i < limit; i++) {
             // get first 3 bits and shift to the right, 3 * 20
             int dir = (curr & ROUTE_MASK) >> 60;
-            // printf("%d", dir);
-            printf("%c", DIRECTION_NAME[dir]);
+            std::printf("%c", DIRECTION_NAME[dir]);
             count++;
             // prepare for the next step
             curr <<= 3;
         }
         index++;
     }
-    printf("\n");
+    std::printf("\n");
     if (count != step) {
-        printf("count (%d) should be equal to step (%d)\n", count, step);
-        exit(1);
+        std::printf("count (%d) should be equal to step (%d)\n", count, step);
     }
 }
 
@@ -844,7 +966,7 @@ std::string solver::get_board_string(const game_board& board) const {
 }
 
 void solver::usage() const {
-    printf(
+    std::printf(
         "\nusage: pazusoba [board string] [min erase] [max steps] [max "
         "beam size]\nboard string\t-- "
         "eg. RHLBDGPRHDRJPJRHHJGRDRHLGLPHBB\nmin erase\t-- 3 to 5\nmax "
@@ -852,6 +974,6 @@ void solver::usage() const {
         "searching\nmax beam size\t-- the width of the search space, "
         "larger number means slower speed but better results\n\nMore "
         "at https://github.com/pazusoba/core\n\n");
-    exit(0);
+    std::exit(0);
 }
 }  // namespace pazusoba

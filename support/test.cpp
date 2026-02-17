@@ -37,7 +37,6 @@ int main() {
 
     printf("test expand\n");
     std::vector<pazusoba::state> next_states;
-    next_states.resize(4);
     // top left corner
     pazusoba::state top_left;
     top_left.curr = 0;
@@ -46,7 +45,7 @@ int main() {
     solver.expand(solver.board(), top_left, next_states, 0);
     int valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             solver.print_route(s.route, 1, 0);
@@ -56,7 +55,6 @@ int main() {
     }
     assert(valid == 2);
     next_states.clear();
-    next_states.resize(4);
 
     // bottom left corner
     pazusoba::state bottom_left;
@@ -66,7 +64,7 @@ int main() {
     solver.expand(solver.board(), bottom_left, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 18 || s.curr == 25);
@@ -75,7 +73,7 @@ int main() {
     }
     assert(valid == 2);
     next_states.clear();
-    next_states.resize(4);
+    
 
     // top right corner
     pazusoba::state top_right;
@@ -85,7 +83,7 @@ int main() {
     solver.expand(solver.board(), top_right, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 4 || s.curr == 11);
@@ -94,7 +92,7 @@ int main() {
     }
     assert(valid == 2);
     next_states.clear();
-    next_states.resize(4);
+    
 
     // bottom right corner
     pazusoba::state bottom_right;
@@ -104,7 +102,7 @@ int main() {
     solver.expand(solver.board(), bottom_right, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 28 || s.curr == 23);
@@ -113,7 +111,7 @@ int main() {
     }
     assert(valid == 2);
     next_states.clear();
-    next_states.resize(4);
+    
 
     // three
     pazusoba::state three;
@@ -123,7 +121,7 @@ int main() {
     solver.expand(solver.board(), three, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 2 || s.curr == 4 || s.curr == 9);
@@ -131,14 +129,20 @@ int main() {
         }
     }
     assert(valid == 3);
-    // 3 -> 2
-    assert(solver.get_board_string(next_states[2].board) ==
-           "DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD");
-    // 3 -> 4
-    assert(solver.get_board_string(next_states[3].board) ==
-           "DGRBRLHGBBGGRDDDDLBGHDBLLHDBLD");
+    // Verify that the expected boards are present (not at specific indices)
+    bool found_left = false, found_right = false;
+    for (const auto& s : next_states) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
+            std::string board_str = solver.get_board_string(s.board);
+            if (board_str == "DGRRBLHGBBGGRDDDDLBGHDBLLHDBLD")
+                found_left = true;
+            if (board_str == "DGRBRLHGBBGGRDDDDLBGHDBLLHDBLD")
+                found_right = true;
+        }
+    }
+    assert(found_left && found_right);
     next_states.clear();
-    next_states.resize(4);
+    
 
     // location 1
     pazusoba::state loc_one;
@@ -148,7 +152,7 @@ int main() {
     solver.expand(solver.board(), loc_one, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 0 || s.curr == 2 || s.curr == 7);
@@ -157,7 +161,7 @@ int main() {
     }
     assert(valid == 3);
     next_states.clear();
-    next_states.resize(4);
+    
 
     // four
     pazusoba::state four;
@@ -167,7 +171,7 @@ int main() {
     solver.expand(solver.board(), four, next_states, 0);
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             assert(s.curr == 14 || s.curr == 16 || s.curr == 21 || s.curr == 9);
@@ -199,7 +203,7 @@ int main() {
 
     valid = 0;
     for (const auto& s : next_states) {
-        if (s.score != MIN_STATE_SCORE) {
+        if (s.score != pazusoba::MIN_STATE_SCORE) {
             printf("initial %d, %d -> %d\n", s.begin, s.prev, s.curr);
             solver.print_board(s.board);
             valid++;

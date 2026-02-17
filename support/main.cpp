@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
     // pass in combo as different as there is no way
     // this can be done from the command line
     pazusoba::profile profiles[1];
-    profiles[0].name = pazusoba::target_combo;
+    profiles[0].name = pazusoba::ProfileName::target_combo;
     profiles[0].stop_threshold = 100;
     solver.set_profiles(profiles, 1);
 
