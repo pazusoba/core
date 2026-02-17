@@ -87,7 +87,7 @@ struct state {
     tiny combo = 0;
     bool goal = false;
     long long int hash = 0;
-    short int score = MIN_STATE_SCORE;
+    int score = MIN_STATE_SCORE;  // MUST be int for exponential scoring
     route_list route{};
     
     // C++20 three-way comparison operator for sorting

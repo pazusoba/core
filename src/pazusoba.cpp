@@ -131,36 +131,69 @@ state solver::adventure() {
         // number of states we consider in the next step
 
         look.clear();
-        // we need to filter out the states that are already visited
-        // Using insert().second for hash-based deduplication (single hash lookup)
-        // Note: Does not detect hash collisions - assumes hash uniquely identifies state
-        look.clear();
-        for (int j = 0; j < REAL_BEAM_SIZE && j < static_cast<int>(temp.size()); j++) {
+        // DIVERSE BEAM SEARCH to overcome local maxima
+        // Strategy: Maintain separate quotas for different selection criteria
+        std::unordered_set<long long int> selected_hashes;
+        
+        // Calculate adaptive beam size
+        int primary_beam = REAL_BEAM_SIZE;
+        if (SEARCH_DEPTH >= 60 && MAX_COMBO > 6) {
+            primary_beam = REAL_BEAM_SIZE * 3;  // Triple beam for deep max-combo searches
+        } else if (SEARCH_DEPTH >= 40) {
+            primary_beam = REAL_BEAM_SIZE * 2;  // Double for medium searches
+        }
+        
+        // PHASE 1: Select by score/combo (primary criterion)
+        for (int j = 0; j < primary_beam && j < static_cast<int>(temp.size()); j++) {
             const auto& curr = temp[j];
             
-            // Check and insert in one operation - hash-based deduplication
-            auto [it, inserted] = VISITED.insert(curr.hash);
-            if (!inserted) {
-                // Already visited (hash exists in set) - skip this state
-                continue;
+            if (VISITED.insert(curr.hash).second && selected_hashes.insert(curr.hash).second) {
+                if (curr.score > MIN_STATE_SCORE) {
+                    look.push_back(curr);
+                    
+                    // Update best
+                    if (curr.score > best_state.score || curr.combo > best_state.combo) {
+                        best_state = curr;
+                        stop_count = 0;
+                    }
+                }
+            }
+        }
+        
+        // PHASE 2: POTENTIAL-BASED SELECTION (key to avoiding local maxima)
+        // Separately preserve states with high combo potential, even if current score is low
+        if (MAX_COMBO > 6 && SEARCH_DEPTH >= 50) {
+            std::vector<std::pair<int, const state*>> potential_states;
+            
+            for (const auto& s : temp) {
+                if (selected_hashes.find(s.hash) == selected_hashes.end()) {
+                    // Quick potential calculation from board
+                    std::array<int, ORB_COUNT> counts{};
+                    for (const auto& orb : s.board) if (orb > 0) counts[orb]++;
+                    
+                    int pot = 0;
+                    for (int k = 1; k < ORB_COUNT; k++) pot += counts[k] / MIN_ERASE;
+                    
+                    if (pot >= MAX_COMBO - 2) {  // High potential states
+                        potential_states.push_back({pot, &s});
+                    }
+                }
             }
             
-            if (curr.score > best_state.score) {
-                best_state = curr;
-                stop_count = 0;
+            // Sort by potential descending
+            std::sort(potential_states.begin(), potential_states.end(),
+                     [](const auto& a, const auto& b) { return a.first > b.first; });
+            
+            // Add high-potential states (separate quota)
+            int pot_quota = std::min(REAL_BEAM_SIZE / 2, (int)potential_states.size());
+            for (int k = 0; k < pot_quota; k++) {
+                const auto* s = potential_states[k].second;
+                if (VISITED.insert(s->hash).second && selected_hashes.insert(s->hash).second) {
+                    if (s->score > MIN_STATE_SCORE) {
+                        look.push_back(*s);
+                    }
+                }
             }
-            // CRITICAL: Also reset stop_count if we find higher combo count
-            // This ensures we keep searching for max combos
-            else if (curr.combo > best_state.combo) {
-                best_state = curr;
-                stop_count = 0;
-            }
-
-            // break if empty boards are hit
-            if (curr.score == MIN_STATE_SCORE) {
-                break;
-            }
-            look.push_back(curr);
         }
 
         // std::copy(begin, begin + (end - begin) / 3, look.begin());
@@ -227,7 +260,7 @@ void solver::expand(const game_board& board,
 }
 
 void solver::evaluate(game_board& board, state& new_state) {
-    short int score = 0;
+    int score = 0;  // MUST be int to handle exponential scoring (2^10 * 1000 = 1M)
     
     // Improved heuristic 1: scan the board to get the distance between each orb
     // Penalize scattered orbs (encourages clustering)
@@ -256,17 +289,20 @@ void solver::evaluate(game_board& board, state& new_state) {
     }
     score -= dispersion_penalty / 10;  // Minimal weight - just a tie-breaker
     
-    // Heuristic 2: Strong bonus for having enough orbs to form combos (lookahead)
-    // This encourages preserving combo potential for future moves
+    // Heuristic 2: ULTRA AGGRESSIVE lookahead for max combo potential
+    // CRITICAL: This must match or exceed actual combo scoring to keep high-potential states in beam
     int potential_combos = 0;
     for (int i = 1; i < ORB_COUNT; i++) {
         if (orb_count[i] >= MIN_ERASE) {
-            // Count how many combos could potentially be formed
             potential_combos += orb_count[i] / MIN_ERASE;
         }
     }
-    // Strong bonus for high combo potential - this is our lookahead heuristic
-    score += potential_combos * potential_combos * 20;  // Exponential scaling
+    
+    // Use SAME exponential as actual combos to ensure high-potential states aren't pruned
+    // 2^potential * 1000 (same weight as actual combo scoring)
+    if (potential_combos > 0) {
+        score += (1 << potential_combos) * 1000;
+    }
 
     // erase the board and find out the combo number
     // Pre-allocate combo_list to reduce allocations
@@ -315,12 +351,12 @@ void solver::evaluate(game_board& board, state& new_state) {
             case ProfileName::target_combo: {
                 int target = profile.target;
                 if (target == -1) {
-                    // max combo - MASSIVELY prioritize combo count
-                    // Use VERY aggressive exponential scaling to ensure higher combos always win
-                    score += combo * combo * combo * 100;  // Cubic: 5=12500, 10=100000
+                    // max combo - ULTRA AGGRESSIVE exponential scoring
+                    // 2^combo * 1000 creates massive gaps: 5=32k, 10=1,024,000
+                    score += (1 << combo) * 1000;
                     
-                    // Slight step penalty to prefer shorter solutions at same combo count
-                    score -= new_state.step * 2;
+                    // Minimal step penalty - combos >> steps
+                    score -= new_state.step;
                     
                     if (combo == MAX_COMBO)
                         goal++;
