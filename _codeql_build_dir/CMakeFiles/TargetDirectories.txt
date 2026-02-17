@@ -1,6 +1,0 @@
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/pazusoba.dir
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/pazuauto.dir
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/pazusoba_binary.dir
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/test_pazusoba.dir
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/edit_cache.dir
-/home/runner/work/core/core/_codeql_build_dir/CMakeFiles/rebuild_cache.dir

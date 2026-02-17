@@ -1,1 +1,0 @@
-/home/runner/work/core/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -fPIC -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/pazusoba.dir/link.d -shared -Wl,-soname,libpazusoba.so -o libpazusoba.so CMakeFiles/pazusoba.dir/src/pazusoba.cpp.o CMakeFiles/pazusoba.dir/src/api.cpp.o

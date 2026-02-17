@@ -18,11 +18,15 @@
 **/*.xcuserstate
 **/*.xcbkptlist
 
-# cmake genrated folders
+# cmake generated folders
 build/
 debug/
 release/
 xcode/
+_codeql_build_dir/
 
 # trace from instrument
 **/*.trace/
+
+# CodeQL
+_codeql_detected_source_root
