@@ -9,7 +9,11 @@ Tests cover:
   - count_combos (with cascades)
   - simulate_moves (edge / boundary validation)
   - PazusobaProblem construction and fitness evaluation
+  - PazusobaProblem with custom reward_fn
   - NeuroEvoPazusobaProblem construction and single-step evaluation
+  - NeuroEvoPazusobaProblem with custom reward_fn
+  - run_policy (apply trained policy to any board)
+  - train_general_policy (multi-board general training)
 """
 
 import copy
@@ -26,13 +30,20 @@ from evotorch_solver import (
     ORB_COUNT,
     PazusobaProblem,
     NeuroEvoPazusobaProblem,
+    RewardFn,
     SolveResult,
+    _apply_moves,
     calc_max_combo,
+    combo_reward,
     count_combos,
     erase_combo,
     move_orbs_down,
+    orb_remaining_reward,
     parse_board,
+    random_board,
+    run_policy,
     simulate_moves,
+    train_general_policy,
 )
 
 
@@ -410,6 +421,300 @@ class TestSolveResult:
         s = str(r)
         assert "5/8" in s
         assert "False" in s
+
+
+# ---------------------------------------------------------------------------
+# random_board
+# ---------------------------------------------------------------------------
+
+
+class TestRandomBoard:
+    def test_length_30(self):
+        b = random_board(30)
+        assert len(b) == 30
+
+    def test_length_20(self):
+        b = random_board(20)
+        assert len(b) == 20
+
+    def test_length_42(self):
+        b = random_board(42)
+        assert len(b) == 42
+
+    def test_valid_chars(self):
+        valid = set("RBGLDH")
+        b = random_board(30)
+        assert all(ch in valid for ch in b)
+
+    def test_invalid_size(self):
+        with pytest.raises(ValueError):
+            random_board(25)
+
+
+# ---------------------------------------------------------------------------
+# Built-in reward functions
+# ---------------------------------------------------------------------------
+
+
+class TestRewardFunctions:
+    def test_combo_reward_range(self):
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        combos = count_combos(board, row, col, 3)
+        mc = calc_max_combo(board, row, col, 3)
+        r = combo_reward(combos, mc, board, row, col)
+        assert 0.0 <= r <= 1.0
+
+    def test_combo_reward_max(self):
+        # Perfect board: ratio should be 1.0
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        mc = calc_max_combo(board, row, col, 3)
+        r = combo_reward(mc, mc, board, row, col)
+        assert r == pytest.approx(1.0)
+
+    def test_orb_remaining_reward_range(self):
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        combos = count_combos(board, row, col, 3)
+        mc = calc_max_combo(board, row, col, 3)
+        r = orb_remaining_reward(combos, mc, board, row, col)
+        assert 0.0 <= r <= 1.0
+
+    def test_combo_reward_zero_max_combo(self):
+        """combo_reward should return 0.0 when max_combo is 0 (guard)."""
+        board, row, col = parse_board("R" * 30)
+        r = combo_reward(0, 0, board, row, col)
+        assert r == 0.0
+
+    def test_orb_remaining_zero_max_combo(self):
+        """orb_remaining_reward should not raise when max_combo is 0."""
+        board, row, col = parse_board("R" * 30)
+        r = orb_remaining_reward(0, 0, board, row, col)
+        assert 0.0 <= r <= 1.0
+        """A board with many orbs remaining should score lower than an empty board."""
+        board, row, col = parse_board("LBGHGDHDBDLBHDLHDRLHRBBGBLBDGR")
+        mc = calc_max_combo(board, row, col, 3)
+        full_board_reward = orb_remaining_reward(0, mc, board, row, col)
+        empty_board = [0] * len(board)
+        empty_reward = orb_remaining_reward(0, mc, empty_board, row, col)
+        assert empty_reward > full_board_reward
+
+
+# ---------------------------------------------------------------------------
+# _apply_moves
+# ---------------------------------------------------------------------------
+
+
+class TestApplyMoves:
+    def test_returns_copy(self):
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        original = board[:]
+        result, _ = _apply_moves(board, row, col, 0, [3])  # move right
+        assert board == original  # input unchanged
+
+    def test_simple_swap(self):
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        result, final_pos = _apply_moves(board, row, col, 0, [3])
+        assert final_pos == 1  # moved right from 0 to 1
+        assert result[0] == board[1]  # orbs swapped
+        assert result[1] == board[0]
+
+    def test_invalid_move_not_applied(self):
+        board, row, col = parse_board("R" * 30)
+        # Move left from position 0 (left edge) → should be skipped
+        result, final_pos = _apply_moves(board, row, col, 0, [2])
+        assert final_pos == 0  # stayed in place
+        assert result == board  # board unchanged
+
+
+# ---------------------------------------------------------------------------
+# PazusobaProblem with custom reward_fn
+# ---------------------------------------------------------------------------
+
+
+class TestPazusobaProblemCustomReward:
+    def test_custom_reward_called(self):
+        """Custom reward function should be called during evaluation."""
+        calls = []
+
+        def my_reward(combos, max_combo, board, row, col):
+            calls.append(combos)
+            return combos / max_combo
+
+        p = PazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL", max_steps=5, reward_fn=my_reward
+        )
+        sol = torch.zeros(p.solution_length, dtype=torch.float32)
+        p._fitness_for_values(sol)
+        assert len(calls) == 1  # called once per evaluation
+
+    def test_orb_remaining_reward_in_problem(self):
+        """PazusobaProblem should accept orb_remaining_reward."""
+        p = PazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=5,
+            reward_fn=orb_remaining_reward,
+        )
+        sol = torch.zeros(p.solution_length, dtype=torch.float32)
+        fitness = p._fitness_for_values(sol)
+        assert 0.0 <= fitness <= 1.0
+
+    def test_custom_reward_changes_fitness(self):
+        """A reward that always returns 0.5 should produce fitness 0.5."""
+
+        def fixed_reward(combos, max_combo, board, row, col):
+            return 0.5
+
+        p = PazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=5,
+            reward_fn=fixed_reward,
+        )
+        sol = torch.zeros(p.solution_length, dtype=torch.float32)
+        fitness = p._fitness_for_values(sol)
+        assert fitness == pytest.approx(0.5)
+
+
+# ---------------------------------------------------------------------------
+# NeuroEvoPazusobaProblem with custom reward_fn
+# ---------------------------------------------------------------------------
+
+
+class TestNeuroEvoPazusobaProblemCustomReward:
+    def test_custom_reward_accepted(self):
+        """NeuroEvoPazusobaProblem should accept a custom reward_fn."""
+        p = NeuroEvoPazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=5,
+            hidden=16,
+            reward_fn=orb_remaining_reward,
+        )
+        params = p.generate_values(1)[0]
+        net = p.make_net(params)
+        fitness = p._evaluate_network(net)
+        assert 0.0 <= fitness <= 1.0
+
+    def test_fixed_reward_returns_constant(self):
+        """A reward that always returns 0.75 should produce fitness 0.75."""
+
+        def fixed_reward(combos, max_combo, board, row, col):
+            return 0.75
+
+        p = NeuroEvoPazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=3,
+            hidden=8,
+            reward_fn=fixed_reward,
+        )
+        params = p.generate_values(1)[0]
+        net = p.make_net(params)
+        fitness = p._evaluate_network(net)
+        assert fitness == pytest.approx(0.75)
+
+
+# ---------------------------------------------------------------------------
+# run_policy
+# ---------------------------------------------------------------------------
+
+
+class TestRunPolicy:
+    def test_returns_solve_result(self):
+        """run_policy should return a SolveResult for any valid board."""
+        import torch.nn as nn
+        from evotorch_solver import _build_policy
+
+        # Untrained policy still produces a valid result
+        net = _build_policy(30, hidden=16)
+        result = run_policy(net, "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL", max_steps=5)
+        assert isinstance(result, SolveResult)
+        assert result.combo >= 0
+        assert result.max_combo >= 1
+
+    def test_works_on_unseen_board(self):
+        """run_policy must work on any board, not just the training board."""
+        import torch.nn as nn
+        from evotorch_solver import _build_policy
+
+        net = _build_policy(30, hidden=16)
+        new_board = random_board(30)
+        result = run_policy(net, new_board, max_steps=10)
+        assert isinstance(result, SolveResult)
+
+    def test_custom_reward(self):
+        """run_policy should accept and apply a custom reward_fn."""
+        from evotorch_solver import _build_policy
+
+        net = _build_policy(30, hidden=16)
+        calls = []
+
+        def my_reward(combos, max_combo, board, row, col):
+            calls.append(1)
+            return 0.3
+
+        result = run_policy(
+            net,
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=3,
+            reward_fn=my_reward,
+        )
+        assert len(calls) > 0  # reward_fn was invoked
+
+
+# ---------------------------------------------------------------------------
+# train_general_policy
+# ---------------------------------------------------------------------------
+
+
+class TestTrainGeneralPolicy:
+    def test_returns_nn_module(self):
+        """train_general_policy should return a PyTorch nn.Module."""
+        import torch.nn as nn
+
+        net = train_general_policy(
+            board_size=30,
+            num_boards=3,
+            max_steps=5,
+            hidden=16,
+            num_starts=3,
+            popsize=5,
+            num_generations=2,
+            verbose=False,
+        )
+        assert isinstance(net, nn.Module)
+
+    def test_trained_policy_usable_on_any_board(self):
+        """A policy from train_general_policy can be run on any board."""
+        net = train_general_policy(
+            board_size=30,
+            num_boards=3,
+            max_steps=5,
+            hidden=16,
+            num_starts=3,
+            popsize=5,
+            num_generations=2,
+            verbose=False,
+        )
+        for _ in range(3):
+            result = run_policy(net, random_board(30), max_steps=5)
+            assert isinstance(result, SolveResult)
+
+    def test_custom_reward_in_training(self):
+        """train_general_policy should accept a custom reward_fn."""
+        net = train_general_policy(
+            board_size=30,
+            num_boards=2,
+            max_steps=5,
+            hidden=8,
+            popsize=5,
+            num_generations=2,
+            reward_fn=orb_remaining_reward,
+            verbose=False,
+        )
+        result = run_policy(
+            net,
+            random_board(30),
+            max_steps=5,
+            reward_fn=orb_remaining_reward,
+        )
+        assert isinstance(result, SolveResult)
 
 
 if __name__ == "__main__":

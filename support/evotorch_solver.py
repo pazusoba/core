@@ -15,6 +15,32 @@ Two optimisation strategies are provided:
    weights of a small MLP policy that maps the board state at each step
    to a move direction, enabling the solver to generalise across boards.
 
+Pluggable reward functions
+--------------------------
+Both problem classes accept an optional ``reward_fn`` that lets you optimise
+for *any* goal instead of the default max-combo rate.  The signature is::
+
+    def my_reward(
+        combos: int,        # total cascaded combos achieved
+        max_combo: int,     # theoretical maximum for this board
+        board: List[int],   # board state AFTER moves, BEFORE cascade erasure
+        row: int,
+        col: int,
+    ) -> float:             # higher is better
+
+Built-in helpers: ``combo_reward``, ``orb_remaining_reward``.
+
+Generalising to any board
+--------------------------
+Train a policy on a diverse set of boards with ``train_general_policy()``,
+then apply the resulting network to any new board with ``run_policy()``::
+
+    from evotorch_solver import train_general_policy, run_policy
+
+    network = train_general_policy(board_size=30, num_boards=50, num_generations=200)
+    result  = run_policy(network, "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL")
+    print(result)
+
 Usage (direct sequence optimisation)
 -------------------------------------
     from evotorch_solver import PazusobaProblem, solve
@@ -28,14 +54,16 @@ Usage (neuroevolution)
     from evotorch.logging import StdOutLogger
 
     problem = NeuroEvoPazusobaProblem("LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL")
-    searcher = PGPE(problem, popsize=100, radius_init=2.25, center_learning_rate=0.2)
+    searcher = PGPE(problem, popsize=100, radius_init=2.25,
+                    center_learning_rate=0.2, stdev_learning_rate=0.1)
     logger = StdOutLogger(searcher, interval=10)
     searcher.run(200)
 """
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+import random
+from typing import Callable, List, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -51,8 +79,52 @@ from evotorch.logging import StdOutLogger
 ORB_WEB_NAME = " RBGLDHJEPT"  # index → char
 ORB_COUNT = 11
 
+# The six standard non-special orbs used for random board generation.
+STANDARD_ORBS = "RBGLDH"
+
 # Direction indices: 0=up, 1=down, 2=left, 3=right (same order as C++)
 DIRECTION_COUNT = 4
+
+# ---------------------------------------------------------------------------
+# Reward-function type and built-in reward helpers
+# ---------------------------------------------------------------------------
+
+# Signature: (combos, max_combo, board_after_moves, row, col) -> float
+RewardFn = Callable[[int, int, List[int], int, int], float]
+
+
+def combo_reward(
+    combos: int,
+    max_combo: int,
+    board: List[int],
+    row: int,
+    col: int,
+) -> float:
+    """Default reward: normalised combo count in [0, 1]."""
+    if max_combo == 0:
+        return 0.0
+    return combos / max_combo
+
+
+def orb_remaining_reward(
+    combos: int,
+    max_combo: int,
+    board: List[int],
+    row: int,
+    col: int,
+) -> float:
+    """
+    Reward that penalises leftover orbs.
+
+    Encourages clearing as many orbs from the board as possible.
+    Combines combo rate with a bonus for fewer remaining orbs.
+    """
+    board_size = row * col
+    remaining = sum(1 for o in board if o > 0)
+    cleared_ratio = 1.0 - remaining / board_size if board_size > 0 else 0.0
+    combo_ratio = (combos / max_combo) if max_combo > 0 else 0.0
+    return 0.5 * combo_ratio + 0.5 * cleared_ratio
+
 
 # ---------------------------------------------------------------------------
 # Pure-Python board simulation
@@ -78,6 +150,18 @@ def parse_board(board_str: str) -> Tuple[List[int], int, int]:
             raise ValueError(f"Unknown orb character '{ch}'")
         board.append(idx)
     return board, row, col
+
+
+def random_board(board_size: int = 30) -> str:
+    """
+    Generate a random board string of the given size.
+
+    *board_size* must be 20 (4×5), 30 (5×6) or 42 (6×7).
+    Uses the six standard orb colours defined in :data:`STANDARD_ORBS`.
+    """
+    if board_size not in (20, 30, 42):
+        raise ValueError(f"Unsupported board size {board_size}; expected 20, 30 or 42")
+    return "".join(random.choice(STANDARD_ORBS) for _ in range(board_size))
 
 
 def calc_max_combo(board: List[int], row: int, col: int, min_erase: int = 3) -> int:
@@ -219,20 +303,19 @@ def count_combos(board: List[int], row: int, col: int, min_erase: int = 3) -> in
     return total
 
 
-def simulate_moves(
+def _apply_moves(
     initial_board: List[int],
     row: int,
     col: int,
     start_pos: int,
     directions: List[int],
-    min_erase: int = 3,
-) -> int:
+) -> Tuple[List[int], int]:
     """
-    Simulate a move sequence on the board and return the combo count.
+    Apply a move sequence to a copy of the board.
 
-    *directions* is a list of direction indices (0=up, 1=down, 2=left, 3=right).
-    Invalid moves (boundary violations, moving back to previous position) are
-    silently skipped, matching the C++ expand() logic.
+    Returns ``(board_after_moves, final_cursor_position)``.
+    Invalid moves (boundary violations, back-tracking) are silently skipped,
+    matching the C++ ``expand()`` logic.
     """
     board = initial_board[:]
     board_size = row * col
@@ -256,11 +339,29 @@ def simulate_moves(
         if d == 2 and curr % col == 0:  # moved left but curr is on left edge
             continue
 
-        # Swap orbs
         board[curr], board[nxt] = board[nxt], board[curr]
         prev = curr
         curr = nxt
 
+    return board, curr
+
+
+def simulate_moves(
+    initial_board: List[int],
+    row: int,
+    col: int,
+    start_pos: int,
+    directions: List[int],
+    min_erase: int = 3,
+) -> int:
+    """
+    Simulate a move sequence on the board and return the combo count.
+
+    *directions* is a list of direction indices (0=up, 1=down, 2=left, 3=right).
+    Invalid moves (boundary violations, moving back to previous position) are
+    silently skipped, matching the C++ expand() logic.
+    """
+    board, _ = _apply_moves(initial_board, row, col, start_pos, directions)
     return count_combos(board, row, col, min_erase)
 
 
@@ -277,7 +378,19 @@ class PazusobaProblem(Problem):
       - ``x[0]``        : starting board position (clamped to [0, board_size-1])
       - ``x[1..N]``     : move directions (rounded to integers in [0, 3])
 
-    The fitness is ``combo_count / max_combo`` ∈ [0, 1].
+    Fitness is determined by *reward_fn* (default: normalised combo count).
+
+    Parameters
+    ----------
+    board_str:
+        The board layout string.
+    max_steps:
+        Maximum number of moves to evolve.
+    min_erase:
+        Minimum orbs required to form a combo.
+    reward_fn:
+        Optional callable ``(combos, max_combo, board_after_moves, row, col)
+        -> float``.  Defaults to :func:`combo_reward`.
     """
 
     def __init__(
@@ -285,10 +398,12 @@ class PazusobaProblem(Problem):
         board_str: str,
         max_steps: int = 50,
         min_erase: int = 3,
+        reward_fn: Optional[RewardFn] = None,
     ) -> None:
         self.board_str = board_str
         self.max_steps = max_steps
         self.min_erase = min_erase
+        self.reward_fn: RewardFn = reward_fn if reward_fn is not None else combo_reward
 
         initial_board, row, col = parse_board(board_str)
         self.initial_board = initial_board
@@ -326,15 +441,11 @@ class PazusobaProblem(Problem):
     def _fitness_for_values(self, x: torch.Tensor) -> float:
         """Return fitness for a single solution tensor *x*."""
         start_pos, directions = self._parse_solution(x)
-        combos = simulate_moves(
-            self.initial_board,
-            self.row,
-            self.col,
-            start_pos,
-            directions,
-            self.min_erase,
+        board_after, _ = _apply_moves(
+            self.initial_board, self.row, self.col, start_pos, directions
         )
-        return combos / self.max_combo
+        combos = count_combos(board_after, self.row, self.col, self.min_erase)
+        return self.reward_fn(combos, self.max_combo, board_after, self.row, self.col)
 
     def _evaluate(self, solution) -> None:
         fitness = self._fitness_for_values(solution.values)
@@ -345,14 +456,10 @@ class PazusobaProblem(Problem):
         """Decode a solution tensor into a human-readable dict."""
         start_pos, int_dirs = self._parse_solution(solution_values)
         dir_names = ["up", "down", "left", "right"]
-        combos = simulate_moves(
-            self.initial_board,
-            self.row,
-            self.col,
-            start_pos,
-            int_dirs,
-            self.min_erase,
+        board_after, _ = _apply_moves(
+            self.initial_board, self.row, self.col, start_pos, int_dirs
         )
+        combos = count_combos(board_after, self.row, self.col, self.min_erase)
         return {
             "start_pos": start_pos,
             "start_row": start_pos // self.col,
@@ -390,13 +497,17 @@ class NeuroEvoPazusobaProblem(NEProblem):
     EvoTorch NEProblem that evolves the weights of a small MLP policy.
 
     The policy observes the current board state + cursor position and outputs
-    a move direction at each step.  Fitness is ``combo_count / max_combo``.
-    This enables the policy to *generalise* across multiple board layouts.
+    a move direction at each step.  This enables the policy to *generalise*
+    across multiple board layouts.
+
+    Once trained, the network can be extracted and applied to any new board
+    using :func:`run_policy` without retraining.
 
     Parameters
     ----------
     board_str:
         The board to optimise on (or a list of boards for multi-board training).
+        Use :func:`train_general_policy` to train on many random boards.
     max_steps:
         Maximum number of moves per episode.
     min_erase:
@@ -406,6 +517,9 @@ class NeuroEvoPazusobaProblem(NEProblem):
     num_starts:
         Number of evenly spaced starting positions to sample per evaluation.
         Smaller values speed up fitness evaluation at the cost of coverage.
+    reward_fn:
+        Optional callable ``(combos, max_combo, board_after_moves, row, col)
+        -> float``.  Defaults to :func:`combo_reward`.
     """
 
     def __init__(
@@ -415,10 +529,12 @@ class NeuroEvoPazusobaProblem(NEProblem):
         min_erase: int = 3,
         hidden: int = 64,
         num_starts: int = 6,
+        reward_fn: Optional[RewardFn] = None,
     ) -> None:
         self.min_erase = min_erase
         self.max_steps = max_steps
         self.num_starts = num_starts
+        self.reward_fn: RewardFn = reward_fn if reward_fn is not None else combo_reward
 
         # Support single board or a list of boards for curriculum / multi-board
         if isinstance(board_str, str):
@@ -462,7 +578,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
         max_combo: int,
         start: int,
     ) -> float:
-        """Run one episode from *start* and return normalised combo count."""
+        """Run one episode from *start* and return the reward value."""
         board_size = row * col
         dir_offsets = [-col, col, -1, 1]
         board = initial_board[:]
@@ -489,10 +605,10 @@ class NeuroEvoPazusobaProblem(NEProblem):
             curr = nxt
 
         combos = count_combos(board, row, col, self.min_erase)
-        return combos / max_combo
+        return self.reward_fn(combos, max_combo, board, row, col)
 
     def _evaluate_network(self, network: nn.Module) -> float:
-        """Evaluate network on all boards and return mean normalised combo.
+        """Evaluate network on all boards and return mean reward.
 
         To keep evaluation tractable, only ``num_starts`` evenly spaced
         starting positions are sampled rather than exhaustively trying all.
@@ -502,15 +618,191 @@ class NeuroEvoPazusobaProblem(NEProblem):
             board_size = row * col
             # Sample evenly spaced starts instead of all board_size positions
             step = max(1, board_size // self.num_starts)
-            best_ratio = 0.0
+            best_reward = 0.0
             for start in range(0, board_size, step):
-                ratio = self._run_episode(
+                reward = self._run_episode(
                     network, initial_board, row, col, max_combo, start
                 )
-                if ratio > best_ratio:
-                    best_ratio = ratio
-            total += best_ratio
+                if reward > best_reward:
+                    best_reward = reward
+            total += best_reward
         return total / len(self._boards)
+
+
+# ---------------------------------------------------------------------------
+# Generalisation utilities: run_policy and train_general_policy
+# ---------------------------------------------------------------------------
+
+
+def run_policy(
+    network: nn.Module,
+    board_str: str,
+    max_steps: int = 50,
+    min_erase: int = 3,
+    num_starts: int = 6,
+    reward_fn: Optional[RewardFn] = None,
+) -> "SolveResult":
+    """
+    Apply a trained policy network to any board and return the best result.
+
+    This is the *inference* counterpart to training with
+    :class:`NeuroEvoPazusobaProblem`.  A network trained on a diverse set of
+    boards (e.g. via :func:`train_general_policy`) can be used here without
+    retraining, making it a **common solution** applicable to any board.
+
+    Parameters
+    ----------
+    network:
+        A trained ``nn.Module`` (e.g. from
+        ``searcher.status["center"].make_net(params)``).
+    board_str:
+        Any valid board string (size 20, 30 or 42).
+    max_steps:
+        Maximum number of moves per episode.
+    min_erase:
+        Minimum orbs required to form a combo.
+    num_starts:
+        Number of evenly spaced starting positions to try.
+    reward_fn:
+        Optional reward function.  Defaults to :func:`combo_reward`.
+
+    Returns
+    -------
+    SolveResult
+        The best result found across all sampled starting positions.
+    """
+    _reward_fn = reward_fn if reward_fn is not None else combo_reward
+    initial_board, row, col = parse_board(board_str)
+    board_size = row * col
+    max_combo = calc_max_combo(initial_board, row, col, min_erase)
+    dir_offsets = [-col, col, -1, 1]
+    dir_names = ["up", "down", "left", "right"]
+
+    def _observe(board: List[int], curr: int) -> torch.Tensor:
+        board_feat = torch.zeros(board_size * ORB_COUNT)
+        for i, orb in enumerate(board):
+            board_feat[i * ORB_COUNT + orb] = 1.0
+        pos_feat = torch.zeros(board_size)
+        pos_feat[curr] = 1.0
+        return torch.cat([board_feat, pos_feat])
+
+    best_reward = -1.0
+    best_combos = 0
+    best_start = 0
+    best_dirs: List[int] = []
+
+    step = max(1, board_size // num_starts)
+    for start in range(0, board_size, step):
+        board = initial_board[:]
+        curr = start
+        prev = start
+        episode_dirs: List[int] = []
+
+        for _ in range(max_steps):
+            obs = _observe(board, curr)
+            with torch.no_grad():
+                logits = network(obs.unsqueeze(0)).squeeze(0)
+            d = int(torch.argmax(logits).item())
+            offset = dir_offsets[d]
+            nxt = curr + offset
+
+            if nxt == prev or nxt < 0 or nxt >= board_size:
+                episode_dirs.append(d)
+                continue
+            if d == 3 and nxt % col == 0:
+                episode_dirs.append(d)
+                continue
+            if d == 2 and curr % col == 0:
+                episode_dirs.append(d)
+                continue
+
+            board[curr], board[nxt] = board[nxt], board[curr]
+            episode_dirs.append(d)
+            prev = curr
+            curr = nxt
+
+        combos = count_combos(board, row, col, min_erase)
+        reward = _reward_fn(combos, max_combo, board, row, col)
+        if reward > best_reward:
+            best_reward = reward
+            best_combos = combos
+            best_start = start
+            best_dirs = episode_dirs
+
+    return SolveResult(
+        combo=best_combos,
+        max_combo=max_combo,
+        start_pos=best_start,
+        row=row,
+        col=col,
+        directions=[dir_names[d] for d in best_dirs],
+        goal=best_combos >= max_combo,
+    )
+
+
+def train_general_policy(
+    board_size: int = 30,
+    num_boards: int = 50,
+    max_steps: int = 50,
+    min_erase: int = 3,
+    hidden: int = 64,
+    num_starts: int = 6,
+    popsize: int = 100,
+    num_generations: int = 200,
+    reward_fn: Optional[RewardFn] = None,
+    verbose: bool = True,
+) -> nn.Module:
+    """
+    Train a generalised policy across many randomly generated boards.
+
+    The resulting network can solve *any* board of the same size using
+    :func:`run_policy` without retraining.
+
+    Parameters
+    ----------
+    board_size:
+        Board size to train on (20, 30 or 42).
+    num_boards:
+        Number of random boards to generate for training.
+    max_steps:
+        Maximum moves per episode during training.
+    min_erase:
+        Minimum orbs required to form a combo.
+    hidden:
+        Hidden units in the MLP policy.
+    num_starts:
+        Starting positions sampled per board per evaluation.
+    popsize:
+        SNES population size.
+    num_generations:
+        Training generations.
+    reward_fn:
+        Optional reward function.  Defaults to :func:`combo_reward`.
+    verbose:
+        Print progress to stdout.
+
+    Returns
+    -------
+    nn.Module
+        The trained policy network.
+    """
+    boards = [random_board(board_size) for _ in range(num_boards)]
+    problem = NeuroEvoPazusobaProblem(
+        boards,
+        max_steps=max_steps,
+        min_erase=min_erase,
+        hidden=hidden,
+        num_starts=num_starts,
+        reward_fn=reward_fn,
+    )
+    searcher = SNES(problem, popsize=popsize, stdev_init=1.0)
+    if verbose:
+        _ = StdOutLogger(searcher, interval=50)
+
+    searcher.run(num_generations)
+
+    best_params = searcher.status["pop_best"].values
+    return problem.make_net(best_params)
 
 
 # ---------------------------------------------------------------------------
@@ -519,7 +811,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
 
 
 class SolveResult:
-    """Lightweight result object returned by :func:`solve`."""
+    """Lightweight result object returned by :func:`solve` and :func:`run_policy`."""
 
     def __init__(
         self,
@@ -557,6 +849,7 @@ def solve(
     min_erase: int = 3,
     popsize: int = 200,
     num_generations: int = 500,
+    reward_fn: Optional[RewardFn] = None,
     verbose: bool = True,
 ) -> SolveResult:
     """
@@ -574,6 +867,9 @@ def solve(
         Population size for SNES.
     num_generations:
         Number of generations to run.
+    reward_fn:
+        Optional reward function ``(combos, max_combo, board, row, col) -> float``.
+        Defaults to :func:`combo_reward`.
     verbose:
         Print progress to stdout.
 
@@ -582,7 +878,9 @@ def solve(
     SolveResult
         The best solution found.
     """
-    problem = PazusobaProblem(board_str, max_steps=max_steps, min_erase=min_erase)
+    problem = PazusobaProblem(
+        board_str, max_steps=max_steps, min_erase=min_erase, reward_fn=reward_fn
+    )
     searcher = SNES(problem, popsize=popsize, stdev_init=1.0)
     if verbose:
         _ = StdOutLogger(searcher, interval=50)
@@ -622,3 +920,4 @@ if __name__ == "__main__":
     result = solve(board, max_steps=max_steps, num_generations=generations)
     print(f"\nResult:\n{result}")
     print(f"Time: {time.time() - t0:.2f}s")
+
