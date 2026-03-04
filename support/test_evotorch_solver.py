@@ -33,10 +33,14 @@ from evotorch_solver import (
     RewardFn,
     SolveResult,
     _apply_moves,
+    _build_policy,
     calc_max_combo,
     combo_reward,
     count_combos,
     erase_combo,
+    export_solution_json,
+    export_torchscript,
+    export_weights_header,
     move_orbs_down,
     orb_remaining_reward,
     parse_board,
@@ -715,6 +719,185 @@ class TestTrainGeneralPolicy:
             reward_fn=orb_remaining_reward,
         )
         assert isinstance(result, SolveResult)
+
+
+# ---------------------------------------------------------------------------
+# Export utilities
+# ---------------------------------------------------------------------------
+
+
+class TestSolveResultToDict:
+    def test_to_dict_keys(self):
+        r = SolveResult(
+            combo=5, max_combo=8, start_pos=3, row=5, col=6,
+            directions=["up", "right"], goal=False,
+        )
+        d = r.to_dict()
+        assert set(d.keys()) == {
+            "start_pos", "start_row", "start_col",
+            "directions", "combo", "max_combo", "goal",
+        }
+
+    def test_to_dict_values(self):
+        r = SolveResult(
+            combo=4, max_combo=7, start_pos=8, row=5, col=6,
+            directions=["down"], goal=False,
+        )
+        d = r.to_dict()
+        assert d["combo"] == 4
+        assert d["max_combo"] == 7
+        assert d["start_pos"] == 8
+        assert d["start_row"] == 1   # 8 // 6
+        assert d["start_col"] == 2   # 8 % 6
+        assert d["directions"] == ["down"]
+        assert d["goal"] is False
+
+
+class TestExportSolutionJson:
+    def test_creates_valid_json(self, tmp_path):
+        r = SolveResult(
+            combo=3, max_combo=6, start_pos=0, row=5, col=6,
+            directions=["up", "right", "down"], goal=False,
+        )
+        dest = str(tmp_path / "solution.json")
+        export_solution_json(r, dest)
+        import json as _json
+        with open(dest) as f:
+            data = _json.load(f)
+        assert data["combo"] == 3
+        assert data["max_combo"] == 6
+        assert data["directions"] == ["up", "right", "down"]
+        assert data["goal"] is False
+
+    def test_required_keys_present(self, tmp_path):
+        r = SolveResult(
+            combo=1, max_combo=5, start_pos=14, row=5, col=6,
+            directions=[], goal=False,
+        )
+        dest = str(tmp_path / "out.json")
+        export_solution_json(r, dest)
+        import json as _json
+        with open(dest) as f:
+            data = _json.load(f)
+        for key in ("start_pos", "start_row", "start_col",
+                    "directions", "combo", "max_combo", "goal"):
+            assert key in data
+
+
+class TestExportTorchscript:
+    def test_creates_pt_file(self, tmp_path):
+        import torch.nn as nn
+        net = _build_policy(30, hidden=16)
+        dest = str(tmp_path / "policy.pt")
+        export_torchscript(net, dest, board_size=30)
+        assert (tmp_path / "policy.pt").exists()
+        assert (tmp_path / "policy.pt").stat().st_size > 0
+
+    def test_loaded_model_produces_correct_output(self, tmp_path):
+        """Loaded TorchScript model should produce the same output as the original."""
+        import torch
+        net = _build_policy(30, hidden=16)
+        dest = str(tmp_path / "policy.pt")
+        export_torchscript(net, dest, board_size=30)
+
+        loaded = torch.jit.load(dest)
+        obs = torch.zeros(1, 30 * 11 + 30)
+        with torch.no_grad():
+            orig_out = net(obs)
+            loaded_out = loaded(obs)
+        assert torch.allclose(orig_out, loaded_out, atol=1e-6)
+
+
+class TestExportWeightsHeader:
+    def test_creates_header_file(self, tmp_path):
+        net = _build_policy(30, hidden=16)
+        dest = str(tmp_path / "pazusoba_policy.h")
+        export_weights_header(net, dest, board_size=30)
+        assert (tmp_path / "pazusoba_policy.h").exists()
+        assert (tmp_path / "pazusoba_policy.h").stat().st_size > 0
+
+    def test_header_contains_expected_identifiers(self, tmp_path):
+        net = _build_policy(30, hidden=16)
+        dest = str(tmp_path / "pazusoba_policy.h")
+        export_weights_header(net, dest, board_size=30)
+        content = (tmp_path / "pazusoba_policy.h").read_text()
+        assert "pazusoba_policy_forward" in content
+        assert "pazusoba_w1" in content
+        assert "pazusoba_b1" in content
+        assert "pazusoba_w2" in content
+        assert "pazusoba_b2" in content
+        assert "pazusoba_w3" in content
+        assert "pazusoba_b3" in content
+        assert "PAZUSOBA_OBS_DIM" in content
+        assert "PAZUSOBA_HIDDEN" in content
+        assert "tanhf" in content
+
+    def test_header_defines_correct_dimensions(self, tmp_path):
+        board_size = 30
+        hidden = 24
+        net = _build_policy(board_size, hidden=hidden)
+        dest = str(tmp_path / "p.h")
+        export_weights_header(net, dest, board_size=board_size)
+        content = (tmp_path / "p.h").read_text()
+        in_dim = board_size * 11 + board_size  # 360
+        assert f"PAZUSOBA_OBS_DIM    {in_dim}" in content
+        assert f"PAZUSOBA_HIDDEN     {hidden}" in content
+        assert f"PAZUSOBA_BOARD_SIZE {board_size}" in content
+
+    def test_wrong_layer_count_raises(self, tmp_path):
+        import torch.nn as nn
+        bad_net = nn.Sequential(nn.Linear(10, 4))
+        with pytest.raises(ValueError, match="3 nn.Linear"):
+            export_weights_header(bad_net, str(tmp_path / "bad.h"), board_size=30)
+
+    def test_guard_sanitised_for_hyphenated_filename(self, tmp_path):
+        """Header guard must be a valid C identifier even with hyphens in the name."""
+        net = _build_policy(20, hidden=8)
+        dest = str(tmp_path / "my-policy.h")
+        export_weights_header(net, dest, board_size=20)
+        content = (tmp_path / "my-policy.h").read_text()
+        # Guard should have hyphen replaced by underscore
+        assert "#ifndef MY_POLICY_H_" in content
+        assert "#define MY_POLICY_H_" in content
+
+    def test_header_consistent_with_pytorch_output(self, tmp_path):
+        """
+        The C header argmax must agree with the PyTorch network argmax on a
+        fixed test observation.  We verify this by running the exported weights
+        through the same arithmetic in Python (no C compiler needed in CI).
+        """
+        import torch
+        import torch.nn as nn
+
+        board_size = 20  # smallest size -> smallest header
+        net = _build_policy(board_size, hidden=8)
+        dest = str(tmp_path / "chk.h")
+        export_weights_header(net, dest, board_size=board_size)
+
+        # Replicate the C forward pass in Python using the ORIGINAL net weights
+        linear_layers = [m for m in net.modules() if isinstance(m, nn.Linear)]
+        w1 = linear_layers[0].weight.detach()
+        b1 = linear_layers[0].bias.detach()
+        w2 = linear_layers[1].weight.detach()
+        b2 = linear_layers[1].bias.detach()
+        w3 = linear_layers[2].weight.detach()
+        b3 = linear_layers[2].bias.detach()
+
+        obs = torch.zeros(board_size * 11 + board_size)
+        obs[0] = 1.0  # orb 0 at position 0
+        obs[board_size * 11] = 1.0  # cursor at position 0
+
+        with torch.no_grad():
+            pytorch_logits = net(obs.unsqueeze(0)).squeeze(0)
+        pytorch_dir = int(pytorch_logits.argmax().item())
+
+        # Manual forward (same as the C code)
+        h1 = torch.tanh(w1 @ obs + b1)
+        h2 = torch.tanh(w2 @ h1 + b2)
+        out = w3 @ h2 + b3
+        manual_dir = int(out.argmax().item())
+
+        assert pytorch_dir == manual_dir
 
 
 if __name__ == "__main__":

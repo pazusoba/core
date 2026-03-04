@@ -41,6 +41,40 @@ then apply the resulting network to any new board with ``run_policy()``::
     result  = run_policy(network, "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL")
     print(result)
 
+Portability: using results in C / C++
+--------------------------------------
+Three export helpers let you consume EvoTorch results from C or C++ code
+without any Python runtime.
+
+**Direct-sequence result → JSON** (readable with any C JSON library)::
+
+    from evotorch_solver import solve, export_solution_json
+
+    result = solve("LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL", max_steps=50)
+    export_solution_json(result, "solution.json")
+
+**Trained network → TorchScript** (load with LibTorch in C++)::
+
+    from evotorch_solver import train_general_policy, export_torchscript
+
+    network = train_general_policy(board_size=30)
+    export_torchscript(network, "policy.pt", board_size=30)
+
+    // C++ (LibTorch)
+    auto model = torch::jit::load("policy.pt");
+    auto dir   = model.forward({obs}).toTensor().argmax(1).item<int64_t>();
+
+**Trained network → C header** (zero runtime dependencies, C99 / C++)::
+
+    from evotorch_solver import train_general_policy, export_weights_header
+
+    network = train_general_policy(board_size=30)
+    export_weights_header(network, "pazusoba_policy.h", board_size=30)
+
+    // C / C++
+    #include "pazusoba_policy.h"
+    int dir = pazusoba_policy_forward(obs);  // 0=up,1=down,2=left,3=right
+
 Usage (direct sequence optimisation)
 -------------------------------------
     from evotorch_solver import PazusobaProblem, solve
@@ -62,7 +96,9 @@ Usage (neuroevolution)
 
 from __future__ import annotations
 
+import json
 import random
+import textwrap
 from typing import Callable, List, Optional, Tuple
 
 import torch
@@ -831,6 +867,18 @@ class SolveResult:
         self.directions = directions
         self.goal = goal
 
+    def to_dict(self) -> dict:
+        """Return a JSON-serialisable dict representation of this result."""
+        return {
+            "start_pos": self.start_pos,
+            "start_row": self.start_row,
+            "start_col": self.start_col,
+            "directions": self.directions,
+            "combo": self.combo,
+            "max_combo": self.max_combo,
+            "goal": self.goal,
+        }
+
     def __str__(self) -> str:
         return (
             f"Combo: {self.combo}/{self.max_combo}\n"
@@ -898,6 +946,248 @@ def solve(
         directions=best["directions"],
         goal=best["goal"],
     )
+
+
+
+# ---------------------------------------------------------------------------
+# Export utilities: make EvoTorch results portable in C / C++
+# ---------------------------------------------------------------------------
+
+
+def export_solution_json(result: SolveResult, path: str) -> None:
+    """
+    Export a :class:`SolveResult` to a JSON file.
+
+    The output is a flat JSON object readable from C/C++ with any JSON
+    library (e.g. `nlohmann/json <https://github.com/nlohmann/json>`_ or
+    `cJSON <https://github.com/DaveGamble/cJSON>`_)::
+
+        {
+          "start_pos": 14,
+          "start_row": 2,
+          "start_col": 2,
+          "directions": ["up", "right", "down", "left"],
+          "combo": 5,
+          "max_combo": 8,
+          "goal": false
+        }
+
+    Parameters
+    ----------
+    result:
+        The result object to serialise.
+    path:
+        Destination file path (e.g. ``"solution.json"``).
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(result.to_dict(), f, indent=2)
+
+
+def export_torchscript(
+    network: nn.Module,
+    path: str,
+    board_size: int,
+) -> None:
+    """
+    Export a trained policy network to a TorchScript ``.pt`` file.
+
+    The file can be loaded and executed in C++ using
+    `LibTorch <https://pytorch.org/cppdocs/>`_ with no Python dependency::
+
+        // C++ consumer example
+        auto model = torch::jit::load("policy.pt");
+        model.eval();
+        auto logits = model.forward({obs}).toTensor();
+        auto dir    = logits.argmax(1).item<int64_t>();
+
+    Parameters
+    ----------
+    network:
+        Trained ``nn.Module`` (e.g. from :func:`train_general_policy`).
+    path:
+        Destination file path (e.g. ``"policy.pt"``).
+    board_size:
+        Board size the network was trained on (20, 30 or 42).
+    """
+    in_dim = board_size * ORB_COUNT + board_size
+    example_input = torch.zeros(1, in_dim)
+    traced = torch.jit.trace(network.eval(), example_input)
+    traced.save(path)
+
+
+def export_weights_header(
+    network: nn.Module,
+    path: str,
+    board_size: int,
+) -> None:
+    """
+    Export a trained policy as a self-contained C99 header file.
+
+    The generated header requires **no runtime dependencies** — only
+    ``<math.h>`` for ``tanhf``.  Include it in any C99 / C++ project and
+    call :c:func:`pazusoba_policy_forward` at each move step::
+
+        // C / C++ consumer example
+        #include "pazusoba_policy.h"
+
+        // Build the observation vector:
+        //   - board_size * 11 one-hot orb features (board_size * ORB_COUNT floats)
+        //   - board_size one-hot cursor position
+        float obs[PAZUSOBA_OBS_DIM] = {0};
+        for (int i = 0; i < board_size; i++)
+            obs[i * PAZUSOBA_ORB_COUNT + board[i]] = 1.0f;
+        obs[board_size * PAZUSOBA_ORB_COUNT + cursor] = 1.0f;
+
+        int dir = pazusoba_policy_forward(obs);
+        // dir: 0 = up, 1 = down, 2 = left, 3 = right
+
+    Compile with ``-lm`` (GCC/Clang) or enable math library linking as
+    required by your toolchain.
+
+    Parameters
+    ----------
+    network:
+        Trained ``nn.Module`` built by :func:`_build_policy`.  Must have
+        exactly three ``nn.Linear`` layers (2-hidden MLP).
+    path:
+        Destination ``.h`` file path (e.g. ``"pazusoba_policy.h"``).
+    board_size:
+        Board size the network was trained on (20, 30 or 42).
+
+    Raises
+    ------
+    ValueError
+        If *network* does not have exactly 3 linear layers.
+    """
+    linear_layers = [m for m in network.modules() if isinstance(m, nn.Linear)]
+    if len(linear_layers) != 3:
+        raise ValueError(
+            f"Expected 3 nn.Linear layers, got {len(linear_layers)}. "
+            "Only networks built with _build_policy() are supported."
+        )
+
+    in_dim = board_size * ORB_COUNT + board_size
+    hidden = linear_layers[0].out_features
+
+    def _fmt_array_1d(name: str, tensor: torch.Tensor) -> str:
+        """Format a 1-D tensor as a C array literal."""
+        vals = tensor.detach().float().tolist()
+        items = ", ".join(f"{v:.8g}f" for v in vals)
+        return f"static const float {name}[{len(vals)}] = {{{items}}};"
+
+    def _fmt_array_2d(name: str, tensor: torch.Tensor) -> str:
+        """Format a 2-D tensor as a C 2-D array literal (rows × cols)."""
+        rows, cols = tensor.shape
+        lines = [f"static const float {name}[{rows}][{cols}] = {{"]
+        for r in range(rows):
+            vals = tensor[r].detach().float().tolist()
+            row_str = "    {" + ", ".join(f"{v:.8g}f" for v in vals) + "}"
+            suffix = "," if r < rows - 1 else ""
+            lines.append(row_str + suffix)
+        lines.append("};")
+        return "\n".join(lines)
+
+    w1 = linear_layers[0].weight  # (hidden, in_dim)
+    b1 = linear_layers[0].bias    # (hidden,)
+    w2 = linear_layers[1].weight  # (hidden, hidden)
+    b2 = linear_layers[1].bias    # (hidden,)
+    w3 = linear_layers[2].weight  # (4, hidden)
+    b3 = linear_layers[2].bias    # (4,)
+
+    import os
+    import re
+    basename = os.path.basename(path)
+    # Sanitise: replace any non-alphanumeric character with '_', ensure starts
+    # with a letter so the result is always a valid C identifier.
+    raw_guard = re.sub(r"[^A-Za-z0-9]", "_", basename).upper()
+    if raw_guard and raw_guard[0].isdigit():
+        raw_guard = "H_" + raw_guard
+    guard = raw_guard
+
+    header = textwrap.dedent(f"""\
+        #pragma once
+        #ifndef {guard}_
+        #define {guard}_
+
+        /*
+         * Auto-generated by pazusoba evotorch_solver.py
+         * Self-contained MLP policy for Puzzle & Dragons board solving.
+         * Zero runtime dependencies - link with -lm (C) or compile as C++.
+         *
+         * Usage
+         * -----
+         *   #include "{basename}"
+         *
+         *   // Build the observation vector
+         *   float obs[PAZUSOBA_OBS_DIM] = {{0}};
+         *   for (int i = 0; i < PAZUSOBA_BOARD_SIZE; i++)
+         *       obs[i * PAZUSOBA_ORB_COUNT + board[i]] = 1.0f;
+         *   obs[PAZUSOBA_BOARD_SIZE * PAZUSOBA_ORB_COUNT + cursor] = 1.0f;
+         *
+         *   int dir = pazusoba_policy_forward(obs);
+         *   // dir: 0=up, 1=down, 2=left, 3=right
+         */
+
+        #include <math.h>
+
+        #define PAZUSOBA_BOARD_SIZE {board_size}
+        #define PAZUSOBA_ORB_COUNT  {ORB_COUNT}
+        #define PAZUSOBA_OBS_DIM    {in_dim}
+        #define PAZUSOBA_HIDDEN     {hidden}
+        #define PAZUSOBA_DIR_COUNT  {DIRECTION_COUNT}
+
+        """)
+
+    header += _fmt_array_2d("pazusoba_w1", w1) + "\n"
+    header += _fmt_array_1d("pazusoba_b1", b1) + "\n\n"
+    header += _fmt_array_2d("pazusoba_w2", w2) + "\n"
+    header += _fmt_array_1d("pazusoba_b2", b2) + "\n\n"
+    header += _fmt_array_2d("pazusoba_w3", w3) + "\n"
+    header += _fmt_array_1d("pazusoba_b3", b3) + "\n"
+
+    header += textwrap.dedent("""\
+
+        static inline int pazusoba_policy_forward(const float *obs)
+        {
+            float h1[PAZUSOBA_HIDDEN], h2[PAZUSOBA_HIDDEN], out[PAZUSOBA_DIR_COUNT];
+            int i, j, best;
+
+            /* Layer 1: Linear + Tanh */
+            for (i = 0; i < PAZUSOBA_HIDDEN; i++) {
+                h1[i] = pazusoba_b1[i];
+                for (j = 0; j < PAZUSOBA_OBS_DIM; j++)
+                    h1[i] += pazusoba_w1[i][j] * obs[j];
+                h1[i] = tanhf(h1[i]);
+            }
+
+            /* Layer 2: Linear + Tanh */
+            for (i = 0; i < PAZUSOBA_HIDDEN; i++) {
+                h2[i] = pazusoba_b2[i];
+                for (j = 0; j < PAZUSOBA_HIDDEN; j++)
+                    h2[i] += pazusoba_w2[i][j] * h1[j];
+                h2[i] = tanhf(h2[i]);
+            }
+
+            /* Layer 3: Linear (no activation) */
+            for (i = 0; i < PAZUSOBA_DIR_COUNT; i++) {
+                out[i] = pazusoba_b3[i];
+                for (j = 0; j < PAZUSOBA_HIDDEN; j++)
+                    out[i] += pazusoba_w3[i][j] * h2[j];
+            }
+
+            /* Argmax - return direction index */
+            best = 0;
+            for (i = 1; i < PAZUSOBA_DIR_COUNT; i++)
+                if (out[i] > out[best]) best = i;
+
+            return best;
+        }
+
+        #endif /* {guard}_ */
+        """)
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(header)
 
 
 # ---------------------------------------------------------------------------
