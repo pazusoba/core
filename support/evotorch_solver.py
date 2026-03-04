@@ -35,7 +35,6 @@ Usage (neuroevolution)
 
 from __future__ import annotations
 
-import copy
 from typing import List, Optional, Tuple
 
 import torch
@@ -207,16 +206,16 @@ def count_combos(board: List[int], row: int, col: int, min_erase: int = 3) -> in
     """
     Count total combos (including cascades after gravity) for a board state.
 
-    Modifies *board* in-place (mirrors the C++ evaluate loop).
+    Does not modify *board* (works on an internal copy).
     """
-    board_copy = board[:]
+    working_board = board[:]
     total = 0
     while True:
-        new_combos = erase_combo(board_copy, row, col, min_erase)
+        new_combos = erase_combo(working_board, row, col, min_erase)
         if new_combos == 0:
             break
         total += new_combos
-        move_orbs_down(board_copy, row, col)
+        move_orbs_down(working_board, row, col)
     return total
 
 
@@ -313,15 +312,20 @@ class PazusobaProblem(Problem):
         )
 
     # ------------------------------------------------------------------
-    def _fitness_for_values(self, x: torch.Tensor) -> float:
-        """Return fitness for a single solution tensor *x*."""
-        vals = x.numpy()
-        start_pos = int(round(float(vals[0])))
+    def _parse_solution(self, x: torch.Tensor) -> Tuple[int, List[int]]:
+        """Parse a solution tensor into (start_pos, list_of_int_directions)."""
+        rounded = x.round().long()
+        start_pos = int(rounded[0].item())
         start_pos = max(0, min(start_pos, self.board_size - 1))
         directions = [
-            max(0, min(int(round(float(v))), DIRECTION_COUNT - 1))
-            for v in vals[1:]
+            max(0, min(int(rounded[i + 1].item()), DIRECTION_COUNT - 1))
+            for i in range(self.max_steps)
         ]
+        return start_pos, directions
+
+    def _fitness_for_values(self, x: torch.Tensor) -> float:
+        """Return fitness for a single solution tensor *x*."""
+        start_pos, directions = self._parse_solution(x)
         combos = simulate_moves(
             self.initial_board,
             self.row,
@@ -339,14 +343,8 @@ class PazusobaProblem(Problem):
     # ------------------------------------------------------------------
     def decode(self, solution_values: torch.Tensor) -> dict:
         """Decode a solution tensor into a human-readable dict."""
-        vals = solution_values.numpy()
-        start_pos = int(round(float(vals[0])))
-        start_pos = max(0, min(start_pos, self.board_size - 1))
+        start_pos, int_dirs = self._parse_solution(solution_values)
         dir_names = ["up", "down", "left", "right"]
-        directions = [
-            dir_names[max(0, min(int(round(float(v))), 3))] for v in vals[1:]
-        ]
-        int_dirs = [max(0, min(int(round(float(v))), 3)) for v in vals[1:]]
         combos = simulate_moves(
             self.initial_board,
             self.row,
@@ -359,7 +357,7 @@ class PazusobaProblem(Problem):
             "start_pos": start_pos,
             "start_row": start_pos // self.col,
             "start_col": start_pos % self.col,
-            "directions": directions,
+            "directions": [dir_names[d] for d in int_dirs],
             "combo": combos,
             "max_combo": self.max_combo,
             "goal": combos >= self.max_combo,
@@ -405,6 +403,9 @@ class NeuroEvoPazusobaProblem(NEProblem):
         Minimum orbs required to form a combo.
     hidden:
         Hidden layer size of the policy network.
+    num_starts:
+        Number of evenly spaced starting positions to sample per evaluation.
+        Smaller values speed up fitness evaluation at the cost of coverage.
     """
 
     def __init__(
@@ -413,9 +414,11 @@ class NeuroEvoPazusobaProblem(NEProblem):
         max_steps: int = 50,
         min_erase: int = 3,
         hidden: int = 64,
+        num_starts: int = 6,
     ) -> None:
         self.min_erase = min_erase
         self.max_steps = max_steps
+        self.num_starts = num_starts
 
         # Support single board or a list of boards for curriculum / multi-board
         if isinstance(board_str, str):
@@ -431,7 +434,6 @@ class NeuroEvoPazusobaProblem(NEProblem):
 
         board_size = self._boards[0][1] * self._boards[0][2]
         self.board_size = board_size
-        self._policy_template = _build_policy(board_size, hidden)
 
         super().__init__(
             objective_sense="max",
@@ -444,54 +446,69 @@ class NeuroEvoPazusobaProblem(NEProblem):
         self, board: List[int], board_size: int, curr: int
     ) -> torch.Tensor:
         """Encode board state + cursor position as a flat float tensor."""
-        # One-hot encode each orb
         board_feat = torch.zeros(board_size * ORB_COUNT)
         for i, orb in enumerate(board):
             board_feat[i * ORB_COUNT + orb] = 1.0
-        # One-hot encode cursor position
         pos_feat = torch.zeros(board_size)
         pos_feat[curr] = 1.0
         return torch.cat([board_feat, pos_feat])
 
+    def _run_episode(
+        self,
+        network: nn.Module,
+        initial_board: List[int],
+        row: int,
+        col: int,
+        max_combo: int,
+        start: int,
+    ) -> float:
+        """Run one episode from *start* and return normalised combo count."""
+        board_size = row * col
+        dir_offsets = [-col, col, -1, 1]
+        board = initial_board[:]
+        curr = start
+        prev = start
+
+        for _ in range(self.max_steps):
+            obs = self._observe(board, board_size, curr)
+            with torch.no_grad():
+                logits = network(obs.unsqueeze(0)).squeeze(0)
+            d = int(torch.argmax(logits).item())
+            offset = dir_offsets[d]
+            nxt = curr + offset
+
+            if nxt == prev or nxt < 0 or nxt >= board_size:
+                continue
+            if d == 3 and nxt % col == 0:
+                continue
+            if d == 2 and curr % col == 0:
+                continue
+
+            board[curr], board[nxt] = board[nxt], board[curr]
+            prev = curr
+            curr = nxt
+
+        combos = count_combos(board, row, col, self.min_erase)
+        return combos / max_combo
+
     def _evaluate_network(self, network: nn.Module) -> float:
-        """Evaluate network on all boards and return mean normalised combo."""
+        """Evaluate network on all boards and return mean normalised combo.
+
+        To keep evaluation tractable, only ``num_starts`` evenly spaced
+        starting positions are sampled rather than exhaustively trying all.
+        """
         total = 0.0
         for initial_board, row, col, max_combo in self._boards:
             board_size = row * col
-            dir_offsets = [-col, col, -1, 1]
-
-            # Try each starting position and keep best result
+            # Sample evenly spaced starts instead of all board_size positions
+            step = max(1, board_size // self.num_starts)
             best_ratio = 0.0
-            for start in range(board_size):
-                board = initial_board[:]
-                curr = start
-                prev = start
-
-                for _ in range(self.max_steps):
-                    obs = self._observe(board, board_size, curr)
-                    with torch.no_grad():
-                        logits = network(obs.unsqueeze(0)).squeeze(0)
-                    d = int(torch.argmax(logits).item())
-                    offset = dir_offsets[d]
-                    nxt = curr + offset
-
-                    # Validate move
-                    if nxt == prev or nxt < 0 or nxt >= board_size:
-                        continue
-                    if d == 3 and nxt % col == 0:
-                        continue
-                    if d == 2 and curr % col == 0:
-                        continue
-
-                    board[curr], board[nxt] = board[nxt], board[curr]
-                    prev = curr
-                    curr = nxt
-
-                combos = count_combos(board, row, col, self.min_erase)
-                ratio = combos / max_combo
+            for start in range(0, board_size, step):
+                ratio = self._run_episode(
+                    network, initial_board, row, col, max_combo, start
+                )
                 if ratio > best_ratio:
                     best_ratio = ratio
-
             total += best_ratio
         return total / len(self._boards)
 
