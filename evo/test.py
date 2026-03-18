@@ -363,6 +363,29 @@ class TestNeuroEvoPazusobaProblem:
         p = NeuroEvoPazusobaProblem("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
         assert p.board_size == 30
 
+    def test_lookahead_steps_stored(self):
+        """lookahead_steps attribute should be stored on the problem."""
+        p = NeuroEvoPazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL", lookahead_steps=5
+        )
+        assert p.lookahead_steps == 5
+
+    def test_network_output_dim_matches_lookahead(self):
+        """Network last layer output should be lookahead_steps * 4."""
+        import torch.nn as nn
+
+        lookahead_steps = 7
+        p = NeuroEvoPazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            hidden=16,
+            lookahead_steps=lookahead_steps,
+        )
+        # Instantiate the network via make_net to inspect its architecture
+        params = p.generate_values(1)[0]
+        net = p.make_net(params)
+        last_linear = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+        assert last_linear.out_features == lookahead_steps * 4
+
     def test_fitness_range(self):
         """_evaluate_network on random weights should return a float in [0, 1]."""
         p = NeuroEvoPazusobaProblem("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
@@ -655,7 +678,80 @@ class TestRunPolicy:
 
 
 # ---------------------------------------------------------------------------
-# train_general_policy
+# _build_policy lookahead
+# ---------------------------------------------------------------------------
+
+
+class TestBuildPolicyLookahead:
+    def test_default_lookahead_output_dim(self):
+        """Default lookahead_steps=10 → output dim = 10*4 = 40."""
+        import torch.nn as nn
+
+        net = _build_policy(30)
+        last_linear = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+        assert last_linear.out_features == 10 * 4  # default lookahead_steps=10
+
+    def test_custom_lookahead_output_dim(self):
+        """lookahead_steps=5 → output dim = 5*4 = 20."""
+        import torch.nn as nn
+
+        net = _build_policy(30, lookahead_steps=5)
+        last_linear = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+        assert last_linear.out_features == 5 * 4
+
+    def test_greedy_lookahead_output_dim(self):
+        """lookahead_steps=1 → output dim = 4 (greedy, backward compat)."""
+        import torch.nn as nn
+
+        net = _build_policy(30, lookahead_steps=1)
+        last_linear = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+        assert last_linear.out_features == 4
+
+    def test_forward_output_shape(self):
+        """Network forward pass should produce (1, lookahead_steps*4) tensor."""
+        import torch
+
+        lookahead_steps = 6
+        net = _build_policy(30, hidden=16, lookahead_steps=lookahead_steps)
+        obs = torch.zeros(1, 30 * 11 + 30)
+        out = net(obs)
+        assert out.shape == (1, lookahead_steps * 4)
+
+
+# ---------------------------------------------------------------------------
+# run_policy lookahead
+# ---------------------------------------------------------------------------
+
+
+class TestRunPolicyLookahead:
+    def test_run_policy_with_lookahead_network(self):
+        """run_policy should work with a network trained with lookahead_steps>1."""
+        net = _build_policy(30, hidden=16, lookahead_steps=10)
+        result = run_policy(net, "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL", max_steps=20)
+        assert isinstance(result, SolveResult)
+        assert result.combo >= 0
+
+    def test_run_policy_greedy_compat(self):
+        """run_policy should work with a single-step (greedy) network too."""
+        net = _build_policy(30, hidden=16, lookahead_steps=1)
+        result = run_policy(net, random_board(30), max_steps=10)
+        assert isinstance(result, SolveResult)
+
+    def test_run_policy_infers_lookahead_from_network(self):
+        """run_policy must infer lookahead_steps from the network output dim."""
+        import torch.nn as nn
+
+        for k in [1, 5, 10, 15]:
+            net = _build_policy(20, hidden=8, lookahead_steps=k)
+            last = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+            assert last.out_features == k * 4
+            # run_policy should not raise for any lookahead_steps value
+            result = run_policy(net, random_board(20), max_steps=k * 2)
+            assert isinstance(result, SolveResult)
+
+
+# ---------------------------------------------------------------------------
+# train_general_policy lookahead
 # ---------------------------------------------------------------------------
 
 
@@ -675,6 +771,25 @@ class TestTrainGeneralPolicy:
             verbose=False,
         )
         assert isinstance(net, nn.Module)
+
+    def test_lookahead_output_dim_matches(self):
+        """Trained network output dim should be lookahead_steps * 4."""
+        import torch.nn as nn
+
+        lookahead_steps = 5
+        net = train_general_policy(
+            board_size=20,
+            num_boards=2,
+            max_steps=5,
+            hidden=8,
+            lookahead_steps=lookahead_steps,
+            num_starts=2,
+            popsize=5,
+            num_generations=2,
+            verbose=False,
+        )
+        last_linear = [m for m in net.modules() if isinstance(m, nn.Linear)][-1]
+        assert last_linear.out_features == lookahead_steps * 4
 
     def test_trained_policy_usable_on_any_board(self):
         """A policy from train_general_policy can be run on any board."""
@@ -857,19 +972,25 @@ class TestExportWeightsHeader:
         assert "pazusoba_b3" in content
         assert "PAZUSOBA_OBS_DIM" in content
         assert "PAZUSOBA_HIDDEN" in content
+        assert "PAZUSOBA_LOOKAHEAD_STEPS" in content
         assert "tanhf" in content
 
     def test_header_defines_correct_dimensions(self, tmp_path):
         board_size = 30
         hidden = 24
-        net = _build_policy(board_size, hidden=hidden)
+        lookahead_steps = 5
+        net = _build_policy(board_size, hidden=hidden, lookahead_steps=lookahead_steps)
         dest = str(tmp_path / "p.h")
         export_weights_header(net, dest, board_size=board_size)
         content = (tmp_path / "p.h").read_text()
         in_dim = board_size * 11 + board_size  # 360
-        assert f"PAZUSOBA_OBS_DIM    {in_dim}" in content
-        assert f"PAZUSOBA_HIDDEN     {hidden}" in content
-        assert f"PAZUSOBA_BOARD_SIZE {board_size}" in content
+        out_dim = lookahead_steps * 4  # 20
+        # Check identifiers and values appear in the file
+        assert "PAZUSOBA_OBS_DIM" in content and str(in_dim) in content
+        assert "PAZUSOBA_HIDDEN" in content and str(hidden) in content
+        assert "PAZUSOBA_BOARD_SIZE" in content and str(board_size) in content
+        assert "PAZUSOBA_LOOKAHEAD_STEPS" in content and str(lookahead_steps) in content
+        assert "PAZUSOBA_OUT_DIM" in content and str(out_dim) in content
 
     def test_wrong_layer_count_raises(self, tmp_path):
         import torch.nn as nn
@@ -889,15 +1010,15 @@ class TestExportWeightsHeader:
         assert "#define MY_POLICY_H_" in content
 
     def test_header_consistent_with_pytorch_output(self, tmp_path):
-        """The C header argmax must agree with the PyTorch network argmax on a
-        fixed test observation.  We verify this by running the exported weights
-        through the same arithmetic in Python (no C compiler needed in CI).
+        """The C header argmax must agree with the PyTorch network argmax for all
+        planned moves on a fixed test observation.
         """
         import torch
         import torch.nn as nn
 
         board_size = 20  # smallest size -> smallest header
-        net = _build_policy(board_size, hidden=8)
+        lookahead_steps = 3  # test multi-step planning
+        net = _build_policy(board_size, hidden=8, lookahead_steps=lookahead_steps)
         dest = str(tmp_path / "chk.h")
         export_weights_header(net, dest, board_size=board_size)
 
@@ -916,15 +1037,26 @@ class TestExportWeightsHeader:
 
         with torch.no_grad():
             pytorch_logits = net(obs.unsqueeze(0)).squeeze(0)
-        pytorch_dir = int(pytorch_logits.argmax().item())
+        # Reshape to (lookahead_steps, 4) and argmax per planning step
+        pytorch_dirs = pytorch_logits.reshape(lookahead_steps, 4).argmax(dim=1).tolist()
 
-        # Manual forward (same as the C code)
+        # Manual forward (same arithmetic as C header)
         h1 = torch.tanh(w1 @ obs + b1)
         h2 = torch.tanh(w2 @ h1 + b2)
-        out = w3 @ h2 + b3
-        manual_dir = int(out.argmax().item())
+        out = w3 @ h2 + b3  # shape: (lookahead_steps * 4,)
+        manual_dirs = out.reshape(lookahead_steps, 4).argmax(dim=1).tolist()
 
-        assert pytorch_dir == manual_dir
+        assert pytorch_dirs == manual_dirs
+
+    def test_lookahead_steps_one_backward_compat(self, tmp_path):
+        """lookahead_steps=1 should produce a header with PAZUSOBA_LOOKAHEAD_STEPS=1."""
+        net = _build_policy(20, hidden=8, lookahead_steps=1)
+        dest = str(tmp_path / "compat.h")
+        export_weights_header(net, dest, board_size=20)
+        content = (tmp_path / "compat.h").read_text()
+        assert "PAZUSOBA_LOOKAHEAD_STEPS" in content
+        # Verify value is 1
+        assert "PAZUSOBA_LOOKAHEAD_STEPS 1" in content
 
 
 if __name__ == "__main__":

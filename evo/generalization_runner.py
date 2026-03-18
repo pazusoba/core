@@ -83,6 +83,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
         max_steps=args.max_steps,
         min_erase=args.min_erase,
         hidden=args.hidden,
+        lookahead_steps=args.lookahead_steps,
         num_starts=args.num_starts,
         popsize=args.popsize,
         num_generations=args.generations,
@@ -149,6 +150,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
             "min_erase": args.min_erase,
             "num_starts": args.num_starts,
             "hidden": args.hidden,
+            "lookahead_steps": args.lookahead_steps,
             "popsize": args.popsize,
             "generations": args.generations,
             "seed": args.seed,
@@ -177,6 +179,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-erase", type=int, default=3)
     parser.add_argument("--num-starts", type=int, default=6)
     parser.add_argument("--hidden", type=int, default=64)
+    parser.add_argument(
+        "--lookahead-steps",
+        type=int,
+        default=10,
+        help="Moves planned ahead per network query (default 10)",
+    )
     parser.add_argument("--popsize", type=int, default=100)
     parser.add_argument("--generations", type=int, default=200)
     parser.add_argument("--seed", type=int, default=42)

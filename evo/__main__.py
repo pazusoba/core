@@ -34,7 +34,8 @@ def _cmd_solve(args: argparse.Namespace) -> int:
 def _cmd_train(args: argparse.Namespace) -> int:
     print(
         f"Training general policy: board_size={args.board_size}, "
-        f"num_boards={args.num_boards}, generations={args.generations}"
+        f"num_boards={args.num_boards}, generations={args.generations}, "
+        f"lookahead_steps={args.lookahead_steps}"
     )
 
     t0 = time.time()
@@ -44,6 +45,7 @@ def _cmd_train(args: argparse.Namespace) -> int:
         max_steps=args.max_steps,
         min_erase=args.min_erase,
         hidden=args.hidden,
+        lookahead_steps=args.lookahead_steps,
         num_starts=args.num_starts,
         popsize=args.popsize,
         num_generations=args.generations,
@@ -113,6 +115,12 @@ def _build_parser() -> argparse.ArgumentParser:
     train_p.add_argument("--min-erase", type=int, default=3)
     train_p.add_argument("--num-starts", type=int, default=6)
     train_p.add_argument("--hidden", type=int, default=64)
+    train_p.add_argument(
+        "--lookahead-steps",
+        type=int,
+        default=10,
+        help="Moves planned ahead per network query (default 10)",
+    )
     train_p.add_argument("--popsize", type=int, default=100)
     train_p.add_argument("--generations", type=int, default=200)
     train_p.add_argument("--eval-board", type=str, default="")

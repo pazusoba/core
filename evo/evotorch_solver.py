@@ -666,14 +666,36 @@ class PazusobaProblem(Problem):
 # Output : logit for each of the 4 directions
 
 
-def _build_policy(board_size: int, hidden: int = 64) -> nn.Module:
+def _build_policy(
+    board_size: int, hidden: int = 64, lookahead_steps: int = 10
+) -> nn.Module:
+    """Build a 2-hidden-layer MLP policy.
+
+    Parameters
+    ----------
+    board_size:
+        Number of cells on the board (20, 30 or 42).
+    hidden:
+        Number of units in each hidden layer.
+    lookahead_steps:
+        Number of moves the network plans ahead simultaneously.
+        With ``lookahead_steps=1`` the policy is greedy (picks one move).
+        With ``lookahead_steps=10`` (default) the policy outputs 10 planned
+        moves at once: at each re-observation cycle it plans the next 10 steps
+        before executing them and re-querying the network.
+
+    The output dimension is ``lookahead_steps * DIRECTION_COUNT``.  At
+    inference time the logits are reshaped to ``(lookahead_steps, 4)`` and
+    an ``argmax`` is taken along the last axis to produce the K planned moves.
+    """
     in_dim = board_size * ORB_COUNT + board_size
+    out_dim = lookahead_steps * DIRECTION_COUNT
     return nn.Sequential(
         nn.Linear(in_dim, hidden),
         nn.Tanh(),
         nn.Linear(hidden, hidden),
         nn.Tanh(),
-        nn.Linear(hidden, DIRECTION_COUNT),
+        nn.Linear(hidden, out_dim),
     )
 
 
@@ -681,8 +703,20 @@ class NeuroEvoPazusobaProblem(NEProblem):
     """EvoTorch NEProblem that evolves the weights of a small MLP policy.
 
     The policy observes the current board state + cursor position and outputs
-    a move direction at each step.  This enables the policy to *generalise*
-    across multiple board layouts.
+    logits for the next ``lookahead_steps`` moves simultaneously, enabling the
+    network to **plan ahead** rather than choose only one move at a time.
+
+    At each planning cycle the network:
+
+    1. Observes the current board and cursor position.
+    2. Outputs ``lookahead_steps * 4`` logits.
+    3. Reshapes them to ``(lookahead_steps, 4)`` and takes argmax per row to
+       obtain K planned moves.
+    4. Executes all K moves (skipping invalid ones), then re-observes.
+
+    This mirrors the way a skilled human solver looks 10–15 moves ahead before
+    committing to a direction.  Setting ``lookahead_steps=1`` recovers the
+    previous greedy behaviour.
 
     Once trained, the network can be extracted and applied to any new board
     using :func:`run_policy` without retraining.
@@ -698,6 +732,9 @@ class NeuroEvoPazusobaProblem(NEProblem):
         Minimum orbs required to form a combo.
     hidden:
         Hidden layer size of the policy network.
+    lookahead_steps:
+        Number of moves planned ahead per network query.  Higher values give
+        the policy more context to plan complex sequences.  Defaults to 10.
     num_starts:
         Number of evenly spaced starting positions to sample per evaluation.
         Smaller values speed up fitness evaluation at the cost of coverage.
@@ -713,11 +750,13 @@ class NeuroEvoPazusobaProblem(NEProblem):
         max_steps: int = 50,
         min_erase: int = 3,
         hidden: int = 64,
+        lookahead_steps: int = 10,
         num_starts: int = 6,
         reward_fn: Optional[RewardFn] = None,
     ) -> None:
         self.min_erase = min_erase
         self.max_steps = max_steps
+        self.lookahead_steps = max(1, lookahead_steps)  # clamp; 0 or negative → 1
         self.num_starts = num_starts
         self.reward_fn: RewardFn = reward_fn if reward_fn is not None else combo_reward
 
@@ -738,7 +777,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
 
         super().__init__(
             objective_sense="max",
-            network=_build_policy(board_size, hidden),
+            network=_build_policy(board_size, hidden, self.lookahead_steps),
             num_actors=1,
         )
 
@@ -761,31 +800,54 @@ class NeuroEvoPazusobaProblem(NEProblem):
         max_combo: int,
         start: int,
     ) -> float:
-        """Run one episode from *start* and return the reward value."""
+        """Run one episode from *start* and return the reward value.
+
+        The policy is queried at each re-observation point and produces
+        ``lookahead_steps`` planned moves at once.  All K moves are executed
+        (invalid ones silently skipped) before the network is queried again.
+        This allows the network to plan multi-step sequences rather than
+        committing one step at a time.
+        """
         board_size = row * col
         dir_offsets = [-col, col, -1, 1]
         board = initial_board[:]
         curr = start
         prev = start
+        steps_taken = 0
 
-        for _ in range(self.max_steps):
+        while steps_taken < self.max_steps:
             obs = self._observe(board, board_size, curr)
             with torch.no_grad():
                 logits = network(obs.unsqueeze(0)).squeeze(0)
-            d = int(torch.argmax(logits).item())
-            offset = dir_offsets[d]
-            nxt = curr + offset
 
-            if nxt == prev or nxt < 0 or nxt >= board_size:
-                continue
-            if d == 3 and nxt % col == 0:
-                continue
-            if d == 2 and curr % col == 0:
-                continue
+            # Reshape to (lookahead_steps, 4) and take argmax per planning step.
+            planned = (
+                logits.reshape(self.lookahead_steps, DIRECTION_COUNT)
+                .argmax(dim=1)
+                .tolist()
+            )
 
-            board[curr], board[nxt] = board[nxt], board[curr]
-            prev = curr
-            curr = nxt
+            for d in planned:
+                if steps_taken >= self.max_steps:
+                    break
+                offset = dir_offsets[d]
+                nxt = curr + offset
+
+                invalid = (
+                    nxt == prev
+                    or nxt < 0
+                    or nxt >= board_size
+                    or (d == 3 and nxt % col == 0)
+                    or (d == 2 and curr % col == 0)
+                )
+                if invalid:
+                    steps_taken += 1
+                    continue
+
+                board[curr], board[nxt] = board[nxt], board[curr]
+                prev = curr
+                curr = nxt
+                steps_taken += 1
 
         combos = count_combos(board, row, col, self.min_erase)
         return self.reward_fn(combos, max_combo, board, row, col)
@@ -832,6 +894,11 @@ def run_policy(
     boards (e.g. via :func:`train_general_policy`) can be used here without
     retraining, making it a **common solution** applicable to any board.
 
+    The function automatically detects whether the network was trained with
+    ``lookahead_steps > 1`` (output dim > 4) and uses the same K-step
+    planning loop as during training: at each re-observation point the network
+    plans K moves ahead and executes all of them before re-querying.
+
     Parameters
     ----------
     network:
@@ -861,6 +928,11 @@ def run_policy(
     dir_offsets = [-col, col, -1, 1]
     dir_names = ["up", "down", "left", "right"]
 
+    # Infer lookahead_steps from the last linear layer's output features.
+    last_linear = [m for m in network.modules() if isinstance(m, nn.Linear)][-1]
+    out_dim = last_linear.out_features
+    lookahead_steps = max(1, out_dim // DIRECTION_COUNT)
+
     def _observe(board: List[int], curr: int) -> torch.Tensor:
         board_feat = torch.zeros(board_size * ORB_COUNT)
         for i, orb in enumerate(board):
@@ -880,29 +952,43 @@ def run_policy(
         curr = start
         prev = start
         episode_dirs: List[int] = []
+        steps_taken = 0
 
-        for _ in range(max_steps):
+        while steps_taken < max_steps:
             obs = _observe(board, curr)
             with torch.no_grad():
                 logits = network(obs.unsqueeze(0)).squeeze(0)
-            d = int(torch.argmax(logits).item())
-            offset = dir_offsets[d]
-            nxt = curr + offset
 
-            if nxt == prev or nxt < 0 or nxt >= board_size:
-                episode_dirs.append(d)
-                continue
-            if d == 3 and nxt % col == 0:
-                episode_dirs.append(d)
-                continue
-            if d == 2 and curr % col == 0:
-                episode_dirs.append(d)
-                continue
+            # Reshape to (lookahead_steps, 4) and argmax per planning step.
+            planned = (
+                logits.reshape(lookahead_steps, DIRECTION_COUNT)
+                .argmax(dim=1)
+                .tolist()
+            )
 
-            board[curr], board[nxt] = board[nxt], board[curr]
-            episode_dirs.append(d)
-            prev = curr
-            curr = nxt
+            for d in planned:
+                if steps_taken >= max_steps:
+                    break
+                offset = dir_offsets[d]
+                nxt = curr + offset
+
+                invalid = (
+                    nxt == prev
+                    or nxt < 0
+                    or nxt >= board_size
+                    or (d == 3 and nxt % col == 0)
+                    or (d == 2 and curr % col == 0)
+                )
+                if invalid:
+                    episode_dirs.append(d)
+                    steps_taken += 1
+                    continue
+
+                board[curr], board[nxt] = board[nxt], board[curr]
+                episode_dirs.append(d)
+                prev = curr
+                curr = nxt
+                steps_taken += 1
 
         combos = count_combos(board, row, col, min_erase)
         reward = _reward_fn(combos, max_combo, board, row, col)
@@ -929,6 +1015,7 @@ def train_general_policy(
     max_steps: int = 50,
     min_erase: int = 3,
     hidden: int = 64,
+    lookahead_steps: int = 10,
     num_starts: int = 6,
     popsize: int = 100,
     num_generations: int = 200,
@@ -939,6 +1026,10 @@ def train_general_policy(
 
     The resulting network can solve *any* board of the same size using
     :func:`run_policy` without retraining.
+
+    The policy is trained to plan ``lookahead_steps`` moves ahead at each
+    re-observation point (default 10), mirroring how a skilled human solver
+    looks multiple moves into the future before committing.
 
     Parameters
     ----------
@@ -952,6 +1043,9 @@ def train_general_policy(
         Minimum orbs required to form a combo.
     hidden:
         Hidden units in the MLP policy.
+    lookahead_steps:
+        Number of moves the network plans ahead simultaneously per query.
+        Higher values encourage longer-horizon planning.  Defaults to 10.
     num_starts:
         Starting positions sampled per board per evaluation.
     popsize:
@@ -975,6 +1069,7 @@ def train_general_policy(
         max_steps=max_steps,
         min_erase=min_erase,
         hidden=hidden,
+        lookahead_steps=lookahead_steps,
         num_starts=num_starts,
         reward_fn=reward_fn,
     )
@@ -1413,7 +1508,7 @@ def export_weights_header(
 
     The generated header requires **no runtime dependencies** — only
     ``<math.h>`` for ``tanhf``.  Include it in any C99 / C++ project and
-    call :c:func:`pazusoba_policy_forward` at each move step::
+    call :c:func:`pazusoba_policy_forward` at each re-observation step::
 
         // C / C++ consumer example
         #include "pazusoba_policy.h"
@@ -1426,8 +1521,11 @@ def export_weights_header(
             obs[i * PAZUSOBA_ORB_COUNT + board[i]] = 1.0f;
         obs[board_size * PAZUSOBA_ORB_COUNT + cursor] = 1.0f;
 
-        int dir = pazusoba_policy_forward(obs);
-        // dir: 0 = up, 1 = down, 2 = left, 3 = right
+        // Plan the next PAZUSOBA_LOOKAHEAD_STEPS moves at once:
+        int dirs[PAZUSOBA_LOOKAHEAD_STEPS];
+        pazusoba_policy_forward(obs, dirs);
+        // dirs[0] = first planned move, dirs[1] = second, etc.
+        // Each value: 0=up, 1=down, 2=left, 3=right
 
     Compile with ``-lm`` (GCC/Clang) or enable math library linking as
     required by your toolchain.
@@ -1457,6 +1555,8 @@ def export_weights_header(
 
     in_dim = board_size * ORB_COUNT + board_size
     hidden = linear_layers[0].out_features
+    out_dim = linear_layers[2].out_features
+    lookahead_steps = max(1, out_dim // DIRECTION_COUNT)
 
     def _fmt_array_1d(name: str, tensor: torch.Tensor) -> str:
         """Format a 1-D tensor as a C array literal."""
@@ -1465,7 +1565,7 @@ def export_weights_header(
         return f"static const float {name}[{len(vals)}] = {{{items}}};"
 
     def _fmt_array_2d(name: str, tensor: torch.Tensor) -> str:
-        """Format a 2-D tensor as a C 2-D array literal (rows × cols)."""
+        """Format a 2-D tensor as a C 2-D array literal (rows x cols)."""
         rows, cols = tensor.shape
         lines = [f"static const float {name}[{rows}][{cols}] = {{"]
         for r in range(rows):
@@ -1480,8 +1580,8 @@ def export_weights_header(
     b1 = linear_layers[0].bias  # (hidden,)
     w2 = linear_layers[1].weight  # (hidden, hidden)
     b2 = linear_layers[1].bias  # (hidden,)
-    w3 = linear_layers[2].weight  # (4, hidden)
-    b3 = linear_layers[2].bias  # (4,)
+    w3 = linear_layers[2].weight  # (lookahead_steps*4, hidden)
+    b3 = linear_layers[2].bias  # (lookahead_steps*4,)
 
     import os
     import re
@@ -1514,17 +1614,22 @@ def export_weights_header(
          *       obs[i * PAZUSOBA_ORB_COUNT + board[i]] = 1.0f;
          *   obs[PAZUSOBA_BOARD_SIZE * PAZUSOBA_ORB_COUNT + cursor] = 1.0f;
          *
-         *   int dir = pazusoba_policy_forward(obs);
-         *   // dir: 0=up, 1=down, 2=left, 3=right
+         *   // Plan the next PAZUSOBA_LOOKAHEAD_STEPS moves at once
+         *   int dirs[PAZUSOBA_LOOKAHEAD_STEPS];
+         *   pazusoba_policy_forward(obs, dirs);
+         *   // Apply dirs[0], dirs[1], ... then re-observe and call again
+         *   // Each dir value: 0=up, 1=down, 2=left, 3=right
          */
 
         #include <math.h>
 
-        #define PAZUSOBA_BOARD_SIZE {board_size}
-        #define PAZUSOBA_ORB_COUNT  {ORB_COUNT}
-        #define PAZUSOBA_OBS_DIM    {in_dim}
-        #define PAZUSOBA_HIDDEN     {hidden}
-        #define PAZUSOBA_DIR_COUNT  {DIRECTION_COUNT}
+        #define PAZUSOBA_BOARD_SIZE     {board_size}
+        #define PAZUSOBA_ORB_COUNT      {ORB_COUNT}
+        #define PAZUSOBA_OBS_DIM        {in_dim}
+        #define PAZUSOBA_HIDDEN         {hidden}
+        #define PAZUSOBA_DIR_COUNT      {DIRECTION_COUNT}
+        #define PAZUSOBA_LOOKAHEAD_STEPS {lookahead_steps}
+        #define PAZUSOBA_OUT_DIM        {out_dim}
 
         """)
 
@@ -1537,10 +1642,17 @@ def export_weights_header(
 
     header += textwrap.dedent("""\
 
-        static inline int pazusoba_policy_forward(const float *obs)
+        /*
+         * pazusoba_policy_forward - run one planning cycle.
+         *
+         * Fills out_dirs[0..PAZUSOBA_LOOKAHEAD_STEPS-1] with the K planned
+         * move directions for the current observation.  Execute all K moves
+         * (skip invalid ones), update obs, then call this function again.
+         */
+        static inline void pazusoba_policy_forward(const float *obs, int *out_dirs)
         {
-            float h1[PAZUSOBA_HIDDEN], h2[PAZUSOBA_HIDDEN], out[PAZUSOBA_DIR_COUNT];
-            int i, j, best;
+            float h1[PAZUSOBA_HIDDEN], h2[PAZUSOBA_HIDDEN], out[PAZUSOBA_OUT_DIM];
+            int i, j, k, best;
 
             /* Layer 1: Linear + Tanh */
             for (i = 0; i < PAZUSOBA_HIDDEN; i++) {
@@ -1559,18 +1671,20 @@ def export_weights_header(
             }
 
             /* Layer 3: Linear (no activation) */
-            for (i = 0; i < PAZUSOBA_DIR_COUNT; i++) {
+            for (i = 0; i < PAZUSOBA_OUT_DIM; i++) {
                 out[i] = pazusoba_b3[i];
                 for (j = 0; j < PAZUSOBA_HIDDEN; j++)
                     out[i] += pazusoba_w3[i][j] * h2[j];
             }
 
-            /* Argmax - return direction index */
-            best = 0;
-            for (i = 1; i < PAZUSOBA_DIR_COUNT; i++)
-                if (out[i] > out[best]) best = i;
-
-            return best;
+            /* Argmax over each group of PAZUSOBA_DIR_COUNT logits */
+            for (k = 0; k < PAZUSOBA_LOOKAHEAD_STEPS; k++) {
+                best = 0;
+                for (i = 1; i < PAZUSOBA_DIR_COUNT; i++)
+                    if (out[k * PAZUSOBA_DIR_COUNT + i] > out[k * PAZUSOBA_DIR_COUNT + best])
+                        best = i;
+                out_dirs[k] = best;
+            }
         }
 
         #endif /* {guard}_ */
