@@ -390,6 +390,166 @@ def simulate_moves(
     return count_combos(board, row, col, min_erase)
 
 
+def _valid_directions(curr: int, prev: int, row: int, col: int) -> List[int]:
+    """Return valid move directions from (curr, prev), mirroring C++ expand()."""
+    board_size = row * col
+    dir_offsets = [-col, col, -1, 1]
+    valid: List[int] = []
+    for d, offset in enumerate(dir_offsets):
+        nxt = curr + offset
+        if nxt == prev:
+            continue
+        if nxt < 0 or nxt >= board_size:
+            continue
+        if d == 3 and nxt % col == 0:
+            continue
+        if d == 2 and curr % col == 0:
+            continue
+        valid.append(d)
+    return valid
+
+
+def _potential_score(board: List[int], row: int, col: int) -> float:
+    """Heuristic potential used by lookahead planning.
+
+    Rewards near-match structures (pairs/runs) to approximate how promising
+    the board is for future combo opportunities.
+    """
+    s = 0.0
+
+    # Horizontal runs
+    for r in range(row):
+        c = 0
+        while c < col:
+            orb = board[r * col + c]
+            if orb == 0:
+                c += 1
+                continue
+            end = c + 1
+            while end < col and board[r * col + end] == orb:
+                end += 1
+            run = end - c
+            if run == 2:
+                s += 0.35
+            elif run >= 3:
+                s += 0.8
+            c = end
+
+    # Vertical runs
+    for c in range(col):
+        r = 0
+        while r < row:
+            orb = board[r * col + c]
+            if orb == 0:
+                r += 1
+                continue
+            end = r + 1
+            while end < row and board[end * col + c] == orb:
+                end += 1
+            run = end - r
+            if run == 2:
+                s += 0.35
+            elif run >= 3:
+                s += 0.8
+            r = end
+
+    return s
+
+
+def solve_with_lookahead(
+    board_str: str,
+    max_steps: int = 50,
+    min_erase: int = 3,
+    beam_width: int = 256,
+) -> "SolveResult":
+    """Solve by explicit discrete lookahead (beam search).
+
+    This is closer to human planning behavior: keep several promising partial
+    routes, look multiple steps ahead, and prune weaker futures.
+    """
+    initial_board, row, col = parse_board(board_str)
+    board_size = row * col
+    max_combo = calc_max_combo(initial_board, row, col, min_erase)
+    dir_names = ["up", "down", "left", "right"]
+
+    states = []
+    for start in range(board_size):
+        combo = count_combos(initial_board, row, col, min_erase)
+        heur = combo * 100.0 + _potential_score(initial_board, row, col)
+        states.append(
+            {
+                "board": initial_board[:],
+                "curr": start,
+                "prev": start,
+                "start": start,
+                "dirs": [],
+                "combo": combo,
+                "heur": heur,
+            }
+        )
+
+    states.sort(key=lambda s: (s["combo"], s["heur"]), reverse=True)
+    states = states[:beam_width]
+
+    for _ in range(max_steps):
+        expanded = []
+        for st in states:
+            valid = _valid_directions(st["curr"], st["prev"], row, col)
+            if not valid:
+                expanded.append(st)
+                continue
+
+            for d in valid:
+                offset = [-col, col, -1, 1][d]
+                nxt = st["curr"] + offset
+                new_board = st["board"][:]
+                new_board[st["curr"]], new_board[nxt] = (
+                    new_board[nxt],
+                    new_board[st["curr"]],
+                )
+                combo = count_combos(new_board, row, col, min_erase)
+                heur = combo * 100.0 + _potential_score(new_board, row, col)
+                expanded.append(
+                    {
+                        "board": new_board,
+                        "curr": nxt,
+                        "prev": st["curr"],
+                        "start": st["start"],
+                        "dirs": st["dirs"] + [d],
+                        "combo": combo,
+                        "heur": heur,
+                    }
+                )
+
+        dedup = {}
+        for st in expanded:
+            key = (tuple(st["board"]), st["curr"], st["prev"])
+            prev = dedup.get(key)
+            if prev is None or (st["combo"], st["heur"]) > (
+                prev["combo"],
+                prev["heur"],
+            ):
+                dedup[key] = st
+
+        states = list(dedup.values())
+        states.sort(key=lambda s: (s["combo"], s["heur"]), reverse=True)
+        states = states[:beam_width]
+
+        if states and states[0]["combo"] >= max_combo:
+            break
+
+    best = max(states, key=lambda s: (s["combo"], s["heur"]))
+    return SolveResult(
+        combo=int(best["combo"]),
+        max_combo=max_combo,
+        start_pos=int(best["start"]),
+        row=row,
+        col=col,
+        directions=[dir_names[d] for d in best["dirs"]],
+        goal=int(best["combo"]) >= max_combo,
+    )
+
+
 # ---------------------------------------------------------------------------
 # EvoTorch problem: direct move-sequence optimisation
 # ---------------------------------------------------------------------------
@@ -824,7 +984,7 @@ def train_general_policy(
 
     searcher.run(num_generations)
 
-    best_params = searcher.status["pop_best"].values
+    best_params = searcher.status["best"].values
     return problem.make_net(best_params)
 
 
@@ -884,6 +1044,10 @@ def solve(
     min_erase: int = 3,
     popsize: int = 200,
     num_generations: int = 500,
+    num_restarts: int = 4,
+    stdev_init: float = 2.25,
+    refine_iters: int = 2000,
+    lookahead_beam_width: int = 192,
     reward_fn: Optional[RewardFn] = None,
     verbose: bool = True,
 ) -> SolveResult:
@@ -900,7 +1064,19 @@ def solve(
     popsize:
         Population size for SNES.
     num_generations:
-        Number of generations to run.
+        Total number of generations to run across all restarts.
+    num_restarts:
+        Number of randomized SNES restarts.
+        More restarts help avoid local optima on discrete move sequences.
+    stdev_init:
+        Initial search distribution standard deviation for SNES.
+        A higher value improves exploration early in search.
+    refine_iters:
+        Number of local discrete refinement mutations to apply after SNES.
+        This directly optimizes integer moves and is effective on plateaued runs.
+    lookahead_beam_width:
+        Width of the discrete lookahead beam planner. If > 0, a planner result
+        is computed and compared against the Evo solution.
     reward_fn:
         Optional reward function ``(combos, max_combo, board, row, col) -> float``.
         Defaults to :func:`combo_reward`.
@@ -913,23 +1089,250 @@ def solve(
         The best solution found.
 
     """
-    problem = PazusobaProblem(
-        board_str, max_steps=max_steps, min_erase=min_erase, reward_fn=reward_fn
+    if num_restarts < 1:
+        num_restarts = 1
+
+    # Curriculum over path length makes optimization less brittle:
+    # first learn shorter routes, then warm-start full-length optimization.
+    stage_steps = sorted(
+        set(
+            [
+                max(8, max_steps // 3),
+                max(12, (2 * max_steps) // 3),
+                max_steps,
+            ]
+        )
     )
-    searcher = SNES(problem, popsize=popsize, stdev_init=1.0)
-    if verbose:
-        _ = StdOutLogger(searcher, interval=50)
 
-    searcher.run(num_generations)
+    gens_per_restart = num_generations // num_restarts
+    restart_remainder = num_generations % num_restarts
 
-    best = problem.decode(searcher.status["pop_best"].values)
+    best: Optional[dict] = None
+    best_fitness = -1.0
+    best_combo = -1
+    final_row, final_col = 0, 0
+
+    def _expand_center(
+        prev: Optional[torch.Tensor], target_steps: int, board_size: int
+    ) -> torch.Tensor:
+        if prev is None:
+            return torch.cat(
+                [
+                    torch.rand(1) * float(board_size - 1),
+                    torch.rand(target_steps) * float(DIRECTION_COUNT - 1),
+                ]
+            ).to(dtype=torch.float32)
+
+        out = torch.zeros(1 + target_steps, dtype=torch.float32)
+        out[0] = float(prev[0].item())
+        copy_steps = min(target_steps, prev.numel() - 1)
+        if copy_steps > 0:
+            out[1 : 1 + copy_steps] = prev[1 : 1 + copy_steps]
+        if copy_steps < target_steps:
+            out[1 + copy_steps :] = torch.rand(target_steps - copy_steps) * float(
+                DIRECTION_COUNT - 1
+            )
+        return out
+
+    for r in range(num_restarts):
+        generations_this_restart = gens_per_restart + (
+            1 if r < restart_remainder else 0
+        )
+        if generations_this_restart <= 0:
+            continue
+
+        stage_base = generations_this_restart // len(stage_steps)
+        stage_remainder = generations_this_restart % len(stage_steps)
+        center = None
+
+        for s_idx, stage_max_steps in enumerate(stage_steps):
+            generations_this_stage = stage_base + (1 if s_idx < stage_remainder else 0)
+            if generations_this_stage <= 0:
+                continue
+
+            problem = PazusobaProblem(
+                board_str,
+                max_steps=stage_max_steps,
+                min_erase=min_erase,
+                reward_fn=reward_fn,
+            )
+            center = _expand_center(center, stage_max_steps, problem.board_size)
+            searcher = SNES(
+                problem,
+                popsize=popsize,
+                stdev_init=stdev_init,
+                center_init=center,
+            )
+            if verbose:
+                print(
+                    f"[restart {r + 1}/{num_restarts} | "
+                    f"stage {s_idx + 1}/{len(stage_steps)} steps={stage_max_steps}] "
+                    f"generations={generations_this_stage}, popsize={popsize}, "
+                    f"stdev_init={stdev_init}"
+                )
+                _ = StdOutLogger(searcher, interval=50)
+
+            searcher.run(generations_this_stage)
+            center = searcher.status["best"].values.clone()
+
+            # Only compare final-stage solutions (same max_steps contract).
+            if stage_max_steps != max_steps:
+                continue
+
+            candidate_solution = searcher.status["best"]
+            candidate_fitness = float(candidate_solution.evals[0].item())
+            candidate = problem.decode(candidate_solution.values)
+
+            if candidate_fitness > best_fitness or (
+                candidate_fitness == best_fitness and candidate["combo"] > best_combo
+            ):
+                best_fitness = candidate_fitness
+                best_combo = candidate["combo"]
+                best = candidate
+                final_row, final_col = problem.row, problem.col
+
+            if best is not None and best["goal"]:
+                break
+
+        if best is not None and best["goal"]:
+            break
+
+    if best is None:
+        raise RuntimeError("No solution was produced by SNES.")
+
+    # ------------------------------------------------------------------
+    # Discrete local refinement: SNES works in continuous space and then
+    # rounds to integers, which can plateau. This post-pass mutates integer
+    # moves directly and typically improves high-combo outcomes.
+    # ------------------------------------------------------------------
+    if refine_iters > 0 and not best["goal"]:
+        dir_to_idx = {"up": 0, "down": 1, "left": 2, "right": 3}
+        idx_to_dir = ["up", "down", "left", "right"]
+        initial_board, row, col = parse_board(board_str)
+        board_size = row * col
+        max_combo = calc_max_combo(initial_board, row, col, min_erase)
+        active_reward_fn: RewardFn = (
+            reward_fn if reward_fn is not None else combo_reward
+        )
+
+        def _eval_candidate(start_pos: int, dirs: List[int]) -> Tuple[int, float]:
+            board_after, _ = _apply_moves(initial_board, row, col, start_pos, dirs)
+            combos = count_combos(board_after, row, col, min_erase)
+            # Lexicographic: combo dominates, reward breaks ties.
+            shaped = active_reward_fn(combos, max_combo, board_after, row, col)
+            return combos, combos + 1e-3 * shaped
+
+        current_start = int(best["start_pos"])
+        current_dirs = [dir_to_idx[d] for d in best["directions"]]
+        current_combo, current_score = _eval_candidate(current_start, current_dirs)
+        best_start = current_start
+        best_dirs = current_dirs[:]
+        best_combo_local = current_combo
+        best_score_local = current_score
+
+        # First, re-try all starts for the current direction sequence.
+        for s in range(board_size):
+            c_combo, c_score = _eval_candidate(s, current_dirs)
+            if c_combo > best_combo_local or (
+                c_combo == best_combo_local and c_score > best_score_local
+            ):
+                best_start = s
+                best_combo_local = c_combo
+                best_score_local = c_score
+
+        current_start = best_start
+        current_combo = best_combo_local
+        current_score = best_score_local
+
+        for i in range(refine_iters):
+            progress = i / max(refine_iters, 1)
+            temperature = max(0.02, 0.35 * (1.0 - progress))
+
+            cand_start = current_start
+            cand_dirs = current_dirs[:]
+
+            # Mutate 1-3 positions; occasionally jump start position.
+            mutation_count = (
+                1 if random.random() < 0.7 else (2 if random.random() < 0.8 else 3)
+            )
+            for _ in range(mutation_count):
+                j = random.randrange(len(cand_dirs))
+                cand_dirs[j] = random.randrange(DIRECTION_COUNT)
+            if random.random() < 0.08:
+                cand_start = random.randrange(board_size)
+
+            cand_combo, cand_score = _eval_candidate(cand_start, cand_dirs)
+
+            delta = cand_score - current_score
+            accept = False
+            if delta >= 0:
+                accept = True
+            else:
+                # Allow some downhill moves early for escaping local optima.
+                if (
+                    random.random()
+                    < torch.exp(torch.tensor(delta / temperature)).item()
+                ):
+                    accept = True
+
+            if accept:
+                current_start = cand_start
+                current_dirs = cand_dirs
+                current_combo = cand_combo
+                current_score = cand_score
+
+            if current_combo > best_combo_local or (
+                current_combo == best_combo_local and current_score > best_score_local
+            ):
+                best_start = current_start
+                best_dirs = current_dirs[:]
+                best_combo_local = current_combo
+                best_score_local = current_score
+
+            if best_combo_local >= max_combo:
+                break
+
+        if best_combo_local > best["combo"]:
+            best = {
+                "start_pos": best_start,
+                "start_row": best_start // col,
+                "start_col": best_start % col,
+                "directions": [idx_to_dir[d] for d in best_dirs],
+                "combo": best_combo_local,
+                "max_combo": max_combo,
+                "goal": best_combo_local >= max_combo,
+            }
+            final_row, final_col = row, col
+            if verbose:
+                print(
+                    f"[refine] improved to combo={best_combo_local}/{max_combo} "
+                    f"after <= {refine_iters} mutations"
+                )
+
+    # Optional explicit lookahead planner; often stronger on long routes.
+    if lookahead_beam_width > 0 and not best["goal"]:
+        planner_result = solve_with_lookahead(
+            board_str,
+            max_steps=max_steps,
+            min_erase=min_erase,
+            beam_width=lookahead_beam_width,
+        )
+        if planner_result.combo > best["combo"]:
+            best = planner_result.to_dict()
+            _, p_row, p_col = parse_board(board_str)
+            final_row, final_col = p_row, p_col
+            if verbose:
+                print(
+                    f"[lookahead] improved to combo={planner_result.combo}/{planner_result.max_combo} "
+                    f"with beam_width={lookahead_beam_width}"
+                )
 
     return SolveResult(
         combo=best["combo"],
         max_combo=best["max_combo"],
         start_pos=best["start_pos"],
-        row=problem.row,
-        col=problem.col,
+        row=final_row,
+        col=final_col,
         directions=best["directions"],
         goal=best["goal"],
     )
@@ -1175,23 +1578,3 @@ def export_weights_header(
 
     with open(path, "w", encoding="utf-8") as f:
         f.write(header)
-
-
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    import sys
-    import time
-
-    board = sys.argv[1] if len(sys.argv) > 1 else "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL"
-    max_steps = int(sys.argv[2]) if len(sys.argv) > 2 else 50
-    generations = int(sys.argv[3]) if len(sys.argv) > 3 else 500
-
-    print(f"Board: {board}")
-    print(f"Max steps: {max_steps}, Generations: {generations}")
-    t0 = time.time()
-    result = solve(board, max_steps=max_steps, num_generations=generations)
-    print(f"\nResult:\n{result}")
-    print(f"Time: {time.time() - t0:.2f}s")
