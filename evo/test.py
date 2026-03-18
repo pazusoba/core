@@ -645,7 +645,7 @@ class TestRunPolicy:
             calls.append(1)
             return 0.3
 
-        result = run_policy(
+        run_policy(
             net,
             "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
             max_steps=3,

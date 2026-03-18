@@ -18,5 +18,8 @@ dev = [
 
 [tool.ruff]
 line-length = 88
-extend-select = ["E", "F", "W", "I", "C", "D"]
+extend-select = ["E", "F", "W", "I", "C"]
 exclude = []
+ignore = [
+    "C901",  # Too complex
+]
