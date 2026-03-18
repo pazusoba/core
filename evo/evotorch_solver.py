@@ -1,5 +1,4 @@
-"""
-EvoTorch-based optimizer for Puzzle & Dragons board solving.
+"""EvoTorch-based optimizer for Puzzle & Dragons board solving.
 
 Uses evolutionary computation to find optimal move sequences, bypassing the
 beam search bottleneck and learning how to play the game by optimising
@@ -105,8 +104,8 @@ import torch
 import torch.nn as nn
 from evotorch import Problem
 from evotorch.algorithms import SNES
-from evotorch.neuroevolution import NEProblem
 from evotorch.logging import StdOutLogger
+from evotorch.neuroevolution import NEProblem
 
 # ---------------------------------------------------------------------------
 # Orb constants (matching C++ ORB_WEB_NAME)
@@ -149,8 +148,7 @@ def orb_remaining_reward(
     row: int,
     col: int,
 ) -> float:
-    """
-    Reward that penalises leftover orbs.
+    """Reward that penalises leftover orbs.
 
     Encourages clearing as many orbs from the board as possible.
     Combines combo rate with a bonus for fewer remaining orbs.
@@ -189,8 +187,7 @@ def parse_board(board_str: str) -> Tuple[List[int], int, int]:
 
 
 def random_board(board_size: int = 30) -> str:
-    """
-    Generate a random board string of the given size.
+    """Generate a random board string of the given size.
 
     *board_size* must be 20 (4×5), 30 (5×6) or 42 (6×7).
     Uses the six standard orb colours defined in :data:`STANDARD_ORBS`.
@@ -219,8 +216,7 @@ def calc_max_combo(board: List[int], row: int, col: int, min_erase: int = 3) -> 
 
 
 def erase_combo(board: List[int], row: int, col: int, min_erase: int = 3) -> int:
-    """
-    Erase all matchable combos from *board* (in-place).
+    """Erase all matchable combos from *board* (in-place).
 
     A combo is a connected group of same-colour orbs that contains at least
     one run of *min_erase* or more in a straight line (row or column).
@@ -292,11 +288,7 @@ def erase_combo(board: List[int], row: int, col: int, min_erase: int = 3) -> int
                 nr, nc = r + dr, c + dc
                 if 0 <= nr < row and 0 <= nc < col:
                     nidx = nr * col + nc
-                    if (
-                        in_combo[nidx]
-                        and not visited[nidx]
-                        and board[nidx] == orb_type
-                    ):
+                    if in_combo[nidx] and not visited[nidx] and board[nidx] == orb_type:
                         visited[nidx] = True
                         queue.append(nidx)
 
@@ -323,8 +315,7 @@ def move_orbs_down(board: List[int], row: int, col: int) -> None:
 
 
 def count_combos(board: List[int], row: int, col: int, min_erase: int = 3) -> int:
-    """
-    Count total combos (including cascades after gravity) for a board state.
+    """Count total combos (including cascades after gravity) for a board state.
 
     Does not modify *board* (works on an internal copy).
     """
@@ -346,8 +337,7 @@ def _apply_moves(
     start_pos: int,
     directions: List[int],
 ) -> Tuple[List[int], int]:
-    """
-    Apply a move sequence to a copy of the board.
+    """Apply a move sequence to a copy of the board.
 
     Returns ``(board_after_moves, final_cursor_position)``.
     Invalid moves (boundary violations, back-tracking) are silently skipped,
@@ -390,8 +380,7 @@ def simulate_moves(
     directions: List[int],
     min_erase: int = 3,
 ) -> int:
-    """
-    Simulate a move sequence on the board and return the combo count.
+    """Simulate a move sequence on the board and return the combo count.
 
     *directions* is a list of direction indices (0=up, 1=down, 2=left, 3=right).
     Invalid moves (boundary violations, moving back to previous position) are
@@ -407,8 +396,7 @@ def simulate_moves(
 
 
 class PazusobaProblem(Problem):
-    """
-    EvoTorch Problem that evolves a fixed-length move sequence for a given board.
+    """EvoTorch Problem that evolves a fixed-length move sequence for a given board.
 
     A solution is encoded as a float32 tensor of length ``1 + max_steps``:
       - ``x[0]``        : starting board position (clamped to [0, board_size-1])
@@ -427,6 +415,7 @@ class PazusobaProblem(Problem):
     reward_fn:
         Optional callable ``(combos, max_combo, board_after_moves, row, col)
         -> float``.  Defaults to :func:`combo_reward`.
+
     """
 
     def __init__(
@@ -529,8 +518,7 @@ def _build_policy(board_size: int, hidden: int = 64) -> nn.Module:
 
 
 class NeuroEvoPazusobaProblem(NEProblem):
-    """
-    EvoTorch NEProblem that evolves the weights of a small MLP policy.
+    """EvoTorch NEProblem that evolves the weights of a small MLP policy.
 
     The policy observes the current board state + cursor position and outputs
     a move direction at each step.  This enables the policy to *generalise*
@@ -556,6 +544,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
     reward_fn:
         Optional callable ``(combos, max_combo, board_after_moves, row, col)
         -> float``.  Defaults to :func:`combo_reward`.
+
     """
 
     def __init__(
@@ -594,9 +583,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
         )
 
     # ------------------------------------------------------------------
-    def _observe(
-        self, board: List[int], board_size: int, curr: int
-    ) -> torch.Tensor:
+    def _observe(self, board: List[int], board_size: int, curr: int) -> torch.Tensor:
         """Encode board state + cursor position as a flat float tensor."""
         board_feat = torch.zeros(board_size * ORB_COUNT)
         for i, orb in enumerate(board):
@@ -678,8 +665,7 @@ def run_policy(
     num_starts: int = 6,
     reward_fn: Optional[RewardFn] = None,
 ) -> "SolveResult":
-    """
-    Apply a trained policy network to any board and return the best result.
+    """Apply a trained policy network to any board and return the best result.
 
     This is the *inference* counterpart to training with
     :class:`NeuroEvoPazusobaProblem`.  A network trained on a diverse set of
@@ -706,6 +692,7 @@ def run_policy(
     -------
     SolveResult
         The best result found across all sampled starting positions.
+
     """
     _reward_fn = reward_fn if reward_fn is not None else combo_reward
     initial_board, row, col = parse_board(board_str)
@@ -788,8 +775,7 @@ def train_general_policy(
     reward_fn: Optional[RewardFn] = None,
     verbose: bool = True,
 ) -> nn.Module:
-    """
-    Train a generalised policy across many randomly generated boards.
+    """Train a generalised policy across many randomly generated boards.
 
     The resulting network can solve *any* board of the same size using
     :func:`run_policy` without retraining.
@@ -821,6 +807,7 @@ def train_general_policy(
     -------
     nn.Module
         The trained policy network.
+
     """
     boards = [random_board(board_size) for _ in range(num_boards)]
     problem = NeuroEvoPazusobaProblem(
@@ -900,8 +887,7 @@ def solve(
     reward_fn: Optional[RewardFn] = None,
     verbose: bool = True,
 ) -> SolveResult:
-    """
-    Use EvoTorch (SNES) to find an optimal move sequence for *board_str*.
+    """Use EvoTorch (SNES) to find an optimal move sequence for *board_str*.
 
     Parameters
     ----------
@@ -925,6 +911,7 @@ def solve(
     -------
     SolveResult
         The best solution found.
+
     """
     problem = PazusobaProblem(
         board_str, max_steps=max_steps, min_erase=min_erase, reward_fn=reward_fn
@@ -948,15 +935,13 @@ def solve(
     )
 
 
-
 # ---------------------------------------------------------------------------
 # Export utilities: make EvoTorch results portable in C / C++
 # ---------------------------------------------------------------------------
 
 
 def export_solution_json(result: SolveResult, path: str) -> None:
-    """
-    Export a :class:`SolveResult` to a JSON file.
+    """Export a :class:`SolveResult` to a JSON file.
 
     The output is a flat JSON object readable from C/C++ with any JSON
     library (e.g. `nlohmann/json <https://github.com/nlohmann/json>`_ or
@@ -978,6 +963,7 @@ def export_solution_json(result: SolveResult, path: str) -> None:
         The result object to serialise.
     path:
         Destination file path (e.g. ``"solution.json"``).
+
     """
     with open(path, "w", encoding="utf-8") as f:
         json.dump(result.to_dict(), f, indent=2)
@@ -988,8 +974,7 @@ def export_torchscript(
     path: str,
     board_size: int,
 ) -> None:
-    """
-    Export a trained policy network to a TorchScript ``.pt`` file.
+    """Export a trained policy network to a TorchScript ``.pt`` file.
 
     The file can be loaded and executed in C++ using
     `LibTorch <https://pytorch.org/cppdocs/>`_ with no Python dependency::
@@ -1008,6 +993,7 @@ def export_torchscript(
         Destination file path (e.g. ``"policy.pt"``).
     board_size:
         Board size the network was trained on (20, 30 or 42).
+
     """
     in_dim = board_size * ORB_COUNT + board_size
     example_input = torch.zeros(1, in_dim)
@@ -1020,8 +1006,7 @@ def export_weights_header(
     path: str,
     board_size: int,
 ) -> None:
-    """
-    Export a trained policy as a self-contained C99 header file.
+    """Export a trained policy as a self-contained C99 header file.
 
     The generated header requires **no runtime dependencies** — only
     ``<math.h>`` for ``tanhf``.  Include it in any C99 / C++ project and
@@ -1058,6 +1043,7 @@ def export_weights_header(
     ------
     ValueError
         If *network* does not have exactly 3 linear layers.
+
     """
     linear_layers = [m for m in network.modules() if isinstance(m, nn.Linear)]
     if len(linear_layers) != 3:
@@ -1088,14 +1074,15 @@ def export_weights_header(
         return "\n".join(lines)
 
     w1 = linear_layers[0].weight  # (hidden, in_dim)
-    b1 = linear_layers[0].bias    # (hidden,)
+    b1 = linear_layers[0].bias  # (hidden,)
     w2 = linear_layers[1].weight  # (hidden, hidden)
-    b2 = linear_layers[1].bias    # (hidden,)
+    b2 = linear_layers[1].bias  # (hidden,)
     w3 = linear_layers[2].weight  # (4, hidden)
-    b3 = linear_layers[2].bias    # (4,)
+    b3 = linear_layers[2].bias  # (4,)
 
     import os
     import re
+
     basename = os.path.basename(path)
     # Sanitise: replace any non-alphanumeric character with '_', ensure starts
     # with a letter so the result is always a valid C identifier.
@@ -1198,9 +1185,7 @@ if __name__ == "__main__":
     import sys
     import time
 
-    board = (
-        sys.argv[1] if len(sys.argv) > 1 else "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL"
-    )
+    board = sys.argv[1] if len(sys.argv) > 1 else "LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL"
     max_steps = int(sys.argv[2]) if len(sys.argv) > 2 else 50
     generations = int(sys.argv[3]) if len(sys.argv) > 3 else 500
 
@@ -1210,4 +1195,3 @@ if __name__ == "__main__":
     result = solve(board, max_steps=max_steps, num_generations=generations)
     print(f"\nResult:\n{result}")
     print(f"Time: {time.time() - t0:.2f}s")
-

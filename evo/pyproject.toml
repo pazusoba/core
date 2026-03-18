@@ -1,0 +1,22 @@
+[project]
+name = "evo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+	"torch>=2.1.0",
+	"evotorch>=0.6.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.13.0"
+]
+
+[tool.ruff]
+line-length = 88
+extend-select = ["E", "F", "W", "I", "C", "D"]
+exclude = []

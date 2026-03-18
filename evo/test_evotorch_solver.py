@@ -1,5 +1,4 @@
-"""
-Unit tests for evotorch_solver.py.
+"""Unit tests for evotorch_solver.py.
 
 Tests cover:
   - Board parsing
@@ -16,9 +15,8 @@ Tests cover:
   - train_general_policy (multi-board general training)
 """
 
-import copy
-import sys
 import os
+import sys
 
 # Make sure the support directory is importable
 sys.path.insert(0, os.path.dirname(__file__))
@@ -27,10 +25,8 @@ import pytest
 import torch
 
 from evotorch_solver import (
-    ORB_COUNT,
-    PazusobaProblem,
     NeuroEvoPazusobaProblem,
-    RewardFn,
+    PazusobaProblem,
     SolveResult,
     _apply_moves,
     _build_policy,
@@ -49,7 +45,6 @@ from evotorch_solver import (
     simulate_moves,
     train_general_policy,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -247,8 +242,7 @@ class TestCountCombos:
         assert n == 10
 
     def test_cascade(self):
-        """
-        Boards with no combos should return 0; boards with combos should return > 0.
+        """Boards with no combos should return 0; boards with combos should return > 0.
         Also verifies that count_combos accumulates across cascade rounds.
         """
         board, row, col = board_from_str("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
@@ -622,7 +616,6 @@ class TestNeuroEvoPazusobaProblemCustomReward:
 class TestRunPolicy:
     def test_returns_solve_result(self):
         """run_policy should return a SolveResult for any valid board."""
-        import torch.nn as nn
         from evotorch_solver import _build_policy
 
         # Untrained policy still produces a valid result
@@ -634,7 +627,6 @@ class TestRunPolicy:
 
     def test_works_on_unseen_board(self):
         """run_policy must work on any board, not just the training board."""
-        import torch.nn as nn
         from evotorch_solver import _build_policy
 
         net = _build_policy(30, hidden=16)
@@ -729,26 +721,41 @@ class TestTrainGeneralPolicy:
 class TestSolveResultToDict:
     def test_to_dict_keys(self):
         r = SolveResult(
-            combo=5, max_combo=8, start_pos=3, row=5, col=6,
-            directions=["up", "right"], goal=False,
+            combo=5,
+            max_combo=8,
+            start_pos=3,
+            row=5,
+            col=6,
+            directions=["up", "right"],
+            goal=False,
         )
         d = r.to_dict()
         assert set(d.keys()) == {
-            "start_pos", "start_row", "start_col",
-            "directions", "combo", "max_combo", "goal",
+            "start_pos",
+            "start_row",
+            "start_col",
+            "directions",
+            "combo",
+            "max_combo",
+            "goal",
         }
 
     def test_to_dict_values(self):
         r = SolveResult(
-            combo=4, max_combo=7, start_pos=8, row=5, col=6,
-            directions=["down"], goal=False,
+            combo=4,
+            max_combo=7,
+            start_pos=8,
+            row=5,
+            col=6,
+            directions=["down"],
+            goal=False,
         )
         d = r.to_dict()
         assert d["combo"] == 4
         assert d["max_combo"] == 7
         assert d["start_pos"] == 8
-        assert d["start_row"] == 1   # 8 // 6
-        assert d["start_col"] == 2   # 8 % 6
+        assert d["start_row"] == 1  # 8 // 6
+        assert d["start_col"] == 2  # 8 % 6
         assert d["directions"] == ["down"]
         assert d["goal"] is False
 
@@ -756,12 +763,18 @@ class TestSolveResultToDict:
 class TestExportSolutionJson:
     def test_creates_valid_json(self, tmp_path):
         r = SolveResult(
-            combo=3, max_combo=6, start_pos=0, row=5, col=6,
-            directions=["up", "right", "down"], goal=False,
+            combo=3,
+            max_combo=6,
+            start_pos=0,
+            row=5,
+            col=6,
+            directions=["up", "right", "down"],
+            goal=False,
         )
         dest = str(tmp_path / "solution.json")
         export_solution_json(r, dest)
         import json as _json
+
         with open(dest) as f:
             data = _json.load(f)
         assert data["combo"] == 3
@@ -771,22 +784,35 @@ class TestExportSolutionJson:
 
     def test_required_keys_present(self, tmp_path):
         r = SolveResult(
-            combo=1, max_combo=5, start_pos=14, row=5, col=6,
-            directions=[], goal=False,
+            combo=1,
+            max_combo=5,
+            start_pos=14,
+            row=5,
+            col=6,
+            directions=[],
+            goal=False,
         )
         dest = str(tmp_path / "out.json")
         export_solution_json(r, dest)
         import json as _json
+
         with open(dest) as f:
             data = _json.load(f)
-        for key in ("start_pos", "start_row", "start_col",
-                    "directions", "combo", "max_combo", "goal"):
+        for key in (
+            "start_pos",
+            "start_row",
+            "start_col",
+            "directions",
+            "combo",
+            "max_combo",
+            "goal",
+        ):
             assert key in data
 
 
 class TestExportTorchscript:
     def test_creates_pt_file(self, tmp_path):
-        import torch.nn as nn
+
         net = _build_policy(30, hidden=16)
         dest = str(tmp_path / "policy.pt")
         export_torchscript(net, dest, board_size=30)
@@ -796,6 +822,7 @@ class TestExportTorchscript:
     def test_loaded_model_produces_correct_output(self, tmp_path):
         """Loaded TorchScript model should produce the same output as the original."""
         import torch
+
         net = _build_policy(30, hidden=16)
         dest = str(tmp_path / "policy.pt")
         export_torchscript(net, dest, board_size=30)
@@ -846,6 +873,7 @@ class TestExportWeightsHeader:
 
     def test_wrong_layer_count_raises(self, tmp_path):
         import torch.nn as nn
+
         bad_net = nn.Sequential(nn.Linear(10, 4))
         with pytest.raises(ValueError, match="3 nn.Linear"):
             export_weights_header(bad_net, str(tmp_path / "bad.h"), board_size=30)
@@ -861,8 +889,7 @@ class TestExportWeightsHeader:
         assert "#define MY_POLICY_H_" in content
 
     def test_header_consistent_with_pytorch_output(self, tmp_path):
-        """
-        The C header argmax must agree with the PyTorch network argmax on a
+        """The C header argmax must agree with the PyTorch network argmax on a
         fixed test observation.  We verify this by running the exported weights
         through the same arithmetic in Python (no C compiler needed in CI).
         """
