@@ -87,6 +87,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
         num_starts=args.num_starts,
         popsize=args.popsize,
         num_generations=args.generations,
+        boards_per_generation=args.boards_per_generation,
         verbose=args.verbose,
     )
 
@@ -151,6 +152,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
             "num_starts": args.num_starts,
             "hidden": args.hidden,
             "lookahead_steps": args.lookahead_steps,
+            "boards_per_generation": args.boards_per_generation,
             "popsize": args.popsize,
             "generations": args.generations,
             "seed": args.seed,
@@ -187,6 +189,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--popsize", type=int, default=100)
     parser.add_argument("--generations", type=int, default=200)
+    parser.add_argument(
+        "--boards-per-generation",
+        type=int,
+        default=0,
+        help=(
+            "Streaming training: generate this many fresh boards per "
+            "fitness evaluation (0 = use --train-boards fixed boards)."
+        ),
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--show-worst", type=int, default=5)
     parser.add_argument("--output", type=str, default="")

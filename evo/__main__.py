@@ -35,7 +35,8 @@ def _cmd_train(args: argparse.Namespace) -> int:
     print(
         f"Training general policy: board_size={args.board_size}, "
         f"num_boards={args.num_boards}, generations={args.generations}, "
-        f"lookahead_steps={args.lookahead_steps}"
+        f"lookahead_steps={args.lookahead_steps}, "
+        f"boards_per_generation={args.boards_per_generation}"
     )
 
     t0 = time.time()
@@ -49,6 +50,7 @@ def _cmd_train(args: argparse.Namespace) -> int:
         num_starts=args.num_starts,
         popsize=args.popsize,
         num_generations=args.generations,
+        boards_per_generation=args.boards_per_generation,
         verbose=not args.quiet,
     )
 
@@ -123,6 +125,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     train_p.add_argument("--popsize", type=int, default=100)
     train_p.add_argument("--generations", type=int, default=200)
+    train_p.add_argument(
+        "--boards-per-generation",
+        type=int,
+        default=0,
+        help=(
+            "Streaming training: generate this many fresh boards per fitness "
+            "evaluation call (0 = use --num-boards fixed boards). "
+            "Use 64+ to train across millions of unique boards."
+        ),
+    )
     train_p.add_argument("--eval-board", type=str, default="")
     train_p.add_argument("--export-torchscript", type=str, default="")
     train_p.add_argument("--export-header", type=str, default="")

@@ -390,6 +390,25 @@ def simulate_moves(
     return count_combos(board, row, col, min_erase)
 
 
+def _make_obs(board: List[int], board_size: int, curr: int) -> torch.Tensor:
+    """Build a vectorised one-hot observation tensor (no Python loop).
+
+    Returns a float32 tensor of length ``board_size * ORB_COUNT + board_size``.
+    The first ``board_size * ORB_COUNT`` elements are per-cell orb one-hots
+    (11 classes each); the last ``board_size`` elements are the cursor one-hot.
+
+    This is significantly faster than a Python ``for`` loop and is the
+    recommended observation builder for both training and inference.
+    """
+    board_t = torch.as_tensor(board, dtype=torch.long)
+    # Flat index for cell i with orb type o: i * ORB_COUNT + o
+    indices = torch.arange(board_size, dtype=torch.long) * ORB_COUNT + board_t
+    obs = torch.zeros(board_size * ORB_COUNT + board_size)
+    obs.scatter_(0, indices, 1.0)
+    obs[board_size * ORB_COUNT + curr] = 1.0
+    return obs
+
+
 def _valid_directions(curr: int, prev: int, row: int, col: int) -> List[int]:
     """Return valid move directions from (curr, prev), mirroring C++ expand()."""
     board_size = row * col
@@ -741,6 +760,13 @@ class NeuroEvoPazusobaProblem(NEProblem):
     reward_fn:
         Optional callable ``(combos, max_combo, board_after_moves, row, col)
         -> float``.  Defaults to :func:`combo_reward`.
+    boards_per_generation:
+        If > 0, streaming training mode is enabled: at each
+        :meth:`_evaluate_network` call a fresh batch of this many random boards
+        is generated instead of reusing the boards passed to ``__init__``.
+        This allows effective training across millions of unique boards and
+        strongly encourages generalisation.  When 0 (default), the fixed
+        boards from ``board_str`` are reused every generation.
 
     """
 
@@ -753,12 +779,17 @@ class NeuroEvoPazusobaProblem(NEProblem):
         lookahead_steps: int = 10,
         num_starts: int = 6,
         reward_fn: Optional[RewardFn] = None,
+        boards_per_generation: int = 0,
     ) -> None:
         self.min_erase = min_erase
         self.max_steps = max_steps
         self.lookahead_steps = max(1, lookahead_steps)  # clamp; 0 or negative → 1
         self.num_starts = num_starts
         self.reward_fn: RewardFn = reward_fn if reward_fn is not None else combo_reward
+        # boards_per_generation > 0 enables streaming mode: fresh random boards
+        # are generated on every _evaluate_network call, allowing the policy to
+        # train across effectively unlimited unique boards.
+        self.boards_per_generation = max(0, boards_per_generation)
 
         # Support single board or a list of boards for curriculum / multi-board
         if isinstance(board_str, str):
@@ -784,12 +815,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
     # ------------------------------------------------------------------
     def _observe(self, board: List[int], board_size: int, curr: int) -> torch.Tensor:
         """Encode board state + cursor position as a flat float tensor."""
-        board_feat = torch.zeros(board_size * ORB_COUNT)
-        for i, orb in enumerate(board):
-            board_feat[i * ORB_COUNT + orb] = 1.0
-        pos_feat = torch.zeros(board_size)
-        pos_feat[curr] = 1.0
-        return torch.cat([board_feat, pos_feat])
+        return _make_obs(board, board_size, curr)
 
     def _run_episode(
         self,
@@ -853,13 +879,33 @@ class NeuroEvoPazusobaProblem(NEProblem):
         return self.reward_fn(combos, max_combo, board, row, col)
 
     def _evaluate_network(self, network: nn.Module) -> float:
-        """Evaluate network on all boards and return mean reward.
+        """Evaluate network on boards and return mean reward.
 
-        To keep evaluation tractable, only ``num_starts`` evenly spaced
-        starting positions are sampled rather than exhaustively trying all.
+        In **fixed mode** (``boards_per_generation=0``) the boards passed to
+        ``__init__`` are reused every generation.
+
+        In **streaming mode** (``boards_per_generation > 0``) a fresh batch of
+        random boards is generated on every call, exposing the network to new
+        board configurations each generation.  This allows training across
+        effectively unlimited unique boards and strongly promotes
+        generalisation.
+
+        In both modes only ``num_starts`` evenly spaced starting positions are
+        sampled per board to keep evaluation tractable.
         """
+        if self.boards_per_generation > 0:
+            # Streaming: generate fresh boards for this individual's evaluation
+            boards_to_eval: List[Tuple[List[int], int, int, int]] = []
+            for _ in range(self.boards_per_generation):
+                bs_str = random_board(self.board_size)
+                board, row, col = parse_board(bs_str)
+                mc = calc_max_combo(board, row, col, self.min_erase)
+                boards_to_eval.append((board, row, col, mc))
+        else:
+            boards_to_eval = self._boards
+
         total = 0.0
-        for initial_board, row, col, max_combo in self._boards:
+        for initial_board, row, col, max_combo in boards_to_eval:
             board_size = row * col
             # Sample evenly spaced starts instead of all board_size positions
             step = max(1, board_size // self.num_starts)
@@ -871,7 +917,7 @@ class NeuroEvoPazusobaProblem(NEProblem):
                 if reward > best_reward:
                     best_reward = reward
             total += best_reward
-        return total / len(self._boards)
+        return total / len(boards_to_eval)
 
 
 # ---------------------------------------------------------------------------
@@ -933,14 +979,6 @@ def run_policy(
     out_dim = last_linear.out_features
     lookahead_steps = max(1, out_dim // DIRECTION_COUNT)
 
-    def _observe(board: List[int], curr: int) -> torch.Tensor:
-        board_feat = torch.zeros(board_size * ORB_COUNT)
-        for i, orb in enumerate(board):
-            board_feat[i * ORB_COUNT + orb] = 1.0
-        pos_feat = torch.zeros(board_size)
-        pos_feat[curr] = 1.0
-        return torch.cat([board_feat, pos_feat])
-
     best_reward = -1.0
     best_combos = 0
     best_start = 0
@@ -955,7 +993,7 @@ def run_policy(
         steps_taken = 0
 
         while steps_taken < max_steps:
-            obs = _observe(board, curr)
+            obs = _make_obs(board, board_size, curr)
             with torch.no_grad():
                 logits = network(obs.unsqueeze(0)).squeeze(0)
 
@@ -1019,6 +1057,7 @@ def train_general_policy(
     num_starts: int = 6,
     popsize: int = 100,
     num_generations: int = 200,
+    boards_per_generation: int = 0,
     reward_fn: Optional[RewardFn] = None,
     verbose: bool = True,
 ) -> nn.Module:
@@ -1031,12 +1070,26 @@ def train_general_policy(
     re-observation point (default 10), mirroring how a skilled human solver
     looks multiple moves into the future before committing.
 
+    **Training on millions of boards (streaming mode)**
+
+    Pass ``boards_per_generation > 0`` to enable streaming training.  Instead
+    of reusing the same ``num_boards`` boards every generation, the problem
+    generates ``boards_per_generation`` fresh random boards on *every single
+    fitness evaluation*.  With ``boards_per_generation=64`` and
+    ``num_generations=2000`` the policy effectively trains across 128,000
+    unique boards, and with ``num_generations=20000`` that grows to over 1.28M
+    boards — far beyond what any fixed board set can provide.
+
+    Streaming training produces policies that generalise strongly because the
+    network can never memorise specific board layouts.
+
     Parameters
     ----------
     board_size:
         Board size to train on (20, 30 or 42).
     num_boards:
-        Number of random boards to generate for training.
+        Number of random boards to generate for the initial (fixed) training
+        set.  Only used when ``boards_per_generation=0``.
     max_steps:
         Maximum moves per episode during training.
     min_erase:
@@ -1052,6 +1105,11 @@ def train_general_policy(
         SNES population size.
     num_generations:
         Training generations.
+    boards_per_generation:
+        If > 0, streaming training mode: each fitness evaluation call
+        generates this many fresh random boards instead of reusing a fixed
+        set.  Set to 64–128 for broad generalisation training.
+        Defaults to 0 (fixed-board mode using ``num_boards`` boards).
     reward_fn:
         Optional reward function.  Defaults to :func:`combo_reward`.
     verbose:
@@ -1063,7 +1121,8 @@ def train_general_policy(
         The trained policy network.
 
     """
-    boards = [random_board(board_size) for _ in range(num_boards)]
+    num_initial_boards = boards_per_generation if boards_per_generation > 0 else num_boards
+    boards = [random_board(board_size) for _ in range(num_initial_boards)]
     problem = NeuroEvoPazusobaProblem(
         boards,
         max_steps=max_steps,
@@ -1072,6 +1131,7 @@ def train_general_policy(
         lookahead_steps=lookahead_steps,
         num_starts=num_starts,
         reward_fn=reward_fn,
+        boards_per_generation=boards_per_generation,
     )
     searcher = SNES(problem, popsize=popsize, stdev_init=1.0)
     if verbose:

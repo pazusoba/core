@@ -30,6 +30,7 @@ from evotorch_solver import (
     SolveResult,
     _apply_moves,
     _build_policy,
+    _make_obs,
     calc_max_combo,
     combo_reward,
     count_combos,
@@ -422,6 +423,49 @@ class TestNeuroEvoPazusobaProblem:
         )
         searcher.run(2)
 
+    def test_streaming_mode_fitness_range(self):
+        """boards_per_generation > 0 (streaming) should return fitness in [0, 1]."""
+        p = NeuroEvoPazusobaProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=5,
+            hidden=16,
+            boards_per_generation=4,
+        )
+        params = p.generate_values(1)[0]
+        net = p.make_net(params)
+        fitness = p._evaluate_network(net)
+        assert 0.0 <= fitness <= 1.0
+
+    def test_streaming_mode_uses_fresh_boards(self):
+        """Each _evaluate_network call in streaming mode should see different boards.
+
+        With 5 random boards of 30 cells (each cell from 6 orb types), the
+        probability of exact collision between two independent calls is
+        6^(-30*5) ≈ 10^(-116), so asserting inequality is effectively deterministic.
+        """
+        boards_seen: list = []
+
+        class TrackingProblem(NeuroEvoPazusobaProblem):
+            def _run_episode(self, network, initial_board, row, col, max_combo, start):
+                boards_seen.append(tuple(initial_board))
+                return 0.0
+
+        p = TrackingProblem(
+            "RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL",
+            max_steps=3,
+            hidden=8,
+            boards_per_generation=5,
+        )
+        params = p.generate_values(1)[0]
+        net = p.make_net(params)
+        p._evaluate_network(net)
+        first_call_boards = set(boards_seen)
+        boards_seen.clear()
+        p._evaluate_network(net)
+        second_call_boards = set(boards_seen)
+        # Streaming: two calls must see different boards (collision probability ≈ 0)
+        assert first_call_boards != second_call_boards
+
 
 # ---------------------------------------------------------------------------
 # SolveResult
@@ -544,6 +588,65 @@ class TestApplyMoves:
         result, final_pos = _apply_moves(board, row, col, 0, [2])
         assert final_pos == 0  # stayed in place
         assert result == board  # board unchanged
+
+
+# ---------------------------------------------------------------------------
+# _make_obs (vectorised observation builder)
+# ---------------------------------------------------------------------------
+
+
+class TestMakeObs:
+    def test_output_shape(self):
+        """_make_obs should return a tensor of length board_size*ORB_COUNT + board_size."""
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        board_size = row * col  # 30
+        obs = _make_obs(board, board_size, 0)
+        assert obs.shape == (board_size * 11 + board_size,)
+
+    def test_cursor_one_hot(self):
+        """Cursor one-hot should be 1 only at the cursor position."""
+        board, row, col = parse_board("R" * 30)
+        board_size = row * col
+        for cursor in [0, 5, 14, 29]:
+            obs = _make_obs(board, board_size, cursor)
+            cursor_part = obs[board_size * 11 :]
+            assert int(cursor_part[cursor].item()) == 1
+            assert int(cursor_part.sum().item()) == 1
+
+    def test_orb_one_hot_encoding(self):
+        """Each cell should have exactly one hot in its 11-dim slot."""
+        board, row, col = parse_board("RRRBBBGGGLLLDDDHHHRRRBBBGGGLLL")
+        board_size = row * col
+        obs = _make_obs(board, board_size, 0)
+        board_part = obs[: board_size * 11].reshape(board_size, 11)
+        # Each cell should have exactly one 1 and ten 0s
+        assert (board_part.sum(dim=1) == 1).all()
+
+    def test_matches_old_loop_implementation(self):
+        """_make_obs must produce the same result as the old Python-loop approach."""
+        board, row, col = parse_board("LHDDGLRDHHRHGGLGRGRDDRBLHLBHGL")
+        board_size = row * col  # 30
+        ORB_COUNT = 11
+
+        # Old implementation (loop)
+        board_feat = torch.zeros(board_size * ORB_COUNT)
+        for i, orb in enumerate(board):
+            board_feat[i * ORB_COUNT + orb] = 1.0
+        pos_feat = torch.zeros(board_size)
+        pos_feat[7] = 1.0
+        old_obs = torch.cat([board_feat, pos_feat])
+
+        # New vectorised implementation
+        new_obs = _make_obs(board, board_size, 7)
+        assert torch.allclose(old_obs, new_obs)
+
+    def test_different_boards_give_different_obs(self):
+        """Two different boards should produce different observation tensors."""
+        b1, _, _ = parse_board("R" * 30)
+        b2, _, _ = parse_board("B" * 30)
+        obs1 = _make_obs(b1, 30, 0)
+        obs2 = _make_obs(b2, 30, 0)
+        assert not torch.allclose(obs1, obs2)
 
 
 # ---------------------------------------------------------------------------
@@ -825,6 +928,26 @@ class TestTrainGeneralPolicy:
             max_steps=5,
             reward_fn=orb_remaining_reward,
         )
+        assert isinstance(result, SolveResult)
+
+    def test_streaming_mode(self):
+        """train_general_policy with boards_per_generation>0 should return a module."""
+        net = train_general_policy(
+            board_size=20,
+            num_boards=3,
+            max_steps=5,
+            hidden=8,
+            num_starts=2,
+            popsize=5,
+            num_generations=2,
+            boards_per_generation=4,
+            verbose=False,
+        )
+        import torch.nn as nn
+
+        assert isinstance(net, nn.Module)
+        # Resulting policy should run on any board
+        result = run_policy(net, random_board(20), max_steps=5)
         assert isinstance(result, SolveResult)
 
 
